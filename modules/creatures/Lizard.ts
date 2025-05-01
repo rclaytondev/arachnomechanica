@@ -5,7 +5,7 @@ import { DEBUG_SETTINGS } from "../Main.js";
 import { World } from "../World.js";
 
 export class Lizard {
-	static LOOKAHEAD_DISTANCE = World.TILE_SIZE;
+	static LOOKAHEAD_DISTANCE = World.TILE_SIZE * 1/2;
 
 	direction: Direction;
 	position: Vector;
@@ -57,14 +57,19 @@ export class Lizard {
 		this.position = this.position.add(Vector.unit(this.direction).multiply(this.speed));
 
 		const lookaheadPoint = this.position.add(Vector.unit(this.direction).multiply(Lizard.LOOKAHEAD_DISTANCE));
-		if(world.getTileAt(lookaheadPoint) === "solid") {
+		if(this.isObstructed(world, this.direction)) {
 			this.joints.unshift({ position: this.position.clone(), direction: this.direction });
-			const tileCoordinates = world.getTileCoordinates(lookaheadPoint);
-			if((tileCoordinates.x + tileCoordinates.y) % 2 === 0) {
-				this.direction = Directions.rotateClockwise(this.direction);
+			const clockwise = Directions.rotateClockwise(this.direction);
+			const counterclockwise = Directions.rotateCounterclockwise(this.direction);
+			if(!this.isObstructed(world, clockwise, World.TILE_SIZE) && this.isObstructed(world, counterclockwise, World.TILE_SIZE)) {
+				this.direction = clockwise;
+			}
+			else if(!this.isObstructed(world, counterclockwise, World.TILE_SIZE) && this.isObstructed(world, clockwise, World.TILE_SIZE))  {
+				this.direction = counterclockwise;
 			}
 			else {
-				this.direction = Directions.rotateCounterclockwise(this.direction);
+				const tileCoordinates = world.getTileCoordinates(lookaheadPoint);
+				this.direction = (tileCoordinates.x + tileCoordinates.y) % 2 === 0 ? clockwise : counterclockwise;
 			}
 		}
 
@@ -73,7 +78,6 @@ export class Lizard {
 			const joint = this.joints[i];
 			const next = this.joints[i + 1];
 			if(length > this.length) {
-				// debugger;
 				this.joints.splice(i, 1);
 				break;
 			}
@@ -81,5 +85,9 @@ export class Lizard {
 				length += joint.position.subtract(next.position).magnitude();
 			}
 		}
+	}
+	isObstructed(world: World, direction: Direction = this.direction, distance: number = Lizard.LOOKAHEAD_DISTANCE) {
+		const lookaheadPoint = this.position.add(Vector.unit(direction).multiply(distance));
+		return world.getTileAt(lookaheadPoint) === "solid";
 	}
 }
