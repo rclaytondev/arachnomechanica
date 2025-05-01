@@ -1,8 +1,11 @@
 import { CanvasIO } from "../../utils-ts/modules/CanvasIO.mjs";
 import { Direction, Directions } from "../../utils-ts/modules/geometry/Direction.mjs";
 import { Vector } from "../../utils-ts/modules/geometry/Vector.mjs";
+import { World } from "../World.js";
 
 export class Lizard {
+	static LOOKAHEAD_DISTANCE = World.TILE_SIZE;
+
 	direction: Direction;
 	position: Vector;
 	joints: { position: Vector, direction: Direction }[] = [];
@@ -42,7 +45,19 @@ export class Lizard {
 		}
 	}
 
-	update() {
+	update(world: World) {
 		this.position = this.position.add(Vector.unit(this.direction).multiply(this.speed));
+
+		const lookaheadPoint = this.position.add(Vector.unit(this.direction).multiply(Lizard.LOOKAHEAD_DISTANCE));
+		if(world.getTileAt(lookaheadPoint) === "solid") {
+			this.joints.push({ position: this.position.clone(), direction: this.direction });
+			const tileCoordinates = world.getTileCoordinates(lookaheadPoint);
+			if((tileCoordinates.x + tileCoordinates.y) % 2 === 0) {
+				this.direction = Directions.rotateClockwise(this.direction);
+			}
+			else {
+				this.direction = Directions.rotateCounterclockwise(this.direction);
+			}
+		}
 	}
 }

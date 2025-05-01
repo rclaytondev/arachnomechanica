@@ -1,6 +1,7 @@
 import { CanvasIO } from "../utils-ts/modules/CanvasIO.mjs";
+import { Vector } from "../utils-ts/modules/geometry/Vector.mjs";
 import { Grid } from "../utils-ts/modules/Grid.mjs";
-import { Lizard } from "./creatures/Lizard";
+import { Creature } from "./creatures/Creature.js";
 
 type Tile = "solid" | "empty";
 
@@ -9,7 +10,7 @@ export class World {
 	static TILE_COLOR = "rgb(100, 100, 100)";
 
 	tiles: Grid<Tile> = new Grid("empty");
-	creatures: Lizard[] = [];
+	creatures: Creature[] = [];
 
 
 	display(canvasIO: CanvasIO) {
@@ -40,7 +41,17 @@ export class World {
 	}
 	updateCreatures() {
 		for(const creature of this.creatures) {
-			creature.update();
+			creature.update(this);
 		}
+	}
+
+	getTileCoordinates(onscreenPosition: Vector) {
+		return new Vector(
+			Math.floor(onscreenPosition.x / World.TILE_SIZE), 
+			Math.floor(onscreenPosition.y / World.TILE_SIZE)
+		);
+	}
+	getTileAt(onscreenPosition: Vector) {
+		return this.tiles.get(this.getTileCoordinates(onscreenPosition));
 	}
 }

@@ -5,8 +5,8 @@ import { World } from "./World.js";
 
 const FRAMERATE = 60;
 const world = new World();
-world.tiles.set(1, 1, "solid");
-world.creatures.push(new Lizard(new Vector(200, 200), "right", 100, 2));
+world.tiles.set(8, 3, "solid");
+world.creatures.push(new Lizard(new Vector(200, 175), "right", 100, 2));
 
 window.setInterval(() => {
 	world.update();
