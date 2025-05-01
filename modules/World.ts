@@ -2,6 +2,7 @@ import { CanvasIO } from "../utils-ts/modules/CanvasIO.mjs";
 import { Vector } from "../utils-ts/modules/geometry/Vector.mjs";
 import { Grid } from "../utils-ts/modules/Grid.mjs";
 import { Creature } from "./creatures/Creature.js";
+import { DEBUG_SETTINGS } from "./Main.js";
 
 type Tile = "solid" | "empty";
 
@@ -17,6 +18,10 @@ export class World {
 		canvasIO.fillCanvas("white");
 		this.displayTiles(canvasIO);
 		this.displayCreatures(canvasIO);
+
+		if(canvasIO.mouse.pressed && DEBUG_SETTINGS.PLACE_BLOCKS_WITH_CURSOR) {
+			this.tiles.set(this.getTileCoordinates(canvasIO.mouse.position), "solid");
+		}
 	}
 	displayTiles(canvasIO: CanvasIO) {
 		for(const [tileType, position] of this.tiles.entries()) {
