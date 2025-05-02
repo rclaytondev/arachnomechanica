@@ -7,11 +7,12 @@ import { World } from "../World.js";
 
 export class Lizard {
 	static LOOKAHEAD_DISTANCE = World.TILE_SIZE * 1/2;
-	static LEG_SPACING = World.TILE_SIZE * 1/2; // distance between consecutive legs on the lizard's body.
-	static LEG_DISTANCE = World.TILE_SIZE * 1/2; // how far away perpendicularly the foot should be from the body.
-	static STEP_SIZE = World.TILE_SIZE * 1/2; // how far past the connection it should move the leg each step.
-	static MAX_LEG_DISTANCE = World.TILE_SIZE; // maximum distance between leg and connection before taking a step.
-	static FOOT_SIZE = World.TILE_SIZE * 0.1;
+	static LEG_SCALE = World.TILE_SIZE * 0.5;
+	static LEG_SPACING = Lizard.LEG_SCALE; // distance between consecutive legs on the lizard's body.
+	static LEG_DISTANCE = Lizard.LEG_SCALE * 0.4; // how far away perpendicularly the foot should be from the body.
+	static STEP_SIZE = Lizard.LEG_SCALE * 1.5; // how far past the connection it should move the leg each step.
+	static MAX_LEG_DISTANCE = Lizard.LEG_SCALE; // maximum distance between leg and connection before taking a step.
+	static FOOT_SIZE = World.TILE_SIZE * 0.05;
 	static LEG_SPEED_MULTIPLIER = 2.5;
 
 	direction: Direction;
@@ -33,11 +34,12 @@ export class Lizard {
 			const leftDirection = Directions.rotateCounterclockwise(this.direction);
 			const rightDirection = Directions.rotateClockwise(this.direction);
 			const jointPosition = this.position.subtract(Vector.unit(this.direction).multiply(i * Lizard.LEG_SPACING));
-			const forwardOffset = Vector.unit(this.direction).multiply(Lizard.STEP_SIZE);
+			const forwardOffset = Vector.unit(this.direction).multiply(Lizard.STEP_SIZE / 2);
+			const backwardOffset = Vector.unit(this.direction).multiply(-Lizard.STEP_SIZE / 2);
 			const leftOffset = Vector.unit(leftDirection).multiply(Lizard.LEG_DISTANCE);
 			const rightOffset = Vector.unit(rightDirection).multiply(Lizard.LEG_DISTANCE);
-			this.legs.push(new LizardLeg("left", i * Lizard.LEG_SPACING, jointPosition.add(forwardOffset).add(leftOffset)));
-			this.legs.push(new LizardLeg("right", i * Lizard.LEG_SPACING, jointPosition.add(forwardOffset).add(rightOffset)));
+			this.legs.push(new LizardLeg("left", i * Lizard.LEG_SPACING, jointPosition.add(i % 2 === 0 ? forwardOffset : backwardOffset).add(leftOffset)));
+			this.legs.push(new LizardLeg("right", i * Lizard.LEG_SPACING, jointPosition.add(i % 2 === 0 ? backwardOffset : forwardOffset).add(rightOffset)));
 		}
 	}
 
