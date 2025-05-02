@@ -46,9 +46,9 @@ export class World {
 		}
 	}
 
-	update() {
+	update(canvasIO: CanvasIO) {
 		this.updateCreatures();
-		this.player.update(this);
+		this.player.update(this, canvasIO);
 	}
 	updateCreatures() {
 		for(const creature of this.creatures) {

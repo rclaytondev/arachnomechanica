@@ -17,7 +17,7 @@ export const DEBUG_SETTINGS = {
 };
 
 window.setInterval(() => {
-	world.update();
+	world.update(canvasIO!);
 	world.display(canvasIO!);
 	frameCount ++;
 }, 1000 / FRAMERATE);

@@ -8,6 +8,7 @@ export class Player {
 	static COLOR = "rgb(0, 128, 0)"; // temporary
 
 	static GRAVITY = 0.5;
+	static HORIZONTAL_ACCELERATION = 0.5;
 
 	physicsObject: PhysicsObject = new PhysicsObject(
 		new Vector(0, 0), 
@@ -23,8 +24,17 @@ export class Player {
 		canvasIO.fillRect(this.physicsObject.boundingBox());
 	}
 
-	update(world: World) {
-		this.physicsObject.update(world);
+	update(world: World, canvasIO: CanvasIO) {
+		this.checkInputs(canvasIO);
 		this.physicsObject.velocity = this.physicsObject.velocity.add(new Vector(0, Player.GRAVITY));
+		this.physicsObject.update(world);
+	}
+	checkInputs(canvasIO: CanvasIO) {
+		if(canvasIO.keys.ArrowRight && !canvasIO.keys.ArrowLeft) {
+			this.physicsObject.velocity.x += Player.HORIZONTAL_ACCELERATION;
+		}
+		if(canvasIO.keys.ArrowLeft && !canvasIO.keys.ArrowRight) {
+			this.physicsObject.velocity.x -= Player.HORIZONTAL_ACCELERATION;
+		}
 	}
 }
