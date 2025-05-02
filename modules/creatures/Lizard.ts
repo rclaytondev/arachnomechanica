@@ -2,6 +2,8 @@ import { CanvasIO } from "../../utils-ts/modules/CanvasIO.mjs";
 import { Direction, Directions } from "../../utils-ts/modules/geometry/Direction.mjs";
 import { Vector } from "../../utils-ts/modules/geometry/Vector.mjs";
 import { MathUtils } from "../../utils-ts/modules/math/MathUtils.mjs";
+import { Utils } from "../../utils-ts/modules/Utils.mjs";
+import { GameUtils } from "../GameUtils.mjs";
 import { DEBUG_SETTINGS } from "../Main.js";
 import { World } from "../World.js";
 
@@ -19,6 +21,7 @@ export class Lizard {
 	static HEAD_WIDTH = World.TILE_SIZE * 0.3;
 	static HEAD_HEIGHT = World.TILE_SIZE * 0.3;
 	static MOUTH_LENGTH = World.TILE_SIZE;
+	static HEAD_ROTATION_SPEED = 0.2;
 
 	direction: Direction;
 	position: Vector;
@@ -28,11 +31,13 @@ export class Lizard {
 	speed: number;
 	legs: LizardLeg[];
 	headAngle: number;
+	targetHeadAngle: number;
 
 	constructor(position: Vector, direction: Direction, length: number, speed: number) {
 		this.position = position;
 		this.direction = direction;
 		this.headAngle = Vector.unit(this.direction).angle();
+		this.targetHeadAngle = this.headAngle;
 		this.length = length;
 		this.speed = speed;
 
@@ -130,7 +135,7 @@ export class Lizard {
 				const tileCoordinates = world.getTileCoordinates(lookaheadPoint);
 				this.direction = (tileCoordinates.x + tileCoordinates.y) % 2 === 0 ? clockwise : counterclockwise;
 			}
-			this.headAngle = Vector.unit(this.direction).angle();
+			this.targetHeadAngle = Vector.unit(this.direction).angle();
 		}
 
 		let length = (this.joints.length === 0) ? 0 : this.position.subtract(this.joints[0].position).magnitude();
@@ -149,6 +154,15 @@ export class Lizard {
 		for(const leg of this.legs) {
 			this.updateLeg(leg);
 		}
+
+		const minValue = Utils.minValue(
+			[this.headAngle, this.headAngle - 2 * Math.PI, this.headAngle + 2 * Math.PI],
+			angle => MathUtils.dist(angle, this.targetHeadAngle)
+		);
+		this.headAngle = GameUtils.moveTowards(minValue, this.targetHeadAngle, Lizard.HEAD_ROTATION_SPEED);
+
+		this.headAngle = MathUtils.generalizedModulo(this.headAngle, 2 * Math.PI);
+		this.targetHeadAngle = MathUtils.generalizedModulo(this.targetHeadAngle, 2 * Math.PI);
 	}
 	updateLeg(leg: LizardLeg) {
 		const [connection] = this.getPointOnBody(leg.distance);
