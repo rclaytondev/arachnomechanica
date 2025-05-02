@@ -114,6 +114,25 @@ export class Lizard {
 		const lookaheadPoint = this.position.add(Vector.unit(direction).multiply(distance));
 		return world.getTileAt(lookaheadPoint) === "solid";
 	}
+	getPointOnBody(distance: number) {
+		if(this.joints.length === 0 || distance < this.position.subtract(this.joints[0].position).magnitude()) {
+			return this.position.subtract(Vector.unit(this.direction).multiply(distance));
+		}
+		let length = this.position.subtract(this.joints[0].position).magnitude();
+		let lastLength = length;
+		for(const [i, joint] of this.joints.entries()) {
+			const next = this.joints[i + 1];
+			if(next) {
+				length += Vector.dist(joint.position, next.position);
+			}
+			if(length > distance) {
+				return joint.position.subtract(Vector.unit(joint.direction).multiply(distance - lastLength));
+			}
+			lastLength = length;
+		}
+		const last = this.joints[this.joints.length - 1];
+		return last.position.subtract(Vector.unit(last.direction).multiply(distance - length));
+	}
 }
 
 class LizardLeg {
