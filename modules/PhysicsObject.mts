@@ -22,22 +22,22 @@ export class PhysicsObject {
 	moveX(amount: number, onCollision: () => void, world: World) {
 		this.remainder.x += amount;
 		while(this.remainder.x >= 1) {
-			this.moveUnit("right", () => {}, world);
+			this.moveUnit("right", onCollision, world);
 			this.remainder.x --;
 		}
 		while(this.remainder.x < 0) {
-			this.moveUnit("left", () => {}, world);
+			this.moveUnit("left", onCollision, world);
 			this.remainder.x ++;
 		}
 	}
 	moveY(amount: number, onCollision: () => void, world: World) {
 		this.remainder.y += amount;
 		while(this.remainder.y >= 1) {
-			this.moveUnit("down", () => {}, world);
+			this.moveUnit("down", onCollision, world);
 			this.remainder.y --;
 		}
 		while(this.remainder.y < 0) {
-			this.moveUnit("up", () => {}, world);
+			this.moveUnit("up", onCollision, world);
 			this.remainder.y ++;
 		}
 	}
@@ -56,6 +56,7 @@ export class PhysicsObject {
 	}
 
 	update(world: World) {
-		this.move(this.velocity, world);
+		this.moveX(this.velocity.x, () => { this.velocity.x = 0; }, world);
+		this.moveY(this.velocity.y, () => { this.velocity.y = 0; }, world);
 	}
 }
