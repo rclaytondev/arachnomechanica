@@ -18,9 +18,12 @@ export class Lizard {
 	static FOOT_SIZE = World.TILE_SIZE * 0;
 	static LEG_SPEED_MULTIPLIER = 2.5;
 
-	static HEAD_WIDTH = World.TILE_SIZE * 0.3;
+	static HEAD_WIDTH = World.TILE_SIZE * 0.2;
 	static HEAD_HEIGHT = World.TILE_SIZE * 0.3;
 	static MOUTH_LENGTH = World.TILE_SIZE;
+	static EYE_SIZE = World.TILE_SIZE * 0.1;
+	static EYE_Y = World.TILE_SIZE * 0.3;
+	static EYE_COLOR = "rgb(0, 150, 255)";
 	static HEAD_ROTATION_SPEED = 0.2;
 
 	direction: Direction;
@@ -114,6 +117,11 @@ export class Lizard {
 			Lizard.HEAD_WIDTH / 2, Lizard.HEAD_HEIGHT + Lizard.MOUTH_LENGTH,
 			Lizard.HEAD_WIDTH, Lizard.HEAD_HEIGHT,
 		);
+
+
+		canvasIO.ctx.fillStyle = Lizard.EYE_COLOR;
+		canvasIO.fillDiamond(0, Lizard.EYE_Y, Lizard.EYE_SIZE);
+
 		canvasIO.ctx.restore();
 	}
 
