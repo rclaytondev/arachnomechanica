@@ -70,11 +70,11 @@ export class Lizard {
 			this.position.subtract(Vector.unit(this.direction).multiply(this.length))
 		);
 		canvasIO.strokeLine(this.position.x, this.position.y, segment1End.x, segment1End.y);
-		let length = (this.joints.length === 0) ? 0 : this.position.subtract(this.joints[0].position).magnitude();
+		let length = (this.joints.length === 0) ? 0 : Vector.dist(this.position, this.joints[0].position);
 		for(const [i, joint] of this.joints.entries()) {
 			const next = this.joints[i + 1];
 			if(next) {
-				length += joint.position.subtract(next.position).magnitude();
+				length += Vector.dist(joint.position, next.position);
 				canvasIO.strokeLine(joint.position.x, joint.position.y, next.position.x, next.position.y);
 			}
 			else if(this.length > length) {
@@ -147,7 +147,7 @@ export class Lizard {
 		}
 	}
 	updateJoints() {
-		let length = (this.joints.length === 0) ? 0 : this.position.subtract(this.joints[0].position).magnitude();
+		let length = (this.joints.length === 0) ? 0 : Vector.dist(this.position, this.joints[0].position);
 		for(let i = 0; i < this.joints.length; i ++) {
 			const joint = this.joints[i];
 			const next = this.joints[i + 1];
@@ -156,7 +156,7 @@ export class Lizard {
 				break;
 			}
 			if(next) {
-				length += joint.position.subtract(next.position).magnitude();
+				length += Vector.dist(joint.position, next.position);
 			}
 		}
 	}
@@ -176,8 +176,8 @@ export class Lizard {
 			leg.destination = this.getLegDestination(leg);
 		}
 		const legSpeed = this.speed * Lizard.LEG_SPEED_MULTIPLIER;
-		leg.position.x = MathUtils.constrain(leg.position.x + legSpeed * Math.sign(leg.destination.x - leg.position.x), leg.position.x, leg.destination.x);
-		leg.position.y = MathUtils.constrain(leg.position.y + legSpeed * Math.sign(leg.destination.y - leg.position.y), leg.position.y, leg.destination.y);
+		leg.position.x = GameUtils.moveTowards(leg.position.x, leg.destination.x, legSpeed);
+		leg.position.y = GameUtils.moveTowards(leg.position.y, leg.destination.y, legSpeed);
 	}
 
 
@@ -194,10 +194,10 @@ export class Lizard {
 		return world.getTileAt(lookaheadPoint) === "solid";
 	}
 	getPointOnBody(distance: number): [Vector, Direction] {
-		if(this.joints.length === 0 || distance < this.position.subtract(this.joints[0].position).magnitude()) {
+		if(this.joints.length === 0 || distance < Vector.dist(this.position, this.joints[0].position)) {
 			return [this.position.subtract(Vector.unit(this.direction).multiply(distance)), this.direction];
 		}
-		let length = this.position.subtract(this.joints[0].position).magnitude();
+		let length = Vector.dist(this.position, this.joints[0].position);
 		let lastLength = length;
 		for(const [i, joint] of this.joints.entries()) {
 			const next = this.joints[i + 1];
