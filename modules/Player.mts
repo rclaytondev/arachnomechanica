@@ -9,6 +9,7 @@ export class Player {
 
 	static GRAVITY = 0.5;
 	static HORIZONTAL_ACCELERATION = 0.5;
+	static JUMP_VELOCITY = 10;
 
 	physicsObject: PhysicsObject = new PhysicsObject(
 		new Vector(0, 0), 
@@ -25,16 +26,23 @@ export class Player {
 	}
 
 	update(world: World, canvasIO: CanvasIO) {
-		this.checkInputs(canvasIO);
+		this.checkInputs(world, canvasIO);
 		this.physicsObject.velocity = this.physicsObject.velocity.add(new Vector(0, Player.GRAVITY));
 		this.physicsObject.update(world);
 	}
-	checkInputs(canvasIO: CanvasIO) {
+	checkInputs(world: World, canvasIO: CanvasIO) {
 		if(canvasIO.keys.ArrowRight && !canvasIO.keys.ArrowLeft) {
 			this.physicsObject.velocity.x += Player.HORIZONTAL_ACCELERATION;
 		}
 		if(canvasIO.keys.ArrowLeft && !canvasIO.keys.ArrowRight) {
 			this.physicsObject.velocity.x -= Player.HORIZONTAL_ACCELERATION;
 		}
+		if(canvasIO.keys.KeyZ && this.onGround(world)) {
+			this.physicsObject.velocity.y = -Player.JUMP_VELOCITY;
+		}
+	}
+	onGround(world: World) {
+		const boundingBox = this.physicsObject.boundingBox().translate(new Vector(0, 1));
+		return world.isInSolid(boundingBox);
 	}
 }
