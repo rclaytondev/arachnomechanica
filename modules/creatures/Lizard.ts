@@ -6,6 +6,9 @@ import { World } from "../World.js";
 
 export class Lizard {
 	static LOOKAHEAD_DISTANCE = World.TILE_SIZE * 1/2;
+	static LEG_SPACING = World.TILE_SIZE * 1/2;
+	static LEG_DISTANCE = World.TILE_SIZE * 1/2;
+	static STEP_SIZE = World.TILE_SIZE * 1/2;
 
 	direction: Direction;
 	position: Vector;
@@ -13,12 +16,25 @@ export class Lizard {
 	length: number;
 	color: string = "rgb(0, 0, 0)";
 	speed: number;
+	legs: LizardLeg[];
 
 	constructor(position: Vector, direction: Direction, length: number, speed: number) {
 		this.position = position;
 		this.direction = direction;
 		this.length = length;
 		this.speed = speed;
+
+		this.legs = [];
+		for(let i = 0; i * Lizard.LEG_SPACING < this.length; i ++) {
+			const leftDirection = Directions.rotateCounterclockwise(this.direction);
+			const rightDirection = Directions.rotateClockwise(this.direction);
+			const jointPosition = this.position.subtract(Vector.unit(this.direction).multiply(Lizard.LEG_SPACING));
+			const forwardOffset = Vector.unit(this.direction).multiply(Lizard.STEP_SIZE);
+			const leftOffset = Vector.unit(leftDirection).multiply(Lizard.LEG_DISTANCE);
+			const rightOffset = Vector.unit(rightDirection).multiply(Lizard.LEG_DISTANCE);
+			this.legs.push(new LizardLeg("left", i * Lizard.LEG_SPACING, jointPosition.add(forwardOffset).add(leftOffset)));
+			this.legs.push(new LizardLeg("right", i * Lizard.LEG_SPACING, jointPosition.add(forwardOffset).add(rightOffset)));
+		}
 	}
 
 	display(canvasIO: CanvasIO) {
@@ -51,6 +67,14 @@ export class Lizard {
 		for(const joint of this.joints) {
 			canvasIO.drawArrow(joint.position, 10, joint.direction);
 		}
+	}
+	displayLegs() {
+		for(const leg of this.legs) {
+			this.displayLeg(leg);
+		}
+	}
+	displayLeg(leg: LizardLeg) {
+
 	}
 
 	update(world: World) {
@@ -89,5 +113,17 @@ export class Lizard {
 	isObstructed(world: World, direction: Direction = this.direction, distance: number = Lizard.LOOKAHEAD_DISTANCE) {
 		const lookaheadPoint = this.position.add(Vector.unit(direction).multiply(distance));
 		return world.getTileAt(lookaheadPoint) === "solid";
+	}
+}
+
+class LizardLeg {
+	side: "right" | "left";
+	distance: number;
+	position: Vector;
+
+	constructor(side: "right" | "left", distance: number, position: Vector) {
+		this.side = side;
+		this.distance = distance;
+		this.position = position;
 	}
 }
