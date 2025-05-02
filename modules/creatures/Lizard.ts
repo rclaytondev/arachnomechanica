@@ -7,12 +7,13 @@ import { World } from "../World.js";
 
 export class Lizard {
 	static LOOKAHEAD_DISTANCE = World.TILE_SIZE * 1/2;
+	static BODY_WIDTH = World.TILE_SIZE * 0.1;
 	static LEG_SCALE = World.TILE_SIZE * 0.5;
 	static LEG_SPACING = Lizard.LEG_SCALE; // distance between consecutive legs on the lizard's body.
 	static LEG_DISTANCE = Lizard.LEG_SCALE * 0.4; // how far away perpendicularly the foot should be from the body.
 	static STEP_SIZE = Lizard.LEG_SCALE * 1.5; // how far past the connection it should move the leg each step.
 	static MAX_LEG_DISTANCE = Lizard.LEG_SCALE; // maximum distance between leg and connection before taking a step.
-	static FOOT_SIZE = World.TILE_SIZE * 0.05;
+	static FOOT_SIZE = World.TILE_SIZE * 0;
 	static LEG_SPEED_MULTIPLIER = 2.5;
 
 	direction: Direction;
@@ -50,6 +51,8 @@ export class Lizard {
 	}
 	displayBody(canvasIO: CanvasIO) {
 		canvasIO.ctx.strokeStyle = this.color;
+		canvasIO.ctx.lineWidth = Lizard.BODY_WIDTH;
+		canvasIO.ctx.lineCap = "round";
 		const segment1End = (
 			this.joints[0]?.position ?? 
 			this.position.subtract(Vector.unit(this.direction).multiply(this.length))
