@@ -119,7 +119,15 @@ export class Lizard {
 
 	update(world: World) {
 		this.position = this.position.add(Vector.unit(this.direction).multiply(this.speed));
+		for(const leg of this.legs) {
+			this.updateLeg(leg);
+		}
 
+		this.checkForCollisions(world);
+		this.updateJoints();
+		this.updateHeadAngle();
+	}
+	checkForCollisions(world: World) {
 		const lookaheadPoint = this.position.add(Vector.unit(this.direction).multiply(Lizard.LOOKAHEAD_DISTANCE));
 		if(this.isObstructed(world, this.direction)) {
 			this.joints.unshift({ position: this.position.clone(), direction: this.direction });
@@ -137,7 +145,8 @@ export class Lizard {
 			}
 			this.targetHeadAngle = Vector.unit(this.direction).angle();
 		}
-
+	}
+	updateJoints() {
 		let length = (this.joints.length === 0) ? 0 : this.position.subtract(this.joints[0].position).magnitude();
 		for(let i = 0; i < this.joints.length; i ++) {
 			const joint = this.joints[i];
@@ -150,11 +159,8 @@ export class Lizard {
 				length += joint.position.subtract(next.position).magnitude();
 			}
 		}
-
-		for(const leg of this.legs) {
-			this.updateLeg(leg);
-		}
-
+	}
+	updateHeadAngle() {
 		const minValue = Utils.minValue(
 			[this.headAngle, this.headAngle - 2 * Math.PI, this.headAngle + 2 * Math.PI],
 			angle => MathUtils.dist(angle, this.targetHeadAngle)
@@ -173,6 +179,8 @@ export class Lizard {
 		leg.position.x = MathUtils.constrain(leg.position.x + legSpeed * Math.sign(leg.destination.x - leg.position.x), leg.position.x, leg.destination.x);
 		leg.position.y = MathUtils.constrain(leg.position.y + legSpeed * Math.sign(leg.destination.y - leg.position.y), leg.position.y, leg.destination.y);
 	}
+
+
 	getLegDestination(leg: LizardLeg) {
 		const [point, direction] = this.getPointOnBody(leg.distance);
 		const perpendicular = (leg.side === "left") ? 
