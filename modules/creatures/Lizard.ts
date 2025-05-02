@@ -6,6 +6,7 @@ import { Utils } from "../../utils-ts/modules/Utils.mjs";
 import { GameUtils } from "../GameUtils.mjs";
 import { DEBUG_SETTINGS } from "../Main.js";
 import { World } from "../World.js";
+import { frameCount } from "../Main.js";
 
 export class Lizard {
 	static LOOKAHEAD_DISTANCE = World.TILE_SIZE * 1/2;
@@ -105,6 +106,7 @@ export class Lizard {
 		canvasIO.fillCircle(leg.position.x, leg.position.y, Lizard.FOOT_SIZE);
 	}
 	displayHead(canvasIO: CanvasIO) {
+		const mouthX = Lizard.HEAD_WIDTH / 2 * (1 + Math.sin(frameCount * 0.5)) / 2;
 		canvasIO.ctx.save();
 		canvasIO.ctx.translate(this.position.x, this.position.y);
 		canvasIO.ctx.rotate(this.headAngle - Math.PI / 2);
@@ -112,9 +114,9 @@ export class Lizard {
 		canvasIO.fillPoly(
 			0, 0,
 			-Lizard.HEAD_WIDTH, Lizard.HEAD_HEIGHT,
-			-Lizard.HEAD_WIDTH / 2, Lizard.HEAD_HEIGHT + Lizard.MOUTH_LENGTH,
+			-mouthX, Lizard.HEAD_HEIGHT + Lizard.MOUTH_LENGTH,
 			0, Lizard.HEAD_HEIGHT * 1.5,
-			Lizard.HEAD_WIDTH / 2, Lizard.HEAD_HEIGHT + Lizard.MOUTH_LENGTH,
+			mouthX, Lizard.HEAD_HEIGHT + Lizard.MOUTH_LENGTH,
 			Lizard.HEAD_WIDTH, Lizard.HEAD_HEIGHT,
 		);
 

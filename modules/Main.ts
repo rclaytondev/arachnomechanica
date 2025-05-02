@@ -3,6 +3,7 @@ import { Vector } from "../utils-ts/modules/geometry/Vector.mjs";
 import { Lizard } from "./creatures/Lizard.js";
 import { World } from "./World.js";
 
+let frameCount = 0;
 const FRAMERATE = 60;
 const world = new World();
 world.tiles.set(7, 3, "solid");
@@ -17,4 +18,7 @@ export const DEBUG_SETTINGS = {
 window.setInterval(() => {
 	world.update();
 	world.display(canvasIO!);
+	frameCount ++;
 }, 1000 / FRAMERATE);
+
+export { frameCount };
