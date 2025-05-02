@@ -5,7 +5,7 @@ import { World } from "./World.js";
 
 const FRAMERATE = 60;
 const world = new World();
-world.tiles.set(8, 3, "solid");
+world.tiles.set(7, 3, "solid");
 world.tiles.set(7, 1, "solid");
 world.creatures.push(new Lizard(new Vector(200, 175), "right", 200, 3));
 

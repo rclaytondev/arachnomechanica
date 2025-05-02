@@ -16,6 +16,10 @@ export class Lizard {
 	static FOOT_SIZE = World.TILE_SIZE * 0;
 	static LEG_SPEED_MULTIPLIER = 2.5;
 
+	static HEAD_WIDTH = World.TILE_SIZE * 0.3;
+	static HEAD_HEIGHT = World.TILE_SIZE * 0.3;
+	static MOUTH_LENGTH = World.TILE_SIZE;
+
 	direction: Direction;
 	position: Vector;
 	joints: { position: Vector, direction: Direction }[] = [];
@@ -23,10 +27,12 @@ export class Lizard {
 	color: string = "rgb(0, 0, 0)";
 	speed: number;
 	legs: LizardLeg[];
+	headAngle: number;
 
 	constructor(position: Vector, direction: Direction, length: number, speed: number) {
 		this.position = position;
 		this.direction = direction;
+		this.headAngle = Vector.unit(this.direction).angle();
 		this.length = length;
 		this.speed = speed;
 
@@ -48,6 +54,7 @@ export class Lizard {
 		this.displayJoints(canvasIO);
 		this.displayBody(canvasIO);
 		this.displayLegs(canvasIO);
+		this.displayHead(canvasIO);
 	}
 	displayBody(canvasIO: CanvasIO) {
 		canvasIO.ctx.strokeStyle = this.color;
@@ -89,6 +96,21 @@ export class Lizard {
 		canvasIO.strokeLine(point.x, point.y, leg.position.x, leg.position.y);
 		canvasIO.fillCircle(leg.position.x, leg.position.y, Lizard.FOOT_SIZE);
 	}
+	displayHead(canvasIO: CanvasIO) {
+		canvasIO.ctx.save();
+		canvasIO.ctx.translate(this.position.x, this.position.y);
+		canvasIO.ctx.rotate(this.headAngle - Math.PI / 2);
+		canvasIO.ctx.fillStyle = this.color;
+		canvasIO.fillPoly(
+			0, 0,
+			-Lizard.HEAD_WIDTH, Lizard.HEAD_HEIGHT,
+			-Lizard.HEAD_WIDTH / 2, Lizard.HEAD_HEIGHT + Lizard.MOUTH_LENGTH,
+			0, Lizard.HEAD_HEIGHT * 1.5,
+			Lizard.HEAD_WIDTH / 2, Lizard.HEAD_HEIGHT + Lizard.MOUTH_LENGTH,
+			Lizard.HEAD_WIDTH, Lizard.HEAD_HEIGHT,
+		);
+		canvasIO.ctx.restore();
+	}
 
 	update(world: World) {
 		this.position = this.position.add(Vector.unit(this.direction).multiply(this.speed));
@@ -108,6 +130,7 @@ export class Lizard {
 				const tileCoordinates = world.getTileCoordinates(lookaheadPoint);
 				this.direction = (tileCoordinates.x + tileCoordinates.y) % 2 === 0 ? clockwise : counterclockwise;
 			}
+			this.headAngle = Vector.unit(this.direction).angle();
 		}
 
 		let length = (this.joints.length === 0) ? 0 : this.position.subtract(this.joints[0].position).magnitude();
