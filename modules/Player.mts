@@ -1,6 +1,7 @@
 import { CanvasIO } from "../utils-ts/modules/CanvasIO.mjs";
 import { Rectangle } from "../utils-ts/modules/geometry/Rectangle.mjs";
 import { Vector } from "../utils-ts/modules/geometry/Vector.mjs";
+import { MathUtils } from "../utils-ts/modules/math/MathUtils.mjs";
 import { PhysicsObject } from "./PhysicsObject.mjs";
 import { World } from "./World.js";
 
@@ -8,8 +9,10 @@ export class Player {
 	static COLOR = "rgb(0, 128, 0)"; // temporary
 
 	static GRAVITY = 0.5;
-	static HORIZONTAL_ACCELERATION = 0.5;
-	static JUMP_VELOCITY = 10;
+	static HORIZONTAL_ACCELERATION = 0.7;
+	static JUMP_VELOCITY = 12;
+	static MAX_X_VELOCITY = 8;
+	static FRICTION_X = 0.7;
 
 	physicsObject: PhysicsObject = new PhysicsObject(
 		new Vector(0, 0), 
@@ -28,6 +31,7 @@ export class Player {
 	update(world: World, canvasIO: CanvasIO) {
 		this.checkInputs(world, canvasIO);
 		this.physicsObject.velocity = this.physicsObject.velocity.add(new Vector(0, Player.GRAVITY));
+		this.physicsObject.velocity.x = MathUtils.constrain(this.physicsObject.velocity.x, -Player.MAX_X_VELOCITY, Player.MAX_X_VELOCITY);
 		this.physicsObject.update(world);
 	}
 	checkInputs(world: World, canvasIO: CanvasIO) {
@@ -36,6 +40,13 @@ export class Player {
 		}
 		if(canvasIO.keys.ArrowLeft && !canvasIO.keys.ArrowRight) {
 			this.physicsObject.velocity.x -= Player.HORIZONTAL_ACCELERATION;
+		}
+		if(
+			(!canvasIO.keys.ArrowLeft && !canvasIO.keys.ArrowRight) ||
+			(canvasIO.keys.ArrowLeft && this.physicsObject.velocity.x > 0) ||
+			(canvasIO.keys.ArrowRight && this.physicsObject.velocity.x < 0)
+		) {
+			this.physicsObject.velocity.x *= Player.FRICTION_X;
 		}
 		if(canvasIO.keys.KeyZ && this.onGround(world)) {
 			this.physicsObject.velocity.y = -Player.JUMP_VELOCITY;
