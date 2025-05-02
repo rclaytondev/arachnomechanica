@@ -21,6 +21,7 @@ export class Lizard {
 
 	static HEAD_WIDTH = World.TILE_SIZE * 0.2;
 	static HEAD_HEIGHT = World.TILE_SIZE * 0.3;
+	static HEAD_OFFSET = -World.TILE_SIZE * 0.5;
 	static MOUTH_LENGTH = World.TILE_SIZE;
 	static EYE_SIZE = World.TILE_SIZE * 0.1;
 	static EYE_Y = World.TILE_SIZE * 0.3;
@@ -46,7 +47,7 @@ export class Lizard {
 		this.speed = speed;
 
 		this.legs = [];
-		for(let i = 0; i * Lizard.LEG_SPACING < this.length; i ++) {
+		for(let i = 2; i * Lizard.LEG_SPACING < this.length; i ++) {
 			const leftDirection = Directions.rotateCounterclockwise(this.direction);
 			const rightDirection = Directions.rotateClockwise(this.direction);
 			const jointPosition = this.position.subtract(Vector.unit(this.direction).multiply(i * Lizard.LEG_SPACING));
@@ -112,17 +113,17 @@ export class Lizard {
 		canvasIO.ctx.rotate(this.headAngle - Math.PI / 2);
 		canvasIO.ctx.fillStyle = this.color;
 		canvasIO.fillPoly(
-			0, 0,
-			-Lizard.HEAD_WIDTH, Lizard.HEAD_HEIGHT,
-			-mouthX, Lizard.HEAD_HEIGHT + Lizard.MOUTH_LENGTH,
-			0, Lizard.HEAD_HEIGHT * 1.5,
-			mouthX, Lizard.HEAD_HEIGHT + Lizard.MOUTH_LENGTH,
-			Lizard.HEAD_WIDTH, Lizard.HEAD_HEIGHT,
+			0, Lizard.HEAD_OFFSET,
+			-Lizard.HEAD_WIDTH, Lizard.HEAD_HEIGHT + Lizard.HEAD_OFFSET,
+			-mouthX, Lizard.HEAD_HEIGHT + Lizard.MOUTH_LENGTH + Lizard.HEAD_OFFSET,
+			0, Lizard.HEAD_HEIGHT * 1.5 + Lizard.HEAD_OFFSET,
+			mouthX, Lizard.HEAD_HEIGHT + Lizard.MOUTH_LENGTH + Lizard.HEAD_OFFSET,
+			Lizard.HEAD_WIDTH, Lizard.HEAD_HEIGHT + Lizard.HEAD_OFFSET,
 		);
 
 
 		canvasIO.ctx.fillStyle = Lizard.EYE_COLOR;
-		canvasIO.fillDiamond(0, Lizard.EYE_Y, Lizard.EYE_SIZE);
+		canvasIO.fillDiamond(0, Lizard.EYE_Y + Lizard.HEAD_OFFSET, Lizard.EYE_SIZE);
 
 		canvasIO.ctx.restore();
 	}
