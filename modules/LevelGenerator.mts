@@ -55,6 +55,10 @@ export class LevelGenerator {
 			const room = Utils.randomItem(possibleRooms);
 			room.add(roomPlaceholder.position.multiply(Room.SIZE), world, roomPlaceholder.exits);
 		}
+
+		const lastRoom = path[path.length - 1];
+		world.player.physicsObject.positionInt = lastRoom.position.add(1/2, 1/2).multiply(World.TILE_SIZE * Room.SIZE)
+
 		return world;
 	}
 }
