@@ -6,12 +6,14 @@ import { Creature } from "./creatures/Creature.js";
 import { DEBUG_SETTINGS, Main } from "./Main.js";
 import { Player } from "./Player.mjs";
 
-export type Tile = "solid" | "empty" | "platform";
+export type Tile = (typeof World.TILE_TYPES)[number];
 
 export class World {
 	static TILE_SIZE = 50;
 	static TILE_COLOR = "rgb(100, 100, 100)";
 	static PLATFORM_THICKNESS = World.TILE_SIZE * 0.1;
+
+	static TILE_TYPES = ["solid", "empty", "platform"] as const;
 
 	tiles: Grid<Tile> = new Grid("empty");
 	creatures: Creature[] = [];
@@ -95,5 +97,9 @@ export class World {
 			}
 		}
 		return false;
+	}
+
+	static isTile(value: unknown): value is Tile {
+		return World.TILE_TYPES.includes(value as Tile);
 	}
 }

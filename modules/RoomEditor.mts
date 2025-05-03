@@ -15,7 +15,7 @@ export class RoomEditor {
 		this.room = room;
 		this.world = new World();
 		for(const [tile, position] of this.room.tiles.entries()) {
-			if(tile === "solid" || tile === "empty") {
+			if(World.isTile(tile)) {
 				this.world.tiles.set(position, tile);
 			}
 		}
@@ -28,7 +28,7 @@ export class RoomEditor {
 		if(canvasIO.mouse.pressed) {
 			const position = this.world.getTileCoordinates(canvasIO.mouse.position);
 			this.world.tiles.set(position, canvasIO.mouse.button === "left" ? this.mode : "empty");
-			this.room.tiles.set(position, canvasIO.mouse.button === "left" ? "solid" : "empty");
+			this.room.tiles.set(position, canvasIO.mouse.button === "left" ? this.mode : "empty");
 		}
 
 		if(canvasIO.keys[DEBUG_SETTINGS.LOG_BLOCKS_KEY]) {
