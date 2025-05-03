@@ -6,8 +6,18 @@ import { Room } from "./Room.mjs";
 import { World } from "./World.js";
 
 export class RoomEditor {
-	room: Room = new Room("editor room", [], [], []);
+	room: Room;
 	world: World = new World();
+
+	constructor(room: Room = new Room("editor room", [], [], [])) {
+		this.room = room;
+		this.world = new World();
+		for(const [tile, position] of this.room.tiles.entries()) {
+			if(tile === "solid" || tile === "empty") {
+				this.world.tiles.set(position, tile);
+			}
+		}
+	}
 
 
 	update(canvasIO: CanvasIO) {
