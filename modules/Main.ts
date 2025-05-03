@@ -44,7 +44,8 @@ export const DEBUG_SETTINGS = {
 	LOG_BLOCKS_KEY: "Enter",
 	HOVERED_TILE_COLOR: "rgb(0, 0, 0)", // set to transparent to disable
 	EXIT_TILE_COLOR: "rgb(0, 200, 0)",
-	EDITOR_ROOM: "empty-room"
+	EDITOR_ROOM: "empty-room",
+	LOG_FRAMERATE: false
 };
 
 
@@ -52,10 +53,21 @@ if(DEBUG_SETTINGS.EDITOR_ROOM != null  && Main.screen instanceof RoomEditor) {
 	Main.screen = new RoomEditor(ROOMS.find(r => r.name === DEBUG_SETTINGS.EDITOR_ROOM));
 }
 
+const frameTimes: number[] = [];
+
 window.setInterval(() => {
 	Main.update(canvasIO!);
 	Main.display(canvasIO!);
 	frameCount ++;
+
+	if(DEBUG_SETTINGS.LOG_FRAMERATE) {
+		const now = Date.now();
+		frameTimes.push(now);
+		while(frameTimes[0] < now - 1000) {
+			frameTimes.shift();
+		}
+		console.log(frameTimes.length);
+	}
 }, 1000 / FRAMERATE);
 
 export { frameCount };
