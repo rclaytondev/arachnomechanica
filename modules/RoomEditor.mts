@@ -8,6 +8,8 @@ import { World } from "./World.js";
 export class RoomEditor {
 	room: Room;
 	world: World = new World();
+	mode: "solid" | "platform" = "solid";
+	static readonly MODES = ["solid", "platform"] as const;
 
 	constructor(room: Room = new Room("editor room", [], [], [])) {
 		this.room = room;
@@ -24,8 +26,8 @@ export class RoomEditor {
 		this.world.update(canvasIO);
 
 		if(canvasIO.mouse.pressed) {
-			const position = this.world.getTileCoordinates(canvasIO.mouse.position)
-			this.world.tiles.set(position, canvasIO.mouse.button === "left" ? "solid" : "empty");
+			const position = this.world.getTileCoordinates(canvasIO.mouse.position);
+			this.world.tiles.set(position, canvasIO.mouse.button === "left" ? this.mode : "empty");
 			this.room.tiles.set(position, canvasIO.mouse.button === "left" ? "solid" : "empty");
 		}
 
@@ -33,6 +35,15 @@ export class RoomEditor {
 			this.logBlocks();
 		}
 		this.addExits(canvasIO);
+
+		const numberKeys = canvasIO.numberKeys();
+		if(numberKeys.length !== 0) {
+			const key = numberKeys[0];
+			if(key > 0 && key <= RoomEditor.MODES.length) {
+				this.mode = RoomEditor.MODES[key - 1];
+				console.log(this.mode);
+			}
+		}
 	}
 	addExits(canvasIO: CanvasIO) {
 		const position = this.world.getTileCoordinates(canvasIO.mouse.position);
