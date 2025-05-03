@@ -42,7 +42,7 @@ export class PhysicsObject {
 		}
 	}
 	moveUnit(direction: Direction, onCollision: () => void, world: World) {
-		if(this.canMove(direction, world)) {
+		if(!this.canMove(direction, world)) {
 			onCollision();
 		}
 		else {
@@ -51,7 +51,7 @@ export class PhysicsObject {
 	}
 	canMove(direction: Direction, world: World) {
 		const newBoundingBox = this.boundingBox().translate(Vector.unit(direction));
-		return world.isInSolid(newBoundingBox);
+		return !world.isInSolid(newBoundingBox);
 	}
 
 	boundingBox() {
