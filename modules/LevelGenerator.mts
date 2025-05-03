@@ -2,9 +2,11 @@ import { Direction, Directions } from "../utils-ts/modules/geometry/Direction.mj
 import { Vector } from "../utils-ts/modules/geometry/Vector.mjs";
 import { Utils } from "../utils-ts/modules/Utils.mjs";
 import { GameUtils } from "./GameUtils.mjs";
+import { Room } from "./Room.mjs";
+import { ROOMS } from "./Rooms.mjs";
 import { World } from "./World";
 
-type RoomPlaceholder = { position: Vector, exits: Direction[] };
+export type RoomPlaceholder = { position: Vector, exits: Direction[] };
 
 export class LevelGenerator {
 	static WIDTH = 3;
@@ -42,6 +44,13 @@ export class LevelGenerator {
 	}
 
 	static generate(): World {
-		throw new Error("Unimplemented");
+		const path = LevelGenerator.generatePath();
+		const world = new World();
+		for(const roomPlaceholder of path) {
+			const possibleRooms = ROOMS.filter(r => r.canAdd(roomPlaceholder));
+			const room = Utils.randomItem(possibleRooms);
+			room.add(roomPlaceholder.position.multiply(Room.SIZE), world, roomPlaceholder.exits);
+		}
+		return world;
 	}
 }
