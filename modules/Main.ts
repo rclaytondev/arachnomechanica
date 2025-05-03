@@ -14,7 +14,9 @@ world.creatures.push(new Lizard(new Vector(200, 175), "right", 200, 3));
 
 export const DEBUG_SETTINGS = {
 	LIZARD_JOINT_COLOR: "rgba(255, 150, 0, 0)", // set to transparent to disable
-	PLACE_BLOCKS_WITH_CURSOR: true
+	PLACE_BLOCKS_WITH_CURSOR: true,
+	LOG_BLOCKS_KEY: "Enter",
+	HOVERED_TILE_COLOR: "rgb(0, 0, 0)" // set to transparent to disable
 };
 
 window.setInterval(() => {

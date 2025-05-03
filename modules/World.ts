@@ -27,6 +27,7 @@ export class World {
 		if(canvasIO.mouse.pressed && DEBUG_SETTINGS.PLACE_BLOCKS_WITH_CURSOR) {
 			this.tiles.set(this.getTileCoordinates(canvasIO.mouse.position), "solid");
 		}
+		this.displayHoveredTile(canvasIO);
 	}
 	displayTiles(canvasIO: CanvasIO) {
 		for(const [tileType, position] of this.tiles.entries()) {
@@ -45,10 +46,19 @@ export class World {
 			creature.display(canvasIO);
 		}
 	}
+	displayHoveredTile(canvasIO: CanvasIO) {
+		const position = this.getTileCoordinates(canvasIO.mouse.position).multiply(World.TILE_SIZE);
+		canvasIO.ctx.strokeStyle = DEBUG_SETTINGS.HOVERED_TILE_COLOR;
+		canvasIO.ctx.strokeRect(position.x, position.y, World.TILE_SIZE, World.TILE_SIZE);
+	}
 
 	update(canvasIO: CanvasIO) {
 		this.updateCreatures();
 		this.player.update(this, canvasIO);
+
+		if(canvasIO.keys[DEBUG_SETTINGS.LOG_BLOCKS_KEY]) {
+			this.logBlocks();
+		}
 	}
 	updateCreatures() {
 		for(const creature of this.creatures) {
@@ -84,5 +94,13 @@ export class World {
 			}
 		}
 		return false;
+	}
+
+	logBlocks() {
+		let result = "";
+		for(const position of this.tiles.positions()) {
+			result += `${position.toString()},\n`;
+		}
+		console.log(result);
 	}
 }
