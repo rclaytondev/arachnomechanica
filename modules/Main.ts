@@ -7,10 +7,10 @@ import { World } from "./World.js";
 let frameCount = 0;
 const FRAMERATE = 60;
 const world = LevelGenerator.generate();
-world.tiles.set(7, 3, "solid");
-world.tiles.set(7, 1, "solid");
-world.tiles.set(0, 5, "solid");
-world.creatures.push(new Lizard(new Vector(200, 175), "right", 200, 3));
+// world.tiles.set(7, 3, "solid");
+// world.tiles.set(7, 1, "solid");
+// world.tiles.set(0, 5, "solid");
+// world.creatures.push(new Lizard(new Vector(200, 175), "right", 200, 3));
 
 export const DEBUG_SETTINGS = {
 	LIZARD_JOINT_COLOR: "rgba(255, 150, 0, 0)", // set to transparent to disable

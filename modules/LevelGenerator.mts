@@ -4,7 +4,7 @@ import { Utils } from "../utils-ts/modules/Utils.mjs";
 import { GameUtils } from "./GameUtils.mjs";
 import { Room } from "./Room.mjs";
 import { ROOMS } from "./Rooms.mjs";
-import { World } from "./World";
+import { World } from "./World.js";
 
 export type RoomPlaceholder = { position: Vector, exits: Direction[] };
 
