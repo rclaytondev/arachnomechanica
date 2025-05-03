@@ -42,13 +42,16 @@ export class PhysicsObject {
 		}
 	}
 	moveUnit(direction: Direction, onCollision: () => void, world: World) {
-		const newBoundingBox = this.boundingBox().translate(Vector.unit(direction));
-		if(world.isInSolid(newBoundingBox)) {
+		if(this.canMove(direction, world)) {
 			onCollision();
 		}
 		else {
 			this.positionInt = this.positionInt.add(Vector.unit(direction));
 		}
+	}
+	canMove(direction: Direction, world: World) {
+		const newBoundingBox = this.boundingBox().translate(Vector.unit(direction));
+		return world.isInSolid(newBoundingBox);
 	}
 
 	boundingBox() {
