@@ -8,15 +8,20 @@ export class Room {
 	static SIZE = 12;
 
 	name: string;
-	tiles: Grid<Tile | Direction>;
+	tiles: Grid<Tile>;
 	requiredExits: Direction[];
 	optionalExits: Direction[];
+	exitTiles: Grid<Direction | "none">;
 
-	constructor(name: string, tiles: { x: number, y: number, type: Tile | Direction }[], requiredExits: Direction[], optionalExits: Direction[]) {
+	constructor(name: string, tiles: { x: number, y: number, type: Tile }[], exitTiles: { x: number, y: number, direction: Direction }[], requiredExits: Direction[], optionalExits: Direction[]) {
 		this.name = name;
 		this.tiles = new Grid("empty");
 		for(const { x, y, type } of tiles) {
 			this.tiles.set(x, y, type);
+		}
+		this.exitTiles = new Grid("none");
+		for(const { x, y, direction } of exitTiles) {
+			this.exitTiles.set(x, y, direction);
 		}
 		this.requiredExits = requiredExits;
 		this.optionalExits = optionalExits;
@@ -33,11 +38,11 @@ export class Room {
 			for(let y = 0; y < Room.SIZE; y ++) {
 				const tile = this.tiles.get(x, y);
 				const worldPosition = position.add(x, y);
-				if(Directions.isDirection(tile)) {
-					world.tiles.set(worldPosition, exits.includes(tile) ? "empty" : "solid");
-				}
-				else {
-					world.tiles.set(x + position.x, y + position.y, tile);
+				world.tiles.set(worldPosition, tile);
+
+				const direction = this.exitTiles.get(x, y);
+				if(direction !== "none" && !exits.includes(direction)) {
+					world.tiles.set(worldPosition, "solid");
 				}
 			}
 		}

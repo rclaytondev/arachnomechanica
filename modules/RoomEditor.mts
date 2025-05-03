@@ -11,7 +11,7 @@ export class RoomEditor {
 	mode: "solid" | "platform" = "solid";
 	static readonly MODES = ["solid", "platform"] as const;
 
-	constructor(room: Room = new Room("editor room", [], [], [])) {
+	constructor(room: Room = new Room("editor room", [], [], [], [])) {
 		this.room = room;
 		this.world = new World();
 		for(const [tile, position] of this.room.tiles.entries()) {
@@ -29,6 +29,9 @@ export class RoomEditor {
 			const position = this.world.getTileCoordinates(canvasIO.mouse.position);
 			this.world.tiles.set(position, canvasIO.mouse.button === "left" ? this.mode : "empty");
 			this.room.tiles.set(position, canvasIO.mouse.button === "left" ? this.mode : "empty");
+			if(canvasIO.mouse.button === "right") {
+				this.room.exitTiles.set(position, "none");
+			}
 		}
 
 		if(canvasIO.keys[DEBUG_SETTINGS.LOG_BLOCKS_KEY]) {
@@ -47,17 +50,16 @@ export class RoomEditor {
 	addExits(canvasIO: CanvasIO) {
 		const position = this.world.getTileCoordinates(canvasIO.mouse.position);
 		if(canvasIO.keys.ArrowLeft) {
-			this.room.tiles.set(position, "left");
+			this.room.exitTiles.set(position, "left");
 		}
 		if(canvasIO.keys.ArrowRight) {
-			this.room.tiles.set(position, "right");
+			this.room.exitTiles.set(position, "right");
 		}
 		if(canvasIO.keys.ArrowUp) {
-			this.room.tiles.set(position, "up");
+			this.room.exitTiles.set(position, "up");
 		}
 		if(canvasIO.keys.ArrowDown) {
-			console.log("hlelo")
-			this.room.tiles.set(position, "down");
+			this.room.exitTiles.set(position, "down");
 		}
 	}
 
@@ -75,7 +77,7 @@ export class RoomEditor {
 		canvasIO.ctx.strokeRect(position.x, position.y, World.TILE_SIZE, World.TILE_SIZE);
 	}
 	displayExits(canvasIO: CanvasIO) {
-		for(const [tile, position] of this.room.tiles.entries()) {
+		for(const [tile, position] of this.room.exitTiles.entries()) {
 			if(Directions.isDirection(tile)) {
 				canvasIO.ctx.strokeStyle = DEBUG_SETTINGS.EXIT_TILE_COLOR;
 				canvasIO.drawArrow(
@@ -95,10 +97,15 @@ export class RoomEditor {
 	}
 
 	logBlocks() {
-		let result = "";
+		let result = "[\n";
 		for(const [tile, position] of this.room.tiles.entries()) {
-			result += `{ x: ${position.x}, y: ${position.y}, type: "${tile}" },\n`;
+			result += `\t{ x: ${position.x}, y: ${position.y}, type: "${tile}" },\n`;
 		}
+		result += "],\n[\n";
+		for(const [direction, position] of this.room.exitTiles.entries()) {
+			result += `\t{ x: ${position.x}, y: ${position.y}, direction: "${direction}" },\n`;
+		}
+		result += "],";
 		console.log(result);
 	}
 }
