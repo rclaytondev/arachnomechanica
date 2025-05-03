@@ -7,11 +7,13 @@ import { Tile, World } from "./World";
 export class Room {
 	static SIZE = 12;
 
+	name: string;
 	tiles: Grid<Tile | Direction>;
 	requiredExits: Direction[];
 	optionalExits: Direction[];
 
-	constructor(tiles: Grid<Tile | Direction>, requiredExits: Direction[], optionalExits: Direction[]) {
+	constructor(name: string, tiles: Grid<Tile | Direction>, requiredExits: Direction[], optionalExits: Direction[]) {
+		this.name = name;
 		this.tiles = tiles;
 		this.requiredExits = requiredExits;
 		this.optionalExits = optionalExits;

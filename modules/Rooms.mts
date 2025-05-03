@@ -4,6 +4,7 @@ import { Room } from "./Room.mjs";
 
 export const ROOMS: Room[] = [
 	new Room(
+		"two-wide-platforms",
 		Grid.fromPositions("empty", "solid", [
 			new Vector(0,0),
 			new Vector(1,0),
