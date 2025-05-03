@@ -6,11 +6,12 @@ import { Creature } from "./creatures/Creature.js";
 import { DEBUG_SETTINGS, Main } from "./Main.js";
 import { Player } from "./Player.mjs";
 
-export type Tile = "solid" | "empty";
+export type Tile = "solid" | "empty" | "platform";
 
 export class World {
 	static TILE_SIZE = 50;
 	static TILE_COLOR = "rgb(100, 100, 100)";
+	static PLATFORM_THICKNESS = World.TILE_SIZE * 0.1;
 
 	tiles: Grid<Tile> = new Grid("empty");
 	creatures: Creature[] = [];
@@ -39,6 +40,14 @@ export class World {
 					position.y * World.TILE_SIZE, 
 					World.TILE_SIZE, World.TILE_SIZE
 				);
+			}
+			else if(tileType === "platform") {
+				canvasIO.ctx.fillStyle = World.TILE_COLOR;
+				canvasIO.ctx.fillRect(
+					position.x * World.TILE_SIZE,
+					position.y * World.TILE_SIZE,
+					World.TILE_SIZE, World.PLATFORM_THICKNESS
+				)
 			}
 		}
 	}
