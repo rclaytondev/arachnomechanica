@@ -3,7 +3,7 @@ import { Rectangle } from "../utils-ts/modules/geometry/Rectangle.mjs";
 import { Vector } from "../utils-ts/modules/geometry/Vector.mjs";
 import { Grid } from "../utils-ts/modules/Grid.mjs";
 import { Creature } from "./creatures/Creature.js";
-import { DEBUG_SETTINGS } from "./Main.js";
+import { DEBUG_SETTINGS, Main } from "./Main.js";
 import { Player } from "./Player.mjs";
 
 export type Tile = "solid" | "empty";
@@ -20,9 +20,15 @@ export class World {
 
 	display(canvasIO: CanvasIO) {
 		canvasIO.fillCanvas("white");
+		canvasIO.ctx.save();
+		if(Main.screen instanceof World) {
+			const playerPosition = this.player.physicsObject.boundingBox().center();
+			canvasIO.ctx.translate(canvasIO.canvas.width / 2 - playerPosition.x, canvasIO.canvas.height / 2 - playerPosition.y);
+		}
 		this.displayTiles(canvasIO);
 		this.displayCreatures(canvasIO);
 		this.player.display(canvasIO);
+		canvasIO.ctx.restore();
 	}
 	displayTiles(canvasIO: CanvasIO) {
 		for(const [tileType, position] of this.tiles.entries()) {
