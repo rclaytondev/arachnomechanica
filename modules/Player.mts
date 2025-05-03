@@ -53,7 +53,6 @@ export class Player {
 		}
 	}
 	onGround(world: World) {
-		const boundingBox = this.physicsObject.boundingBox().translate(new Vector(0, 1));
-		return world.isInSolid(boundingBox);
+		return !this.physicsObject.canMove("down", world);
 	}
 }

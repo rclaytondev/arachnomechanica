@@ -1,7 +1,7 @@
 import { Direction } from "../utils-ts/modules/geometry/Direction.mjs";
 import { Rectangle } from "../utils-ts/modules/geometry/Rectangle.mjs";
 import { Vector } from "../utils-ts/modules/geometry/Vector.mjs";
-import { World } from "./World";
+import { World } from "./World.js";
 
 export class PhysicsObject {
 	positionInt: Vector;
@@ -50,8 +50,26 @@ export class PhysicsObject {
 		}
 	}
 	canMove(direction: Direction, world: World) {
+		if(direction === "down" && this.isOnPlatform(world)) {
+			return false;
+		}
+
 		const newBoundingBox = this.boundingBox().translate(Vector.unit(direction));
 		return !world.isInSolid(newBoundingBox);
+	}
+	isOnPlatform(world: World) {
+		const boundingBox = this.boundingBox();
+		if(boundingBox.bottom() % World.TILE_SIZE !== 0) {
+			return false;
+		}
+		const left = world.getTileX(boundingBox.left());
+		const right = world.getTileX(boundingBox.right() - 1);
+		for(let x = left; x <= right; x ++) {
+			if(world.tiles.get(x, boundingBox.bottom() / World.TILE_SIZE) === "platform") {
+				return true;
+			}
+		}
+		return false;
 	}
 
 	boundingBox() {
