@@ -41,7 +41,6 @@ export class RoomEditor {
 			const key = numberKeys[0];
 			if(key > 0 && key <= RoomEditor.MODES.length) {
 				this.mode = RoomEditor.MODES[key - 1];
-				console.log(this.mode);
 			}
 		}
 	}
@@ -66,6 +65,7 @@ export class RoomEditor {
 		this.world.display(canvasIO);
 		this.displayHoveredTile(canvasIO);
 		this.displayExits(canvasIO);
+		this.displayMode(canvasIO);
 	}
 
 	
@@ -85,6 +85,13 @@ export class RoomEditor {
 				);
 			}
 		}
+	}
+	displayMode(canvasIO: CanvasIO) {
+		canvasIO.ctx.fillStyle = DEBUG_SETTINGS.EDITOR_UI_COLOR;
+		canvasIO.ctx.textAlign = "right";
+		canvasIO.ctx.textBaseline = "top";
+		canvasIO.ctx.font = "30px monospace";
+		canvasIO.ctx.fillText(this.mode, canvasIO.canvas.width, 0);
 	}
 
 	logBlocks() {

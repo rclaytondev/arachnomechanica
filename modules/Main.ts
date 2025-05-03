@@ -45,7 +45,8 @@ export const DEBUG_SETTINGS = {
 	HOVERED_TILE_COLOR: "rgb(0, 0, 0)", // set to transparent to disable
 	EXIT_TILE_COLOR: "rgb(0, 200, 0)",
 	EDITOR_ROOM: "empty-room",
-	LOG_FRAMERATE: false
+	LOG_FRAMERATE: false,
+	EDITOR_UI_COLOR: "rgb(255, 150, 0)"
 };
 
 
