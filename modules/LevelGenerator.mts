@@ -97,8 +97,7 @@ export class LevelGenerator {
 			}
 		}
 	}
-	static generate(): World {
-		const path = LevelGenerator.generatePath();
+	static generateRoomsOnPath(path: RoomPlaceholder[]) {
 		const world = new World();
 		for(const roomPlaceholder of path) {
 			const possibleRooms = ROOMS.filter(r => r.canAdd(roomPlaceholder));
@@ -107,12 +106,17 @@ export class LevelGenerator {
 			roomPlaceholder.generated = true;
 			roomPlaceholder.roomType = room;
 		}
-
-		LevelGenerator.generateMargins(path, world);
-
+		return world;
+	}
+	static spawnPlayer(path: RoomPlaceholder[], world: World) {
 		const lastRoom = path[path.length - 1];
-		world.player.physicsObject.positionInt = lastRoom.position.add(1/2, 1/2).multiply(World.TILE_SIZE * Room.SIZE)
-
+		world.player.physicsObject.positionInt = lastRoom.position.add(1/2, 1/2).multiply(World.TILE_SIZE * Room.SIZE);
+	}
+	static generate(): World {
+		const path = LevelGenerator.generatePath();
+		const world = LevelGenerator.generateRoomsOnPath(path);
+		LevelGenerator.generateMargins(path, world);
+		LevelGenerator.spawnPlayer(path, world);
 		return world;
 	}
 }
