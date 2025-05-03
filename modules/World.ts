@@ -6,7 +6,7 @@ import { Creature } from "./creatures/Creature.js";
 import { DEBUG_SETTINGS } from "./Main.js";
 import { Player } from "./Player.mjs";
 
-type Tile = "solid" | "empty";
+export type Tile = "solid" | "empty";
 
 export class World {
 	static TILE_SIZE = 50;
