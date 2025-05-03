@@ -3,6 +3,7 @@ import { Vector } from "../utils-ts/modules/geometry/Vector.mjs";
 import { Lizard } from "./creatures/Lizard.js";
 import { LevelGenerator } from "./LevelGenerator.mjs";
 import { Room } from "./Room.mjs";
+import { RoomEditor } from "./RoomEditor.mjs";
 import { World } from "./World.js";
 
 const CORNER_SIZE = 3;
@@ -26,16 +27,26 @@ const world = EMPTY_ROOM;
 // world.tiles.set(0, 5, "solid");
 // world.creatures.push(new Lizard(new Vector(200, 175), "right", 200, 3));
 
+export class Main {
+	static screen: World | RoomEditor = new RoomEditor();
+
+	static update(canvasIO: CanvasIO) {
+		this.screen.update(canvasIO);
+	}
+	static display(canvasIO: CanvasIO) {
+		this.screen.display(canvasIO);
+	}
+}
+
 export const DEBUG_SETTINGS = {
 	LIZARD_JOINT_COLOR: "rgba(255, 150, 0, 0)", // set to transparent to disable
-	PLACE_BLOCKS_WITH_CURSOR: true,
 	LOG_BLOCKS_KEY: "Enter",
 	HOVERED_TILE_COLOR: "rgb(0, 0, 0)" // set to transparent to disable
 };
 
 window.setInterval(() => {
-	world.update(canvasIO!);
-	world.display(canvasIO!);
+	Main.update(canvasIO!);
+	Main.display(canvasIO!);
 	frameCount ++;
 }, 1000 / FRAMERATE);
 
