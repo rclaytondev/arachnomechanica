@@ -30,14 +30,18 @@ export class LevelGenerator {
 	}
 	static possibleNextDirections(rooms: RoomPlaceholder[], x: number, y: number): Direction[] {
 		if(rooms.length <= 1) {
-			return ["left", "right", "down"];
+			return [
+				...((x > 0) ? ["left"] as const : []),
+				...((x < LevelGenerator.WIDTH - 1) ? ["right"] as const : []), 
+				"down"
+			];
 		}
 		const lastRoom = rooms[rooms.length - 2];
 		const directions: Direction[] = ["down"];
-		if(x !== 0 && !(x === lastRoom.position.x + 1 && y === lastRoom.position.y)) {
+		if(x > 0 && !(x === lastRoom.position.x + 1 && y === lastRoom.position.y)) {
 			directions.push("left");
 		}
-		if(x !== LevelGenerator.WIDTH - 1 && !(x === lastRoom.position.x - 1 && y === lastRoom.position.y)) {
+		if(x < LevelGenerator.WIDTH - 1 && !(x === lastRoom.position.x - 1 && y === lastRoom.position.y)) {
 			directions.push("right");
 		}
 		return directions;
