@@ -6,21 +6,27 @@ import { Room } from "./Room.mjs";
 import { ROOMS } from "./Rooms.mjs";
 import { World } from "./World.js";
 
-export type RoomPlaceholder = { position: Vector, exits: Direction[] };
+export type RoomPlaceholder = { position: Vector, exits: Direction[], roomType: Room | null, generated: boolean };
 
 export class LevelGenerator {
 	static WIDTH = 3;
 	static HEIGHT = 5;
+	static MARGIN = 2;
 
 	static generatePath() {
 		const rooms: RoomPlaceholder[] = [];
 		let x = GameUtils.randomInt(0, LevelGenerator.WIDTH - 1);
 		let y = 0;
-		rooms.push({ position: new Vector(x, y), exits: [] });
+		rooms.push({ position: new Vector(x, y), exits: [], roomType: null, generated: false });
 		while(y < LevelGenerator.HEIGHT) {
 			const nextDirection = Utils.randomItem(LevelGenerator.possibleNextDirections(rooms, x, y));
 			const nextPosition = Vector.unit(nextDirection).add(x, y);
-			rooms.push({ position: nextPosition, exits: [Directions.opposite(nextDirection)] });
+			rooms.push({
+				position: nextPosition,
+				exits: [Directions.opposite(nextDirection)],
+				roomType: null,
+				generated: false
+			});
 			[x, y] = [nextPosition.x, nextPosition.y];
 
 			const previousRoom = rooms[rooms.length - 2];
@@ -47,14 +53,52 @@ export class LevelGenerator {
 		return directions;
 	}
 
+	static addMargin(room1Position: Vector, room1: Room, room2: Room, direction: "right" | "down", world: World) {
+		if(direction === "right") {
+			const xStart = room1Position.x + Room.SIZE;
+			for(let x = xStart; x < xStart + LevelGenerator.MARGIN; x ++) {
+				for(let y = room1Position.y; y < room1Position.y + Room.SIZE + LevelGenerator.MARGIN; y ++) {
+					world.tiles.set(x, y, "solid");
+				}
+			}
+		}
+		else {
+			const yStart = room1Position.y + Room.SIZE;
+			for(let x = room1Position.x; x < room1Position.x + Room.SIZE + LevelGenerator.MARGIN; x ++) {
+				for(let y = yStart; y < yStart + LevelGenerator.MARGIN; y ++) {
+					world.tiles.set(x, y, "solid");
+				}
+			}
+		}
+	}
+	static generateMargins(path: RoomPlaceholder[], world: World) {
+		for(const room of path) {
+			for(const direction of ["right", "down"] as const) {
+				const adjacentRoom = path.find(p => p.position.equals(room.position.add(Vector.unit(direction))));
+				if(adjacentRoom) {
+					LevelGenerator.addMargin(
+						room.position.multiply(Room.SIZE + LevelGenerator.MARGIN),
+						room.roomType!,
+						adjacentRoom.roomType!,
+						direction,
+						world
+					);
+				}
+			}
+		}
+	}
 	static generate(): World {
 		const path = LevelGenerator.generatePath();
 		const world = new World();
 		for(const roomPlaceholder of path) {
 			const possibleRooms = ROOMS.filter(r => r.canAdd(roomPlaceholder));
 			const room = Utils.randomItem(possibleRooms);
-			room.add(roomPlaceholder.position.multiply(Room.SIZE), world, roomPlaceholder.exits);
+			room.add(roomPlaceholder.position.multiply(Room.SIZE + LevelGenerator.MARGIN), world, roomPlaceholder.exits);
+			roomPlaceholder.generated = true;
+			roomPlaceholder.roomType = room;
 		}
+
+		LevelGenerator.generateMargins(path, world);
 
 		const lastRoom = path[path.length - 1];
 		world.player.physicsObject.positionInt = lastRoom.position.add(1/2, 1/2).multiply(World.TILE_SIZE * Room.SIZE)
