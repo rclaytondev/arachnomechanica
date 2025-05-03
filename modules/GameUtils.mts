@@ -7,4 +7,7 @@ export class GameUtils {
 			return Math.max(value - speed, target);
 		}
 	}
+	static randomInt(min: number, max: number) {
+		return Math.floor(Math.random() * (max - min + 1)) + min;
+	}
 }

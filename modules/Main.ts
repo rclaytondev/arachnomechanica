@@ -1,11 +1,12 @@
 import { CanvasIO, canvasIO } from "../utils-ts/modules/CanvasIO.mjs";
 import { Vector } from "../utils-ts/modules/geometry/Vector.mjs";
 import { Lizard } from "./creatures/Lizard.js";
+import { LevelGenerator } from "./LevelGenerator.mjs";
 import { World } from "./World.js";
 
 let frameCount = 0;
 const FRAMERATE = 60;
-const world = new World();
+const world = LevelGenerator.generate();
 world.tiles.set(7, 3, "solid");
 world.tiles.set(7, 1, "solid");
 world.tiles.set(0, 5, "solid");
