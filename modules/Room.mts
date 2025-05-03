@@ -12,9 +12,12 @@ export class Room {
 	requiredExits: Direction[];
 	optionalExits: Direction[];
 
-	constructor(name: string, tiles: Grid<Tile | Direction>, requiredExits: Direction[], optionalExits: Direction[]) {
+	constructor(name: string, tiles: { x: number, y: number, type: Tile | Direction }[], requiredExits: Direction[], optionalExits: Direction[]) {
 		this.name = name;
-		this.tiles = tiles;
+		this.tiles = new Grid("empty");
+		for(const { x, y, type } of tiles) {
+			this.tiles.set(x, y, type);
+		}
 		this.requiredExits = requiredExits;
 		this.optionalExits = optionalExits;
 	}

@@ -6,7 +6,7 @@ import { Room } from "./Room.mjs";
 import { World } from "./World.js";
 
 export class RoomEditor {
-	room: Room = new Room("editor room", new Grid("empty"), [], []);
+	room: Room = new Room("editor room", [], [], []);
 	world: World = new World();
 
 
