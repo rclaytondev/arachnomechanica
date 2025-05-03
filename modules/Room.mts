@@ -47,4 +47,8 @@ export class Room {
 			}
 		}
 	}
+
+	getExitCoordinates(direction: Direction, coordinate: "x" | "y") {
+		return [...this.exitTiles.positions()].filter(p => this.exitTiles.get(p) === direction).map(p => p[coordinate]);
+	}
 }

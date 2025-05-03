@@ -55,16 +55,26 @@ export class LevelGenerator {
 
 	static addMargin(room1Position: Vector, room1: Room, room2: Room, direction: "right" | "down", world: World) {
 		if(direction === "right") {
+			const room1YExits = new Set(room1.getExitCoordinates("right", "y"));
+			const room2YExits = new Set(room2.getExitCoordinates("left", "y"));
 			const xStart = room1Position.x + Room.SIZE;
-			for(let x = xStart; x < xStart + LevelGenerator.MARGIN; x ++) {
-				for(let y = room1Position.y; y < room1Position.y + Room.SIZE + LevelGenerator.MARGIN; y ++) {
+			for(let y = room1Position.y; y < room1Position.y + Room.SIZE + LevelGenerator.MARGIN; y ++) {
+				if(room1YExits.has(y - room1Position.y) && room2YExits.has(y - room1Position.y)) {
+					continue;
+				}
+				for(let x = xStart; x < xStart + LevelGenerator.MARGIN; x ++) {
 					world.tiles.set(x, y, "solid");
 				}
 			}
 		}
 		else {
+			const room1XExits = new Set(room1.getExitCoordinates("down", "x"));
+			const room2XExits = new Set(room2.getExitCoordinates("up", "x"));
 			const yStart = room1Position.y + Room.SIZE;
 			for(let x = room1Position.x; x < room1Position.x + Room.SIZE + LevelGenerator.MARGIN; x ++) {
+				if(room1XExits.has(x - room1Position.x) && room2XExits.has(x - room1Position.x)) {
+					continue;
+				}
 				for(let y = yStart; y < yStart + LevelGenerator.MARGIN; y ++) {
 					world.tiles.set(x, y, "solid");
 				}
