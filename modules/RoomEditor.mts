@@ -68,8 +68,8 @@ export class RoomEditor {
 
 	logBlocks() {
 		let result = "";
-		for(const position of this.world.tiles.positions()) {
-			result += `${position.toString()},\n`;
+		for(const [tile, position] of this.room.tiles.entries()) {
+			result += `{ x: ${position.x}, y: ${position.y}, type: "${tile}" },\n`;
 		}
 		console.log(result);
 	}
