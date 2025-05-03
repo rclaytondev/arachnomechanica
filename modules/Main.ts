@@ -41,7 +41,8 @@ export class Main {
 export const DEBUG_SETTINGS = {
 	LIZARD_JOINT_COLOR: "rgba(255, 150, 0, 0)", // set to transparent to disable
 	LOG_BLOCKS_KEY: "Enter",
-	HOVERED_TILE_COLOR: "rgb(0, 0, 0)" // set to transparent to disable
+	HOVERED_TILE_COLOR: "rgb(0, 0, 0)", // set to transparent to disable
+	EXIT_TILE_COLOR: "rgb(0, 200, 0)"
 };
 
 window.setInterval(() => {
