@@ -141,9 +141,7 @@ export class LevelGenerator {
 					this.rooms.filter(r => r.position.equals(Vector.unit(dir).add(x, y)))
 					.some(r => r.exits.includes(Directions.opposite(dir)))
 				));
-				console.log(exits.length);
 				if(exits.length > 0) {
-					console.log(`found a room with adjacent exits`);
 					const roomPlaceholder: RoomPlaceholder = {
 						position: new Vector(x, y),
 						exits: exits,
@@ -164,7 +162,6 @@ export class LevelGenerator {
 					this.rooms.push(roomPlaceholder);
 					room.add(new Vector(x * (Room.SIZE + LevelGenerator.MARGIN_X), y * (Room.SIZE + LevelGenerator.MARGIN_Y)), this.world, exits);
 					roomPlaceholder.roomType = room;
-					console.log(`added a room at ${x}, ${y}`);
 					return true;
 				}
 			}
