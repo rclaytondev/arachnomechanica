@@ -13,7 +13,7 @@ export class LevelGenerator {
 	static WIDTH = 3;
 	static HEIGHT = 5;
 	static MARGIN_X = 2;
-	static MARGIN_Y = 2;
+	static MARGIN_Y = 0;
 
 	static MAIN_PATH_BRANCH_PROBABILITY = 0.6;
 	static OFF_PATH_BRANCH_PROBABILITY = 0.6;
