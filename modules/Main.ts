@@ -29,7 +29,7 @@ const world = EMPTY_ROOM;
 // world.creatures.push(new Lizard(new Vector(200, 175), "right", 200, 3));
 
 export class Main {
-	static screen: World | RoomEditor = LevelGenerator.generate();
+	static screen: World | RoomEditor = new LevelGenerator().generate();
 
 	static update(canvasIO: CanvasIO) {
 		this.screen.update(canvasIO);
