@@ -187,6 +187,28 @@ export class LevelGenerator {
 			}
 		}
 	}
+	fillBoundaries() {
+		this.world.tiles.fillRect(new Rectangle(
+			-LevelGenerator.MARGIN, -LevelGenerator.MARGIN,
+			LevelGenerator.WIDTH * (Room.SIZE + LevelGenerator.MARGIN) + LevelGenerator.MARGIN,
+			LevelGenerator.MARGIN
+		), "solid");
+		this.world.tiles.fillRect(new Rectangle(
+			-LevelGenerator.MARGIN, -LevelGenerator.MARGIN,
+			LevelGenerator.MARGIN,
+			LevelGenerator.HEIGHT * (Room.SIZE + LevelGenerator.MARGIN) + LevelGenerator.MARGIN
+		), "solid");
+		this.world.tiles.fillRect(new Rectangle(
+			LevelGenerator.WIDTH * (Room.SIZE + LevelGenerator.MARGIN) - LevelGenerator.MARGIN, -LevelGenerator.MARGIN,
+			LevelGenerator.MARGIN,
+			LevelGenerator.HEIGHT * (Room.SIZE + LevelGenerator.MARGIN)
+		), "solid");
+		this.world.tiles.fillRect(new Rectangle(
+			-LevelGenerator.MARGIN, LevelGenerator.HEIGHT * (Room.SIZE + LevelGenerator.MARGIN) - LevelGenerator.MARGIN, 
+			LevelGenerator.WIDTH * (Room.SIZE + LevelGenerator.MARGIN) + LevelGenerator.MARGIN,
+			LevelGenerator.MARGIN,
+		), "solid");
+	}
 	spawnPlayer() {
 		const lastRoom = this.path[this.path.length - 1];
 		this.world.player.physicsObject.positionInt = lastRoom.position.add(1/2, 1/2).multiply(World.TILE_SIZE * Room.SIZE);
@@ -197,6 +219,7 @@ export class LevelGenerator {
 		this.generateRoomsOffPath();
 		this.generateMargins();
 		this.fillUnusedRegions();
+		this.fillBoundaries();
 		this.spawnPlayer();
 		return this.world;
 	}
