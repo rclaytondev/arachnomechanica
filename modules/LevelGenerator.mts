@@ -13,6 +13,8 @@ export class LevelGenerator {
 	static HEIGHT = 5;
 	static MARGIN = 2;
 
+	static MAIN_PATH_BRANCH_PROBABILITY = 0.35;
+
 	static generatePath() {
 		const rooms: RoomPlaceholder[] = [];
 		let x = GameUtils.randomInt(0, LevelGenerator.WIDTH - 1);
@@ -102,7 +104,16 @@ export class LevelGenerator {
 		for(const roomPlaceholder of path) {
 			const possibleRooms = ROOMS.filter(r => r.canAdd(roomPlaceholder));
 			const room = Utils.randomItem(possibleRooms);
-			room.add(roomPlaceholder.position.multiply(Room.SIZE + LevelGenerator.MARGIN), world, roomPlaceholder.exits);
+			const exits = [...roomPlaceholder.exits];
+			for(const possibleExit of room.optionalExits) {
+				const adjacentPosition = roomPlaceholder.position.add(Vector.unit(possibleExit));
+				if(
+					Math.random() < LevelGenerator.MAIN_PATH_BRANCH_PROBABILITY && 
+					LevelGenerator.isInBounds(adjacentPosition) &&
+					!path.some(r => r.position.equals(adjacentPosition))
+				) { exits.push(possibleExit); }
+			}
+			room.add(roomPlaceholder.position.multiply(Room.SIZE + LevelGenerator.MARGIN), world, exits);
 			roomPlaceholder.generated = true;
 			roomPlaceholder.roomType = room;
 		}
@@ -118,5 +129,12 @@ export class LevelGenerator {
 		LevelGenerator.generateMargins(path, world);
 		LevelGenerator.spawnPlayer(path, world);
 		return world;
+	}
+
+	static isInBounds(roomPosition: Vector) {
+		return (
+			0 < roomPosition.x && roomPosition.x < LevelGenerator.WIDTH &&
+			0 < roomPosition.y && roomPosition.y < LevelGenerator.HEIGHT
+		);
 	}
 }
