@@ -38,9 +38,9 @@ export class World {
 			if(tileType === "solid") {
 				canvasIO.ctx.fillStyle = World.TILE_COLOR;
 				canvasIO.ctx.fillRect(
-					position.x * World.TILE_SIZE, 
-					position.y * World.TILE_SIZE, 
-					World.TILE_SIZE, World.TILE_SIZE
+					position.x * World.TILE_SIZE - 1, 
+					position.y * World.TILE_SIZE - 1, 
+					World.TILE_SIZE + 2, World.TILE_SIZE + 2
 				);
 			}
 			else if(tileType === "platform") {
