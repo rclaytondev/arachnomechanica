@@ -1,6 +1,7 @@
 import { CanvasIO, canvasIO } from "../utils-ts/modules/CanvasIO.mjs";
 import { Vector } from "../utils-ts/modules/geometry/Vector.mjs";
 import { Lizard } from "./creatures/Lizard.js";
+import { GameUtils } from "./GameUtils.mjs";
 import { LevelGenerator } from "./LevelGenerator.mjs";
 import { Room } from "./Room.mjs";
 import { RoomEditor } from "./RoomEditor.mjs";
@@ -33,6 +34,8 @@ export class Main {
 
 	static update(canvasIO: CanvasIO) {
 		this.screen.update(canvasIO);
+
+		Object.assign(GameUtils.pastKeys, canvasIO.keys);
 	}
 	static display(canvasIO: CanvasIO) {
 		this.screen.display(canvasIO);

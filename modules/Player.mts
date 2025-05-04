@@ -2,6 +2,7 @@ import { CanvasIO } from "../utils-ts/modules/CanvasIO.mjs";
 import { Rectangle } from "../utils-ts/modules/geometry/Rectangle.mjs";
 import { Vector } from "../utils-ts/modules/geometry/Vector.mjs";
 import { MathUtils } from "../utils-ts/modules/math/MathUtils.mjs";
+import { GameUtils } from "./GameUtils.mjs";
 import { PhysicsObject } from "./PhysicsObject.mjs";
 import { World } from "./World.js";
 
@@ -18,6 +19,7 @@ export class Player {
 		new Vector(0, 0), 
 		new Rectangle(0, 0, World.TILE_SIZE * 0.9, World.TILE_SIZE * 0.9)
 	);
+	hasDoubleJump: boolean = false;
 
 	constructor() {
 		
@@ -30,6 +32,9 @@ export class Player {
 
 	update(world: World, canvasIO: CanvasIO) {
 		this.checkInputs(world, canvasIO);
+		if(this.onGround(world)) {
+			this.hasDoubleJump = true;
+		}
 		this.physicsObject.velocity = this.physicsObject.velocity.add(new Vector(0, Player.GRAVITY));
 		this.physicsObject.velocity.x = MathUtils.constrain(this.physicsObject.velocity.x, -Player.MAX_X_VELOCITY, Player.MAX_X_VELOCITY);
 		this.physicsObject.update(world);
@@ -48,8 +53,10 @@ export class Player {
 		) {
 			this.physicsObject.velocity.x *= Player.FRICTION_X;
 		}
-		if(canvasIO.keys.KeyZ && this.onGround(world)) {
+		const onGround = this.onGround(world);
+		if(canvasIO.keys.KeyZ && !GameUtils.pastKeys.KeyZ && (onGround || this.hasDoubleJump)) {
 			this.physicsObject.velocity.y = -Player.JUMP_VELOCITY;
+			this.hasDoubleJump = onGround;
 		}
 	}
 	onGround(world: World) {
