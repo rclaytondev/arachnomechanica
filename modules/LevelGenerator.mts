@@ -1,4 +1,5 @@
 import { Direction, Directions } from "../utils-ts/modules/geometry/Direction.mjs";
+import { Rectangle } from "../utils-ts/modules/geometry/Rectangle.mjs";
 import { Vector } from "../utils-ts/modules/geometry/Vector.mjs";
 import { Utils } from "../utils-ts/modules/Utils.mjs";
 import { GameUtils } from "./GameUtils.mjs";
@@ -24,7 +25,7 @@ export class LevelGenerator {
 		let x = GameUtils.randomInt(0, LevelGenerator.WIDTH - 1);
 		let y = 0;
 		this.path.push({ position: new Vector(x, y), exits: [], roomType: null, generated: false });
-		while(y < LevelGenerator.HEIGHT) {
+		while(y < LevelGenerator.HEIGHT - 1) {
 			const nextDirection = Utils.randomItem(this.possibleNextDirections(x, y));
 			const nextPosition = Vector.unit(nextDirection).add(x, y);
 			const nextRoom = {
@@ -169,6 +170,23 @@ export class LevelGenerator {
 			generating = this.generateRoomOffPath();
 		}
 	}
+	fillRoom(x: number, y: number) {
+		this.world.tiles.fillRect(new Rectangle(
+			x * (Room.SIZE + LevelGenerator.MARGIN) - LevelGenerator.MARGIN,
+			y * (Room.SIZE + LevelGenerator.MARGIN) - LevelGenerator.MARGIN,
+			Room.SIZE + 2 * LevelGenerator.MARGIN,
+			Room.SIZE + 2 * LevelGenerator.MARGIN,
+		), "solid");
+	}
+	fillUnusedRegions() {
+		for(let x = 0; x < LevelGenerator.WIDTH; x ++) {
+			for(let y = 0; y < LevelGenerator.HEIGHT; y ++) {
+				if(!this.rooms.some(r => r.position.equals(x, y))) {
+					this.fillRoom(x, y);
+				}
+			}
+		}
+	}
 	spawnPlayer() {
 		const lastRoom = this.path[this.path.length - 1];
 		this.world.player.physicsObject.positionInt = lastRoom.position.add(1/2, 1/2).multiply(World.TILE_SIZE * Room.SIZE);
@@ -178,6 +196,7 @@ export class LevelGenerator {
 		this.generateRoomsOnPath();
 		this.generateRoomsOffPath();
 		this.generateMargins();
+		this.fillUnusedRegions();
 		this.spawnPlayer();
 		return this.world;
 	}
