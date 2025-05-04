@@ -6,6 +6,7 @@ import { LevelGenerator } from "./LevelGenerator.mjs";
 import { Room } from "./Room.mjs";
 import { RoomEditor } from "./RoomEditor.mjs";
 import { ROOMS } from "./Rooms.mjs";
+import { Gate } from "./tiles/Gate.mjs";
 import { World } from "./World.js";
 
 const CORNER_SIZE = 3;
@@ -23,14 +24,20 @@ for(let i = 0; i < CORNER_SIZE; i ++) {
 
 let frameCount = 0;
 const FRAMERATE = 60;
-const world = EMPTY_ROOM;
+const world = new World();
 // world.tiles.set(7, 3, "solid");
 // world.tiles.set(7, 1, "solid");
-// world.tiles.set(0, 5, "solid");
+world.tiles.set(0, 5, "solid");
+world.tiles.set(1, 5, "solid");
+world.tiles.set(1, 3, "solid");
+world.tiles.set(2, 3, "solid");
+world.tiles.set(3, 3, "solid");
+world.tiles.set(4, 3, "solid");
+world.tiles.set(1, 4, new Gate("down", true));
 // world.creatures.push(new Lizard(new Vector(200, 175), "right", 200, 3));
 
 export class Main {
-	static screen: World | RoomEditor = new LevelGenerator().generate();
+	static screen: World | RoomEditor = world;
 
 	static update(canvasIO: CanvasIO) {
 		this.screen.update(canvasIO);

@@ -5,15 +5,16 @@ import { Grid } from "../utils-ts/modules/Grid.mjs";
 import { Creature } from "./creatures/Creature.js";
 import { DEBUG_SETTINGS, Main } from "./Main.js";
 import { Player } from "./Player.mjs";
+import { Gate } from "./tiles/Gate.mjs";
 
-export type Tile = (typeof World.TILE_TYPES)[number];
+export type Tile = (typeof World.STRING_TILE_TYPES)[number] | Gate;
 
 export class World {
 	static TILE_SIZE = 50;
 	static TILE_COLOR = "rgb(100, 100, 100)";
 	static PLATFORM_THICKNESS = World.TILE_SIZE * 0.1;
 
-	static TILE_TYPES = ["solid", "empty", "platform"] as const;
+	static STRING_TILE_TYPES = ["solid", "empty", "platform"] as const;
 
 	tiles: Grid<Tile> = new Grid("empty");
 	creatures: Creature[] = [];
@@ -34,8 +35,8 @@ export class World {
 		canvasIO.ctx.restore();
 	}
 	displayTiles(canvasIO: CanvasIO) {
-		for(const [tileType, position] of this.tiles.entries()) {
-			if(tileType === "solid") {
+		for(const [tile, position] of this.tiles.entries()) {
+			if(tile === "solid") {
 				canvasIO.ctx.fillStyle = World.TILE_COLOR;
 				canvasIO.ctx.fillRect(
 					position.x * World.TILE_SIZE - 1, 
@@ -43,13 +44,16 @@ export class World {
 					World.TILE_SIZE + 2, World.TILE_SIZE + 2
 				);
 			}
-			else if(tileType === "platform") {
+			else if(tile === "platform") {
 				canvasIO.ctx.fillStyle = World.TILE_COLOR;
 				canvasIO.ctx.fillRect(
 					position.x * World.TILE_SIZE,
 					position.y * World.TILE_SIZE,
 					World.TILE_SIZE, World.PLATFORM_THICKNESS
 				)
+			}
+			else if(tile !== "empty") {
+				tile.display(canvasIO, position.x, position.y);
 			}
 		}
 	}
@@ -91,7 +95,11 @@ export class World {
 		const bottom = this.getTileY(rectangle.bottom() - 1);
 		for(let x = left; x <= right; x ++) {
 			for(let y = top; y <= bottom; y ++) {
-				if(this.tiles.get(x, y) === "solid") {
+				const tile = this.tiles.get(x, y);
+				if(tile === "solid") {
+					return true;
+				}
+				if(tile instanceof Gate && rectangle.intersects(tile.getPhysicsBox(x, y))) {
 					return true;
 				}
 			}
@@ -100,6 +108,7 @@ export class World {
 	}
 
 	static isTile(value: unknown): value is Tile {
-		return World.TILE_TYPES.includes(value as Tile);
+		return (typeof value === "string" && (World.STRING_TILE_TYPES as readonly string[]).includes(value))
+			|| value instanceof Gate;
 	}
 }
