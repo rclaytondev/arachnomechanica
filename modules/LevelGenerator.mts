@@ -13,9 +13,11 @@ export class LevelGenerator {
 	static HEIGHT = 5;
 	static MARGIN = 2;
 
-	static MAIN_PATH_BRANCH_PROBABILITY = 0.35;
+	static MAIN_PATH_BRANCH_PROBABILITY = 0.6;
+	static OFF_PATH_BRANCH_PROBABILITY = 0.6;
 
 	path: RoomPlaceholder[] = [];
+	rooms: RoomPlaceholder[] = [];
 	world: World = new World();
 
 	generatePath() {
@@ -25,12 +27,14 @@ export class LevelGenerator {
 		while(y < LevelGenerator.HEIGHT) {
 			const nextDirection = Utils.randomItem(this.possibleNextDirections(x, y));
 			const nextPosition = Vector.unit(nextDirection).add(x, y);
-			this.path.push({
+			const nextRoom = {
 				position: nextPosition,
-				exits: [Directions.opposite(nextDirection)],
+				exits: [Directions.opposite(nextDirection) as Direction],
 				roomType: null,
 				generated: false
-			});
+			};
+			this.path.push(nextRoom);
+			this.rooms.push(nextRoom);
 			[x, y] = [nextPosition.x, nextPosition.y];
 
 			const previousRoom = this.path[this.path.length - 2];
@@ -56,13 +60,13 @@ export class LevelGenerator {
 		return directions;
 	}
 
-	addMargin(room1Position: Vector, room1: Room, room2: Room, direction: "right" | "down") {
+	addMargin(room1Position: Vector, room1: Room, room2: Room, direction: "right" | "down", forceSolid: boolean) {
 		if(direction === "right") {
 			const room1YExits = new Set(room1.getExitCoordinates("right", "y"));
 			const room2YExits = new Set(room2.getExitCoordinates("left", "y"));
 			const xStart = room1Position.x + Room.SIZE;
 			for(let y = room1Position.y; y < room1Position.y + Room.SIZE + LevelGenerator.MARGIN; y ++) {
-				if(room1YExits.has(y - room1Position.y) && room2YExits.has(y - room1Position.y)) {
+				if(room1YExits.has(y - room1Position.y) && room2YExits.has(y - room1Position.y) && !forceSolid) {
 					continue;
 				}
 				for(let x = xStart; x < xStart + LevelGenerator.MARGIN; x ++) {
@@ -75,7 +79,7 @@ export class LevelGenerator {
 			const room2XExits = new Set(room2.getExitCoordinates("up", "x"));
 			const yStart = room1Position.y + Room.SIZE;
 			for(let x = room1Position.x; x < room1Position.x + Room.SIZE + LevelGenerator.MARGIN; x ++) {
-				if(room1XExits.has(x - room1Position.x) && room2XExits.has(x - room1Position.x)) {
+				if(room1XExits.has(x - room1Position.x) && room2XExits.has(x - room1Position.x) && !forceSolid) {
 					continue;
 				}
 				for(let y = yStart; y < yStart + LevelGenerator.MARGIN; y ++) {
@@ -85,15 +89,16 @@ export class LevelGenerator {
 		}
 	}
 	generateMargins() {
-		for(const room of this.path) {
+		for(const room of this.rooms) {
 			for(const direction of ["right", "down"] as const) {
-				const adjacentRoom = this.path.find(p => p.position.equals(room.position.add(Vector.unit(direction))));
+				const adjacentRoom = this.rooms.find(p => p.position.equals(room.position.add(Vector.unit(direction))));
 				if(adjacentRoom) {
 					this.addMargin(
 						room.position.multiply(Room.SIZE + LevelGenerator.MARGIN),
 						room.roomType!,
 						adjacentRoom.roomType!,
-						direction
+						direction,
+						!room.exits.includes(direction)
 					);
 				}
 			}
@@ -115,6 +120,53 @@ export class LevelGenerator {
 			room.add(roomPlaceholder.position.multiply(Room.SIZE + LevelGenerator.MARGIN), this.world, exits);
 			roomPlaceholder.generated = true;
 			roomPlaceholder.roomType = room;
+			roomPlaceholder.exits = exits;
+		}
+	}
+	generateRoomOffPath() {
+		for(let x = 0; x < LevelGenerator.WIDTH; x ++) {
+			for(let y = 0; y < LevelGenerator.HEIGHT; y ++) {
+				if(this.rooms.some(r => r.position.equals(x, y))) {
+					continue;
+				}
+				const exits = Directions.DIRECTIONS.filter(dir => (
+					this.rooms.filter(r => r.position.equals(Vector.unit(dir).add(x, y)))
+					.some(r => r.exits.includes(Directions.opposite(dir)))
+				));
+				console.log(exits.length);
+				if(exits.length > 0) {
+					console.log(`found a room with adjacent exits`);
+					const roomPlaceholder: RoomPlaceholder = {
+						position: new Vector(x, y),
+						exits: exits,
+						roomType: null,
+						generated: true
+					};
+					const possibleRooms = ROOMS.filter(r => r.canAdd(roomPlaceholder));
+					const room = Utils.randomItem(possibleRooms);
+					for(const exit of room.optionalExits) {
+						const adjacentPosition = Vector.unit(exit).add(x, y);
+						if(
+							Math.random() < LevelGenerator.OFF_PATH_BRANCH_PROBABILITY &&
+							LevelGenerator.isInBounds(adjacentPosition) &&
+							!this.rooms.some(r => r.position.equals(adjacentPosition)) &&
+							!exits.includes(exit)
+						) { exits.push(exit); }
+					}
+					this.rooms.push(roomPlaceholder);
+					room.add(new Vector(x, y).multiply(Room.SIZE + LevelGenerator.MARGIN), this.world, exits);
+					roomPlaceholder.roomType = room;
+					console.log(`added a room at ${x}, ${y}`);
+					return true;
+				}
+			}
+		}
+		return false;
+	}
+	generateRoomsOffPath() {
+		let generating = true;
+		while(generating) {
+			generating = this.generateRoomOffPath();
 		}
 	}
 	spawnPlayer() {
@@ -124,6 +176,7 @@ export class LevelGenerator {
 	generate(): World {
 		this.generatePath();
 		this.generateRoomsOnPath();
+		this.generateRoomsOffPath();
 		this.generateMargins();
 		this.spawnPlayer();
 		return this.world;
