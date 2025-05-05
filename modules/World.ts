@@ -1,4 +1,5 @@
 import { CanvasIO } from "../utils-ts/modules/CanvasIO.mjs";
+import { Directions } from "../utils-ts/modules/geometry/Direction.mjs";
 import { Rectangle } from "../utils-ts/modules/geometry/Rectangle.mjs";
 import { Vector } from "../utils-ts/modules/geometry/Vector.mjs";
 import { Grid } from "../utils-ts/modules/Grid.mjs";
@@ -155,5 +156,16 @@ export class World {
 	static isTile(value: unknown): value is Tile {
 		return (typeof value === "string" && (World.STRING_TILE_TYPES as readonly string[]).includes(value))
 			|| value instanceof Gate;
+	}
+	static reflectTile(tile: Tile) {
+		if(tile === "solid" || tile === "empty" || tile === "platform") {
+			return tile;
+		}
+		else if(tile instanceof Gate) {
+			const result = tile.copy();
+			tile.direction = Directions.reflectX(tile.direction);
+			return result;
+		}
+		else { const _: never = tile; throw new Error(); }
 	}
 }

@@ -1043,3 +1043,8 @@ export const ROOMS: Room[] = [
 		["down", "right"]
 	)
 ];
+
+for(const room of ROOMS) {
+	ROOMS.push(room.reflect());
+}
+debugger;
