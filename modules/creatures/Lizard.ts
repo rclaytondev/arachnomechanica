@@ -14,6 +14,7 @@ export class Lizard {
 	static SPEED = 3;
 	static LOOKAHEAD_WIDTH = World.TILE_SIZE;
 	static LOOKAHEAD_DISTANCE = World.TILE_SIZE * 1/2 + Lizard.SPEED;
+	static HITBOX_WIDTH = World.TILE_SIZE * 1/2;
 
 	static BODY_WIDTH = World.TILE_SIZE * 0.1;
 	static LEG_SCALE = World.TILE_SIZE * 0.5;
@@ -277,18 +278,18 @@ export class Lizard {
 	static segmentBoundingBox(point1: Vector, point2: Vector) {
 		if(point1.x === point2.x) {
 			return Rectangle.fromBounds(
-				point1.x - World.TILE_SIZE / 2,
-				point1.x + World.TILE_SIZE / 2,
-				Math.min(point1.y, point2.y) - World.TILE_SIZE / 2,
-				Math.max(point1.y, point2.y) + World.TILE_SIZE / 2
+				point1.x - Lizard.HITBOX_WIDTH / 2,
+				point1.x + Lizard.HITBOX_WIDTH / 2,
+				Math.min(point1.y, point2.y) - Lizard.HITBOX_WIDTH / 2,
+				Math.max(point1.y, point2.y) + Lizard.HITBOX_WIDTH / 2
 			);
 		}
 		else {
 			return Rectangle.fromBounds(
-				Math.min(point1.x, point2.x) - World.TILE_SIZE / 2,
-				Math.max(point1.x, point2.x) + World.TILE_SIZE / 2,
-				point1.y - World.TILE_SIZE / 2,
-				point1.y + World.TILE_SIZE / 2
+				Math.min(point1.x, point2.x) - Lizard.HITBOX_WIDTH / 2,
+				Math.max(point1.x, point2.x) + Lizard.HITBOX_WIDTH / 2,
+				point1.y - Lizard.HITBOX_WIDTH / 2,
+				point1.y + Lizard.HITBOX_WIDTH / 2
 			);
 		}
 	}
