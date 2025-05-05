@@ -11,10 +11,11 @@ type ParticleSettings = {
 	shape?: "circle" | number;
 	gravity?: number;
 	sizeDecay?: number;
-	rotationalVelocity: number;
-	rotation: number;
-	colorVariance: number;
-	solid: boolean;
+	maxRotationalVelocity?: number;
+	minRotationalVelocity?: number;
+	rotation?: number;
+	colorVariance?: number;
+	solid?: boolean;
 };
 
 export class Particle {
@@ -49,7 +50,10 @@ export class Particle {
 		this.shape = settings.shape ?? "circle";
 		this.gravity = settings.gravity ?? 0;
 		this.sizeDecay = settings.sizeDecay ?? 0;
-		this.rotationalVelocity = settings.rotationalVelocity ?? 0;
+		this.rotationalVelocity = GameUtils.random(
+			settings.minRotationalVelocity ?? 0,
+			settings.maxRotationalVelocity ?? settings.minRotationalVelocity ?? 0
+		);
 		this.rotation = settings.rotation ?? GameUtils.random(0, 2 * Math.PI);
 		this.solid = settings.solid ?? true;
 	}
