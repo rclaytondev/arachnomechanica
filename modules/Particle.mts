@@ -2,7 +2,7 @@ import { CanvasIO } from "../utils-ts/modules/CanvasIO.mjs";
 import { Vector } from "../utils-ts/modules/geometry/Vector.mjs";
 import { GameUtils } from "./GameUtils.mjs";
 
-type ParticleSettings = {
+export type ParticleSettings = {
 	color: { red: number, green: number, blue: number };
 	size: number;
 	
@@ -60,23 +60,25 @@ export class Particle {
 
 	display(canvasIO: CanvasIO) {
 		canvasIO.ctx.save();
+		canvasIO.ctx.translate(this.position.x, this.position.y);
+		canvasIO.ctx.rotate(this.rotation);
 		canvasIO.ctx.fillStyle = this.color;
 		canvasIO.ctx.strokeStyle = this.color;
 		canvasIO.ctx.globalAlpha = this.opacity;
 		if(this.solid) {
 			if(this.shape === "circle") {
-				canvasIO.fillCircle(this.position.x, this.position.y, this.size);
+				canvasIO.fillCircle(0, 0, this.size);
 			}
 			else {
-				canvasIO.fillRegularPoly(this.position, this.size, this.shape);
+				canvasIO.fillRegularPoly(new Vector(0, 0), this.size, this.shape);
 			}
 		}
 		else {
 			if(this.shape === "circle") {
-				canvasIO.strokeCircle(this.position.x, this.position.y, this.size);
+				canvasIO.strokeCircle(0, 0, this.size);
 			}
 			else {
-				canvasIO.strokeRegularPoly(this.position, this.size, this.shape);
+				canvasIO.strokeRegularPoly(new Vector(0, 0), this.size, this.shape);
 			}
 		}
 		canvasIO.ctx.restore();
@@ -85,6 +87,7 @@ export class Particle {
 	update() {
 		this.velocity = this.velocity.add(0, this.gravity);
 		this.position = this.position.add(this.velocity);
+		this.rotation += this.rotationalVelocity;
 		this.size = Math.max(0, this.size - this.sizeDecay);
 		this.opacity = Math.max(0, this.opacity - this.opacityDecay);
 	}
