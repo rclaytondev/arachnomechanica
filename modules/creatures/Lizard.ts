@@ -11,8 +11,9 @@ import { Rectangle } from "../../utils-ts/modules/geometry/Rectangle.mjs";
 import { Gate } from "../tiles/Gate.mjs";
 
 export class Lizard {
-	static LOOKAHEAD_DISTANCE = World.TILE_SIZE * 1/2;
 	static SPEED = 3;
+	static LOOKAHEAD_WIDTH = World.TILE_SIZE;
+	static LOOKAHEAD_DISTANCE = World.TILE_SIZE * 1/2 + Lizard.SPEED;
 
 	static BODY_WIDTH = World.TILE_SIZE * 0.1;
 	static LEG_SCALE = World.TILE_SIZE * 0.5;
@@ -74,7 +75,7 @@ export class Lizard {
 		this.displayLegs(canvasIO);
 		this.displayHead(canvasIO);
 		this.displayBoundingBoxes(canvasIO);
-		this.displayLookaheadPoint(canvasIO);
+		this.displayLookaheadRectangle(canvasIO);
 	}
 	displayBody(canvasIO: CanvasIO) {
 		canvasIO.ctx.strokeStyle = this.color;
@@ -144,10 +145,10 @@ export class Lizard {
 			canvasIO.strokeRect(box);
 		}
 	}
-	displayLookaheadPoint(canvasIO: CanvasIO) {
-		const point = this.lookaheadPoint();
-		canvasIO.ctx.fillStyle = DEBUG_SETTINGS.LIZARD_LOOKAHEAD_COLOR;
-		canvasIO.fillCircle(point.x, point.y, 5);
+	displayLookaheadRectangle(canvasIO: CanvasIO) {
+		const rectangle = this.lookaheadRectangle();
+		canvasIO.ctx.strokeStyle = DEBUG_SETTINGS.LIZARD_LOOKAHEAD_COLOR;
+		canvasIO.strokeRect(rectangle);
 	}
 
 	update(world: World) {
@@ -225,13 +226,30 @@ export class Lizard {
 	lookaheadPoint(direction: Direction = this.direction, distance: number = Lizard.LOOKAHEAD_DISTANCE) {
 		return this.position.add(Vector.unit(direction).multiply(distance));
 	}
+	lookaheadRectangle(direction: Direction = this.direction, distance: number = Lizard.LOOKAHEAD_DISTANCE) {
+		const point = this.lookaheadPoint(direction, distance);
+		if(Directions.isHorizontal(direction)) {
+			return new Rectangle(
+				point.x, point.y - Lizard.LOOKAHEAD_WIDTH / 2,
+				1, Lizard.LOOKAHEAD_WIDTH
+			);
+		}
+		else {
+			return new Rectangle(
+				point.x - Lizard.LOOKAHEAD_WIDTH / 2, point.y,
+				Lizard.LOOKAHEAD_WIDTH, 1
+			);
+		}
+	}
 	isObstructed(world: World, direction: Direction = this.direction, distance: number = Lizard.LOOKAHEAD_DISTANCE) {
-		const lookaheadPoint = this.lookaheadPoint(direction, distance);
-		const tile = world.getTileAt(lookaheadPoint);
-		if(tile === "solid") { return true; }
-		if(tile === "platform" && direction === "down") { return true; }
-		if(tile instanceof Gate && tile.openness !== 1) { return true; }
-		if(world.creatures.some(lizard => lizard !== this && lizard.boundingBoxes().some(b => b.contains(lookaheadPoint)))) {
+		const lookaheadRectangle = this.lookaheadRectangle(direction, distance);
+		const tiles = world.getTilesAt(lookaheadRectangle);
+		if(tiles.some(({ tile }) => (
+			tile === "solid" ||
+			(tile === "platform" && direction === "down") ||
+			(tile instanceof Gate && tile.openness !== 1)
+		))) { return true; }
+		if(world.creatures.some(lizard => lizard !== this && lizard.boundingBoxes().some(b => b.intersects(lookaheadRectangle)))) {
 			return true;
 		}
 		return false;

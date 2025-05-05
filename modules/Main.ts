@@ -41,8 +41,8 @@ world.tiles.set(1, 4, new Gate("down", true));
 world.tiles.set(1, 2, new Gate("up", false));
 world.tiles.set(1, 1, new Gate("down", false));
 world.tiles.set(-5, 8, "platform");
-world.creatures.push(new Lizard(new Vector(-225, 125), "down", 200, 3));
-world.creatures.push(new Lizard(new Vector(-325, 375), "right", 200, 3));
+world.creatures.push(new Lizard(new Vector(25, 25), "right", 200, 3));
+world.creatures.push(new Lizard(new Vector(225, 25), "left", 200, 3));
 
 export class Main {
 	// static screen: World | RoomEditor = new LevelGenerator().generate();
