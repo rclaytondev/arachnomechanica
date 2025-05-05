@@ -28,7 +28,7 @@ export class World {
 		canvasIO.fillCanvas("white");
 		canvasIO.ctx.save();
 		if(Main.screen instanceof World) {
-			const playerPosition = this.player.physicsObject.boundingBox().center();
+			const playerPosition = this.player.physicsObject.hitbox().center();
 			canvasIO.ctx.translate(canvasIO.canvas.width / 2 - playerPosition.x, canvasIO.canvas.height / 2 - playerPosition.y);
 		}
 		this.displayTiles(canvasIO);
@@ -134,7 +134,7 @@ export class World {
 			) { return true; }
 		}
 		for(const lizard of this.creatures) {
-			if(lizard.boundingBoxes().some(b => rectangle.intersects(b))) {
+			if(lizard.hitboxes().some(b => rectangle.intersects(b))) {
 				return true;
 			}
 		}

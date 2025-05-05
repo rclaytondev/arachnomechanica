@@ -70,23 +70,23 @@ export class Gate {
 		this.openness = GameUtils.moveTowards(this.openness, this.open ? 1 : 0, Gate.SPEED);
 	}
 	getPlayerSide(player: Player, x: number, y: number) {
-		const boundingBox = player.physicsObject.boundingBox();
+		const hitbox = player.physicsObject.hitbox();
 		if(Directions.isVertical(this.direction)) {
-			const onLeft = (boundingBox.right() <= x * World.TILE_SIZE - Gate.TOGGLE_DISTANCE);
-			const onRight = (boundingBox.x >= (x + 1) * World.TILE_SIZE + Gate.TOGGLE_DISTANCE);
+			const onLeft = (hitbox.right() <= x * World.TILE_SIZE - Gate.TOGGLE_DISTANCE);
+			const onRight = (hitbox.x >= (x + 1) * World.TILE_SIZE + Gate.TOGGLE_DISTANCE);
 			return onLeft ? "negative" : (onRight ? "positive" : this.playerSide);
 		}
 		else {
-			const above = boundingBox.bottom() <= y * World.TILE_SIZE - Gate.TOGGLE_DISTANCE;
-			const below = boundingBox.y >= (y + 1) * World.TILE_SIZE + Gate.TOGGLE_DISTANCE;
+			const above = hitbox.bottom() <= y * World.TILE_SIZE - Gate.TOGGLE_DISTANCE;
+			const below = hitbox.y >= (y + 1) * World.TILE_SIZE + Gate.TOGGLE_DISTANCE;
 			return above ? "negative" : (below ? "positive" : this.playerSide);
 		}
 	}
 	checkPlayer(world: World, x: number, y: number) {
-		const boundingBox = world.player.physicsObject.boundingBox();
+		const hitbox = world.player.physicsObject.hitbox();
 		const sameRowOrColumn = (Directions.isVertical(this.direction)
-			? (boundingBox.bottom() >= y * World.TILE_SIZE && boundingBox.top() <= (y + 1) * World.TILE_SIZE)
-			: (boundingBox.right() >= x * World.TILE_SIZE && boundingBox.left() <= (x + 1) * World.TILE_SIZE)
+			? (hitbox.bottom() >= y * World.TILE_SIZE && hitbox.top() <= (y + 1) * World.TILE_SIZE)
+			: (hitbox.right() >= x * World.TILE_SIZE && hitbox.left() <= (x + 1) * World.TILE_SIZE)
 		);
 
 		const newSide = this.getPlayerSide(world.player, x, y);
@@ -105,8 +105,8 @@ export class Gate {
 	}
 
 	initialize(player: Player, x: number, y: number) {
-		const boundingBox = player.physicsObject.boundingBox();
-		const center = boundingBox.center();
+		const hitbox = player.physicsObject.hitbox();
+		const center = hitbox.center();
 		if(Directions.isVertical(this.direction)) {
 			this.playerSide = center.x < (x + 1/2) * World.TILE_SIZE ? "negative" : "positive";
 		}

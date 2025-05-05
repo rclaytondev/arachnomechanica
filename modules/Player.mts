@@ -27,7 +27,7 @@ export class Player {
 
 	display(canvasIO: CanvasIO) {
 		canvasIO.ctx.fillStyle = Player.COLOR;
-		canvasIO.fillRect(this.physicsObject.boundingBox());
+		canvasIO.fillRect(this.physicsObject.hitbox());
 	}
 
 	update(world: World, canvasIO: CanvasIO) {

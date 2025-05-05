@@ -90,7 +90,7 @@ export class Lizard {
 		this.displayBody(canvasIO);
 		this.displayLegs(canvasIO);
 		this.displayHead(canvasIO);
-		this.displayBoundingBoxes(canvasIO);
+		this.displayHitboxes(canvasIO);
 		this.displayLookaheadRectangle(canvasIO);
 	}
 	displayBody(canvasIO: CanvasIO) {
@@ -154,9 +154,9 @@ export class Lizard {
 
 		canvasIO.ctx.restore();
 	}
-	displayBoundingBoxes(canvasIO: CanvasIO) {
-		const boundingBoxes = this.boundingBoxes();
-		for(const box of boundingBoxes) {
+	displayHitboxes(canvasIO: CanvasIO) {
+		const hitboxes = this.hitboxes();
+		for(const box of hitboxes) {
 			canvasIO.ctx.strokeStyle = DEBUG_SETTINGS.LIZARD_HITBOX_COLOR;
 			canvasIO.strokeRect(box);
 		}
@@ -298,7 +298,7 @@ export class Lizard {
 			(tile === "platform" && direction === "down") ||
 			(tile instanceof Gate && tile.openness !== 1)
 		))) { return true; }
-		if(world.creatures.some(lizard => lizard !== this && lizard.boundingBoxes().some(b => b.intersects(lookaheadRectangle)))) {
+		if(world.creatures.some(lizard => lizard !== this && lizard.hitboxes().some(b => b.intersects(lookaheadRectangle)))) {
 			return true;
 		}
 		return false;
@@ -323,7 +323,7 @@ export class Lizard {
 		return [last.position.subtract(Vector.unit(last.direction).multiply(distance - length)), last.direction];
 	}
 
-	static segmentBoundingBox(point1: Vector, point2: Vector) {
+	static segmentHitbox(point1: Vector, point2: Vector) {
 		if(point1.x === point2.x) {
 			return Rectangle.fromBounds(
 				point1.x - Lizard.HITBOX_WIDTH / 2,
@@ -341,18 +341,18 @@ export class Lizard {
 			);
 		}
 	}
-	boundingBoxes() {
+	hitboxes() {
 		const [tail] = this.getPointOnBody(this.length);
 		const joints = [this.position, ...this.joints.map(j => j.position), tail];
 		const boxes = [];
 		for(let i = 0; i < joints.length - 1; i ++) {
-			boxes.push(Lizard.segmentBoundingBox(joints[i], joints[i + 1]));
+			boxes.push(Lizard.segmentHitbox(joints[i], joints[i + 1]));
 		}
 		return boxes;
 	}
 
 	canSpawn(world: World) {
-		return !this.boundingBoxes().some(box => world.isInSolid(box));
+		return !this.hitboxes().some(box => world.isInSolid(box));
 	}
 }
 

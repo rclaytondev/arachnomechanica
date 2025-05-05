@@ -54,25 +54,25 @@ export class PhysicsObject {
 			return false;
 		}
 
-		const newBoundingBox = this.boundingBox().translate(Vector.unit(direction));
-		return !world.isInSolid(newBoundingBox);
+		const newHitbox = this.hitbox().translate(Vector.unit(direction));
+		return !world.isInSolid(newHitbox);
 	}
 	isOnPlatform(world: World) {
-		const boundingBox = this.boundingBox();
-		if(boundingBox.bottom() % World.TILE_SIZE !== 0) {
+		const hitbox = this.hitbox();
+		if(hitbox.bottom() % World.TILE_SIZE !== 0) {
 			return false;
 		}
-		const left = world.getTileX(boundingBox.left());
-		const right = world.getTileX(boundingBox.right() - 1);
+		const left = world.getTileX(hitbox.left());
+		const right = world.getTileX(hitbox.right() - 1);
 		for(let x = left; x <= right; x ++) {
-			if(world.tiles.get(x, boundingBox.bottom() / World.TILE_SIZE) === "platform") {
+			if(world.tiles.get(x, hitbox.bottom() / World.TILE_SIZE) === "platform") {
 				return true;
 			}
 		}
 		return false;
 	}
 
-	boundingBox() {
+	hitbox() {
 		return this.dimensions.translate(this.positionInt);
 	}
 
