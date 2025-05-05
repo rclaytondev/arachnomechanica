@@ -42,7 +42,10 @@ world.tiles.set(1, 2, new Gate("up", false));
 world.tiles.set(1, 1, new Gate("down", false));
 world.tiles.set(-5, 8, "platform");
 world.creatures.push(new Lizard(new Vector(25, 25), "right", 200, 3));
-world.creatures[0].fireTimer = 120;
+world.tiles.set(5, 0, "solid");
+world.tiles.set(4, -1, "solid");
+world.tiles.set(4, 1, "solid");
+// world.creatures[0].fireTimer = 120;
 // world.creatures.push(new Lizard(new Vector(225, 25), "left", 200, 3));
 
 export class Main {

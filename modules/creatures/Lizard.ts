@@ -16,6 +16,7 @@ export class Lizard {
 	static LOOKAHEAD_WIDTH = World.TILE_SIZE;
 	static LOOKAHEAD_DISTANCE = World.TILE_SIZE * 1/2 + Lizard.SPEED;
 	static HITBOX_WIDTH = World.TILE_SIZE * 1/2;
+	static FIRE_DURATION = 30;
 
 	static FIRE_PARTICLES: ParticleSettings = {
 		color: { red: 0, green: 128, blue: 255 },
@@ -183,10 +184,15 @@ export class Lizard {
 			this.joints.unshift({ position: this.position.clone(), direction: this.direction });
 			const clockwise = Directions.rotateClockwise(this.direction);
 			const counterclockwise = Directions.rotateCounterclockwise(this.direction);
-			if(!this.isObstructed(world, clockwise, World.TILE_SIZE) && this.isObstructed(world, counterclockwise, World.TILE_SIZE)) {
+			const obstructedCounterclockwise = this.isObstructed(world, counterclockwise, World.TILE_SIZE);
+			const obstructedClockwise = this.isObstructed(world, clockwise, World.TILE_SIZE);
+			if(obstructedClockwise && obstructedCounterclockwise) {
+				this.fireTimer = Lizard.FIRE_DURATION;
+			}
+			else if(!obstructedCounterclockwise && obstructedClockwise) {
 				this.direction = clockwise;
 			}
-			else if(!this.isObstructed(world, counterclockwise, World.TILE_SIZE) && this.isObstructed(world, clockwise, World.TILE_SIZE))  {
+			else if(!obstructedClockwise && obstructedCounterclockwise)  {
 				this.direction = counterclockwise;
 			}
 			else {
