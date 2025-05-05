@@ -36,7 +36,7 @@ export class Gate {
 		}
 		else if(this.direction === "up") {
 			return new Rectangle(
-				x * World.TILE_SIZE, (y + this.closedness) * World.TILE_SIZE,
+				x * World.TILE_SIZE, (y + 1 - this.closedness) * World.TILE_SIZE,
 				World.TILE_SIZE, this.closedness * World.TILE_SIZE
 			);
 		}
