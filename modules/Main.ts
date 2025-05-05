@@ -41,10 +41,10 @@ world.tiles.set(1, 4, new Gate("down", true));
 world.tiles.set(1, 2, new Gate("up", false));
 world.tiles.set(1, 1, new Gate("down", false));
 world.tiles.set(-5, 8, "platform");
-world.creatures.push(new Lizard(new Vector(25, 25), "right", 200, 3));
-world.tiles.set(5, 0, "solid");
-world.tiles.set(4, -1, "solid");
-world.tiles.set(4, 1, "solid");
+world.creatures.push(new Lizard(new Vector(-75, -25), "right", 200, 3));
+world.tiles.set(0, -1, "solid");
+world.tiles.set(-1, -2, "solid");
+world.tiles.set(-1, 0, "solid");
 // world.creatures[0].fireTimer = 120;
 // world.creatures.push(new Lizard(new Vector(225, 25), "left", 200, 3));
 
@@ -74,6 +74,7 @@ export const DEBUG_SETTINGS = {
 	GATE_VISUALIZATION_COLOR: "rgb(255, 150, 0)",
 	LIZARD_HITBOX_COLOR: "rgb(0, 128, 255, 0)",
 	LIZARD_LOOKAHEAD_COLOR: "rgb(255, 0, 0, 0)",
+	LIZARD_HURTBOX_COLOR: "rgb(255, 0, 255)"
 };
 
 

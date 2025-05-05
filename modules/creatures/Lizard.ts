@@ -17,6 +17,9 @@ export class Lizard {
 	static LOOKAHEAD_DISTANCE = World.TILE_SIZE * 1/2 + Lizard.SPEED;
 	static HITBOX_WIDTH = World.TILE_SIZE * 1/2;
 	static FIRE_DURATION = 30;
+	static HURTBOX_WIDTH = 1/2 * World.TILE_SIZE;
+	static HURTBOX_SPEED = 6;
+	static MAX_HURTBOX_SIZE = 100;
 
 	static FIRE_PARTICLES: ParticleSettings = {
 		color: { red: 0, green: 128, blue: 255 },
@@ -62,6 +65,7 @@ export class Lizard {
 	headAngle: number;
 	targetHeadAngle: number;
 	fireTimer: number = 0;
+	hurtboxSize: number = 0;
 
 	constructor(position: Vector, direction: Direction, length: number, speed: number) {
 		this.position = position;
@@ -160,6 +164,10 @@ export class Lizard {
 			canvasIO.ctx.strokeStyle = DEBUG_SETTINGS.LIZARD_HITBOX_COLOR;
 			canvasIO.strokeRect(box);
 		}
+
+		const hurtbox = this.hurtbox();
+		canvasIO.ctx.strokeStyle = DEBUG_SETTINGS.LIZARD_HURTBOX_COLOR;
+		canvasIO.strokeRect(hurtbox);
 	}
 	displayLookaheadRectangle(canvasIO: CanvasIO) {
 		const rectangle = this.lookaheadRectangle();
@@ -187,7 +195,7 @@ export class Lizard {
 			const obstructedCounterclockwise = this.isObstructed(world, counterclockwise, World.TILE_SIZE);
 			const obstructedClockwise = this.isObstructed(world, clockwise, World.TILE_SIZE);
 			if(obstructedClockwise && obstructedCounterclockwise) {
-				this.fireTimer = Lizard.FIRE_DURATION;
+				this.startFire();
 			}
 			else if(!obstructedCounterclockwise && obstructedClockwise) {
 				this.direction = clockwise;
@@ -260,7 +268,43 @@ export class Lizard {
 			for(let i = 0; i < Lizard.PARTICLES_PER_FRAME; i ++) {
 				world.particles.push(this.generateFireParticle());
 			}
+			this.hurtboxSize = Math.min(this.hurtboxSize + Lizard.HURTBOX_SPEED, Lizard.MAX_HURTBOX_SIZE);
 		}
+		else {
+			this.hurtboxSize = 0;
+		}
+	}
+	hurtbox() {
+		if(this.direction === "left") {
+			return new Rectangle(
+				this.position.x - this.hurtboxSize, this.position.y - Lizard.HURTBOX_WIDTH / 2,
+				this.hurtboxSize, Lizard.HURTBOX_WIDTH
+			);
+		}
+		else if(this.direction === "right") {
+			return new Rectangle(
+				this.position.x, this.position.y - Lizard.HURTBOX_WIDTH / 2,
+				this.hurtboxSize, Lizard.HURTBOX_WIDTH
+			);
+		}
+		else if(this.direction === "up") {
+			return new Rectangle(
+				this.position.x - Lizard.HURTBOX_WIDTH / 2, this.position.y - this.hurtboxSize,
+				Lizard.HURTBOX_WIDTH, this.hurtboxSize
+			);
+		}
+		else {
+			return new Rectangle(
+				this.position.x - Lizard.HURTBOX_WIDTH / 2, this.position.y,
+				Lizard.HURTBOX_WIDTH, this.hurtboxSize
+			);
+		}
+	}
+	startFire(duration: number = Lizard.FIRE_DURATION) {
+		if(this.fireTimer < 0) {
+			this.hurtboxSize = 0;
+		}
+		this.fireTimer = Lizard.FIRE_DURATION;
 	}
 
 
