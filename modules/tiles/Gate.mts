@@ -8,7 +8,7 @@ import { World } from "../World.js";
 export class Gate {
 	static COLOR = "rgb(59, 67, 70)";
 
-	static TOGGLE_DISTANCE = 10; // TODO: remove magic number
+	static TOGGLE_DISTANCE = 0; // TODO: remove magic number
 	static SPEED = 0.2;
 
 	static cooldown = 0;
