@@ -1,17 +1,18 @@
-import { CanvasIO } from "../utils-ts/modules/CanvasIO.mjs";
+import { canvasIO, CanvasIO } from "../utils-ts/modules/CanvasIO.mjs";
 import { Direction, Directions } from "../utils-ts/modules/geometry/Direction.mjs";
 import { Vector } from "../utils-ts/modules/geometry/Vector.mjs";
 import { Grid } from "../utils-ts/modules/Grid.mjs";
 import { DEBUG_SETTINGS } from "./Main.js";
 import { Room } from "./Room.mjs";
+import { Gate } from "./tiles/Gate.mjs";
 import { Tile, World } from "./World.js";
 
 export class RoomEditor {
 	room: Room;
 	world: World = new World();
-	mode: "solid" | "platform" | "exit" = "solid";
+	mode: "solid" | "platform" | "exit" | "gate-open" | "gate-closed" = "solid";
 	direction: Direction = "right";
-	static readonly MODES = ["solid", "platform", "exit"] as const;
+	static readonly MODES = ["solid", "platform", "exit", "gate-open", "gate-closed"] as const;
 
 	constructor(room: Room = new Room("editor room", [], [], [], [])) {
 		this.room = room;
@@ -47,6 +48,12 @@ export class RoomEditor {
 			else if(this.mode === "exit") {
 				this.room.exitTiles.set(position, this.direction);
 			}
+			else if(this.mode === "gate-open") {
+				this.setTile(position, new Gate(this.direction, true));
+			}
+			else if(this.mode === "gate-closed") {
+				this.setTile(position, new Gate(this.direction, false));
+			}
 		}
 		else {
 			if(this.mode === "exit") {
@@ -73,6 +80,7 @@ export class RoomEditor {
 		this.world.display(canvasIO);
 		this.displayHoveredTile(canvasIO);
 		this.displayExits(canvasIO);
+		this.displayGates(canvasIO);
 		this.displayInfo(canvasIO);
 	}
 
@@ -82,15 +90,24 @@ export class RoomEditor {
 		canvasIO.ctx.strokeStyle = DEBUG_SETTINGS.HOVERED_TILE_COLOR;
 		canvasIO.ctx.strokeRect(position.x, position.y, World.TILE_SIZE, World.TILE_SIZE);
 	}
+	displayArrow(canvasIO: CanvasIO, position: Vector, direction: Direction) {
+		canvasIO.drawArrow(
+			position.add(1/2, 1/2).multiply(World.TILE_SIZE),
+			World.TILE_SIZE / 3,
+			direction
+		);
+	}
 	displayExits(canvasIO: CanvasIO) {
 		for(const [tile, position] of this.room.exitTiles.entries()) {
-			if(Directions.isDirection(tile)) {
-				canvasIO.ctx.strokeStyle = DEBUG_SETTINGS.EXIT_TILE_COLOR;
-				canvasIO.drawArrow(
-					position.add(1/2, 1/2).multiply(World.TILE_SIZE),
-					World.TILE_SIZE / 3,
-					tile
-				);
+			canvasIO.ctx.strokeStyle = DEBUG_SETTINGS.EXIT_TILE_COLOR;
+			this.displayArrow(canvasIO, position, tile as Direction);
+		}
+	}
+	displayGates(canvasIO: CanvasIO) {
+		for(const [tile, position] of this.room.tiles.entries()) {
+			if(tile instanceof Gate) {
+				canvasIO.ctx.strokeStyle = DEBUG_SETTINGS.GATE_VISUALIZATION_COLOR;
+				this.displayArrow(canvasIO, position, tile.direction);
 			}
 		}
 	}
@@ -103,10 +120,18 @@ export class RoomEditor {
 		canvasIO.ctx.fillText(this.direction, canvasIO.canvas.width, 30);
 	}
 
+	getTileString(tile: Tile) {
+		if(typeof tile === "string"){
+			return `"${tile}"`;
+		}
+		else {
+			return `new Gate("${tile.direction}", ${tile.open})`;
+		}
+	}
 	logBlocks() {
 		let result = "[\n";
 		for(const [tile, position] of this.room.tiles.entries()) {
-			result += `\t{ x: ${position.x}, y: ${position.y}, type: "${tile}" },\n`;
+			result += `\t{ x: ${position.x}, y: ${position.y}, type: ${this.getTileString(tile)} },\n`;
 		}
 		result += "],\n[\n";
 		for(const [direction, position] of this.room.exitTiles.entries()) {
