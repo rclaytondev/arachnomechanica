@@ -20,6 +20,7 @@ export class Player {
 		new Rectangle(0, 0, World.TILE_SIZE * 0.9, World.TILE_SIZE * 0.9)
 	);
 	hasDoubleJump: boolean = false;
+	dead: boolean = false;
 
 	constructor() {
 		
@@ -31,6 +32,7 @@ export class Player {
 	}
 
 	update(world: World, canvasIO: CanvasIO) {
+		if(this.dead) { return; }
 		this.checkInputs(world, canvasIO);
 		if(this.onGround(world)) {
 			this.hasDoubleJump = true;
@@ -61,5 +63,8 @@ export class Player {
 	}
 	onGround(world: World) {
 		return !this.physicsObject.canMove("down", world);
+	}
+	damage() {
+		this.dead = true;
 	}
 }

@@ -34,7 +34,9 @@ export class World {
 		this.displayTiles(canvasIO);
 		this.displayParticles(canvasIO);
 		this.displayCreatures(canvasIO);
-		this.player.display(canvasIO);
+		if(!this.player.dead) {
+			this.player.display(canvasIO);
+		}
 		canvasIO.ctx.restore();
 	}
 	displayTiles(canvasIO: CanvasIO) {

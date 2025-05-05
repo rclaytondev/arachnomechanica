@@ -306,6 +306,9 @@ export class Lizard {
 		for(const { position } of world.getTilesAt(hurtbox)) {
 			world.tiles.set(position, "empty");
 		}
+		if(world.player.physicsObject.hitbox().intersects(hurtbox) && this.hurtboxSize !== 0) {
+			world.player.damage();
+		}
 	}
 	startFire(duration: number = Lizard.FIRE_DURATION) {
 		if(this.fireTimer < 0) {
