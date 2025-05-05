@@ -43,7 +43,7 @@ world.tiles.set(1, 1, new Gate("down", false));
 // world.creatures.push(new Lizard(new Vector(200, 175), "right", 200, 3));
 
 export class Main {
-	static screen: World | RoomEditor = world;
+	static screen: World | RoomEditor = new RoomEditor();
 
 	static update(canvasIO: CanvasIO) {
 		this.screen.update(canvasIO);

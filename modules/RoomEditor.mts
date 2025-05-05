@@ -1,9 +1,10 @@
 import { CanvasIO } from "../utils-ts/modules/CanvasIO.mjs";
 import { Directions } from "../utils-ts/modules/geometry/Direction.mjs";
+import { Vector } from "../utils-ts/modules/geometry/Vector.mjs";
 import { Grid } from "../utils-ts/modules/Grid.mjs";
 import { DEBUG_SETTINGS } from "./Main.js";
 import { Room } from "./Room.mjs";
-import { World } from "./World.js";
+import { Tile, World } from "./World.js";
 
 export class RoomEditor {
 	room: Room;
@@ -24,20 +25,8 @@ export class RoomEditor {
 
 	update(canvasIO: CanvasIO) {
 		this.world.update(canvasIO);
-
-		if(canvasIO.mouse.pressed) {
-			const position = this.world.getTileCoordinates(canvasIO.mouse.position);
-			this.world.tiles.set(position, canvasIO.mouse.button === "left" ? this.mode : "empty");
-			this.room.tiles.set(position, canvasIO.mouse.button === "left" ? this.mode : "empty");
-			if(canvasIO.mouse.button === "right") {
-				this.room.exitTiles.set(position, "none");
-			}
-		}
-
-		if(canvasIO.keys[DEBUG_SETTINGS.LOG_BLOCKS_KEY]) {
-			this.logBlocks();
-		}
-		this.addExits(canvasIO);
+		this.checkForClicks(canvasIO);
+		this.checkForKeyPresses(canvasIO);
 
 		const numberKeys = canvasIO.numberKeys();
 		if(numberKeys.length !== 0) {
@@ -47,19 +36,27 @@ export class RoomEditor {
 			}
 		}
 	}
-	addExits(canvasIO: CanvasIO) {
+	checkForClicks(canvasIO: CanvasIO) {
+		if(!canvasIO.mouse.pressed) { return; }
 		const position = this.world.getTileCoordinates(canvasIO.mouse.position);
-		if(canvasIO.keys.ArrowLeft) {
-			this.room.exitTiles.set(position, "left");
+		this.setTile(position, canvasIO.mouse.button === "left" ? this.mode : "empty");
+		if(canvasIO.mouse.button === "right") {
+			this.room.exitTiles.set(position, "none");
 		}
-		if(canvasIO.keys.ArrowRight) {
-			this.room.exitTiles.set(position, "right");
+	}
+	setTile(position: Vector, tile: Tile) {
+		this.world.tiles.set(position, tile);
+		this.room.tiles.set(position, tile);
+	}
+	checkForKeyPresses(canvasIO: CanvasIO) {
+		if(canvasIO.keys[DEBUG_SETTINGS.LOG_BLOCKS_KEY]) {
+			this.logBlocks();
 		}
-		if(canvasIO.keys.ArrowUp) {
-			this.room.exitTiles.set(position, "up");
-		}
-		if(canvasIO.keys.ArrowDown) {
-			this.room.exitTiles.set(position, "down");
+
+		const direction = canvasIO.keyDirection();
+		if(direction !== null) {
+			const position = this.world.getTileCoordinates(canvasIO.mouse.position);
+			this.room.exitTiles.set(position, direction);
 		}
 	}
 
