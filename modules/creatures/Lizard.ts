@@ -231,6 +231,9 @@ export class Lizard {
 		if(tile === "solid") { return true; }
 		if(tile === "platform" && direction === "down") { return true; }
 		if(tile instanceof Gate && tile.openness !== 1) { return true; }
+		if(world.creatures.some(lizard => lizard !== this && lizard.boundingBoxes().some(b => b.contains(lookaheadPoint)))) {
+			return true;
+		}
 		return false;
 	}
 	getPointOnBody(distance: number): [Vector, Direction] {
