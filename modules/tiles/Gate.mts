@@ -10,6 +10,8 @@ export class Gate {
 
 	static TOGGLE_DISTANCE = 10; // TODO: remove magic number
 	static SPEED = 0.2;
+
+	static cooldown = 0;
 	
 	direction: Direction; // which way the gate moves when closing
 	openness: number;
@@ -88,8 +90,9 @@ export class Gate {
 		);
 
 		const newSide = this.getPlayerSide(world.player, x, y);
-		if(newSide !== this.playerSide && sameRowOrColumn) {
+		if(newSide !== this.playerSide && sameRowOrColumn && Gate.cooldown <= 0) {
 			Gate.toggleAll(world);
+			Gate.cooldown = 1 / Gate.SPEED;
 		}
 		this.playerSide  = newSide;
 	}

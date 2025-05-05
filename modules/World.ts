@@ -79,6 +79,7 @@ export class World {
 				tile.update(this, position.x, position.y);
 			}
 		}
+		Gate.cooldown --;
 	}
 
 	getTileX(onscreenX: number) {
