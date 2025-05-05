@@ -118,6 +118,11 @@ export class World {
 				(tile instanceof Gate && tile.openness !== 1 && rectangle.intersects(tile.getPhysicsBox(x, y)))
 			) { return true; }
 		}
+		for(const lizard of this.creatures) {
+			if(lizard.boundingBoxes().some(b => rectangle.intersects(b))) {
+				return true;
+			}
+		}
 		return false;
 	}
 
