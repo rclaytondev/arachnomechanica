@@ -66,10 +66,18 @@ export class World {
 	update(canvasIO: CanvasIO) {
 		this.updateCreatures();
 		this.player.update(this, canvasIO);
+		this.updateTiles();
 	}
 	updateCreatures() {
 		for(const creature of this.creatures) {
 			creature.update(this);
+		}
+	}
+	updateTiles() {
+		for(const [tile, position] of this.tiles.entries()) {
+			if(tile instanceof Gate) {
+				tile.update(this, position.x, position.y);
+			}
 		}
 	}
 
@@ -99,7 +107,7 @@ export class World {
 				if(tile === "solid") {
 					return true;
 				}
-				if(tile instanceof Gate && rectangle.intersects(tile.getPhysicsBox(x, y))) {
+				if(tile instanceof Gate && tile.openness !== 1 && rectangle.intersects(tile.getPhysicsBox(x, y))) {
 					return true;
 				}
 			}

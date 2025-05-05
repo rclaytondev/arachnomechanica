@@ -31,9 +31,14 @@ world.tiles.set(0, 5, "solid");
 world.tiles.set(1, 5, "solid");
 world.tiles.set(1, 3, "solid");
 world.tiles.set(2, 3, "solid");
-world.tiles.set(3, 3, "solid");
-world.tiles.set(4, 3, "solid");
+// world.tiles.set(3, 3, "solid");
+// world.tiles.set(4, 3, "solid");
+world.tiles.set(-1, 5, "solid");
+world.tiles.set(2, 5, "solid");
+world.tiles.set(3, 5, "solid");
+world.tiles.set(4, 5, "solid");
 world.tiles.set(1, 4, new Gate("down", true));
+world.tiles.set(1, 2, new Gate("down", false));
 // world.creatures.push(new Lizard(new Vector(200, 175), "right", 200, 3));
 
 export class Main {
