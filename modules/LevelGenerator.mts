@@ -2,6 +2,7 @@ import { Direction, Directions } from "../utils-ts/modules/geometry/Direction.mj
 import { Rectangle } from "../utils-ts/modules/geometry/Rectangle.mjs";
 import { Vector } from "../utils-ts/modules/geometry/Vector.mjs";
 import { Utils } from "../utils-ts/modules/Utils.mjs";
+import { Lizard } from "./creatures/Lizard.js";
 import { GameUtils } from "./GameUtils.mjs";
 import { Room } from "./Room.mjs";
 import { ROOMS } from "./Rooms.mjs";
@@ -217,6 +218,25 @@ export class LevelGenerator {
 		const lastRoom = this.path[this.path.length - 1];
 		this.world.player.physicsObject.positionInt = lastRoom.position.add(1/2, 1/2).multiply(World.TILE_SIZE * Room.SIZE);
 	}
+	spawnLizards() {
+		const totalLizards = Math.ceil(LevelGenerator.WIDTH * LevelGenerator.HEIGHT * Lizard.LIZARDS_PER_ROOM);
+		let amountSpawned = 0;
+		while(amountSpawned < totalLizards) {
+			const x = GameUtils.randomInt(0, LevelGenerator.WIDTH * (Room.SIZE + LevelGenerator.MARGIN_X) - LevelGenerator.MARGIN_X - 1);
+			const y = GameUtils.randomInt(0, LevelGenerator.HEIGHT * (Room.SIZE + LevelGenerator.MARGIN_Y) - LevelGenerator.MARGIN_Y - 1);
+			const direction = Utils.randomItem(Directions.DIRECTIONS);
+			const length = GameUtils.randomInt(Lizard.MIN_LENGTH, Lizard.MAX_LENGTH);
+			const lizard = new Lizard(
+				new Vector(x + 1/2, y + 1/2).multiply(World.TILE_SIZE), 
+				direction, length * World.TILE_SIZE, Lizard.SPEED
+			);
+			if(lizard.canSpawn(this.world)) {
+				this.world.creatures.push(lizard);
+				amountSpawned ++;
+			}
+		}
+		console.log(this.world.creatures.length);
+	}
 	generate(): World {
 		this.generatePath();
 		this.generateRoomsOnPath();
@@ -225,6 +245,7 @@ export class LevelGenerator {
 		this.fillUnusedRegions();
 		this.fillBoundaries();
 		this.spawnPlayer();
+		this.spawnLizards();
 		return this.world;
 	}
 

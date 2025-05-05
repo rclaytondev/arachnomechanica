@@ -7,9 +7,12 @@ import { GameUtils } from "../GameUtils.mjs";
 import { DEBUG_SETTINGS } from "../Main.js";
 import { World } from "../World.js";
 import { frameCount } from "../Main.js";
+import { Rectangle } from "../../utils-ts/modules/geometry/Rectangle.mjs";
 
 export class Lizard {
 	static LOOKAHEAD_DISTANCE = World.TILE_SIZE * 1/2;
+	static SPEED = 3;
+
 	static BODY_WIDTH = World.TILE_SIZE * 0.1;
 	static LEG_SCALE = World.TILE_SIZE * 0.5;
 	static LEG_SPACING = Lizard.LEG_SCALE; // distance between consecutive legs on the lizard's body.
@@ -27,6 +30,10 @@ export class Lizard {
 	static EYE_Y = World.TILE_SIZE * 0.3;
 	static EYE_COLOR = "rgb(0, 150, 255)";
 	static HEAD_ROTATION_SPEED = 0.2;
+
+	static LIZARDS_PER_ROOM = 0.3;
+	static MIN_LENGTH = 2;
+	static MAX_LENGTH = 7;
 
 	direction: Direction;
 	position: Vector;
@@ -222,6 +229,38 @@ export class Lizard {
 		}
 		const last = this.joints[this.joints.length - 1];
 		return [last.position.subtract(Vector.unit(last.direction).multiply(distance - length)), last.direction];
+	}
+
+	static segmentBoundingBox(point1: Vector, point2: Vector) {
+		if(point1.x === point2.x) {
+			return Rectangle.fromBounds(
+				point1.x - World.TILE_SIZE / 2,
+				point1.x + World.TILE_SIZE / 2,
+				Math.min(point1.y, point2.y) - World.TILE_SIZE / 2,
+				Math.max(point1.y, point2.y) + World.TILE_SIZE / 2
+			);
+		}
+		else {
+			return Rectangle.fromBounds(
+				Math.min(point1.x, point2.x) - World.TILE_SIZE / 2,
+				Math.max(point1.x, point2.x) + World.TILE_SIZE / 2,
+				point1.y - World.TILE_SIZE / 2,
+				point1.y + World.TILE_SIZE / 2
+			);
+		}
+	}
+	boundingBoxes() {
+		const [tail] = this.getPointOnBody(this.length);
+		const joints = [this.position, ...this.joints.map(j => j.position), tail];
+		const boxes = [];
+		for(let i = 0; i < joints.length - 1; i ++) {
+			boxes.push(Lizard.segmentBoundingBox(joints[i], joints[i + 1]));
+		}
+		return boxes;
+	}
+
+	canSpawn(world: World) {
+		return !this.boundingBoxes().some(box => world.isInSolid(box));
 	}
 }
 
