@@ -44,7 +44,7 @@ export class Gate {
 		}
 		else if(this.direction === "left") {
 			return new Rectangle(
-				(x + this.closedness) * World.TILE_SIZE, y * World.TILE_SIZE,
+				(x + 1 - this.closedness) * World.TILE_SIZE, y * World.TILE_SIZE,
 				this.closedness * World.TILE_SIZE, World.TILE_SIZE
 			)
 		}
