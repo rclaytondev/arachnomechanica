@@ -97,21 +97,26 @@ export class World {
 	getTileAt(onscreenPosition: Vector) {
 		return this.tiles.get(this.getTileCoordinates(onscreenPosition));
 	}
-	isInSolid(rectangle: Rectangle) {
+	getTilesAt(rectangle: Rectangle) {
+		const tiles = [];
 		const left = this.getTileX(rectangle.left());
 		const right = this.getTileX(rectangle.right() - 1);
 		const top = this.getTileY(rectangle.top());
 		const bottom = this.getTileY(rectangle.bottom() - 1);
 		for(let x = left; x <= right; x ++) {
 			for(let y = top; y <= bottom; y ++) {
-				const tile = this.tiles.get(x, y);
-				if(tile === "solid") {
-					return true;
-				}
-				if(tile instanceof Gate && tile.openness !== 1 && rectangle.intersects(tile.getPhysicsBox(x, y))) {
-					return true;
-				}
+				tiles.push({ position: new Vector(x, y), tile: this.tiles.get(x, y) });
 			}
+		}
+		return tiles;
+	}
+	isInSolid(rectangle: Rectangle) {
+		for(const { position, tile } of this.getTilesAt(rectangle)) {
+			const { x, y } = position;
+			if(
+				tile === "solid" ||
+				(tile instanceof Gate && tile.openness !== 1 && rectangle.intersects(tile.getPhysicsBox(x, y)))
+			) { return true; }
 		}
 		return false;
 	}
