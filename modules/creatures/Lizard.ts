@@ -8,6 +8,7 @@ import { DEBUG_SETTINGS } from "../Main.js";
 import { World } from "../World.js";
 import { frameCount } from "../Main.js";
 import { Rectangle } from "../../utils-ts/modules/geometry/Rectangle.mjs";
+import { Gate } from "../tiles/Gate.mjs";
 
 export class Lizard {
 	static LOOKAHEAD_DISTANCE = World.TILE_SIZE * 1/2;
@@ -209,7 +210,11 @@ export class Lizard {
 	}
 	isObstructed(world: World, direction: Direction = this.direction, distance: number = Lizard.LOOKAHEAD_DISTANCE) {
 		const lookaheadPoint = this.position.add(Vector.unit(direction).multiply(distance));
-		return world.getTileAt(lookaheadPoint) === "solid";
+		const tile = world.getTileAt(lookaheadPoint);
+		if(tile === "solid") { return true; }
+		if(tile === "platform" && direction === "down") { return true; }
+		if(tile instanceof Gate && tile.openness !== 1) { return true; }
+		return false;
 	}
 	getPointOnBody(distance: number): [Vector, Direction] {
 		if(this.joints.length === 0 || distance < Vector.dist(this.position, this.joints[0].position)) {

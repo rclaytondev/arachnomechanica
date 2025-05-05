@@ -40,12 +40,13 @@ world.tiles.set(4, 5, "solid");
 world.tiles.set(1, 4, new Gate("down", true));
 world.tiles.set(1, 2, new Gate("up", false));
 world.tiles.set(1, 1, new Gate("down", false));
-// world.creatures.push(new Lizard(new Vector(200, 175), "right", 200, 3));
+world.tiles.set(-5, 8, "platform");
+world.creatures.push(new Lizard(new Vector(-225, 125), "down", 200, 3));
 
 export class Main {
-	static screen: World | RoomEditor = new LevelGenerator().generate();
+	// static screen: World | RoomEditor = new LevelGenerator().generate();
 	// static screen: World | RoomEditor = new RoomEditor();
-	// static screen: World | RoomEditor = world;
+	static screen: World | RoomEditor = world;
 
 	static update(canvasIO: CanvasIO) {
 		this.screen.update(canvasIO);
