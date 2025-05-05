@@ -43,7 +43,7 @@ world.tiles.set(1, 1, new Gate("down", false));
 world.tiles.set(-5, 8, "platform");
 world.creatures.push(new Lizard(new Vector(-75, -25), "right", 200, 3));
 world.tiles.set(0, -1, "solid");
-world.tiles.set(-1, -2, "solid");
+world.tiles.set(-1, -2, "platform");
 world.tiles.set(-1, 0, "solid");
 // world.creatures[0].fireTimer = 120;
 // world.creatures.push(new Lizard(new Vector(225, 25), "left", 200, 3));

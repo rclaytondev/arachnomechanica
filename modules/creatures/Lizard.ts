@@ -13,7 +13,7 @@ import { Particle, ParticleSettings } from "../Particle.mjs";
 
 export class Lizard {
 	static SPEED = 3;
-	static LOOKAHEAD_WIDTH = World.TILE_SIZE;
+	static LOOKAHEAD_WIDTH = World.TILE_SIZE * 0.8;
 	static LOOKAHEAD_DISTANCE = World.TILE_SIZE * 1/2 + Lizard.SPEED;
 	static HITBOX_WIDTH = World.TILE_SIZE * 1/2;
 	static FIRE_DURATION = 30;
@@ -199,10 +199,10 @@ export class Lizard {
 			if(obstructedClockwise && obstructedCounterclockwise) {
 				this.startFire();
 			}
-			else if(!obstructedCounterclockwise && obstructedClockwise) {
+			else if(!obstructedClockwise && obstructedCounterclockwise) {
 				this.direction = clockwise;
 			}
-			else if(!obstructedClockwise && obstructedCounterclockwise)  {
+			else if(!obstructedCounterclockwise && obstructedClockwise)  {
 				this.direction = counterclockwise;
 			}
 			else {
@@ -303,11 +303,12 @@ export class Lizard {
 		}
 	}
 	updateHurtbox(world: World) {
+		if(this.hurtboxSize === 0) { return; }
 		const hurtbox = this.hurtbox();
 		for(const { position } of world.getTilesAt(hurtbox)) {
 			world.tiles.set(position, "empty");
 		}
-		if(world.player.physicsObject.hitbox().intersects(hurtbox) && this.hurtboxSize !== 0) {
+		if(world.player.physicsObject.hitbox().intersects(hurtbox)) {
 			world.player.damage();
 		}
 	}
