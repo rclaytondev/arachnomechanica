@@ -114,4 +114,11 @@ export class Gate {
 			this.playerSide = center.y < (y + 1/2) * World.TILE_SIZE ? "negative" : "positive";
 		}
 	}
+	copy() {
+		const result = new Gate(this.direction, this.open);
+		result.openness = this.openness;
+		result.playerSide = this.playerSide;
+		result.initialized = this.initialized;
+		return result;
+	}
 }

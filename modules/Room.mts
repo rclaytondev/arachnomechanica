@@ -37,8 +37,9 @@ export class Room {
 		for(let x = 0; x < Room.SIZE; x ++) {
 			for(let y = 0; y < Room.SIZE; y ++) {
 				const tile = this.tiles.get(x, y);
+				const tileCopy = (typeof tile === "string") ? tile : tile.copy();
 				const worldPosition = position.add(x, y);
-				world.tiles.set(worldPosition, tile);
+				world.tiles.set(worldPosition, tileCopy);
 
 				const direction = this.exitTiles.get(x, y);
 				if(direction !== "none" && !exits.includes(direction)) {
