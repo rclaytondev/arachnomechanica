@@ -4,6 +4,7 @@ import { Vector } from "../utils-ts/modules/geometry/Vector.mjs";
 import { Grid } from "../utils-ts/modules/Grid.mjs";
 import { Creature } from "./creatures/Creature.js";
 import { DEBUG_SETTINGS, Main } from "./Main.js";
+import { Particle } from "./Particle.mjs";
 import { Player } from "./Player.mjs";
 import { Gate } from "./tiles/Gate.mjs";
 
@@ -18,6 +19,7 @@ export class World {
 
 	tiles: Grid<Tile> = new Grid("empty");
 	creatures: Creature[] = [];
+	particles: Particle[] = [];
 
 	player: Player = new Player();
 
@@ -30,6 +32,7 @@ export class World {
 			canvasIO.ctx.translate(canvasIO.canvas.width / 2 - playerPosition.x, canvasIO.canvas.height / 2 - playerPosition.y);
 		}
 		this.displayTiles(canvasIO);
+		this.displayParticles(canvasIO);
 		this.displayCreatures(canvasIO);
 		this.player.display(canvasIO);
 		canvasIO.ctx.restore();
@@ -62,11 +65,17 @@ export class World {
 			creature.display(canvasIO);
 		}
 	}
+	displayParticles(canvasIO: CanvasIO) {
+		for(const particle of this.particles) {
+			particle.display(canvasIO);
+		}
+	}
 
 	update(canvasIO: CanvasIO) {
 		this.updateCreatures();
 		this.player.update(this, canvasIO);
 		this.updateTiles();
+		this.updateParticles();
 	}
 	updateCreatures() {
 		for(const creature of this.creatures) {
@@ -80,6 +89,12 @@ export class World {
 			}
 		}
 		Gate.cooldown --;
+	}
+	updateParticles() {
+		for(const particle of this.particles) {
+			particle.update();
+		}
+		this.particles = this.particles.filter(p => !p.isDead());
 	}
 
 	getTileX(onscreenX: number) {
