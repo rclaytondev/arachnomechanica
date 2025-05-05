@@ -1,3 +1,7 @@
+import { Rectangle } from "../utils-ts/modules/geometry/Rectangle.mjs";
+import { Vector } from "../utils-ts/modules/geometry/Vector.mjs";
+import { Utils } from "../utils-ts/modules/Utils.mjs";
+
 export class GameUtils {
 	static moveTowards(value: number, target: number, speed: number) {
 		if(value < target) {
@@ -15,4 +19,16 @@ export class GameUtils {
 	}
 
 	static pastKeys: { [ key: string ]: boolean } = {};
+
+	static randomEvenlySpaced(region: Rectangle, previousPoints: Vector[], numTrials: number, type: "int" | "float" = "float") {
+		/* Implements Mitchell's Best-Candidate Algorithm. */
+		const random = (type === "int") ? GameUtils.randomInt : GameUtils.random;
+		const randomPoint = () => new Vector(
+			random(region.left(), region.right()),
+			random(region.top(), region.bottom())
+		);
+		if(previousPoints.length === 0) { return randomPoint(); }
+		const points = new Array(numTrials).fill(0).map(randomPoint);
+		return Utils.maxValue(points, point => Utils.minOutput(previousPoints, p => Vector.dist(point, p)));
+	}
 }

@@ -51,9 +51,10 @@ export class Lizard {
 	static EYE_COLOR = "rgb(0, 150, 255)";
 	static HEAD_ROTATION_SPEED = 0.2;
 
-	static LIZARDS_PER_ROOM = 0.3;
+	static LIZARDS_PER_ROOM = 0.5;
 	static MIN_LENGTH = 2;
 	static MAX_LENGTH = 7;
+	static SPAWN_EVENNESS = 7; // higher number = more evenly distributed
 
 	direction: Direction;
 	position: Vector;

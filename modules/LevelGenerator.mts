@@ -219,19 +219,29 @@ export class LevelGenerator {
 		this.world.player.physicsObject.positionInt = lastRoom.position.add(1/2, 1/2).multiply(World.TILE_SIZE * Room.SIZE);
 	}
 	spawnLizards() {
+		const positions = [];
 		const totalLizards = Math.ceil(LevelGenerator.WIDTH * LevelGenerator.HEIGHT * Lizard.LIZARDS_PER_ROOM);
 		let amountSpawned = 0;
 		while(amountSpawned < totalLizards) {
-			const x = GameUtils.randomInt(0, LevelGenerator.WIDTH * (Room.SIZE + LevelGenerator.MARGIN_X) - LevelGenerator.MARGIN_X - 1);
-			const y = GameUtils.randomInt(0, LevelGenerator.HEIGHT * (Room.SIZE + LevelGenerator.MARGIN_Y) - LevelGenerator.MARGIN_Y - 1);
+			const position = GameUtils.randomEvenlySpaced(
+				new Rectangle(
+					0, 0,
+					LevelGenerator.WIDTH * (Room.SIZE + LevelGenerator.MARGIN_X) - LevelGenerator.MARGIN_X - 1,
+					LevelGenerator.HEIGHT * (Room.SIZE + LevelGenerator.MARGIN_Y) - LevelGenerator.MARGIN_Y - 1
+				),
+				positions,
+				Lizard.SPAWN_EVENNESS,
+				"int"
+			);
 			const direction = Utils.randomItem(Directions.DIRECTIONS);
 			const length = GameUtils.randomInt(Lizard.MIN_LENGTH, Lizard.MAX_LENGTH);
 			const lizard = new Lizard(
-				new Vector(x + 1/2, y + 1/2).multiply(World.TILE_SIZE), 
+				position.add(1/2, 1/2).multiply(World.TILE_SIZE), 
 				direction, length * World.TILE_SIZE, Lizard.SPEED
 			);
 			if(lizard.canSpawn(this.world)) {
 				this.world.creatures.push(lizard);
+				positions.push(position);
 				amountSpawned ++;
 			}
 		}
