@@ -73,6 +73,8 @@ export class Lizard {
 		this.displayBody(canvasIO);
 		this.displayLegs(canvasIO);
 		this.displayHead(canvasIO);
+		this.displayBoundingBoxes(canvasIO);
+		this.displayLookaheadPoint(canvasIO);
 	}
 	displayBody(canvasIO: CanvasIO) {
 		canvasIO.ctx.strokeStyle = this.color;
@@ -134,6 +136,18 @@ export class Lizard {
 		canvasIO.fillDiamond(0, Lizard.EYE_Y + Lizard.HEAD_OFFSET, Lizard.EYE_SIZE);
 
 		canvasIO.ctx.restore();
+	}
+	displayBoundingBoxes(canvasIO: CanvasIO) {
+		const boundingBoxes = this.boundingBoxes();
+		for(const box of boundingBoxes) {
+			canvasIO.ctx.strokeStyle = DEBUG_SETTINGS.LIZARD_HITBOX_COLOR;
+			canvasIO.strokeRect(box);
+		}
+	}
+	displayLookaheadPoint(canvasIO: CanvasIO) {
+		const point = this.lookaheadPoint();
+		canvasIO.ctx.fillStyle = DEBUG_SETTINGS.LIZARD_LOOKAHEAD_COLOR;
+		canvasIO.fillCircle(point.x, point.y, 5);
 	}
 
 	update(world: World) {
@@ -208,8 +222,11 @@ export class Lizard {
 		const paralell = Vector.unit(direction).multiply(Lizard.STEP_SIZE);
 		return point.add(perpendicular).add(paralell);
 	}
+	lookaheadPoint(direction: Direction = this.direction, distance: number = Lizard.LOOKAHEAD_DISTANCE) {
+		return this.position.add(Vector.unit(direction).multiply(distance));
+	}
 	isObstructed(world: World, direction: Direction = this.direction, distance: number = Lizard.LOOKAHEAD_DISTANCE) {
-		const lookaheadPoint = this.position.add(Vector.unit(direction).multiply(distance));
+		const lookaheadPoint = this.lookaheadPoint(direction, distance);
 		const tile = world.getTileAt(lookaheadPoint);
 		if(tile === "solid") { return true; }
 		if(tile === "platform" && direction === "down") { return true; }
