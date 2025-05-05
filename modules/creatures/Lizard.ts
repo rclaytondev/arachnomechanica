@@ -185,6 +185,7 @@ export class Lizard {
 		this.updateJoints();
 		this.updateHeadAngle();
 		this.updateFire(world);
+		this.updateHurtbox(world);
 	}
 	checkForCollisions(world: World) {
 		const lookaheadPoint = this.position.add(Vector.unit(this.direction).multiply(Lizard.LOOKAHEAD_DISTANCE));
@@ -298,6 +299,12 @@ export class Lizard {
 				this.position.x - Lizard.HURTBOX_WIDTH / 2, this.position.y,
 				Lizard.HURTBOX_WIDTH, this.hurtboxSize
 			);
+		}
+	}
+	updateHurtbox(world: World) {
+		const hurtbox = this.hurtbox();
+		for(const { position } of world.getTilesAt(hurtbox)) {
+			world.tiles.set(position, "empty");
 		}
 	}
 	startFire(duration: number = Lizard.FIRE_DURATION) {
