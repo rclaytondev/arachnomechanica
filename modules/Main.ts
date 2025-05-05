@@ -43,7 +43,9 @@ world.tiles.set(1, 1, new Gate("down", false));
 // world.creatures.push(new Lizard(new Vector(200, 175), "right", 200, 3));
 
 export class Main {
-	static screen: World | RoomEditor = new RoomEditor();
+	static screen: World | RoomEditor = new LevelGenerator().generate();
+	// static screen: World | RoomEditor = new RoomEditor();
+	// static screen: World | RoomEditor = world;
 
 	static update(canvasIO: CanvasIO) {
 		this.screen.update(canvasIO);
@@ -60,9 +62,10 @@ export const DEBUG_SETTINGS = {
 	LOG_BLOCKS_KEY: "Enter",
 	HOVERED_TILE_COLOR: "rgb(0, 0, 0)", // set to transparent to disable
 	EXIT_TILE_COLOR: "rgb(0, 200, 0)",
-	EDITOR_ROOM: "empty-room",
+	EDITOR_ROOM: "gate-contraption",
 	LOG_FRAMERATE: false,
-	EDITOR_UI_COLOR: "rgb(255, 150, 0)"
+	EDITOR_UI_COLOR: "rgb(255, 150, 0)",
+	GATE_VISUALIZATION_COLOR: "rgb(255, 150, 0)",
 };
 
 
