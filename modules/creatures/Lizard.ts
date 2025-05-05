@@ -9,12 +9,25 @@ import { World } from "../World.js";
 import { frameCount } from "../Main.js";
 import { Rectangle } from "../../utils-ts/modules/geometry/Rectangle.mjs";
 import { Gate } from "../tiles/Gate.mjs";
+import { Particle, ParticleSettings } from "../Particle.mjs";
 
 export class Lizard {
 	static SPEED = 3;
 	static LOOKAHEAD_WIDTH = World.TILE_SIZE;
 	static LOOKAHEAD_DISTANCE = World.TILE_SIZE * 1/2 + Lizard.SPEED;
 	static HITBOX_WIDTH = World.TILE_SIZE * 1/2;
+
+	static FIRE_PARTICLES: ParticleSettings = {
+		color: { red: 0, green: 128, blue: 255 },
+		size: World.TILE_SIZE * 0.2,
+		shape: 3,
+		minRotationalVelocity: 0,
+		maxRotationalVelocity: 1
+	};
+	static PARTICLES_PER_FRAME = 2;
+	static PARTICLE_SPEED = Lizard.SPEED + 6;
+	static PARTICLE_SPEED_VARIANCE = 2;
+	static PARTICLE_CROSS_SPEED_VARIANCE = 1;
 
 	static BODY_WIDTH = World.TILE_SIZE * 0.1;
 	static LEG_SCALE = World.TILE_SIZE * 0.5;
@@ -47,6 +60,7 @@ export class Lizard {
 	legs: LizardLeg[];
 	headAngle: number;
 	targetHeadAngle: number;
+	fireTimer: number = 0;
 
 	constructor(position: Vector, direction: Direction, length: number, speed: number) {
 		this.position = position;
@@ -161,6 +175,7 @@ export class Lizard {
 		this.checkForCollisions(world);
 		this.updateJoints();
 		this.updateHeadAngle();
+		this.updateFire(world);
 	}
 	checkForCollisions(world: World) {
 		const lookaheadPoint = this.position.add(Vector.unit(this.direction).multiply(Lizard.LOOKAHEAD_DISTANCE));
@@ -213,6 +228,33 @@ export class Lizard {
 		const legSpeed = this.speed * Lizard.LEG_SPEED_MULTIPLIER;
 		leg.position.x = GameUtils.moveTowards(leg.position.x, leg.destination.x, legSpeed);
 		leg.position.y = GameUtils.moveTowards(leg.position.y, leg.destination.y, legSpeed);
+	}
+	generateFireParticleVelocity() {
+		const speed = Lizard.PARTICLE_SPEED + GameUtils.random(-Lizard.PARTICLE_SPEED_VARIANCE, Lizard.PARTICLE_SPEED_VARIANCE);
+		const crossSpeed = GameUtils.random(-Lizard.PARTICLE_CROSS_SPEED_VARIANCE, Lizard.PARTICLE_CROSS_SPEED_VARIANCE);
+		if(Directions.isHorizontal(this.direction)) {
+			return new Vector(
+				speed * (this.direction === "left" ? -1 : 1),
+				crossSpeed
+			);
+		}
+		else {
+			return new Vector(
+				crossSpeed,
+				speed * (this.direction === "up" ?  -1 : 1)
+			);
+		}
+	}
+	generateFireParticle() {
+		return new Particle(this.position, this.generateFireParticleVelocity(), Lizard.FIRE_PARTICLES);
+	}
+	updateFire(world: World) {
+		this.fireTimer --;
+		if(this.fireTimer > 0) {
+			for(let i = 0; i < Lizard.PARTICLES_PER_FRAME; i ++) {
+				world.particles.push(this.generateFireParticle());
+			}
+		}
 	}
 
 

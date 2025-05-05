@@ -42,12 +42,13 @@ world.tiles.set(1, 2, new Gate("up", false));
 world.tiles.set(1, 1, new Gate("down", false));
 world.tiles.set(-5, 8, "platform");
 world.creatures.push(new Lizard(new Vector(25, 25), "right", 200, 3));
-world.creatures.push(new Lizard(new Vector(225, 25), "left", 200, 3));
+world.creatures[0].fireTimer = 120;
+// world.creatures.push(new Lizard(new Vector(225, 25), "left", 200, 3));
 
 export class Main {
-	static screen: World | RoomEditor = new LevelGenerator().generate();
+	// static screen: World | RoomEditor = new LevelGenerator().generate();
 	// static screen: World | RoomEditor = new RoomEditor();
-	// static screen: World | RoomEditor = world;
+	static screen: World | RoomEditor = world;
 
 	static update(canvasIO: CanvasIO) {
 		this.screen.update(canvasIO);
@@ -68,8 +69,8 @@ export const DEBUG_SETTINGS = {
 	LOG_FRAMERATE: false,
 	EDITOR_UI_COLOR: "rgb(255, 150, 0)",
 	GATE_VISUALIZATION_COLOR: "rgb(255, 150, 0)",
-	LIZARD_HITBOX_COLOR: "rgb(0, 128, 255)",
-	LIZARD_LOOKAHEAD_COLOR: "rgb(255, 0, 0)",
+	LIZARD_HITBOX_COLOR: "rgb(0, 128, 255, 0)",
+	LIZARD_LOOKAHEAD_COLOR: "rgb(255, 0, 0, 0)",
 };
 
 
