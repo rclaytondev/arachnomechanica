@@ -3,9 +3,11 @@ import { Rectangle } from "../utils-ts/modules/geometry/Rectangle.mjs";
 import { Vector } from "../utils-ts/modules/geometry/Vector.mjs";
 import { Grid } from "../utils-ts/modules/Grid.mjs";
 import { Creature } from "./creatures/Creature.js";
+import { LevelGenerator } from "./LevelGenerator.mjs";
 import { DEBUG_SETTINGS, Main } from "./Main.js";
 import { Particle } from "./Particle.mjs";
 import { Player } from "./Player.mjs";
+import { Room } from "./Room.mjs";
 import { Gate } from "./tiles/Gate.mjs";
 
 export type Tile = (typeof World.STRING_TILE_TYPES)[number] | Gate;
@@ -27,9 +29,16 @@ export class World {
 	display(canvasIO: CanvasIO) {
 		canvasIO.fillCanvas("white");
 		canvasIO.ctx.save();
-		if(Main.screen instanceof World) {
+		if(Main.screen instanceof World && !DEBUG_SETTINGS.DISPLAY_WHOLE_LEVEL) {
 			const playerPosition = this.player.physicsObject.hitbox().center();
 			canvasIO.ctx.translate(canvasIO.canvas.width / 2 - playerPosition.x, canvasIO.canvas.height / 2 - playerPosition.y);
+		}
+		if(Main.screen instanceof World && DEBUG_SETTINGS.DISPLAY_WHOLE_LEVEL) {
+			const amount = Math.min(
+				canvasIO.canvas.width / (LevelGenerator.WIDTH * (Room.SIZE + LevelGenerator.MARGIN_X) * World.TILE_SIZE),
+				canvasIO.canvas.height / (LevelGenerator.HEIGHT * (Room.SIZE + LevelGenerator.MARGIN_Y) * World.TILE_SIZE)
+			);
+			canvasIO.ctx.scale(amount, amount);
 		}
 		this.displayTiles(canvasIO);
 		this.displayParticles(canvasIO);
