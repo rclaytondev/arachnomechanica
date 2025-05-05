@@ -186,6 +186,7 @@ export class Lizard {
 		this.updateHeadAngle();
 		this.updateFire(world);
 		this.updateHurtbox(world);
+		this.checkForPlayer(world);
 	}
 	checkForCollisions(world: World) {
 		const lookaheadPoint = this.position.add(Vector.unit(this.direction).multiply(Lizard.LOOKAHEAD_DISTANCE));
@@ -275,29 +276,29 @@ export class Lizard {
 			this.hurtboxSize = 0;
 		}
 	}
-	hurtbox() {
+	hurtbox(size: number = this.hurtboxSize) {
 		if(this.direction === "left") {
 			return new Rectangle(
-				this.position.x - this.hurtboxSize, this.position.y - Lizard.HURTBOX_WIDTH / 2,
-				this.hurtboxSize, Lizard.HURTBOX_WIDTH
+				this.position.x - size, this.position.y - Lizard.HURTBOX_WIDTH / 2,
+				size, Lizard.HURTBOX_WIDTH
 			);
 		}
 		else if(this.direction === "right") {
 			return new Rectangle(
 				this.position.x, this.position.y - Lizard.HURTBOX_WIDTH / 2,
-				this.hurtboxSize, Lizard.HURTBOX_WIDTH
+				size, Lizard.HURTBOX_WIDTH
 			);
 		}
 		else if(this.direction === "up") {
 			return new Rectangle(
-				this.position.x - Lizard.HURTBOX_WIDTH / 2, this.position.y - this.hurtboxSize,
-				Lizard.HURTBOX_WIDTH, this.hurtboxSize
+				this.position.x - Lizard.HURTBOX_WIDTH / 2, this.position.y - size,
+				Lizard.HURTBOX_WIDTH, size
 			);
 		}
 		else {
 			return new Rectangle(
 				this.position.x - Lizard.HURTBOX_WIDTH / 2, this.position.y,
-				Lizard.HURTBOX_WIDTH, this.hurtboxSize
+				Lizard.HURTBOX_WIDTH, size
 			);
 		}
 	}
@@ -308,6 +309,12 @@ export class Lizard {
 		}
 		if(world.player.physicsObject.hitbox().intersects(hurtbox) && this.hurtboxSize !== 0) {
 			world.player.damage();
+		}
+	}
+	checkForPlayer(world: World) {
+		const hurtbox = this.hurtbox(Lizard.MAX_HURTBOX_SIZE);
+		if(world.player.physicsObject.hitbox().intersects(hurtbox)) {
+			this.startFire();
 		}
 	}
 	startFire(duration: number = Lizard.FIRE_DURATION) {
