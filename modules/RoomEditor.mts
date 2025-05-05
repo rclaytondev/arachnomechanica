@@ -1,5 +1,5 @@
 import { CanvasIO } from "../utils-ts/modules/CanvasIO.mjs";
-import { Directions } from "../utils-ts/modules/geometry/Direction.mjs";
+import { Direction, Directions } from "../utils-ts/modules/geometry/Direction.mjs";
 import { Vector } from "../utils-ts/modules/geometry/Vector.mjs";
 import { Grid } from "../utils-ts/modules/Grid.mjs";
 import { DEBUG_SETTINGS } from "./Main.js";
@@ -9,8 +9,9 @@ import { Tile, World } from "./World.js";
 export class RoomEditor {
 	room: Room;
 	world: World = new World();
-	mode: "solid" | "platform" = "solid";
-	static readonly MODES = ["solid", "platform"] as const;
+	mode: "solid" | "platform" | "exit" = "solid";
+	direction: Direction = "right";
+	static readonly MODES = ["solid", "platform", "exit"] as const;
 
 	constructor(room: Room = new Room("editor room", [], [], [], [])) {
 		this.room = room;
@@ -39,9 +40,21 @@ export class RoomEditor {
 	checkForClicks(canvasIO: CanvasIO) {
 		if(!canvasIO.mouse.pressed) { return; }
 		const position = this.world.getTileCoordinates(canvasIO.mouse.position);
-		this.setTile(position, canvasIO.mouse.button === "left" ? this.mode : "empty");
-		if(canvasIO.mouse.button === "right") {
-			this.room.exitTiles.set(position, "none");
+		if(canvasIO.mouse.button === "left") {
+			if(this.mode === "solid" || this.mode === "platform") {
+				this.setTile(position, canvasIO.mouse.button === "left" ? this.mode : "empty");
+			}
+			else if(this.mode === "exit") {
+				this.room.exitTiles.set(position, this.direction);
+			}
+		}
+		else {
+			if(this.mode === "exit") {
+				this.room.exitTiles.set(position, "none");
+			}
+			else {
+				this.setTile(position, "empty");
+			}
 		}
 	}
 	setTile(position: Vector, tile: Tile) {
@@ -53,18 +66,14 @@ export class RoomEditor {
 			this.logBlocks();
 		}
 
-		const direction = canvasIO.keyDirection();
-		if(direction !== null) {
-			const position = this.world.getTileCoordinates(canvasIO.mouse.position);
-			this.room.exitTiles.set(position, direction);
-		}
+		this.direction = (canvasIO.keyDirection() ?? this.direction);
 	}
 
 	display(canvasIO: CanvasIO) {
 		this.world.display(canvasIO);
 		this.displayHoveredTile(canvasIO);
 		this.displayExits(canvasIO);
-		this.displayMode(canvasIO);
+		this.displayInfo(canvasIO);
 	}
 
 	
@@ -85,12 +94,13 @@ export class RoomEditor {
 			}
 		}
 	}
-	displayMode(canvasIO: CanvasIO) {
+	displayInfo(canvasIO: CanvasIO) {
 		canvasIO.ctx.fillStyle = DEBUG_SETTINGS.EDITOR_UI_COLOR;
 		canvasIO.ctx.textAlign = "right";
 		canvasIO.ctx.textBaseline = "top";
 		canvasIO.ctx.font = "30px monospace";
 		canvasIO.ctx.fillText(this.mode, canvasIO.canvas.width, 0);
+		canvasIO.ctx.fillText(this.direction, canvasIO.canvas.width, 30);
 	}
 
 	logBlocks() {
