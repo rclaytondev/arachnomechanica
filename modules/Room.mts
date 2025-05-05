@@ -27,10 +27,10 @@ export class Room {
 		this.optionalExits = optionalExits;
 	}
 
-	canAdd(roomPlaceholder: RoomPlaceholder) {
-		return roomPlaceholder.exits.every(exit =>
+	canAdd(exitDirections: Direction[]) {
+		return exitDirections.every(exit =>
 			[...this.requiredExits, ...this.optionalExits].includes(exit)
-		) && this.requiredExits.every(exit => roomPlaceholder.exits.includes(exit));
+		) && this.requiredExits.every(exit => exitDirections.includes(exit));
 	}
 
 	add(position: Vector, world: World, exits: Direction[]) {

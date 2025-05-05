@@ -112,8 +112,7 @@ export class LevelGenerator {
 	}
 	generateRoomsOnPath() {
 		for(const roomPlaceholder of this.path) {
-			const possibleRooms = ROOMS.filter(r => r.canAdd(roomPlaceholder));
-			const room = Utils.randomItem(possibleRooms);
+			const room = this.chooseRoom(roomPlaceholder.exits);
 			const exits = [...roomPlaceholder.exits];
 			for(const possibleExit of room.optionalExits) {
 				const adjacentPosition = roomPlaceholder.position.add(Vector.unit(possibleExit));
@@ -149,8 +148,7 @@ export class LevelGenerator {
 						roomType: null,
 						generated: true
 					};
-					const possibleRooms = ROOMS.filter(r => r.canAdd(roomPlaceholder));
-					const room = Utils.randomItem(possibleRooms);
+					const room = this.chooseRoom(exits);
 					for(const exit of room.optionalExits) {
 						const adjacentPosition = Vector.unit(exit).add(x, y);
 						if(
@@ -264,5 +262,10 @@ export class LevelGenerator {
 			0 < roomPosition.x && roomPosition.x < LevelGenerator.WIDTH &&
 			0 < roomPosition.y && roomPosition.y < LevelGenerator.HEIGHT
 		);
+	}
+	chooseRoom(exitDirections: Direction[]) {
+		const possibleRooms = ROOMS.filter(r => r.canAdd(exitDirections));
+		const room = Utils.randomItem(possibleRooms);
+		return room;
 	}
 }
