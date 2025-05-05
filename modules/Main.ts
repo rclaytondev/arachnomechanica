@@ -80,7 +80,13 @@ export const DEBUG_SETTINGS = {
 
 
 if(DEBUG_SETTINGS.EDITOR_ROOM != null  && Main.screen instanceof RoomEditor) {
-	Main.screen = new RoomEditor(ROOMS.find(r => r.name === DEBUG_SETTINGS.EDITOR_ROOM));
+	const room = (typeof DEBUG_SETTINGS.EDITOR_ROOM === "number")
+		? ROOMS[DEBUG_SETTINGS.EDITOR_ROOM]
+		: ROOMS.find(r => r.name === DEBUG_SETTINGS.EDITOR_ROOM);
+	if(!room) {
+		throw new Error(`Room "${DEBUG_SETTINGS.EDITOR_ROOM}" does not exist.`);
+	}
+	Main.screen = new RoomEditor(room);
 }
 
 const frameTimes: number[] = [];
