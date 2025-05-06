@@ -14,6 +14,8 @@ export class LevelGeneratorData {
 	static HEIGHT = 5;
 	static MARGIN_X = 2;
 	static MARGIN_Y = 0;
+	static BORDER_X = 2;
+	static BORDER_Y = 4;
 
 	static MAIN_PATH_BRANCH_PROBABILITY = 0.6;
 	static OFF_PATH_BRANCH_PROBABILITY = 0.;

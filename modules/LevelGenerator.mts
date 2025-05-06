@@ -61,7 +61,7 @@ export class LevelGenerator {
 			const room1YExits = new Set(room1.getExitCoordinates("right", "y"));
 			const room2YExits = new Set(room2.getExitCoordinates("left", "y"));
 			const xStart = room1Position.x + RoomData.SIZE;
-			for(let y = room1Position.y; y < room1Position.y + RoomData.SIZE + LevelGeneratorData.MARGIN_Y; y ++) {
+			for(let y = room1Position.y; y < room1Position.y + RoomData.SIZE; y ++) {
 				if(room1YExits.has(y - room1Position.y) && room2YExits.has(y - room1Position.y) && !forceSolid) {
 					continue;
 				}
@@ -74,7 +74,7 @@ export class LevelGenerator {
 			const room1XExits = new Set(room1.getExitCoordinates("down", "x"));
 			const room2XExits = new Set(room2.getExitCoordinates("up", "x"));
 			const yStart = room1Position.y + RoomData.SIZE;
-			for(let x = room1Position.x; x < room1Position.x + RoomData.SIZE + LevelGeneratorData.MARGIN_X; x ++) {
+			for(let x = room1Position.x; x < room1Position.x + RoomData.SIZE; x ++) {
 				if(room1XExits.has(x - room1Position.x) && room2XExits.has(x - room1Position.x) && !forceSolid) {
 					continue;
 				}
@@ -84,7 +84,56 @@ export class LevelGenerator {
 			}
 		}
 	}
+	addSolidMargin(room1Position: Vector, direction: "right" | "down") {
+		if(direction === "right") {
+			const xStart = room1Position.x + RoomData.SIZE;
+			this.world.tiles.fillRect(new Rectangle(
+				xStart, room1Position.y, 
+				LevelGeneratorData.MARGIN_X, RoomData.SIZE
+			), "solid");
+		}
+		else {
+			const yStart = room1Position.y + RoomData.SIZE;
+			this.world.tiles.fillRect(new Rectangle(
+				room1Position.x, yStart,
+				RoomData.SIZE, LevelGeneratorData.MARGIN_Y
+			), "solid");
+		}
+	}
 	generateMargins() {
+		for(let x = 0; x < LevelGeneratorData.WIDTH; x ++) {
+			for(let y = 0; y < LevelGeneratorData.HEIGHT; y ++) {
+				const room = this.rooms.find(p => p.position.equals(x, y));
+				const position = new Vector(
+					x * (RoomData.SIZE + LevelGeneratorData.MARGIN_X),
+					y * (RoomData.SIZE + LevelGeneratorData.MARGIN_Y)
+				);
+				for(const direction of ["right", "down"] as const) {
+					if(
+						(direction === "right" && x === LevelGeneratorData.WIDTH - 1) || 
+						(direction === "down" && y === LevelGeneratorData.HEIGHT - 1)
+					) { continue; }
+					const adjacentRoom = this.rooms.find(p => Vector.unit(direction).add(x, y));
+					if(room && adjacentRoom) {
+						this.addMargin(
+							position,
+							room.roomType!, adjacentRoom.roomType!, direction,
+							!room.exits.includes(direction)
+						);
+					}
+					else {
+						this.addSolidMargin(position, direction);
+					}
+				}
+
+				if(x < LevelGeneratorData.WIDTH - 1 && y < LevelGeneratorData.HEIGHT - 1) {
+					this.world.tiles.fillRect(new Rectangle(
+						position.x + RoomData.SIZE, position.y + RoomData.SIZE, 
+						LevelGeneratorData.MARGIN_X, LevelGeneratorData.MARGIN_Y
+					), "solid");
+				}
+			}
+		}
 		for(const room of this.rooms) {
 			for(const direction of ["right", "down"] as const) {
 				const adjacentRoom = this.rooms.find(p => p.position.equals(room.position.add(Vector.unit(direction))));
@@ -168,10 +217,10 @@ export class LevelGenerator {
 	}
 	fillRoom(x: number, y: number) {
 		this.world.tiles.fillRect(new Rectangle(
-			x * (RoomData.SIZE + LevelGeneratorData.MARGIN_X) - LevelGeneratorData.MARGIN_X,
-			y * (RoomData.SIZE + LevelGeneratorData.MARGIN_Y) - LevelGeneratorData.MARGIN_Y,
-			RoomData.SIZE + 2 * LevelGeneratorData.MARGIN_X,
-			RoomData.SIZE + 2 * LevelGeneratorData.MARGIN_Y,
+			x * (RoomData.SIZE + LevelGeneratorData.MARGIN_X),
+			y * (RoomData.SIZE + LevelGeneratorData.MARGIN_Y),
+			RoomData.SIZE,
+			RoomData.SIZE,
 		), "solid");
 	}
 	fillUnusedRegions() {
@@ -185,24 +234,24 @@ export class LevelGenerator {
 	}
 	fillBoundaries() {
 		this.world.tiles.fillRect(new Rectangle(
-			-LevelGeneratorData.MARGIN_X, -LevelGeneratorData.MARGIN_Y,
-			LevelGeneratorData.WIDTH * (RoomData.SIZE + LevelGeneratorData.MARGIN_X) + LevelGeneratorData.MARGIN_X,
-			LevelGeneratorData.MARGIN_Y
+			-LevelGeneratorData.BORDER_X, -LevelGeneratorData.BORDER_Y,
+			LevelGeneratorData.WIDTH * (RoomData.SIZE + LevelGeneratorData.MARGIN_X) + LevelGeneratorData.BORDER_X - LevelGeneratorData.MARGIN_X,
+			LevelGeneratorData.BORDER_Y
 		), "solid");
 		this.world.tiles.fillRect(new Rectangle(
-			-LevelGeneratorData.MARGIN_X, -LevelGeneratorData.MARGIN_Y,
-			LevelGeneratorData.MARGIN_X,
-			LevelGeneratorData.HEIGHT * (RoomData.SIZE + LevelGeneratorData.MARGIN_Y) + LevelGeneratorData.MARGIN_Y
-		), "solid");
-		this.world.tiles.fillRect(new Rectangle(
-			LevelGeneratorData.WIDTH * (RoomData.SIZE + LevelGeneratorData.MARGIN_X) - LevelGeneratorData.MARGIN_X, -LevelGeneratorData.MARGIN_Y,
-			LevelGeneratorData.MARGIN_Y,
+			-LevelGeneratorData.BORDER_X, 0,
+			LevelGeneratorData.BORDER_X,
 			LevelGeneratorData.HEIGHT * (RoomData.SIZE + LevelGeneratorData.MARGIN_Y)
 		), "solid");
 		this.world.tiles.fillRect(new Rectangle(
-			-LevelGeneratorData.MARGIN_X, LevelGeneratorData.HEIGHT * (RoomData.SIZE + LevelGeneratorData.MARGIN_Y) - LevelGeneratorData.MARGIN_Y, 
-			LevelGeneratorData.WIDTH * (RoomData.SIZE + LevelGeneratorData.MARGIN_X) + LevelGeneratorData.MARGIN_X,
-			LevelGeneratorData.MARGIN_Y,
+			LevelGeneratorData.WIDTH * (RoomData.SIZE + LevelGeneratorData.MARGIN_X) - LevelGeneratorData.MARGIN_X, -LevelGeneratorData.BORDER_Y,
+			LevelGeneratorData.BORDER_X,
+			LevelGeneratorData.HEIGHT * (RoomData.SIZE + LevelGeneratorData.MARGIN_Y) + LevelGeneratorData.BORDER_Y
+		), "solid");
+		this.world.tiles.fillRect(new Rectangle(
+			-LevelGeneratorData.BORDER_X, LevelGeneratorData.HEIGHT * (RoomData.SIZE + LevelGeneratorData.MARGIN_Y) - LevelGeneratorData.MARGIN_Y, 
+			LevelGeneratorData.WIDTH * (RoomData.SIZE + LevelGeneratorData.MARGIN_X) + 2 * LevelGeneratorData.BORDER_X - LevelGeneratorData.MARGIN_X,
+			LevelGeneratorData.BORDER_Y,
 		), "solid");
 	}
 	spawnPlayer() {
