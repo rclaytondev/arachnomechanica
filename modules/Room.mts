@@ -3,6 +3,7 @@ import { Vector } from "../utils-ts/modules/geometry/Vector.mjs";
 import { Grid } from "../utils-ts/modules/Grid.mjs";
 import { RoomData } from "./constants/GameData.mjs";
 import { GateState } from "./GateState.mjs";
+import { RoomPlaceholder } from "./LevelGenerator.mjs";
 import { Tile, World } from "./World.js";
 
 export type Traversability = { start: GateState, end: GateState }[];
@@ -43,12 +44,17 @@ export class Room {
 		);
 	}
 
-	canAdd(exitDirections: Direction[]) {
+	canAdd(roomPlaceholder: RoomPlaceholder) {
+		const exitDirections = roomPlaceholder.exits;
 		const hasAllExits = exitDirections.every(exit =>
 			[...this.requiredExits, ...this.optionalExits].includes(exit)
 		);
 		const allRequiredExits = this.requiredExits.every(exit => exitDirections.includes(exit));
-		return hasAllExits && allRequiredExits;
+		const traversabilityMatches = GateState.traversabilityEquals(
+			this.traversability,
+			roomPlaceholder.traversability
+		);
+		return hasAllExits && allRequiredExits && traversabilityMatches;
 	}
 
 	add(position: Vector, world: World, exits: Direction[]) {

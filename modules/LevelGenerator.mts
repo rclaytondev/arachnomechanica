@@ -138,7 +138,7 @@ export class LevelGenerator {
 		const connectivity = LevelGenerator.connectivity(oldRoom.exits, oldRoom.traversability);
 		const lessConnectiveRooms = ROOMS.filter(r => 
 			LevelGenerator.connectivity(oldRoom.exits, r.traversability) < connectivity
-			&& r.canAdd(oldRoom.exits)
+			&& r.canAdd(oldRoom)
 		);
 		for(const room of GameUtils.randomPermutation(lessConnectiveRooms)) {
 			this.rooms.set(position, { exits: oldRoom.exits, traversability: room.traversability });
