@@ -6,8 +6,6 @@ import { GameUtils } from "../GameUtils.mjs";
 import { Player } from "../Player.mjs";
 import { World } from "../World.js";
 
-export type GateState = { direction: Direction, toggled: boolean };
-
 export class Gate {
 	static cooldown = 0;
 	

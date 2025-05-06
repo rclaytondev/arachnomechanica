@@ -1,25 +1,18 @@
 import { Direction, Directions } from "../utils-ts/modules/geometry/Direction.mjs";
-import { Rectangle } from "../utils-ts/modules/geometry/Rectangle.mjs";
 import { Vector } from "../utils-ts/modules/geometry/Vector.mjs";
 import { Utils } from "../utils-ts/modules/Utils.mjs";
-import { Lizard } from "./creatures/Lizard.js";
 import { GameUtils } from "./GameUtils.mjs";
-import { Room } from "./Room.mjs";
+import { Traversability } from "./Room.mjs";
 import { ROOMS } from "./Rooms.mjs";
-import { World } from "./World.js";
 import { LevelGeneratorData, LizardData, RoomData, WorldData } from "./constants/GameData.mjs";
 import { Grid } from "../utils-ts/modules/Grid.mjs";
-import { GateState } from "./tiles/Gate.mjs";
-import { HashPartition } from "./game-utilities/HashPartition.mjs";
 
-export type RoomPlaceholder = { exits: Direction[], traversability: GateState[][] };
-
-type PositionalGateState = { position: Vector, direction: "right" | "down", toggled: boolean };
+export type RoomPlaceholder = { exits: Direction[], traversability: Traversability };
 
 export class LevelGenerator {
 	path: Vector[] = [];
 	rooms: Grid<RoomPlaceholder | null> = new Grid(null);
-	totalConnectivity: number = 56 * LevelGeneratorData.WIDTH * LevelGeneratorData.HEIGHT;
+	totalConnectivity: number = 0;
 
 	static initializeRooms() {
 		const length = ROOMS.length;
@@ -85,57 +78,22 @@ export class LevelGenerator {
 		}
 	}
 
-	getPositionalGateState(x: number, y: number, gateState: GateState): PositionalGateState {
-		return {
-			position: (
-				gateState.direction === "left" ? new Vector(x - 1, y)
-				: gateState.direction === "up" ? new Vector(x, y - 1)
-				: new Vector(x, y)
-			),
-			direction: Directions.isHorizontal(gateState.direction) ? "right" : "down",
-			toggled: gateState.toggled
-		};
-	}
 	isConnected() {
-		const partition = HashPartition.empty<PositionalGateState>(state => `${state.position}, ${state.direction}, ${state.toggled}`);
-		for(let x = 0; x < LevelGeneratorData.WIDTH - 1; x ++) {
-			for(let y = 0; y < LevelGeneratorData.HEIGHT - 1; y ++) {
-				if(this.rooms.get(x, y) != null) {
-					partition.add({ position: new Vector(x, y), direction: "right", toggled: false });
-					partition.add({ position: new Vector(x, y), direction: "right", toggled: true });
-					partition.add({ position: new Vector(x, y), direction: "down", toggled: false });
-					partition.add({ position: new Vector(x, y), direction: "down", toggled: true });
-				}
-			}
-		}
-		for(let x = 0; x < LevelGeneratorData.WIDTH - 1; x ++) {
-			for(let y = 0; y < LevelGeneratorData.HEIGHT - 1; y ++) {
-				const room = this.rooms.get(x, y);
-				if(!room) { continue; }
-				for(const component of room.traversability) {
-					const first = component[0];
-					const positionalGateState = this.getPositionalGateState(x, y, first);
-					for(const state of component) {
-						partition.merge(positionalGateState, this.getPositionalGateState(x, y, state));
-					}
-				}
-				if(partition.numSets === 1) { return true; }
-			}
-		}
-		return false;
+		// TODO: rewrite this!
+		return true;
 	}
 	pruneRoom(position: Vector) {
 		const oldRoom = this.rooms.get(position);
 		if(!oldRoom) { return false; }
-		const connectivity = Room.connectivity(this.rooms.get(position)!.traversability,  oldRoom.exits);
+		const connectivity = LevelGenerator.connectivity(oldRoom.exits, oldRoom.traversability);
 		const lessConnectiveRooms = ROOMS.filter(r => 
-			Room.connectivity(r.traversability, oldRoom.exits) < connectivity
-			&& r.canAdd(oldRoom.exits, oldRoom.traversability)
+			LevelGenerator.connectivity(oldRoom.exits, r.traversability) < connectivity
+			&& r.canAdd(oldRoom.exits)
 		);
 		for(const room of GameUtils.randomPermutation(lessConnectiveRooms)) {
 			this.rooms.set(position, { exits: oldRoom.exits, traversability: room.traversability });
 			if(this.isConnected()) {
-				this.totalConnectivity += Room.connectivity(room.traversability, oldRoom.exits) - connectivity;
+				this.totalConnectivity += LevelGenerator.connectivity(oldRoom.exits, room.traversability) - connectivity;
 				return true;
 			}
 		}
@@ -146,6 +104,7 @@ export class LevelGenerator {
 		return this.totalConnectivity / (LevelGeneratorData.WIDTH * LevelGeneratorData.HEIGHT);
 	}
 	pruneAll() {
+		this.totalConnectivity = this.numRooms();
 		const prunables = [];
 		for(let x = 0; x < LevelGeneratorData.WIDTH; x ++) {
 			for(let y = 0; y < LevelGeneratorData.HEIGHT; y ++) {
@@ -164,5 +123,23 @@ export class LevelGenerator {
 		this.generatePath();
 		this.generateRoomsOffPath();
 		this.pruneAll();
+	}
+
+	numRooms() {
+		let count = 0;
+		for(let x = 0; x < LevelGeneratorData.WIDTH; x ++) {
+			for(let y = 0; y < LevelGeneratorData.HEIGHT; y ++) {
+				if(this.rooms.get(x, y) !== null) {
+					count ++;
+				}
+			}
+		}
+		return count;
+	}
+	static connectivity(exits: Direction[], traversability: Traversability) {
+		const connections = traversability.filter(
+			({ start, end }) => exits.includes(start.exit) && exits.includes(end.exit)
+		).length;
+		return connections / ((2 * exits.length) * (2 * exits.length - 1) / 2);
 	}
 }

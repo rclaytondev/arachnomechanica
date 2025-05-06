@@ -1,5 +1,7 @@
+import { Vector } from "../../utils-ts/modules/geometry/Vector.mjs";
 import { ParticleSettings } from "../Particle.mjs";
-import { GateState } from "../tiles/Gate.mjs";
+import { Room, Traversability } from "../Room.mjs";
+import { GateState } from "../Room.mjs";
 import { World } from "../World";
 
 export class WorldData {
@@ -20,7 +22,7 @@ export class LevelGeneratorData {
 
 	static MAIN_PATH_BRANCH_PROBABILITY = 0.6;
 	static OFF_PATH_BRANCH_PROBABILITY = 0.;
-	static MAX_CONNECTIVITY = 14; // 0 = all rooms isolated; 28 = all rooms connected with no gates; 56 = all rooms connected with maximally controllable gates
+	static MAX_CONNECTIVITY = 14; // 0 = all rooms isolated; 1/2 = all rooms connected with no gates; 1 = all rooms connected with maximally controllable gates
 };
 
 export class PlayerData {
@@ -36,32 +38,26 @@ export class PlayerData {
 export class RoomData {
 	static SIZE = 12;
 
-	static NO_GATE_TRAVERSABILITY: GateState[][] = [
-		[
-			{ direction: "left", toggled: false },
-			{ direction: "right", toggled: false },
-			{ direction: "up", toggled: false },
-			{ direction: "down", toggled: false },
-		],
-		[
-			{ direction: "left", toggled: true },
-			{ direction: "right", toggled: true },
-			{ direction: "up", toggled: true },
-			{ direction: "down", toggled: true },
-		]
-	];
-	static ALL_TRAVERSABILITY: GateState[][] = [
-		[
-			{ direction: "left", toggled: false },
-			{ direction: "right", toggled: false },
-			{ direction: "up", toggled: false },
-			{ direction: "down", toggled: false },
-			{ direction: "left", toggled: true },
-			{ direction: "right", toggled: true },
-			{ direction: "up", toggled: true },
-			{ direction: "down", toggled: true },
-		]
-	];
+	static ALL_TRAVERSABILITY: Traversability = (() => {
+		const connections = [];
+		const states: GateState[] = [
+			{ position: new Vector(0, 0), exit: "left", toggled: true },
+			{ position: new Vector(0, 0), exit: "left", toggled: false },
+			{ position: new Vector(0, 0), exit: "right", toggled: true },
+			{ position: new Vector(0, 0), exit: "right", toggled: false },
+			{ position: new Vector(0, 0), exit: "up", toggled: true },
+			{ position: new Vector(0, 0), exit: "up", toggled: false },
+			{ position: new Vector(0, 0), exit: "down", toggled: true },
+			{ position: new Vector(0, 0), exit: "down", toggled: false },
+		];
+		for(const state1 of states) {
+			for(const state2 of states.filter(s => s !== state1)) {
+				connections.push({ start: state1, end: state2 });
+			}
+		}
+		return connections;
+	}) ();
+	static NO_GATE_TRAVERSABILITY = RoomData.ALL_TRAVERSABILITY.filter(({ start, end }) => start.toggled === end.toggled);
 }
 
 export class GateData {
