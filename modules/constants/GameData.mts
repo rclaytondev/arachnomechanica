@@ -20,6 +20,7 @@ export class LevelGeneratorData {
 
 	static MAIN_PATH_BRANCH_PROBABILITY = 0.6;
 	static OFF_PATH_BRANCH_PROBABILITY = 0.;
+	static MAX_CONNECTIVITY = 14; // 0 = all rooms isolated; 28 = all rooms connected with no gates; 56 = all rooms connected with maximally controllable gates
 };
 
 export class PlayerData {

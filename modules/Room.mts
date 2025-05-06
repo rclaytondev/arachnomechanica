@@ -1,6 +1,7 @@
 import { Direction, Directions } from "../utils-ts/modules/geometry/Direction.mjs";
 import { Vector } from "../utils-ts/modules/geometry/Vector.mjs";
 import { Grid } from "../utils-ts/modules/Grid.mjs";
+import { MathUtils } from "../utils-ts/modules/math/MathUtils.mjs";
 import { RoomData } from "./constants/GameData.mjs";
 import { RoomPlaceholder } from "./LevelGenerator.mjs";
 import { GateState } from "./tiles/Gate.mjs";
@@ -88,5 +89,9 @@ export class Room {
 			}
 		}
 		return reflected;
+	}
+
+	static connectivity(traversability: GateState[][]) {
+		return MathUtils.sum(traversability.map(arr => arr.length * (arr.length - 1) / 2));
 	}
 }

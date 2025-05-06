@@ -17,6 +17,16 @@ export class GameUtils {
 	static random(min: number, max: number) {
 		return Math.random() * (max - min) + min;
 	}
+	static randomPermutation<T>(items: T[]) {
+		items = [...items];
+		const result = [];
+		while(items.length > 0) {
+			const index = Utils.randomIndex(items);
+			result.push(items[index]);
+			items.splice(index, 1);
+		}
+		return result;
+	}
 
 	static pastKeys: { [ key: string ]: boolean } = {};
 
