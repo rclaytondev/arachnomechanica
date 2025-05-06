@@ -23,4 +23,43 @@ export class LevelGenerator {
 			ROOMS.push(ROOMS[i].reflect());
 		}
 	}
+
+	generatePath() {
+		let x = GameUtils.randomInt(0, LevelGeneratorData.WIDTH - 1);
+		let y = 0;
+		this.path.push(new Vector(x, y));
+		while(y < LevelGeneratorData.HEIGHT - 1) {
+			const nextDirection = Utils.randomItem(this.possibleNextDirections(x, y));
+			const nextPosition = Vector.unit(nextDirection).add(x, y);
+			this.path.push(nextPosition);
+			this.rooms.set(Vector.unit(nextDirection).add(x, y), {
+				exits: [Directions.opposite(nextDirection)] as const,
+				traversability: RoomData.ALL_TRAVERSABILITY
+			});
+			this.rooms.get(x, y).exits.push(nextDirection);
+			[x, y] = [nextPosition.x, nextPosition.y];
+		}
+	}
+	possibleNextDirections(x: number, y: number): Direction[] {
+		if(this.path.length <= 1) {
+			return [
+				...((x > 0) ? ["left"] as const : []),
+				...((x < LevelGeneratorData.WIDTH - 1) ? ["right"] as const : []), 
+				"down"
+			];
+		}
+		const lastRoom = this.path[this.path.length - 2];
+		const directions: Direction[] = ["down"];
+		if(x > 0 && !(x === lastRoom.x + 1 && y === lastRoom.y)) {
+			directions.push("left");
+		}
+		if(x < LevelGeneratorData.WIDTH - 1 && !(x === lastRoom.x - 1 && y === lastRoom.y)) {
+			directions.push("right");
+		}
+		return directions;
+	}
+
+	generate() {
+		this.generatePath();
+	}
 }

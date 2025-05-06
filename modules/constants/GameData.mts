@@ -49,6 +49,18 @@ export class RoomData {
 			{ direction: "down", toggled: true },
 		]
 	];
+	static ALL_TRAVERSABILITY: GateState[][] = [
+		[
+			{ direction: "left", toggled: false },
+			{ direction: "right", toggled: false },
+			{ direction: "up", toggled: false },
+			{ direction: "down", toggled: false },
+			{ direction: "left", toggled: true },
+			{ direction: "right", toggled: true },
+			{ direction: "up", toggled: true },
+			{ direction: "down", toggled: true },
+		]
+	];
 }
 
 export class GateData {
