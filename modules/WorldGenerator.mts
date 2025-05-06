@@ -1,6 +1,6 @@
 import { Vector } from "../utils-ts/modules/geometry/Vector.mjs";
 import { Utils } from "../utils-ts/modules/Utils.mjs";
-import { LevelGeneratorData } from "./constants/GameData.mjs";
+import { LevelGeneratorData, RoomData, WorldData } from "./constants/GameData.mjs";
 import { LevelGenerator } from "./LevelGenerator.mjs";
 import { ROOMS } from "./Rooms.mjs";
 import { World } from "./World.js";
@@ -16,7 +16,10 @@ export class WorldGenerator {
 				if(!roomPlaceholder) { continue; }
 				const possibleRooms = ROOMS.filter(room => room.canAdd(roomPlaceholder));
 				const room = Utils.randomItem(possibleRooms);
-				room.add(new Vector(x, y), this.world, roomPlaceholder.exits);
+				room.add(new Vector(
+					x * (RoomData.SIZE + LevelGeneratorData.MARGIN_X),
+					y * (RoomData.SIZE + LevelGeneratorData.MARGIN_Y)
+				), this.world, roomPlaceholder.exits);
 			}
 		}
 	}
