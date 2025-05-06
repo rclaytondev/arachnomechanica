@@ -60,7 +60,10 @@ export class LevelGenerator {
 	generateBranchesOffPath() {
 		for(const position of this.path) {
 			const room = this.rooms.get(position)!;
-			const exits = Directions.DIRECTIONS.filter(dir => this.rooms.get(position.add(Vector.unit(dir))) === null);
+			const exits = Directions.DIRECTIONS.filter(dir => (
+				this.rooms.get(position.add(Vector.unit(dir))) === null &&
+				LevelGenerator.isInBounds(position.add(Vector.unit(dir)))
+			));
 			for(const exit of exits) {
 				if(Math.random() < LevelGeneratorData.MAIN_PATH_BRANCH_PROBABILITY) {
 					room.exits.push(exit);
@@ -221,5 +224,11 @@ export class LevelGenerator {
 			({ start, end }) => exits.includes(start.exit) && exits.includes(end.exit)
 		).length;
 		return connections / ((2 * exits.length) * (2 * exits.length - 1) / 2);
+	}
+	static isInBounds(position: Vector) {
+		return (
+			0 <= position.x && position.x < LevelGeneratorData.WIDTH &&
+			0 <= position.y && position.y < LevelGeneratorData.HEIGHT
+		)
 	}
 }
