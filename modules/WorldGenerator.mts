@@ -23,6 +23,7 @@ export class WorldGenerator {
 
 	generate() {
 		this.levelGenerator.generate();
+		this.generateRooms();
 		// TODO: generate the world
 		return this.world;
 	}
