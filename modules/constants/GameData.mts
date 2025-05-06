@@ -1,7 +1,7 @@
 import { Vector } from "../../utils-ts/modules/geometry/Vector.mjs";
 import { ParticleSettings } from "../Particle.mjs";
 import { Room, Traversability } from "../Room.mjs";
-import { GateState } from "../Room.mjs";
+import { GateState } from "../GateState.mjs";
 import { World } from "../World";
 
 export class WorldData {
@@ -41,14 +41,14 @@ export class RoomData {
 	static ALL_TRAVERSABILITY: Traversability = (() => {
 		const connections = [];
 		const states: GateState[] = [
-			{ position: new Vector(0, 0), exit: "left", toggled: true },
-			{ position: new Vector(0, 0), exit: "left", toggled: false },
-			{ position: new Vector(0, 0), exit: "right", toggled: true },
-			{ position: new Vector(0, 0), exit: "right", toggled: false },
-			{ position: new Vector(0, 0), exit: "up", toggled: true },
-			{ position: new Vector(0, 0), exit: "up", toggled: false },
-			{ position: new Vector(0, 0), exit: "down", toggled: true },
-			{ position: new Vector(0, 0), exit: "down", toggled: false },
+			new GateState(null, "left", true),
+			new GateState(null, "left", false),
+			new GateState(null, "right", true),
+			new GateState(null, "right", false),
+			new GateState(null, "up", true),
+			new GateState(null, "up", false),
+			new GateState(null, "down", true),
+			new GateState(null, "down", false)
 		];
 		for(const state1 of states) {
 			for(const state2 of states.filter(s => s !== state1)) {

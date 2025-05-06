@@ -2,9 +2,9 @@ import { Direction, Directions } from "../utils-ts/modules/geometry/Direction.mj
 import { Vector } from "../utils-ts/modules/geometry/Vector.mjs";
 import { Grid } from "../utils-ts/modules/Grid.mjs";
 import { RoomData } from "./constants/GameData.mjs";
+import { GateState } from "./GateState.mjs";
 import { Tile, World } from "./World.js";
 
-export type GateState = { position: Vector, exit: Direction, toggled: boolean };
 export type Traversability = { start: GateState, end: GateState }[];
 
 export class Room {
