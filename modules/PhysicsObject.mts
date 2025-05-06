@@ -1,6 +1,7 @@
 import { Direction } from "../utils-ts/modules/geometry/Direction.mjs";
 import { Rectangle } from "../utils-ts/modules/geometry/Rectangle.mjs";
 import { Vector } from "../utils-ts/modules/geometry/Vector.mjs";
+import { WorldData } from "./constants/GameData.mjs";
 import { World } from "./World.js";
 
 export class PhysicsObject {
@@ -59,13 +60,13 @@ export class PhysicsObject {
 	}
 	isOnPlatform(world: World) {
 		const hitbox = this.hitbox();
-		if(hitbox.bottom() % World.TILE_SIZE !== 0) {
+		if(hitbox.bottom() % WorldData.TILE_SIZE !== 0) {
 			return false;
 		}
 		const left = world.getTileX(hitbox.left());
 		const right = world.getTileX(hitbox.right() - 1);
 		for(let x = left; x <= right; x ++) {
-			if(world.tiles.get(x, hitbox.bottom() / World.TILE_SIZE) === "platform") {
+			if(world.tiles.get(x, hitbox.bottom() / WorldData.TILE_SIZE) === "platform") {
 				return true;
 			}
 		}

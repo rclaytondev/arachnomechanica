@@ -4,22 +4,18 @@ import { Rectangle } from "../utils-ts/modules/geometry/Rectangle.mjs";
 import { Vector } from "../utils-ts/modules/geometry/Vector.mjs";
 import { Grid } from "../utils-ts/modules/Grid.mjs";
 import { Creature } from "./creatures/Creature.js";
+import { LevelGeneratorData, RoomData, WorldData } from "./constants/GameData.mjs";
 import { LevelGenerator } from "./LevelGenerator.mjs";
-import { DEBUG_SETTINGS, Main } from "./Main.js";
+import { Main } from "./Main.js";
+import { DEBUG_SETTINGS } from "./constants/DebugSettings.mjs";
 import { Particle } from "./Particle.mjs";
 import { Player } from "./Player.mjs";
 import { Room } from "./Room.mjs";
 import { Gate } from "./tiles/Gate.mjs";
 
-export type Tile = (typeof World.STRING_TILE_TYPES)[number] | Gate;
+export type Tile = (typeof WorldData.STRING_TILE_TYPES)[number] | Gate;
 
 export class World {
-	static TILE_SIZE = 50;
-	static TILE_COLOR = "rgb(100, 100, 100)";
-	static PLATFORM_THICKNESS = World.TILE_SIZE * 0.1;
-
-	static STRING_TILE_TYPES = ["solid", "empty", "platform"] as const;
-
 	tiles: Grid<Tile> = new Grid("empty");
 	creatures: Creature[] = [];
 	particles: Particle[] = [];
@@ -36,8 +32,8 @@ export class World {
 		}
 		if(Main.screen instanceof World && DEBUG_SETTINGS.DISPLAY_WHOLE_LEVEL) {
 			const amount = Math.min(
-				canvasIO.canvas.width / (LevelGenerator.WIDTH * (Room.SIZE + LevelGenerator.MARGIN_X) * World.TILE_SIZE),
-				canvasIO.canvas.height / (LevelGenerator.HEIGHT * (Room.SIZE + LevelGenerator.MARGIN_Y) * World.TILE_SIZE)
+				canvasIO.canvas.width / (LevelGeneratorData.WIDTH * (RoomData.SIZE + LevelGeneratorData.MARGIN_X) * WorldData.TILE_SIZE),
+				canvasIO.canvas.height / (LevelGeneratorData.HEIGHT * (RoomData.SIZE + LevelGeneratorData.MARGIN_Y) * WorldData.TILE_SIZE)
 			);
 			canvasIO.ctx.scale(amount, amount);
 		}
@@ -52,19 +48,19 @@ export class World {
 	displayTiles(canvasIO: CanvasIO) {
 		for(const [tile, position] of this.tiles.entries()) {
 			if(tile === "solid") {
-				canvasIO.ctx.fillStyle = World.TILE_COLOR;
+				canvasIO.ctx.fillStyle = WorldData.TILE_COLOR;
 				canvasIO.ctx.fillRect(
-					position.x * World.TILE_SIZE - 1, 
-					position.y * World.TILE_SIZE - 1, 
-					World.TILE_SIZE + 2, World.TILE_SIZE + 2
+					position.x * WorldData.TILE_SIZE - 1, 
+					position.y * WorldData.TILE_SIZE - 1, 
+					WorldData.TILE_SIZE + 2, WorldData.TILE_SIZE + 2
 				);
 			}
 			else if(tile === "platform") {
-				canvasIO.ctx.fillStyle = World.TILE_COLOR;
+				canvasIO.ctx.fillStyle = WorldData.TILE_COLOR;
 				canvasIO.ctx.fillRect(
-					position.x * World.TILE_SIZE,
-					position.y * World.TILE_SIZE,
-					World.TILE_SIZE, World.PLATFORM_THICKNESS
+					position.x * WorldData.TILE_SIZE,
+					position.y * WorldData.TILE_SIZE,
+					WorldData.TILE_SIZE, WorldData.PLATFORM_THICKNESS
 				)
 			}
 			else if(tile !== "empty") {
@@ -110,15 +106,15 @@ export class World {
 	}
 
 	getTileX(onscreenX: number) {
-		return Math.floor(onscreenX / World.TILE_SIZE);
+		return Math.floor(onscreenX / WorldData.TILE_SIZE);
 	}
 	getTileY(onscreenY: number) {
-		return Math.floor(onscreenY / World.TILE_SIZE);
+		return Math.floor(onscreenY / WorldData.TILE_SIZE);
 	}
 	getTileCoordinates(onscreenPosition: Vector) {
 		return new Vector(
-			Math.floor(onscreenPosition.x / World.TILE_SIZE), 
-			Math.floor(onscreenPosition.y / World.TILE_SIZE)
+			Math.floor(onscreenPosition.x / WorldData.TILE_SIZE), 
+			Math.floor(onscreenPosition.y / WorldData.TILE_SIZE)
 		);
 	}
 	getTileAt(onscreenPosition: Vector) {
@@ -154,7 +150,7 @@ export class World {
 	}
 
 	static isTile(value: unknown): value is Tile {
-		return (typeof value === "string" && (World.STRING_TILE_TYPES as readonly string[]).includes(value))
+		return (typeof value === "string" && (WorldData.STRING_TILE_TYPES as readonly string[]).includes(value))
 			|| value instanceof Gate;
 	}
 	static reflectTile(tile: Tile) {

@@ -2,10 +2,11 @@ import { canvasIO, CanvasIO } from "../utils-ts/modules/CanvasIO.mjs";
 import { Direction, Directions } from "../utils-ts/modules/geometry/Direction.mjs";
 import { Vector } from "../utils-ts/modules/geometry/Vector.mjs";
 import { Grid } from "../utils-ts/modules/Grid.mjs";
-import { DEBUG_SETTINGS } from "./Main.js";
 import { Room } from "./Room.mjs";
+import { DEBUG_SETTINGS } from "./constants/DebugSettings.mjs";
 import { Gate } from "./tiles/Gate.mjs";
 import { Tile, World } from "./World.js";
+import { WorldData } from "./constants/GameData.mjs";
 
 export class RoomEditor {
 	room: Room;
@@ -86,14 +87,14 @@ export class RoomEditor {
 
 	
 	displayHoveredTile(canvasIO: CanvasIO) {
-		const position = this.world.getTileCoordinates(canvasIO.mouse.position).multiply(World.TILE_SIZE);
+		const position = this.world.getTileCoordinates(canvasIO.mouse.position).multiply(WorldData.TILE_SIZE);
 		canvasIO.ctx.strokeStyle = DEBUG_SETTINGS.HOVERED_TILE_COLOR;
-		canvasIO.ctx.strokeRect(position.x, position.y, World.TILE_SIZE, World.TILE_SIZE);
+		canvasIO.ctx.strokeRect(position.x, position.y, WorldData.TILE_SIZE, WorldData.TILE_SIZE);
 	}
 	displayArrow(canvasIO: CanvasIO, position: Vector, direction: Direction) {
 		canvasIO.drawArrow(
-			position.add(1/2, 1/2).multiply(World.TILE_SIZE),
-			World.TILE_SIZE / 3,
+			position.add(1/2, 1/2).multiply(WorldData.TILE_SIZE),
+			WorldData.TILE_SIZE / 3,
 			direction
 		);
 	}

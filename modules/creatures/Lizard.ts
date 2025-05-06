@@ -4,58 +4,15 @@ import { Vector } from "../../utils-ts/modules/geometry/Vector.mjs";
 import { MathUtils } from "../../utils-ts/modules/math/MathUtils.mjs";
 import { Utils } from "../../utils-ts/modules/Utils.mjs";
 import { GameUtils } from "../GameUtils.mjs";
-import { DEBUG_SETTINGS } from "../Main.js";
+import { DEBUG_SETTINGS } from "../constants/DebugSettings.mjs";
 import { World } from "../World.js";
 import { frameCount } from "../Main.js";
 import { Rectangle } from "../../utils-ts/modules/geometry/Rectangle.mjs";
 import { Gate } from "../tiles/Gate.mjs";
 import { Particle, ParticleSettings } from "../Particle.mjs";
+import { LizardData, WorldData } from "../constants/GameData.mjs";
 
 export class Lizard {
-	static SPEED = 3;
-	static LOOKAHEAD_WIDTH = World.TILE_SIZE * 0.8;
-	static LOOKAHEAD_DISTANCE = World.TILE_SIZE * 1/2 + Lizard.SPEED;
-	static HITBOX_WIDTH = World.TILE_SIZE * 1/2;
-	static FIRE_DURATION = 30;
-	static HURTBOX_WIDTH = 1/2 * World.TILE_SIZE;
-	static HURTBOX_SPEED = 6;
-	static MAX_HURTBOX_SIZE = 100;
-
-	static FIRE_PARTICLES: ParticleSettings = {
-		color: { red: 0, green: 128, blue: 255 },
-		size: World.TILE_SIZE * 0.2,
-		shape: 3,
-		minRotationalVelocity: 0,
-		maxRotationalVelocity: 1
-	};
-	static PARTICLES_PER_FRAME = 2;
-	static PARTICLE_SPEED = Lizard.SPEED + 6;
-	static PARTICLE_SPEED_VARIANCE = 2;
-	static PARTICLE_CROSS_SPEED_VARIANCE = 1;
-
-	static BODY_WIDTH = World.TILE_SIZE * 0.1;
-	static LEG_SCALE = World.TILE_SIZE * 0.5;
-	static LEG_SPACING = Lizard.LEG_SCALE; // distance between consecutive legs on the lizard's body.
-	static LEG_DISTANCE = Lizard.LEG_SCALE * 0.4; // how far away perpendicularly the foot should be from the body.
-	static STEP_SIZE = Lizard.LEG_SCALE * 1.5; // how far past the connection it should move the leg each step.
-	static MAX_LEG_DISTANCE = Lizard.LEG_SCALE; // maximum distance between leg and connection before taking a step.
-	static FOOT_SIZE = World.TILE_SIZE * 0;
-	static LEG_SPEED_MULTIPLIER = 2.5;
-
-	static HEAD_WIDTH = World.TILE_SIZE * 0.2;
-	static HEAD_HEIGHT = World.TILE_SIZE * 0.3;
-	static HEAD_OFFSET = -World.TILE_SIZE * 0.5;
-	static MOUTH_LENGTH = World.TILE_SIZE;
-	static EYE_SIZE = World.TILE_SIZE * 0.1;
-	static EYE_Y = World.TILE_SIZE * 0.3;
-	static EYE_COLOR = "rgb(0, 150, 255)";
-	static HEAD_ROTATION_SPEED = 0.2;
-
-	static LIZARDS_PER_ROOM = 0.5;
-	static MIN_LENGTH = 2;
-	static MAX_LENGTH = 7;
-	static SPAWN_EVENNESS = 7; // higher number = more evenly distributed
-
 	direction: Direction;
 	position: Vector;
 	joints: { position: Vector, direction: Direction }[] = [];
@@ -77,16 +34,16 @@ export class Lizard {
 		this.speed = speed;
 
 		this.legs = [];
-		for(let i = 2; i * Lizard.LEG_SPACING < this.length; i ++) {
+		for(let i = 2; i * LizardData.LEG_SPACING < this.length; i ++) {
 			const leftDirection = Directions.rotateCounterclockwise(this.direction);
 			const rightDirection = Directions.rotateClockwise(this.direction);
-			const jointPosition = this.position.subtract(Vector.unit(this.direction).multiply(i * Lizard.LEG_SPACING));
-			const forwardOffset = Vector.unit(this.direction).multiply(Lizard.STEP_SIZE / 2);
-			const backwardOffset = Vector.unit(this.direction).multiply(-Lizard.STEP_SIZE / 2);
-			const leftOffset = Vector.unit(leftDirection).multiply(Lizard.LEG_DISTANCE);
-			const rightOffset = Vector.unit(rightDirection).multiply(Lizard.LEG_DISTANCE);
-			this.legs.push(new LizardLeg("left", i * Lizard.LEG_SPACING, jointPosition.add(i % 2 === 0 ? forwardOffset : backwardOffset).add(leftOffset)));
-			this.legs.push(new LizardLeg("right", i * Lizard.LEG_SPACING, jointPosition.add(i % 2 === 0 ? backwardOffset : forwardOffset).add(rightOffset)));
+			const jointPosition = this.position.subtract(Vector.unit(this.direction).multiply(i * LizardData.LEG_SPACING));
+			const forwardOffset = Vector.unit(this.direction).multiply(LizardData.STEP_SIZE / 2);
+			const backwardOffset = Vector.unit(this.direction).multiply(-LizardData.STEP_SIZE / 2);
+			const leftOffset = Vector.unit(leftDirection).multiply(LizardData.LEG_DISTANCE);
+			const rightOffset = Vector.unit(rightDirection).multiply(LizardData.LEG_DISTANCE);
+			this.legs.push(new LizardLeg("left", i * LizardData.LEG_SPACING, jointPosition.add(i % 2 === 0 ? forwardOffset : backwardOffset).add(leftOffset)));
+			this.legs.push(new LizardLeg("right", i * LizardData.LEG_SPACING, jointPosition.add(i % 2 === 0 ? backwardOffset : forwardOffset).add(rightOffset)));
 		}
 	}
 
@@ -100,7 +57,7 @@ export class Lizard {
 	}
 	displayBody(canvasIO: CanvasIO) {
 		canvasIO.ctx.strokeStyle = this.color;
-		canvasIO.ctx.lineWidth = Lizard.BODY_WIDTH;
+		canvasIO.ctx.lineWidth = LizardData.BODY_WIDTH;
 		canvasIO.ctx.lineCap = "round";
 		const segment1End = (
 			this.joints[0]?.position ?? 
@@ -136,26 +93,26 @@ export class Lizard {
 		canvasIO.ctx.strokeStyle = this.color;
 		const [point] = this.getPointOnBody(leg.distance);
 		canvasIO.strokeLine(point.x, point.y, leg.position.x, leg.position.y);
-		canvasIO.fillCircle(leg.position.x, leg.position.y, Lizard.FOOT_SIZE);
+		canvasIO.fillCircle(leg.position.x, leg.position.y, LizardData.FOOT_SIZE);
 	}
 	displayHead(canvasIO: CanvasIO) {
-		const mouthX = Lizard.HEAD_WIDTH / 2 * (1 + Math.sin(frameCount * 0.5)) / 2;
+		const mouthX = LizardData.HEAD_WIDTH / 2 * (1 + Math.sin(frameCount * 0.5)) / 2;
 		canvasIO.ctx.save();
 		canvasIO.ctx.translate(this.position.x, this.position.y);
 		canvasIO.ctx.rotate(this.headAngle - Math.PI / 2);
 		canvasIO.ctx.fillStyle = this.color;
 		canvasIO.fillPoly(
-			0, Lizard.HEAD_OFFSET,
-			-Lizard.HEAD_WIDTH, Lizard.HEAD_HEIGHT + Lizard.HEAD_OFFSET,
-			-mouthX, Lizard.HEAD_HEIGHT + Lizard.MOUTH_LENGTH + Lizard.HEAD_OFFSET,
-			0, Lizard.HEAD_HEIGHT * 1.5 + Lizard.HEAD_OFFSET,
-			mouthX, Lizard.HEAD_HEIGHT + Lizard.MOUTH_LENGTH + Lizard.HEAD_OFFSET,
-			Lizard.HEAD_WIDTH, Lizard.HEAD_HEIGHT + Lizard.HEAD_OFFSET,
+			0, LizardData.HEAD_OFFSET,
+			-LizardData.HEAD_WIDTH, LizardData.HEAD_HEIGHT + LizardData.HEAD_OFFSET,
+			-mouthX, LizardData.HEAD_HEIGHT + LizardData.MOUTH_LENGTH + LizardData.HEAD_OFFSET,
+			0, LizardData.HEAD_HEIGHT * 1.5 + LizardData.HEAD_OFFSET,
+			mouthX, LizardData.HEAD_HEIGHT + LizardData.MOUTH_LENGTH + LizardData.HEAD_OFFSET,
+			LizardData.HEAD_WIDTH, LizardData.HEAD_HEIGHT + LizardData.HEAD_OFFSET,
 		);
 
 
-		canvasIO.ctx.fillStyle = Lizard.EYE_COLOR;
-		canvasIO.fillDiamond(0, Lizard.EYE_Y + Lizard.HEAD_OFFSET, Lizard.EYE_SIZE);
+		canvasIO.ctx.fillStyle = LizardData.EYE_COLOR;
+		canvasIO.fillDiamond(0, LizardData.EYE_Y + LizardData.HEAD_OFFSET, LizardData.EYE_SIZE);
 
 		canvasIO.ctx.restore();
 	}
@@ -190,13 +147,13 @@ export class Lizard {
 		this.checkForPlayer(world);
 	}
 	checkForCollisions(world: World) {
-		const lookaheadPoint = this.position.add(Vector.unit(this.direction).multiply(Lizard.LOOKAHEAD_DISTANCE));
+		const lookaheadPoint = this.position.add(Vector.unit(this.direction).multiply(LizardData.LOOKAHEAD_DISTANCE));
 		if(this.isObstructed(world, this.direction)) {
 			this.joints.unshift({ position: this.position.clone(), direction: this.direction });
 			const clockwise = Directions.rotateClockwise(this.direction);
 			const counterclockwise = Directions.rotateCounterclockwise(this.direction);
-			const obstructedCounterclockwise = this.isObstructed(world, counterclockwise, World.TILE_SIZE);
-			const obstructedClockwise = this.isObstructed(world, clockwise, World.TILE_SIZE);
+			const obstructedCounterclockwise = this.isObstructed(world, counterclockwise, WorldData.TILE_SIZE);
+			const obstructedClockwise = this.isObstructed(world, clockwise, WorldData.TILE_SIZE);
 			if(obstructedClockwise && obstructedCounterclockwise) {
 				this.startFire();
 			}
@@ -232,23 +189,23 @@ export class Lizard {
 			[this.headAngle, this.headAngle - 2 * Math.PI, this.headAngle + 2 * Math.PI],
 			angle => MathUtils.dist(angle, this.targetHeadAngle)
 		);
-		this.headAngle = GameUtils.moveTowards(minValue, this.targetHeadAngle, Lizard.HEAD_ROTATION_SPEED);
+		this.headAngle = GameUtils.moveTowards(minValue, this.targetHeadAngle, LizardData.HEAD_ROTATION_SPEED);
 
 		this.headAngle = MathUtils.generalizedModulo(this.headAngle, 2 * Math.PI);
 		this.targetHeadAngle = MathUtils.generalizedModulo(this.targetHeadAngle, 2 * Math.PI);
 	}
 	updateLeg(leg: LizardLeg) {
 		const [connection] = this.getPointOnBody(leg.distance);
-		if(Vector.dist(leg.position, connection) > Lizard.MAX_LEG_DISTANCE) {
+		if(Vector.dist(leg.position, connection) > LizardData.MAX_LEG_DISTANCE) {
 			leg.destination = this.getLegDestination(leg);
 		}
-		const legSpeed = this.speed * Lizard.LEG_SPEED_MULTIPLIER;
+		const legSpeed = this.speed * LizardData.LEG_SPEED_MULTIPLIER;
 		leg.position.x = GameUtils.moveTowards(leg.position.x, leg.destination.x, legSpeed);
 		leg.position.y = GameUtils.moveTowards(leg.position.y, leg.destination.y, legSpeed);
 	}
 	generateFireParticleVelocity() {
-		const speed = Lizard.PARTICLE_SPEED + GameUtils.random(-Lizard.PARTICLE_SPEED_VARIANCE, Lizard.PARTICLE_SPEED_VARIANCE);
-		const crossSpeed = GameUtils.random(-Lizard.PARTICLE_CROSS_SPEED_VARIANCE, Lizard.PARTICLE_CROSS_SPEED_VARIANCE);
+		const speed = LizardData.PARTICLE_SPEED + GameUtils.random(-LizardData.PARTICLE_SPEED_VARIANCE, LizardData.PARTICLE_SPEED_VARIANCE);
+		const crossSpeed = GameUtils.random(-LizardData.PARTICLE_CROSS_SPEED_VARIANCE, LizardData.PARTICLE_CROSS_SPEED_VARIANCE);
 		if(Directions.isHorizontal(this.direction)) {
 			return new Vector(
 				speed * (this.direction === "left" ? -1 : 1),
@@ -263,15 +220,15 @@ export class Lizard {
 		}
 	}
 	generateFireParticle() {
-		return new Particle(this.position, this.generateFireParticleVelocity(), Lizard.FIRE_PARTICLES);
+		return new Particle(this.position, this.generateFireParticleVelocity(), LizardData.FIRE_PARTICLES);
 	}
 	updateFire(world: World) {
 		this.fireTimer --;
 		if(this.fireTimer > 0) {
-			for(let i = 0; i < Lizard.PARTICLES_PER_FRAME; i ++) {
+			for(let i = 0; i < LizardData.PARTICLES_PER_FRAME; i ++) {
 				world.particles.push(this.generateFireParticle());
 			}
-			this.hurtboxSize = Math.min(this.hurtboxSize + Lizard.HURTBOX_SPEED, Lizard.MAX_HURTBOX_SIZE);
+			this.hurtboxSize = Math.min(this.hurtboxSize + LizardData.HURTBOX_SPEED, LizardData.MAX_HURTBOX_SIZE);
 		}
 		else {
 			this.hurtboxSize = 0;
@@ -280,26 +237,26 @@ export class Lizard {
 	hurtbox(size: number = this.hurtboxSize) {
 		if(this.direction === "left") {
 			return new Rectangle(
-				this.position.x - size, this.position.y - Lizard.HURTBOX_WIDTH / 2,
-				size, Lizard.HURTBOX_WIDTH
+				this.position.x - size, this.position.y - LizardData.HURTBOX_WIDTH / 2,
+				size, LizardData.HURTBOX_WIDTH
 			);
 		}
 		else if(this.direction === "right") {
 			return new Rectangle(
-				this.position.x, this.position.y - Lizard.HURTBOX_WIDTH / 2,
-				size, Lizard.HURTBOX_WIDTH
+				this.position.x, this.position.y - LizardData.HURTBOX_WIDTH / 2,
+				size, LizardData.HURTBOX_WIDTH
 			);
 		}
 		else if(this.direction === "up") {
 			return new Rectangle(
-				this.position.x - Lizard.HURTBOX_WIDTH / 2, this.position.y - size,
-				Lizard.HURTBOX_WIDTH, size
+				this.position.x - LizardData.HURTBOX_WIDTH / 2, this.position.y - size,
+				LizardData.HURTBOX_WIDTH, size
 			);
 		}
 		else {
 			return new Rectangle(
-				this.position.x - Lizard.HURTBOX_WIDTH / 2, this.position.y,
-				Lizard.HURTBOX_WIDTH, size
+				this.position.x - LizardData.HURTBOX_WIDTH / 2, this.position.y,
+				LizardData.HURTBOX_WIDTH, size
 			);
 		}
 	}
@@ -314,46 +271,46 @@ export class Lizard {
 		}
 	}
 	checkForPlayer(world: World) {
-		const hurtbox = this.hurtbox(Lizard.MAX_HURTBOX_SIZE);
+		const hurtbox = this.hurtbox(LizardData.MAX_HURTBOX_SIZE);
 		if(world.player.physicsObject.hitbox().intersects(hurtbox)) {
 			this.startFire();
 		}
 	}
-	startFire(duration: number = Lizard.FIRE_DURATION) {
+	startFire(duration: number = LizardData.FIRE_DURATION) {
 		if(this.fireTimer < 0) {
 			this.hurtboxSize = 0;
 		}
-		this.fireTimer = Lizard.FIRE_DURATION;
+		this.fireTimer = LizardData.FIRE_DURATION;
 	}
 
 
 	getLegDestination(leg: LizardLeg) {
 		const [point, direction] = this.getPointOnBody(leg.distance);
 		const perpendicular = (leg.side === "left") ? 
-			Vector.unit(Directions.rotateCounterclockwise(direction)).multiply(Lizard.LEG_DISTANCE) :
-			Vector.unit(Directions.rotateClockwise(direction)).multiply(Lizard.LEG_DISTANCE);
-		const paralell = Vector.unit(direction).multiply(Lizard.STEP_SIZE);
+			Vector.unit(Directions.rotateCounterclockwise(direction)).multiply(LizardData.LEG_DISTANCE) :
+			Vector.unit(Directions.rotateClockwise(direction)).multiply(LizardData.LEG_DISTANCE);
+		const paralell = Vector.unit(direction).multiply(LizardData.STEP_SIZE);
 		return point.add(perpendicular).add(paralell);
 	}
-	lookaheadPoint(direction: Direction = this.direction, distance: number = Lizard.LOOKAHEAD_DISTANCE) {
+	lookaheadPoint(direction: Direction = this.direction, distance: number = LizardData.LOOKAHEAD_DISTANCE) {
 		return this.position.add(Vector.unit(direction).multiply(distance));
 	}
-	lookaheadRectangle(direction: Direction = this.direction, distance: number = Lizard.LOOKAHEAD_DISTANCE) {
+	lookaheadRectangle(direction: Direction = this.direction, distance: number = LizardData.LOOKAHEAD_DISTANCE) {
 		const point = this.lookaheadPoint(direction, distance);
 		if(Directions.isHorizontal(direction)) {
 			return new Rectangle(
-				point.x, point.y - Lizard.LOOKAHEAD_WIDTH / 2,
-				1, Lizard.LOOKAHEAD_WIDTH
+				point.x, point.y - LizardData.LOOKAHEAD_WIDTH / 2,
+				1, LizardData.LOOKAHEAD_WIDTH
 			);
 		}
 		else {
 			return new Rectangle(
-				point.x - Lizard.LOOKAHEAD_WIDTH / 2, point.y,
-				Lizard.LOOKAHEAD_WIDTH, 1
+				point.x - LizardData.LOOKAHEAD_WIDTH / 2, point.y,
+				LizardData.LOOKAHEAD_WIDTH, 1
 			);
 		}
 	}
-	isObstructed(world: World, direction: Direction = this.direction, distance: number = Lizard.LOOKAHEAD_DISTANCE) {
+	isObstructed(world: World, direction: Direction = this.direction, distance: number = LizardData.LOOKAHEAD_DISTANCE) {
 		const lookaheadRectangle = this.lookaheadRectangle(direction, distance);
 		const tiles = world.getTilesAt(lookaheadRectangle);
 		if(tiles.some(({ tile }) => (
@@ -389,18 +346,18 @@ export class Lizard {
 	static segmentHitbox(point1: Vector, point2: Vector) {
 		if(point1.x === point2.x) {
 			return Rectangle.fromBounds(
-				point1.x - Lizard.HITBOX_WIDTH / 2,
-				point1.x + Lizard.HITBOX_WIDTH / 2,
-				Math.min(point1.y, point2.y) - Lizard.HITBOX_WIDTH / 2,
-				Math.max(point1.y, point2.y) + Lizard.HITBOX_WIDTH / 2
+				point1.x - LizardData.HITBOX_WIDTH / 2,
+				point1.x + LizardData.HITBOX_WIDTH / 2,
+				Math.min(point1.y, point2.y) - LizardData.HITBOX_WIDTH / 2,
+				Math.max(point1.y, point2.y) + LizardData.HITBOX_WIDTH / 2
 			);
 		}
 		else {
 			return Rectangle.fromBounds(
-				Math.min(point1.x, point2.x) - Lizard.HITBOX_WIDTH / 2,
-				Math.max(point1.x, point2.x) + Lizard.HITBOX_WIDTH / 2,
-				point1.y - Lizard.HITBOX_WIDTH / 2,
-				point1.y + Lizard.HITBOX_WIDTH / 2
+				Math.min(point1.x, point2.x) - LizardData.HITBOX_WIDTH / 2,
+				Math.max(point1.x, point2.x) + LizardData.HITBOX_WIDTH / 2,
+				point1.y - LizardData.HITBOX_WIDTH / 2,
+				point1.y + LizardData.HITBOX_WIDTH / 2
 			);
 		}
 	}

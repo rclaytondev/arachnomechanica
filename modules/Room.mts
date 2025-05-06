@@ -1,12 +1,11 @@
 import { Direction, Directions } from "../utils-ts/modules/geometry/Direction.mjs";
 import { Vector } from "../utils-ts/modules/geometry/Vector.mjs";
 import { Grid } from "../utils-ts/modules/Grid.mjs";
+import { RoomData } from "./constants/GameData.mjs";
 import { RoomPlaceholder } from "./LevelGenerator.mjs";
 import { Tile, World } from "./World.js";
 
 export class Room {
-	static SIZE = 12;
-
 	name: string;
 	tiles: Grid<Tile>;
 	requiredExits: Direction[];
@@ -44,8 +43,8 @@ export class Room {
 	}
 
 	add(position: Vector, world: World, exits: Direction[]) {
-		for(let x = 0; x < Room.SIZE; x ++) {
-			for(let y = 0; y < Room.SIZE; y ++) {
+		for(let x = 0; x < RoomData.SIZE; x ++) {
+			for(let y = 0; y < RoomData.SIZE; y ++) {
 				const tile = this.tiles.get(x, y);
 				const tileCopy = (typeof tile === "string") ? tile : tile.copy();
 				const worldPosition = position.add(x, y);
@@ -71,9 +70,9 @@ export class Room {
 			this.requiredExits.map(Directions.reflectX),
 			this.optionalExits.map(Directions.reflectX),
 		);
-		for(let x = 0; x < Room.SIZE; x ++) {
-			for(let y = 0; y < Room.SIZE; y ++) {
-				const reflectedX = Room.SIZE - x - 1;
+		for(let x = 0; x < RoomData.SIZE; x ++) {
+			for(let y = 0; y < RoomData.SIZE; y ++) {
+				const reflectedX = RoomData.SIZE - x - 1;
 				const tile = this.tiles.get(x, y);
 				reflected.tiles.set(reflectedX, y, World.reflectTile(tile));
 
