@@ -49,4 +49,16 @@ export class GateState {
 			traversability2.map(({ start, end }) => `(${start.toString()}), (${end.toString()})`)
 		);
 	}
+	static deduplicateTraversability(traversability: Traversability) {
+		const distinctConnections = new Set<string>();
+		const result = [];
+		for(const connection of traversability) {
+			const stringified = `(${connection.start}, ${connection.end})`;
+			if(!distinctConnections.has(stringified)) {
+				result.push(connection);
+				distinctConnections.add(stringified);
+			}
+		}
+		return result;
+	}
 }

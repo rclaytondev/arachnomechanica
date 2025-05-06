@@ -39,9 +39,9 @@ export class Room {
 		this.requiredExits = requiredExits;
 		this.optionalExits = optionalExits;
 		const exits = [this.requiredExits, ...optionalExits];
-		this.traversability = traversability ?? RoomData.NO_GATE_TRAVERSABILITY.filter(
+		this.traversability = GateState.deduplicateTraversability((traversability ?? RoomData.NO_GATE_TRAVERSABILITY).filter(
 			({ start, end }) => exits.includes(start.exit) && exits.includes(end.exit)
-		);
+		));
 	}
 
 	canAdd(roomPlaceholder: RoomPlaceholder) {
@@ -98,5 +98,52 @@ export class Room {
 			}
 		}
 		return reflected;
+	}
+
+	static gatelessPath(exit1: Direction, exit2: Direction) {
+		return [
+			{ start: new GateState(null, exit1, false), end: new GateState(null, exit2, false) },
+			{ start: new GateState(null, exit1, true), end: new GateState(null, exit2, true) },
+			{ start: new GateState(null, exit2, false), end: new GateState(null, exit1, false) },
+			{ start: new GateState(null, exit2, true), end: new GateState(null, exit1, true) }
+		];
+	}
+	static onewayGatelessPath(exit1: Direction, exit2: Direction) {
+		return [
+			{ start: new GateState(null, exit1, false), end: new GateState(null, exit2, false) },
+			{ start: new GateState(null, exit1, true), end: new GateState(null, exit2, true) }
+		];
+	}
+	static gatePath(exit1: Direction, exit2: Direction, open: boolean) {
+		if(exit1 === exit2) {
+			return [{ start: new GateState(null, exit1, !open), end: new GateState(null, exit2, open) } ];
+		}
+		return [
+			{ start: new GateState(null, exit1, !open), end: new GateState(null, exit2, open) },
+			{ start: new GateState(null, exit2, !open), end: new GateState(null, exit1, open) }
+		];
+	}
+	static doubleGatePath(exit1: Direction, exit2: Direction) {
+		return [
+			{ start: new GateState(null, exit1, false), end: new GateState(null, exit2, false) },
+			{ start: new GateState(null, exit2, true), end: new GateState(null, exit1, true) },
+		];
+	}
+	static getTraversability(connections: Traversability) {
+		const checkPair = (i: number, j: number) => {
+			const composite = { start: connections[i].start, end: connections[j].end };
+			if(
+				connections[i].end.equals(connections[j].start) &&
+				!composite.start.equals(composite.end) &&
+				!connections.some(c => c.start.equals(composite.start) && c.end.equals(composite.end))
+			) { connections.push(composite); }
+		};
+		for(let max = 0; max < connections.length; max ++) {
+			for(let i = 0; i < max; i ++) {
+				checkPair(i, max);
+				checkPair(max, i);
+			}
+		}
+		return connections;
 	}
 }

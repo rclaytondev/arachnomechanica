@@ -1,5 +1,7 @@
 import { Vector } from "../utils-ts/modules/geometry/Vector.mjs";
 import { Grid } from "../utils-ts/modules/Grid.mjs";
+import { RoomData } from "./constants/GameData.mjs";
+import { GateState } from "./GateState.mjs";
 import { Room } from "./Room.mjs";
 import { Gate } from "./tiles/Gate.mjs";
 
@@ -461,7 +463,11 @@ export const ROOMS: Room[] = [
 			{ x: 11, y: 3, direction: "right" },
 		],
 		["left", "right"],
-		[]
+		[],
+		[
+			...Room.gatePath("left", "right", true),
+			...Room.gatePath("left", "right", false)
+		]
 	),
 	new Room(
 		"tunnels", 
@@ -684,7 +690,12 @@ export const ROOMS: Room[] = [
 			{ x: 0, y: 3, direction: "left" },
 		],
 		[],
-		["left", "right"]
+		["left", "right"],
+		Room.getTraversability([
+			...Room.gatePath("left", "right", true),
+			...Room.gatePath("left", "right", false),
+			...Room.doubleGatePath("right", "left")
+		])
 	),
 	new Room(
 		"vertical-gate-contraption",
@@ -767,7 +778,13 @@ export const ROOMS: Room[] = [
 			{ x: 11, y: 8, direction: "right" },
 		],
 		["up", "down"],
-		["right"]
+		["right"],
+		Room.getTraversability([
+			...Room.gatelessPath("down", "right"),
+			...Room.onewayGatelessPath("down", "up"),
+			...Room.gatePath("up", "up", false),
+			...Room.doubleGatePath("up", "down"),
+]		)
 	),
 	new Room(
 		"the-maze",
@@ -953,7 +970,15 @@ export const ROOMS: Room[] = [
 			{ x: 6, y: 0, direction: "up" },
 		],
 		["left"],
-		["right", "down"]
+		["right", "down"],
+		Room.getTraversability([
+			...Room.gatelessPath("down", "right"),
+			...Room.onewayGatelessPath("down", "left"),
+			...Room.gatePath("left", "left", false),
+			...Room.gatePath("up", "up", false),
+			...Room.gatePath("up", "right", true),
+			...Room.gatePath("up", "left", true)
+		])
 	),
 	new Room(
 		"the-tomb",
@@ -1040,6 +1065,12 @@ export const ROOMS: Room[] = [
 			{ x: 4, y: 11, direction: "down" },
 		],
 		["up", "left"],
-		["down", "right"]
+		["down", "right"],
+		Room.getTraversability([
+			...Room.gatelessPath("left", "right"),
+			...Room.onewayGatelessPath("down", "left"),
+			...Room.gatePath("down", "left", true),
+			...Room.gatePath("up", "left", false)
+		])
 	)
 ];
