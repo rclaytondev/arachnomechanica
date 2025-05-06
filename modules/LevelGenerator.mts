@@ -261,4 +261,11 @@ export class LevelGenerator {
 		const room = Utils.randomItem(possibleRooms);
 		return room;
 	}
+
+	static initializeRooms() {
+		const length = ROOMS.length;
+		for(let i = 0; i < length; i ++) {
+			ROOMS.push(ROOMS[i].reflect());
+		}
+	}
 }

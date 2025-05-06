@@ -78,7 +78,7 @@ export class Room {
 
 				const exitTile = this.exitTiles.get(x, y);
 				if(exitTile !== "none") {
-					reflected.exitTiles.set(reflectedX, y, Directions.opposite(exitTile));
+					reflected.exitTiles.set(reflectedX, y, Directions.reflectX(exitTile));
 				}
 			}
 		}
