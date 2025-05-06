@@ -26,6 +26,7 @@ export class LevelGenerator {
 		let x = GameUtils.randomInt(0, LevelGeneratorData.WIDTH - 1);
 		let y = 0;
 		this.path.push(new Vector(x, y));
+		this.rooms.set(x, y, { exits: [], traversability: RoomData.ALL_TRAVERSABILITY });
 		while(y < LevelGeneratorData.HEIGHT - 1) {
 			const nextDirection = Utils.randomItem(this.possibleNextDirections(x, y));
 			const nextPosition = Vector.unit(nextDirection).add(x, y);

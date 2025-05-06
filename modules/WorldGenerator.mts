@@ -3,7 +3,7 @@ import { Utils } from "../utils-ts/modules/Utils.mjs";
 import { LevelGeneratorData } from "./constants/GameData.mjs";
 import { LevelGenerator } from "./LevelGenerator.mjs";
 import { ROOMS } from "./Rooms.mjs";
-import { World } from "./World";
+import { World } from "./World.js";
 
 export class WorldGenerator {
 	levelGenerator: LevelGenerator = new LevelGenerator();
