@@ -42,10 +42,13 @@ export class Room {
 		);
 	}
 
-	canAdd(exitDirections: Direction[]) {
-		return exitDirections.every(exit =>
+	canAdd(exitDirections: Direction[], traversability: GateState[][]) {
+		const hasAllExits = exitDirections.every(exit =>
 			[...this.requiredExits, ...this.optionalExits].includes(exit)
-		) && this.requiredExits.every(exit => exitDirections.includes(exit));
+		);
+		const allRequiredExits = this.requiredExits.every(exit => exitDirections.includes(exit));
+		const correctConnectivity = Room.connectivity(this.traversability, exitDirections) <= Room.connectivity(traversability, exitDirections);
+		return hasAllExits && allRequiredExits && correctConnectivity;
 	}
 
 	add(position: Vector, world: World, exits: Direction[]) {
@@ -91,7 +94,10 @@ export class Room {
 		return reflected;
 	}
 
-	static connectivity(traversability: GateState[][]) {
-		return MathUtils.sum(traversability.map(arr => arr.length * (arr.length - 1) / 2));
+	static connectivity(traversability: GateState[][], exits: Direction[]) {
+		return MathUtils.sum(traversability.map(arr => {
+			const actualConnections = arr.filter(s => exits.includes(s.direction));
+			return actualConnections.length * (actualConnections.length - 1) / 2
+		}));
 	}
 }

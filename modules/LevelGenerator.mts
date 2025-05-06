@@ -100,15 +100,19 @@ export class LevelGenerator {
 		const partition = HashPartition.empty<PositionalGateState>(state => `${state.position}, ${state.direction}, ${state.toggled}`);
 		for(let x = 0; x < LevelGeneratorData.WIDTH - 1; x ++) {
 			for(let y = 0; y < LevelGeneratorData.HEIGHT - 1; y ++) {
-				partition.add({ position: new Vector(x, y), direction: "right", toggled: false });
-				partition.add({ position: new Vector(x, y), direction: "right", toggled: true });
-				partition.add({ position: new Vector(x, y), direction: "down", toggled: false });
-				partition.add({ position: new Vector(x, y), direction: "down", toggled: true });
+				if(this.rooms.get(x, y) != null) {
+					partition.add({ position: new Vector(x, y), direction: "right", toggled: false });
+					partition.add({ position: new Vector(x, y), direction: "right", toggled: true });
+					partition.add({ position: new Vector(x, y), direction: "down", toggled: false });
+					partition.add({ position: new Vector(x, y), direction: "down", toggled: true });
+				}
 			}
 		}
 		for(let x = 0; x < LevelGeneratorData.WIDTH - 1; x ++) {
 			for(let y = 0; y < LevelGeneratorData.HEIGHT - 1; y ++) {
-				for(const component of this.rooms.get(x, y)!.traversability) {
+				const room = this.rooms.get(x, y);
+				if(!room) { continue; }
+				for(const component of room.traversability) {
 					const first = component[0];
 					const positionalGateState = this.getPositionalGateState(x, y, first);
 					for(const state of component) {
@@ -121,16 +125,17 @@ export class LevelGenerator {
 		return false;
 	}
 	pruneRoom(position: Vector) {
-		const oldRoom = this.rooms.get(position)!;
-		const connectivity = Room.connectivity(this.rooms.get(position)!.traversability);
+		const oldRoom = this.rooms.get(position);
+		if(!oldRoom) { return false; }
+		const connectivity = Room.connectivity(this.rooms.get(position)!.traversability,  oldRoom.exits);
 		const lessConnectiveRooms = ROOMS.filter(r => 
-			Room.connectivity(r.traversability) < connectivity
-			&& r.canAdd(oldRoom.exits)
+			Room.connectivity(r.traversability, oldRoom.exits) < connectivity
+			&& r.canAdd(oldRoom.exits, oldRoom.traversability)
 		);
 		for(const room of GameUtils.randomPermutation(lessConnectiveRooms)) {
 			this.rooms.set(position, { exits: oldRoom.exits, traversability: room.traversability });
 			if(this.isConnected()) {
-				this.totalConnectivity += Room.connectivity(room.traversability) - connectivity;
+				this.totalConnectivity += Room.connectivity(room.traversability, oldRoom.exits) - connectivity;
 				return true;
 			}
 		}
