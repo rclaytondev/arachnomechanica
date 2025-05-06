@@ -1,4 +1,5 @@
 import { ParticleSettings } from "../Particle.mjs";
+import { GateState } from "../tiles/Gate.mjs";
 import { World } from "../World";
 
 export class WorldData {
@@ -33,6 +34,21 @@ export class PlayerData {
 
 export class RoomData {
 	static SIZE = 12;
+
+	static NO_GATE_TRAVERSABILITY: GateState[][] = [
+		[
+			{ direction: "left", toggled: false },
+			{ direction: "right", toggled: false },
+			{ direction: "up", toggled: false },
+			{ direction: "down", toggled: false },
+		],
+		[
+			{ direction: "left", toggled: true },
+			{ direction: "right", toggled: true },
+			{ direction: "up", toggled: true },
+			{ direction: "down", toggled: true },
+		]
+	];
 }
 
 export class GateData {

@@ -3,6 +3,7 @@ import { Vector } from "../utils-ts/modules/geometry/Vector.mjs";
 import { Grid } from "../utils-ts/modules/Grid.mjs";
 import { RoomData } from "./constants/GameData.mjs";
 import { RoomPlaceholder } from "./LevelGenerator.mjs";
+import { GateState } from "./tiles/Gate.mjs";
 import { Tile, World } from "./World.js";
 
 export class Room {
@@ -11,8 +12,9 @@ export class Room {
 	requiredExits: Direction[];
 	optionalExits: Direction[];
 	exitTiles: Grid<Direction | "none">;
+	traversability: GateState[][];
 
-	constructor(name: string, tiles: { x: number, y: number, type: Tile }[] | Grid<Tile>, exitTiles: { x: number, y: number, direction: Direction }[] | Grid<Direction>, requiredExits: Direction[], optionalExits: Direction[]) {
+	constructor(name: string, tiles: { x: number, y: number, type: Tile }[] | Grid<Tile>, exitTiles: { x: number, y: number, direction: Direction }[] | Grid<Direction>, requiredExits: Direction[], optionalExits: Direction[], traversability?: GateState[][]) {
 		this.name = name;
 		if(tiles instanceof Grid) {
 			this.tiles = tiles;
@@ -34,6 +36,9 @@ export class Room {
 		}
 		this.requiredExits = requiredExits;
 		this.optionalExits = optionalExits;
+		this.traversability = traversability ?? RoomData.NO_GATE_TRAVERSABILITY.map(
+			arr => arr.filter(({ direction }) => [...this.requiredExits, ...this.optionalExits].includes(direction))
+		);
 	}
 
 	canAdd(exitDirections: Direction[]) {
