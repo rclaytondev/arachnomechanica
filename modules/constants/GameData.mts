@@ -13,8 +13,8 @@ export class WorldData {
 }
 
 export class LevelGeneratorData {
-	static WIDTH = 3;
-	static HEIGHT = 5;
+	static WIDTH = 1;
+	static HEIGHT = 2;
 	static MARGIN_X = 2;
 	static MARGIN_Y = 0;
 	static BORDER_X = 2;

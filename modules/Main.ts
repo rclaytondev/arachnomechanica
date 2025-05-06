@@ -12,6 +12,8 @@ import { Gate } from "./tiles/Gate.mjs";
 import { World } from "./World.js";
 import { WorldGenerator } from "./WorldGenerator.mjs";
 
+Math.random = () => 0;
+
 const CORNER_SIZE = 3;
 const EMPTY_ROOM = new World();
 for(let i = 0; i < CORNER_SIZE; i ++) {
@@ -76,6 +78,7 @@ if(DEBUG_SETTINGS.EDITOR_ROOM != null  && Main.screen instanceof RoomEditor) {
 	if(!room) {
 		throw new Error(`Room "${DEBUG_SETTINGS.EDITOR_ROOM}" does not exist.`);
 	}
+	console.log(`loaded room ${room.name} in the editor`);
 	Main.screen = new RoomEditor(room);
 }
 
