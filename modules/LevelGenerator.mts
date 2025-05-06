@@ -3,6 +3,7 @@ import { Vector } from "../utils-ts/modules/geometry/Vector.mjs";
 import { Utils } from "../utils-ts/modules/Utils.mjs";
 import { GameUtils } from "./GameUtils.mjs";
 import { Traversability } from "./Room.mjs";
+import { GateState } from "./GateState.mjs";
 import { ROOMS } from "./Rooms.mjs";
 import { LevelGeneratorData, LizardData, RoomData, WorldData } from "./constants/GameData.mjs";
 import { Grid } from "../utils-ts/modules/Grid.mjs";
@@ -78,8 +79,57 @@ export class LevelGenerator {
 		}
 	}
 
+	neighborStates(state: GateState, backwards: boolean = false) {
+		if(!state.position) {
+			throw new Error("Cannot get next states if the state does not have a position set.");
+		}
+		const result = [];
+		const rooms = [
+			this.rooms.get(state.position),
+			this.rooms.get(state.position.add(Vector.unit(state.exit)))
+		].filter(r => r !== null);
+		for(const room of rooms) {
+			for(const { start, end } of room.traversability) {
+				if(!room.exits.includes(start.exit) || !room.exits.includes(end.exit)) { continue; }
+				if(!backwards && start.equals(state)) {
+					result.push(end);
+				}
+				if(backwards && end.equals(state)) {
+					result.push(start);
+				}
+			}
+		}
+		return result;
+	}
+	reachableStates(startStates: GateState[], backwards: boolean = false) {
+		const visited: GateState[] = [];
+		const toVisit = [...startStates];
+		while(toVisit.length !== 0) {
+			const current = toVisit.pop()!;
+			visited.push(current);
+			for(const next of this.neighborStates(current, backwards)) {
+				if(![...visited, ...toVisit].some(v => v.equals(next))) {
+					toVisit.push(next);
+				}
+			}
+		}
+		return visited;
+	}
 	isConnected() {
-		// TODO: rewrite this!
+		const startPosition = this.path[this.path.length - 1];
+		const startRoom = this.rooms.get(startPosition);
+		const endPosition = this.path[0];
+		const startStates = startRoom!.exits.map(e => new GateState(startPosition, e, false));
+		const reachableStates = this.reachableStates(startStates);
+		if(!reachableStates.some(s => s.position?.equals(endPosition))) {
+			/* The player can't get to the end of the level. */
+			return false;
+		}
+		const returnableStates = this.reachableStates(startStates, true);
+		if(returnableStates.some(s => !reachableStates.some(s2 => s2.equals(s)))) {
+			/* The player can get to a room but then can't get back. */
+			return false;
+		}
 		return true;
 	}
 	pruneRoom(position: Vector) {

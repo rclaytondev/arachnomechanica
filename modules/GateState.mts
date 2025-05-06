@@ -18,4 +18,13 @@ export class GateState {
 			this.exit = Directions.opposite(this.exit);
 		}
 	}
+	equals(state: GateState) {
+		this.normalize();
+		state.normalize();
+		return (
+			`${this.position}` === `${state.position}`
+			&& this.exit === state.exit
+			&& this.toggled === state.toggled
+		);
+	}
 }
