@@ -57,11 +57,25 @@ export class LevelGenerator {
 		}
 		return directions;
 	}
+	generateBranchesOffPath() {
+		for(const position of this.path) {
+			const room = this.rooms.get(position)!;
+			const exits = Directions.DIRECTIONS.filter(dir => this.rooms.get(position.add(Vector.unit(dir))) === null);
+			for(const exit of exits) {
+				if(Math.random() < LevelGeneratorData.MAIN_PATH_BRANCH_PROBABILITY) {
+					room.exits.push(exit);
+				}
+			}
+		}
+	}
 
 	generateRoom(position: Vector) {
 		const exits = Directions.DIRECTIONS.filter(dir => (
 			this.rooms.get(position.add(Vector.unit(dir)))?.exits.includes(Directions.opposite(dir))
 		));
+		if(exits.length === 0) {
+			return false;
+		}
 		const otherExits = Directions.DIRECTIONS.filter(dir => !exits.includes(dir));
 		for(const exit of otherExits) {
 			if(Math.random() < LevelGeneratorData.OFF_PATH_BRANCH_PROBABILITY) {
@@ -69,12 +83,26 @@ export class LevelGenerator {
 			}
 		}
 		this.rooms.set(position, { exits, traversability: RoomData.ALL_TRAVERSABILITY });
+		return true;
 	}
 	generateRoomsOffPath() {
+		const positions = [];
 		for(let x = 0; x < LevelGeneratorData.WIDTH; x ++) {
 			for(let y = 0; y < LevelGeneratorData.HEIGHT; y ++) {
 				if(this.rooms.get(x, y) === null) {
-					this.generateRoom(new Vector(x, y));
+					positions.push(new Vector(x, y));
+				}
+			}
+		}
+		let stillGenerating = true;
+		while(stillGenerating) {
+			stillGenerating = false;
+			for(let i = 0; i < positions.length; i ++) {
+				const generated = this.generateRoom(positions[i]);
+				if(generated) {
+					positions.splice(i, 1);
+					i --;
+					stillGenerating = true;
 				}
 			}
 		}
@@ -172,6 +200,7 @@ export class LevelGenerator {
 
 	generate() {
 		this.generatePath();
+		this.generateBranchesOffPath();
 		this.generateRoomsOffPath();
 		this.pruneAll();
 	}
