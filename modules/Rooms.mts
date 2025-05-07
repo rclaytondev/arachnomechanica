@@ -1383,7 +1383,7 @@ export const ROOMS: Room[] = [
 		],
 		() => true,
 		Room.getTraversability([
-			...Room.onewayGatelessPath("left", "up"),
+			...Room.onewayGatelessPath("up", "left"),
 			...Room.gatelessPath("left", "right"),
 			...Room.gatelessPath("left", "down"),
 			...Room.gatePath("left", "left", false)
