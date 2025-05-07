@@ -124,6 +124,29 @@ export class WorldGenerator {
 			}
 		}
 	}
+	fillBoundaries() {
+		this.world.tiles.fillRect(new Rectangle(
+			-LevelGeneratorData.BORDER_X, -LevelGeneratorData.BORDER_Y,
+			LevelGeneratorData.WIDTH * (RoomData.SIZE + LevelGeneratorData.MARGIN_X) + LevelGeneratorData.BORDER_X - LevelGeneratorData.MARGIN_X,
+			LevelGeneratorData.BORDER_Y
+		), "solid");
+		this.world.tiles.fillRect(new Rectangle(
+			-LevelGeneratorData.BORDER_X, 0,
+			LevelGeneratorData.BORDER_X,
+			LevelGeneratorData.HEIGHT * (RoomData.SIZE + LevelGeneratorData.MARGIN_Y)
+		), "solid");
+		this.world.tiles.fillRect(new Rectangle(
+			LevelGeneratorData.WIDTH * (RoomData.SIZE + LevelGeneratorData.MARGIN_X) - LevelGeneratorData.MARGIN_X, -LevelGeneratorData.BORDER_Y,
+			LevelGeneratorData.BORDER_X,
+			LevelGeneratorData.HEIGHT * (RoomData.SIZE + LevelGeneratorData.MARGIN_Y) + LevelGeneratorData.BORDER_Y
+		), "solid");
+		this.world.tiles.fillRect(new Rectangle(
+			-LevelGeneratorData.BORDER_X, LevelGeneratorData.HEIGHT * (RoomData.SIZE + LevelGeneratorData.MARGIN_Y) - LevelGeneratorData.MARGIN_Y, 
+			LevelGeneratorData.WIDTH * (RoomData.SIZE + LevelGeneratorData.MARGIN_X) + 2 * LevelGeneratorData.BORDER_X - LevelGeneratorData.MARGIN_X,
+			LevelGeneratorData.BORDER_Y,
+		), "solid");
+	}
+
 
 	spawnPlayer() {
 		const lastRoom = this.levelGenerator.path[this.levelGenerator.path.length - 1];
@@ -136,6 +159,7 @@ export class WorldGenerator {
 		this.fillUnusedRegions();
 		this.generateMargins();
 		this.spawnPlayer();
+		this.fillBoundaries();
 		return this.world;
 	}
 }
