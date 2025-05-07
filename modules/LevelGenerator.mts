@@ -13,7 +13,6 @@ export type RoomPlaceholder = { exits: Direction[], traversability: Traversabili
 export class LevelGenerator {
 	path: Vector[] = [];
 	rooms: Grid<RoomPlaceholder | null> = new Grid(null);
-	totalConnectivity: number = 0;
 
 	static initializeRooms() {
 		const length = ROOMS.length;
@@ -182,7 +181,6 @@ export class LevelGenerator {
 		for(const room of GameUtils.randomPermutation(lessConnectiveRooms)) {
 			this.rooms.set(position, { exits: oldRoom.exits, traversability: room.traversability });
 			if(this.isConnected()) {
-				this.totalConnectivity += LevelGenerator.connectivity(oldRoom.exits, room.traversability) - connectivity;
 				return true;
 			}
 		}
@@ -190,10 +188,20 @@ export class LevelGenerator {
 		return false;
 	}
 	averageConnectivity() {
-		return this.totalConnectivity / (LevelGeneratorData.WIDTH * LevelGeneratorData.HEIGHT);
+		let count = 0;
+		let total = 0;
+		for(let x = 0; x < LevelGeneratorData.WIDTH; x ++) {
+			for(let y = 0; y < LevelGeneratorData.HEIGHT; y ++) {
+				const room = this.rooms.get(x, y);
+				if(room) {
+					count ++;
+					total += LevelGenerator.connectivity(room.exits, room.traversability);
+				}
+			}
+		}
+		return total / count;
 	}
 	pruneAll() {
-		this.totalConnectivity = this.numRooms();
 		const prunables = [];
 		for(let x = 0; x < LevelGeneratorData.WIDTH; x ++) {
 			for(let y = 0; y < LevelGeneratorData.HEIGHT; y ++) {
@@ -230,7 +238,7 @@ export class LevelGenerator {
 		const connections = traversability.filter(
 			({ start, end }) => exits.includes(start.exit) && exits.includes(end.exit)
 		).length;
-		return connections / ((2 * exits.length) * (2 * exits.length - 1) / 2);
+		return connections / ((2 * exits.length) * (2 * exits.length - 1));
 	}
 	static isInBounds(position: Vector) {
 		return (
