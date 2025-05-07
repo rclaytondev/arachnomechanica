@@ -174,7 +174,7 @@ export class LevelGenerator {
 		if(!this.roomPositions().every(
 			room => this.rooms.get(room)!.exits.every(
 				exit => reachableStates.some(
-					state => state.position!.equals(room) && state.exit === exit)
+					state => state.equals(new GateState(room, exit, true)) || state.equals(new GateState(room, exit, false))
 				)
 			)
 		)) { return false; }
