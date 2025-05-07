@@ -1,7 +1,7 @@
 import { CanvasIO, canvasIO } from "../utils-ts/modules/CanvasIO.mjs";
 import { Vector } from "../utils-ts/modules/geometry/Vector.mjs";
 import { DEBUG_SETTINGS } from "./constants/DebugSettings.mjs";
-import { RoomData } from "./constants/GameData.mjs";
+import { LizardData, RoomData } from "./constants/GameData.mjs";
 import { Lizard } from "./creatures/Lizard.js";
 import { GameUtils } from "./GameUtils.mjs";
 import { LevelGenerator } from "./level-generator/LevelGenerator.mjs";
@@ -42,37 +42,17 @@ for(let i = 0; i < CORNER_SIZE; i ++) {
 let frameCount = 0;
 const FRAMERATE = 60;
 const world = new World();
-// world.tiles.set(7, 3, "solid");
-// world.tiles.set(7, 1, "solid");
-world.tiles.set(0, 5, "solid");
-world.tiles.set(1, 5, "solid");
-world.tiles.set(1, 3, "solid");
-world.tiles.set(2, 3, "solid");
-// world.tiles.set(3, 3, "solid");
-// world.tiles.set(4, 3, "solid");
-world.tiles.set(-1, 5, "solid");
-world.tiles.set(2, 5, "solid");
-world.tiles.set(3, 5, "solid");
-world.tiles.set(4, 5, "solid");
-world.tiles.set(1, 4, new Gate("down", true));
-world.tiles.set(1, 2, new Gate("up", false));
-world.tiles.set(2, 1, new Gate("down", false));
-world.tiles.set(2, 2, new Gate("up", false));
-world.tiles.set(1, 1, new Gate("down", false));
-world.tiles.set(-5, 8, "platform");
-world.creatures.push(new Lizard(new Vector(-75, -25), "right", 200, 3));
-world.tiles.set(0, -1, "solid");
-world.tiles.set(-1, -2, "platform");
-world.tiles.set(-1, 0, "solid");
-// world.creatures[0].fireTimer = 120;
-// world.creatures.push(new Lizard(new Vector(225, 25), "left", 200, 3));
+ROOMS.find(r => r.name === "empty-room")!.add(new Vector(-6, -6), world, []);
+world.creatures.push(new Lizard(new Vector(-75, -75), "right", 300, LizardData.SPEED));
+world.creatures.push(new Lizard(new Vector(75, -75), "up", 300, LizardData.SPEED));
+world.creatures.push(new Lizard(new Vector(25, 75), "right", 300, LizardData.SPEED));
 
 LevelGenerator.initializeRooms();
 
 export class Main {
-	static screen: World | RoomEditor = new WorldGenerator().generate();
+	// static screen: World | RoomEditor = new WorldGenerator().generate();
 	// static screen: World | RoomEditor = new RoomEditor();
-	// static screen: World | RoomEditor = world;
+	static screen: World | RoomEditor = world;
 
 	static update(canvasIO: CanvasIO) {
 		this.screen.update(canvasIO);

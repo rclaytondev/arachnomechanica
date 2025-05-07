@@ -149,7 +149,6 @@ export class Lizard {
 	checkForCollisions(world: World) {
 		const lookaheadPoint = this.position.add(Vector.unit(this.direction).multiply(LizardData.LOOKAHEAD_DISTANCE));
 		if(this.isObstructed(world, this.direction)) {
-			this.joints.unshift({ position: this.position.clone(), direction: this.direction });
 			const clockwise = Directions.rotateClockwise(this.direction);
 			const counterclockwise = Directions.rotateCounterclockwise(this.direction);
 			const obstructedCounterclockwise = this.isObstructed(world, counterclockwise, WorldData.TILE_SIZE);
@@ -158,17 +157,21 @@ export class Lizard {
 				this.startFire();
 			}
 			else if(!obstructedClockwise && obstructedCounterclockwise) {
-				this.direction = clockwise;
+				this.turn(clockwise);
 			}
 			else if(!obstructedCounterclockwise && obstructedClockwise)  {
-				this.direction = counterclockwise;
+				this.turn(counterclockwise);
 			}
 			else {
 				const tileCoordinates = world.getTileCoordinates(lookaheadPoint);
-				this.direction = (tileCoordinates.x + tileCoordinates.y) % 2 === 0 ? clockwise : counterclockwise;
+				this.turn((tileCoordinates.x + tileCoordinates.y) % 2 === 0 ? clockwise : counterclockwise);
 			}
-			this.targetHeadAngle = Vector.unit(this.direction).angle();
 		}
+	}
+	turn(direction: Direction) {
+		this.joints.unshift({ position: this.position.clone(), direction: this.direction });
+		this.direction = direction;
+		this.targetHeadAngle = Vector.unit(this.direction).angle();
 	}
 	updateJoints() {
 		let length = (this.joints.length === 0) ? 0 : Vector.dist(this.position, this.joints[0].position);
@@ -318,7 +321,7 @@ export class Lizard {
 			(tile === "platform" && direction === "down") ||
 			(tile instanceof Gate && tile.openness !== 1)
 		))) { return true; }
-		if(world.creatures.some(lizard => lizard !== this && lizard.hitboxes().some(b => b.intersects(lookaheadRectangle)))) {
+		if(world.creatures.some(lizard => lizard.hitboxes().some(b => b.intersects(lookaheadRectangle)))) {
 			return true;
 		}
 		return false;
