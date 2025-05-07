@@ -44,6 +44,8 @@ world.tiles.set(3, 5, "solid");
 world.tiles.set(4, 5, "solid");
 world.tiles.set(1, 4, new Gate("down", true));
 world.tiles.set(1, 2, new Gate("up", false));
+world.tiles.set(2, 1, new Gate("down", false));
+world.tiles.set(2, 2, new Gate("up", false));
 world.tiles.set(1, 1, new Gate("down", false));
 world.tiles.set(-5, 8, "platform");
 world.creatures.push(new Lizard(new Vector(-75, -25), "right", 200, 3));
@@ -56,9 +58,9 @@ world.tiles.set(-1, 0, "solid");
 LevelGenerator.initializeRooms();
 
 export class Main {
-	static screen: World | RoomEditor = new WorldGenerator().generate();
+	// static screen: World | RoomEditor = new WorldGenerator().generate();
 	// static screen: World | RoomEditor = new RoomEditor();
-	// static screen: World | RoomEditor = world;
+	static screen: World | RoomEditor = world;
 
 	static update(canvasIO: CanvasIO) {
 		this.screen.update(canvasIO);
