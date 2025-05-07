@@ -15,7 +15,7 @@ export class RoomEditor {
 	direction: Direction = "right";
 	static readonly MODES = ["solid", "platform", "exit", "gate-open", "gate-closed"] as const;
 
-	constructor(room: Room = new Room("editor room", [], [], [], [])) {
+	constructor(room: Room = new Room("editor room", [], [], () => false, [])) {
 		this.room = room;
 		this.world = new World();
 		for(const [tile, position] of this.room.tiles.entries()) {

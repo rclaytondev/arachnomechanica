@@ -1,4 +1,7 @@
+import { Vector } from "../../utils-ts/modules/geometry/Vector.mjs";
 import { ParticleSettings } from "../Particle.mjs";
+import { Room, Traversability } from "../Room.mjs";
+import { GateState } from "../GateState.mjs";
 import { World } from "../World";
 
 export class WorldData {
@@ -10,15 +13,18 @@ export class WorldData {
 }
 
 export class LevelGeneratorData {
-	static WIDTH = 3;
-	static HEIGHT = 5;
+	static WIDTH = 4;
+	static HEIGHT = 6;
 	static MARGIN_X = 2;
 	static MARGIN_Y = 0;
 	static BORDER_X = 2;
-	static BORDER_Y = 4;
+	static BORDER_Y = 10;
 
-	static MAIN_PATH_BRANCH_PROBABILITY = 0.6;
-	static OFF_PATH_BRANCH_PROBABILITY = 0.;
+	static MAIN_PATH_BRANCH_PROBABILITY_X = 0.8;
+	static MAIN_PATH_BRANCH_PROBABILITY_Y = 0.25;
+	static OFF_PATH_BRANCH_PROBABILITY_X = 0.5;
+	static OFF_PATH_BRANCH_PROBABILITY_Y = 0.5;
+	static MAX_CONNECTIVITY = 0; // 0 = all rooms isolated; 1/2 = all rooms connected with no gates; 1 = all rooms connected with maximally controllable gates
 };
 
 export class PlayerData {
@@ -33,6 +39,37 @@ export class PlayerData {
 
 export class RoomData {
 	static SIZE = 12;
+
+	static ALL_TRAVERSABILITY: Traversability = (() => {
+		const connections = [];
+		const states: GateState[] = [
+			new GateState(null, "left", true),
+			new GateState(null, "left", false),
+			new GateState(null, "right", true),
+			new GateState(null, "right", false),
+			new GateState(null, "up", true),
+			new GateState(null, "up", false),
+			new GateState(null, "down", true),
+			new GateState(null, "down", false)
+		];
+		for(const state1 of states) {
+			for(const state2 of states.filter(s => s !== state1)) {
+				connections.push({ start: state1, end: state2 });
+			}
+		}
+		return connections;
+	}) ();
+	static NO_GATE_TRAVERSABILITY = RoomData.ALL_TRAVERSABILITY.filter(({ start, end }) => start.toggled === end.toggled);
+	static ALL_GATE_STATES = [
+		new GateState(null, "left", true),
+		new GateState(null, "left", false),
+		new GateState(null, "right", true),
+		new GateState(null, "right", false),
+		new GateState(null, "up", true),
+		new GateState(null, "up", false),
+		new GateState(null, "down", true),
+		new GateState(null, "down", false),
+	];
 }
 
 export class GateData {

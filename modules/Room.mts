@@ -2,17 +2,21 @@ import { Direction, Directions } from "../utils-ts/modules/geometry/Direction.mj
 import { Vector } from "../utils-ts/modules/geometry/Vector.mjs";
 import { Grid } from "../utils-ts/modules/Grid.mjs";
 import { RoomData } from "./constants/GameData.mjs";
+import { GateState } from "./GateState.mjs";
 import { RoomPlaceholder } from "./LevelGenerator.mjs";
+import { Gate } from "./tiles/Gate.mjs";
 import { Tile, World } from "./World.js";
+
+export type Traversability = { start: GateState, end: GateState }[];
 
 export class Room {
 	name: string;
 	tiles: Grid<Tile>;
-	requiredExits: Direction[];
-	optionalExits: Direction[];
+	canSpawnWithExits: (exits: Direction[]) => boolean;
 	exitTiles: Grid<Direction | "none">;
+	traversability: Traversability;
 
-	constructor(name: string, tiles: { x: number, y: number, type: Tile }[] | Grid<Tile>, exitTiles: { x: number, y: number, direction: Direction }[] | Grid<Direction>, requiredExits: Direction[], optionalExits: Direction[]) {
+	constructor(name: string, tiles: { x: number, y: number, type: Tile }[] | Grid<Tile>, exitTiles: { x: number, y: number, direction: Direction }[] | Grid<Direction | "none">, canSpawnWithExits: (exits: Direction[]) => boolean, traversability?: Traversability) {
 		this.name = name;
 		if(tiles instanceof Grid) {
 			this.tiles = tiles;
@@ -32,14 +36,16 @@ export class Room {
 				this.exitTiles.set(x, y, direction);
 			}
 		}
-		this.requiredExits = requiredExits;
-		this.optionalExits = optionalExits;
+		this.canSpawnWithExits = canSpawnWithExits;
+		this.traversability = GateState.deduplicateTraversability((traversability ?? RoomData.NO_GATE_TRAVERSABILITY));
 	}
 
-	canAdd(exitDirections: Direction[]) {
-		return exitDirections.every(exit =>
-			[...this.requiredExits, ...this.optionalExits].includes(exit)
-		) && this.requiredExits.every(exit => exitDirections.includes(exit));
+	canAdd(roomPlaceholder: RoomPlaceholder, matchTraversability: boolean = true) {
+		const traversabilityMatches = GateState.traversabilityEquals(
+			this.traversability,
+			roomPlaceholder.traversability
+		);
+		return this.canSpawnWithExits(roomPlaceholder.exits) && (traversabilityMatches || !matchTraversability);
 	}
 
 	add(position: Vector, world: World, exits: Direction[]) {
@@ -67,8 +73,11 @@ export class Room {
 			`${this.name}-reflected`,
 			[],
 			[],
-			this.requiredExits.map(Directions.reflectX),
-			this.optionalExits.map(Directions.reflectX),
+			(exits) => this.canSpawnWithExits(exits.map(Directions.reflectX)),
+			this.traversability.map(({ start, end }) => ({ 
+				start: new GateState(null, Directions.reflectX(start.exit), start.toggled),
+				end: new GateState(null, Directions.reflectX(end.exit), end.toggled)
+			}))
 		);
 		for(let x = 0; x < RoomData.SIZE; x ++) {
 			for(let y = 0; y < RoomData.SIZE; y ++) {
@@ -83,5 +92,79 @@ export class Room {
 			}
 		}
 		return reflected;
+	}
+	copy() {
+		return new Room(
+			this.name,
+			this.tiles.map(tile => typeof tile === "string" ? tile : tile.copy()),
+			this.exitTiles.map(v => v),
+			this.canSpawnWithExits,
+			this.traversability.map(({ start, end }) => ({ start: start.copy(), end: end.copy() }))
+		);
+	}
+	toggleGates() {
+		const copy = this.copy();
+		copy.name += "-toggled";
+		for(const position of copy.tiles.positions()) {
+			const tile = copy.tiles.get(position);
+			if(tile instanceof Gate) {
+				const gateCopy = tile.copy();
+				gateCopy.open = !gateCopy.open;
+				gateCopy.openness = 1 - gateCopy.openness;
+				copy.tiles.set(position, gateCopy);
+			}
+		}
+		copy.traversability = copy.traversability.map(({ start, end }) => ({
+			start: new GateState(start.position, start.exit, !start.toggled),
+			end: new GateState(end.position, end.exit, !end.toggled)
+		}));
+		return copy;
+	}
+
+	static gatelessPath(exit1: Direction, exit2: Direction) {
+		return [
+			{ start: new GateState(null, exit1, false), end: new GateState(null, exit2, false) },
+			{ start: new GateState(null, exit1, true), end: new GateState(null, exit2, true) },
+			{ start: new GateState(null, exit2, false), end: new GateState(null, exit1, false) },
+			{ start: new GateState(null, exit2, true), end: new GateState(null, exit1, true) }
+		];
+	}
+	static onewayGatelessPath(exit1: Direction, exit2: Direction) {
+		return [
+			{ start: new GateState(null, exit1, false), end: new GateState(null, exit2, false) },
+			{ start: new GateState(null, exit1, true), end: new GateState(null, exit2, true) }
+		];
+	}
+	static gatePath(exit1: Direction, exit2: Direction, open: boolean) {
+		if(exit1 === exit2) {
+			return [{ start: new GateState(null, exit1, !open), end: new GateState(null, exit2, open) } ];
+		}
+		return [
+			{ start: new GateState(null, exit1, !open), end: new GateState(null, exit2, open) },
+			{ start: new GateState(null, exit2, !open), end: new GateState(null, exit1, open) }
+		];
+	}
+	static doubleGatePath(exit1: Direction, exit2: Direction) {
+		return [
+			{ start: new GateState(null, exit1, false), end: new GateState(null, exit2, false) },
+			{ start: new GateState(null, exit2, true), end: new GateState(null, exit1, true) },
+		];
+	}
+	static getTraversability(connections: Traversability) {
+		const checkPair = (i: number, j: number) => {
+			const composite = { start: connections[i].start, end: connections[j].end };
+			if(
+				connections[i].end.equals(connections[j].start) &&
+				!composite.start.equals(composite.end) &&
+				!connections.some(c => c.start.equals(composite.start) && c.end.equals(composite.end))
+			) { connections.push(composite); }
+		};
+		for(let max = 0; max < connections.length; max ++) {
+			for(let i = 0; i < max; i ++) {
+				checkPair(i, max);
+				checkPair(max, i);
+			}
+		}
+		return connections;
 	}
 }

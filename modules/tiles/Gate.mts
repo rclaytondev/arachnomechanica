@@ -1,6 +1,7 @@
 import { CanvasIO } from "../../utils-ts/modules/CanvasIO.mjs";
 import { Direction, Directions } from "../../utils-ts/modules/geometry/Direction.mjs";
 import { Rectangle } from "../../utils-ts/modules/geometry/Rectangle.mjs";
+import { Vector } from "../../utils-ts/modules/geometry/Vector.mjs";
 import { GateData, WorldData } from "../constants/GameData.mjs";
 import { GameUtils } from "../GameUtils.mjs";
 import { Player } from "../Player.mjs";
@@ -85,8 +86,14 @@ export class Gate {
 			: (hitbox.right() >= x * WorldData.TILE_SIZE && hitbox.left() <= (x + 1) * WorldData.TILE_SIZE)
 		);
 
+		
 		const newSide = this.getPlayerSide(world.player, x, y);
-		if(newSide !== this.playerSide && sameRowOrColumn && Gate.cooldown <= 0) {
+		const adjacentGate = world.tiles.get(Vector.unit(
+			(Directions.isVertical(this.direction))
+			? (newSide === "negative" ? "left" : "right")
+			: (newSide === "negative" ? "up" : "down")
+		).add(x, y)) instanceof Gate;
+		if(newSide !== this.playerSide && sameRowOrColumn && Gate.cooldown <= 0 && !adjacentGate) {
 			Gate.toggleAll(world);
 			Gate.cooldown = 1 / GateData.SPEED;
 		}

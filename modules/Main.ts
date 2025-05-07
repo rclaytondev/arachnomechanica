@@ -10,6 +10,21 @@ import { RoomEditor } from "./RoomEditor.mjs";
 import { ROOMS } from "./Rooms.mjs";
 import { Gate } from "./tiles/Gate.mjs";
 import { World } from "./World.js";
+import { WorldGenerator } from "./WorldGenerator.mjs";
+
+const recordedRNG: number[] = [];
+let rngOverrideIndex = 0;
+if(DEBUG_SETTINGS.PRINT_RNG_KEY) {
+	const oldRandom = Math.random;
+	Math.random = () => {
+		const result = (rngOverrideIndex < DEBUG_SETTINGS.RNG_OVERRIDE_VALUES.length)
+			? DEBUG_SETTINGS.RNG_OVERRIDE_VALUES[rngOverrideIndex]
+			: oldRandom();
+		rngOverrideIndex ++;
+		recordedRNG.push(result);
+		return result;
+	};
+}
 
 const CORNER_SIZE = 3;
 const EMPTY_ROOM = new World();
@@ -41,6 +56,8 @@ world.tiles.set(3, 5, "solid");
 world.tiles.set(4, 5, "solid");
 world.tiles.set(1, 4, new Gate("down", true));
 world.tiles.set(1, 2, new Gate("up", false));
+world.tiles.set(2, 1, new Gate("down", false));
+world.tiles.set(2, 2, new Gate("up", false));
 world.tiles.set(1, 1, new Gate("down", false));
 world.tiles.set(-5, 8, "platform");
 world.creatures.push(new Lizard(new Vector(-75, -25), "right", 200, 3));
@@ -53,7 +70,7 @@ world.tiles.set(-1, 0, "solid");
 LevelGenerator.initializeRooms();
 
 export class Main {
-	static screen: World | RoomEditor = new LevelGenerator().generate();
+	static screen: World | RoomEditor = new WorldGenerator().generate();
 	// static screen: World | RoomEditor = new RoomEditor();
 	// static screen: World | RoomEditor = world;
 
@@ -61,6 +78,9 @@ export class Main {
 		this.screen.update(canvasIO);
 
 		Object.assign(GameUtils.pastKeys, canvasIO.keys);
+		if(DEBUG_SETTINGS.PRINT_RNG_KEY !== null && canvasIO.keys[DEBUG_SETTINGS.PRINT_RNG_KEY]) {
+			console.log(recordedRNG.join(", "));
+		}
 	}
 	static display(canvasIO: CanvasIO) {
 		this.screen.display(canvasIO);
@@ -75,6 +95,7 @@ if(DEBUG_SETTINGS.EDITOR_ROOM != null  && Main.screen instanceof RoomEditor) {
 	if(!room) {
 		throw new Error(`Room "${DEBUG_SETTINGS.EDITOR_ROOM}" does not exist.`);
 	}
+	console.log(`loaded room ${room.name} in the editor`);
 	Main.screen = new RoomEditor(room);
 }
 
