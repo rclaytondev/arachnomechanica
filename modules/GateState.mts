@@ -61,4 +61,8 @@ export class GateState {
 		}
 		return result;
 	}
+	isAdjacentTo(position: Vector) {
+		if(this.position === null) { return false; }
+		return position.equals(this.position) || position.equals(this.position.add(Vector.unit(this.exit)));
+	}
 }

@@ -38,13 +38,13 @@ export class Room {
 		}
 		this.requiredExits = requiredExits;
 		this.optionalExits = optionalExits;
-		const exits = [this.requiredExits, ...optionalExits];
+		const exits = [...requiredExits, ...optionalExits];
 		this.traversability = GateState.deduplicateTraversability((traversability ?? RoomData.NO_GATE_TRAVERSABILITY).filter(
 			({ start, end }) => exits.includes(start.exit) && exits.includes(end.exit)
 		));
 	}
 
-	canAdd(roomPlaceholder: RoomPlaceholder) {
+	canAdd(roomPlaceholder: RoomPlaceholder, matchTraversability: boolean = true) {
 		const exitDirections = roomPlaceholder.exits;
 		const hasAllExits = exitDirections.every(exit =>
 			[...this.requiredExits, ...this.optionalExits].includes(exit)
@@ -54,7 +54,7 @@ export class Room {
 			this.traversability,
 			roomPlaceholder.traversability
 		);
-		return hasAllExits && allRequiredExits && traversabilityMatches;
+		return hasAllExits && allRequiredExits && (traversabilityMatches || !matchTraversability);
 	}
 
 	add(position: Vector, world: World, exits: Direction[]) {

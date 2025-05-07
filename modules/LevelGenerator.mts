@@ -117,12 +117,19 @@ export class LevelGenerator {
 		}
 		const result = [];
 		const rooms = [
-			this.rooms.get(state.position),
-			this.rooms.get(state.position.add(Vector.unit(state.exit)))
+			
 		].filter(r => r !== null);
-		for(const room of rooms) {
-			for(const { start, end } of room.traversability) {
+		const positions = [
+			state.position,
+			state.position.add(Vector.unit(state.exit))
+		];
+		for(const position of positions) {
+			const room = this.rooms.get(position);
+			if(!room) { continue; }
+			for(let { start, end } of room.traversability) {
 				if(!room.exits.includes(start.exit) || !room.exits.includes(end.exit)) { continue; }
+				start = start.translate(position);
+				end = end.translate(position);
 				if(!backwards && start.equals(state)) {
 					result.push(end);
 				}
@@ -153,7 +160,7 @@ export class LevelGenerator {
 		const endPosition = this.path[0];
 		const startStates = startRoom!.exits.map(e => new GateState(startPosition, e, false));
 		const reachableStates = this.reachableStates(startStates);
-		if(!reachableStates.some(s => s.position?.equals(endPosition))) {
+		if(!reachableStates.some(s => s.isAdjacentTo(endPosition))) {
 			/* The player can't get to the end of the level. */
 			return false;
 		}
@@ -170,7 +177,7 @@ export class LevelGenerator {
 		const connectivity = LevelGenerator.connectivity(oldRoom.exits, oldRoom.traversability);
 		const lessConnectiveRooms = ROOMS.filter(r => 
 			LevelGenerator.connectivity(oldRoom.exits, r.traversability) < connectivity
-			&& r.canAdd(oldRoom)
+			&& r.canAdd(oldRoom, false)
 		);
 		for(const room of GameUtils.randomPermutation(lessConnectiveRooms)) {
 			this.rooms.set(position, { exits: oldRoom.exits, traversability: room.traversability });
