@@ -72,7 +72,11 @@ export class Room {
 			`${this.name}-reflected`,
 			[],
 			[],
-			(exits) => this.canSpawnWithExits(exits.map(Directions.opposite))
+			(exits) => this.canSpawnWithExits(exits.map(Directions.opposite)),
+			this.traversability.map(({ start, end }) => ({ 
+				start: new GateState(null, Directions.reflectX(start.exit), start.toggled),
+				end: new GateState(null, Directions.reflectX(end.exit), end.toggled)
+			}))
 		);
 		for(let x = 0; x < RoomData.SIZE; x ++) {
 			for(let y = 0; y < RoomData.SIZE; y ++) {

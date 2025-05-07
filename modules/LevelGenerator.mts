@@ -7,6 +7,7 @@ import { GateState } from "./GateState.mjs";
 import { ROOMS } from "./Rooms.mjs";
 import { LevelGeneratorData, LizardData, RoomData, WorldData } from "./constants/GameData.mjs";
 import { Grid } from "../utils-ts/modules/Grid.mjs";
+import { Rectangle } from "../utils-ts/modules/geometry/Rectangle.mjs";
 
 export type RoomPlaceholder = { exits: Direction[], traversability: Traversability };
 
@@ -156,19 +157,15 @@ export class LevelGenerator {
 	isConnected() {
 		const startPosition = this.path[this.path.length - 1];
 		const startRoom = this.rooms.get(startPosition);
-		const endPosition = this.path[0];
 		const startStates = startRoom!.exits.map(e => new GateState(startPosition, e, false));
 		const reachableStates = this.reachableStates(startStates);
-		if(!reachableStates.some(s => s.isAdjacentTo(endPosition))) {
-			/* The player can't get to the end of the level. */
-			return false;
-		}
-		const returnableStates = this.reachableStates(startStates, true);
-		if(returnableStates.some(s => !reachableStates.some(s2 => s2.equals(s)))) {
-			/* The player can get to a room but then can't get back. */
-			return false;
-		}
-		return true;
+		
+		const endPosition = this.path[0];
+		const endRoom = this.rooms.get(endPosition)!;
+		const endStates = endRoom.exits.flatMap(e => [new GateState(endPosition, e, false), new GateState(endPosition, e, true)]);
+		const finishableStates = this.reachableStates(endStates, true);
+
+		return reachableStates.every(s => finishableStates.some(s2 => s.equals(s2)));
 	}
 	pruneRoom(position: Vector) {
 		const oldRoom = this.rooms.get(position);
@@ -202,17 +199,14 @@ export class LevelGenerator {
 		return total / count;
 	}
 	pruneAll() {
-		const prunables = [];
-		for(let x = 0; x < LevelGeneratorData.WIDTH; x ++) {
-			for(let y = 0; y < LevelGeneratorData.HEIGHT; y ++) {
-				prunables.push(new Vector(x, y));
+		while(this.averageConnectivity() > LevelGeneratorData.MAX_CONNECTIVITY) {
+			let prunedSome = false;
+			const positions = new Rectangle(0, 0, LevelGeneratorData.WIDTH, LevelGeneratorData.HEIGHT).squares();
+			for(const position of GameUtils.randomPermutation(positions)) {
+				const pruned = this.pruneRoom(position);
+				if(pruned) { prunedSome = true; }
 			}
-		}
-		while(this.averageConnectivity() > LevelGeneratorData.MAX_CONNECTIVITY && prunables.length > 0) {
-			const index = Utils.randomIndex(prunables);
-			const position = prunables[index];
-			const pruned = this.pruneRoom(position);
-			if(!pruned) { prunables.splice(index, 1); }
+			if(!prunedSome) { return; }
 		}
 	}
 
@@ -238,15 +232,19 @@ export class LevelGenerator {
 		let total = 0;
 		for(const exit of exits) {
 			for(const toggled of [true, false]) {
-				const reachableDirections = new Set(traversability.filter(({ start }) => (
+				const reachableStates = traversability.filter(({ start }) => (
 					start.exit === exit && start.toggled === toggled
-				)).map(s => s.end.exit));
+				));
+				const reachableDirections = new Set(reachableStates.map(s => s.end.exit).filter(s => exits.includes(s)));
 				reachableDirections.delete(exit);
 				total += reachableDirections.size;
+				if(reachableStates.some(s => s.end.exit === exit && s.end.toggled === !toggled)) {
+					total ++;
+				}
 			}
 		}
 		const average = total / (2 * exits.length);
-		return average / (exits.length - 1);
+		return average;
 	}
 	static isInBounds(position: Vector) {
 		return (
