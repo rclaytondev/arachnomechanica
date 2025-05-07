@@ -235,10 +235,18 @@ export class LevelGenerator {
 		return count;
 	}
 	static connectivity(exits: Direction[], traversability: Traversability) {
-		const connections = traversability.filter(
-			({ start, end }) => exits.includes(start.exit) && exits.includes(end.exit)
-		).length;
-		return connections / ((2 * exits.length) * (2 * exits.length - 1));
+		let total = 0;
+		for(const exit of exits) {
+			for(const toggled of [true, false]) {
+				const reachableDirections = new Set(traversability.filter(({ start }) => (
+					start.exit === exit && start.toggled === toggled
+				)).map(s => s.end.exit));
+				reachableDirections.delete(exit);
+				total += reachableDirections.size;
+			}
+		}
+		const average = total / (2 * exits.length);
+		return average / (exits.length - 1);
 	}
 	static isInBounds(position: Vector) {
 		return (

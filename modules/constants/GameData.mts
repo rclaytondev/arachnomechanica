@@ -58,6 +58,16 @@ export class RoomData {
 		return connections;
 	}) ();
 	static NO_GATE_TRAVERSABILITY = RoomData.ALL_TRAVERSABILITY.filter(({ start, end }) => start.toggled === end.toggled);
+	static ALL_GATE_STATES = [
+		new GateState(null, "left", true),
+		new GateState(null, "left", false),
+		new GateState(null, "right", true),
+		new GateState(null, "right", false),
+		new GateState(null, "up", true),
+		new GateState(null, "up", false),
+		new GateState(null, "down", true),
+		new GateState(null, "down", false),
+	];
 }
 
 export class GateData {
