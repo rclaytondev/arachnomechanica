@@ -81,7 +81,7 @@ export class LevelGenerator {
 		}
 		const otherExits = Directions.DIRECTIONS.filter(dir => !exits.includes(dir));
 		for(const exit of otherExits) {
-			if(Math.random() < LevelGeneratorData.OFF_PATH_BRANCH_PROBABILITY) {
+			if(Math.random() < LevelGeneratorData.OFF_PATH_BRANCH_PROBABILITY && LevelGenerator.isInBounds(position.add(Vector.unit(exit)))) {
 				exits.push(exit);
 			}
 		}
