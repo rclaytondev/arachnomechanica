@@ -10,5 +10,7 @@ export const DEBUG_SETTINGS = {
 	LIZARD_HITBOX_COLOR: "rgb(0, 128, 255, 0)",
 	LIZARD_LOOKAHEAD_COLOR: "rgb(255, 0, 0, 0)",
 	LIZARD_HURTBOX_COLOR: "rgba(255, 0, 255, 0)",
-	DISPLAY_WHOLE_LEVEL: true
+	DISPLAY_WHOLE_LEVEL: true,
+	PRINT_RNG_KEY: "KeyR" as string | null,
+	RNG_OVERRIDE_VALUES: []
 };

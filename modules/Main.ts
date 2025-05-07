@@ -12,7 +12,19 @@ import { Gate } from "./tiles/Gate.mjs";
 import { World } from "./World.js";
 import { WorldGenerator } from "./WorldGenerator.mjs";
 
-// Math.random = () => 0;
+const recordedRNG: number[] = [];
+let rngOverrideIndex = 0;
+if(DEBUG_SETTINGS.PRINT_RNG_KEY) {
+	const oldRandom = Math.random;
+	Math.random = () => {
+		const result = (rngOverrideIndex < DEBUG_SETTINGS.RNG_OVERRIDE_VALUES.length)
+			? DEBUG_SETTINGS.RNG_OVERRIDE_VALUES[rngOverrideIndex]
+			: oldRandom();
+		rngOverrideIndex ++;
+		recordedRNG.push(result);
+		return result;
+	};
+}
 
 const CORNER_SIZE = 3;
 const EMPTY_ROOM = new World();
@@ -66,6 +78,9 @@ export class Main {
 		this.screen.update(canvasIO);
 
 		Object.assign(GameUtils.pastKeys, canvasIO.keys);
+		if(DEBUG_SETTINGS.PRINT_RNG_KEY !== null && canvasIO.keys[DEBUG_SETTINGS.PRINT_RNG_KEY]) {
+			console.log(recordedRNG.join(", "));
+		}
 	}
 	static display(canvasIO: CanvasIO) {
 		this.screen.display(canvasIO);
