@@ -41,11 +41,16 @@ export class WorldGenerator {
 			}
 		}
 	}
+	spawnPlayer() {
+		const lastRoom = this.levelGenerator.path[this.levelGenerator.path.length - 1];
+		this.world.player.physicsObject.positionInt = lastRoom.add(1/2, 1/2).multiply(WorldData.TILE_SIZE * RoomData.SIZE);
+	}
 
 	generate() {
 		this.levelGenerator.generate();
 		this.generateRooms();
 		this.fillUnusedRegions();
+		this.spawnPlayer();
 		return this.world;
 	}
 }
