@@ -169,21 +169,22 @@ export class LevelGenerator {
 		const startRoom = this.rooms.get(startPosition);
 		const startStates = startRoom!.exits.map(e => new GateState(startPosition, e, false));
 		const reachableStates = this.reachableStates(startStates);
+		const returnableStates = this.reachableStates(startStates, true);
 
-		if(!this.roomPositions().some(
+		if(!this.roomPositions().every(
 			room => this.rooms.get(room)!.exits.every(
 				exit => reachableStates.some(
 					state => state.position!.equals(room) && state.exit === exit)
 				)
 			)
-		) { return false; }
+		)) { return false; }
+
+		if(!reachableStates.every(s => returnableStates.some(s2 => s2.equals(s)))) {
+			return false;
+		}
 		
 		const endPosition = this.path[0];
-		const endRoom = this.rooms.get(endPosition)!;
-		const endStates = endRoom.exits.flatMap(e => [new GateState(endPosition, e, false), new GateState(endPosition, e, true)]);
-		const finishableStates = this.reachableStates(endStates, true);
-
-		return reachableStates.every(s => finishableStates.some(s2 => s.equals(s2)));
+		return reachableStates.some(s => s.isAdjacentTo(endPosition));
 	}
 	pruneRoom(position: Vector) {
 		const oldRoom = this.rooms.get(position);
