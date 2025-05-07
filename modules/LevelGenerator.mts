@@ -159,6 +159,14 @@ export class LevelGenerator {
 		const startRoom = this.rooms.get(startPosition);
 		const startStates = startRoom!.exits.map(e => new GateState(startPosition, e, false));
 		const reachableStates = this.reachableStates(startStates);
+
+		if(!this.roomPositions().some(
+			room => this.rooms.get(room)!.exits.every(
+				exit => reachableStates.some(
+					state => state.position!.equals(room) && state.exit === exit)
+				)
+			)
+		) { return false; }
 		
 		const endPosition = this.path[0];
 		const endRoom = this.rooms.get(endPosition)!;
@@ -217,6 +225,17 @@ export class LevelGenerator {
 		this.pruneAll();
 	}
 
+	roomPositions() {
+		const positions = [];
+		for(let x = 0; x < LevelGeneratorData.WIDTH; x ++) {
+			for(let y = 0; y < LevelGeneratorData.HEIGHT; y ++) {
+				if(this.rooms.get(x, y) !== null) {
+					positions.push(new Vector(x, y))
+				}
+			}
+		}
+		return positions;
+	}
 	numRooms() {
 		let count = 0;
 		for(let x = 0; x < LevelGeneratorData.WIDTH; x ++) {
