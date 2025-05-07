@@ -70,9 +70,10 @@ export class LevelGenerator {
 				LevelGenerator.isInBounds(position.add(Vector.unit(dir)))
 			));
 			for(const exit of exits) {
-				if(Math.random() < LevelGeneratorData.MAIN_PATH_BRANCH_PROBABILITY) {
-					room.exits.push(exit);
-				}
+				if(
+					(Directions.isHorizontal(exit) && Math.random() < LevelGeneratorData.MAIN_PATH_BRANCH_PROBABILITY_X) ||
+					(Directions.isVertical(exit) && Math.random() < LevelGeneratorData.MAIN_PATH_BRANCH_PROBABILITY_Y)
+				) { room.exits.push(exit); }
 			}
 		}
 	}
@@ -88,12 +89,13 @@ export class LevelGenerator {
 		for(const exit of otherExits) {
 			const adjacentPosition = position.add(Vector.unit(exit));
 			if(
-				Math.random() < LevelGeneratorData.OFF_PATH_BRANCH_PROBABILITY && 
-				LevelGenerator.isInBounds(adjacentPosition) &&
-				this.rooms.get(adjacentPosition) === null
-			) {
-				exits.push(exit);
-			}
+				(
+					(Directions.isHorizontal(exit) && Math.random() < LevelGeneratorData.OFF_PATH_BRANCH_PROBABILITY_X)
+					|| (Directions.isVertical(exit) && Math.random() < LevelGeneratorData.OFF_PATH_BRANCH_PROBABILITY_Y)
+				)
+				&& LevelGenerator.isInBounds(adjacentPosition)
+				&& this.rooms.get(adjacentPosition) === null
+			) { exits.push(exit); }
 		}
 		this.rooms.set(position, { exits, traversability: RoomData.ALL_TRAVERSABILITY });
 		return true;
