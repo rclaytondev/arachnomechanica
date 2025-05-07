@@ -72,7 +72,7 @@ export class Room {
 			`${this.name}-reflected`,
 			[],
 			[],
-			(exits) => this.canSpawnWithExits(exits.map(Directions.opposite)),
+			(exits) => this.canSpawnWithExits(exits.map(Directions.reflectX)),
 			this.traversability.map(({ start, end }) => ({ 
 				start: new GateState(null, Directions.reflectX(start.exit), start.toggled),
 				end: new GateState(null, Directions.reflectX(end.exit), end.toggled)
