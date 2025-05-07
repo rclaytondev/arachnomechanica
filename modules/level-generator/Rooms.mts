@@ -1,10 +1,10 @@
-import { Direction } from "../utils-ts/modules/geometry/Direction.mjs";
-import { Vector } from "../utils-ts/modules/geometry/Vector.mjs";
-import { Grid } from "../utils-ts/modules/Grid.mjs";
-import { RoomData } from "./constants/GameData.mjs";
+import { Direction } from "../../utils-ts/modules/geometry/Direction.mjs";
+import { Vector } from "../../utils-ts/modules/geometry/Vector.mjs";
+import { Grid } from "../../utils-ts/modules/Grid.mjs";
+import { RoomData } from "../constants/GameData.mjs";
 import { GateState } from "./GateState.mjs";
 import { Room } from "./Room.mjs";
-import { Gate } from "./tiles/Gate.mjs";
+import { Gate } from "../tiles/Gate.mjs";
 
 export const ROOMS: Room[] = [
 	new Room(

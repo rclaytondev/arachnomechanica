@@ -1,11 +1,11 @@
-import { Direction, Directions } from "../utils-ts/modules/geometry/Direction.mjs";
-import { Vector } from "../utils-ts/modules/geometry/Vector.mjs";
-import { Grid } from "../utils-ts/modules/Grid.mjs";
-import { RoomData } from "./constants/GameData.mjs";
+import { Direction, Directions } from "../../utils-ts/modules/geometry/Direction.mjs";
+import { Vector } from "../../utils-ts/modules/geometry/Vector.mjs";
+import { Grid } from "../../utils-ts/modules/Grid.mjs";
+import { RoomData } from "../constants/GameData.mjs";
 import { GateState } from "./GateState.mjs";
 import { RoomPlaceholder } from "./LevelGenerator.mjs";
-import { Gate } from "./tiles/Gate.mjs";
-import { Tile, World } from "./World.js";
+import { Gate } from "../tiles/Gate.mjs";
+import { Tile, World } from "../World.js";
 
 export type Traversability = { start: GateState, end: GateState }[];
 

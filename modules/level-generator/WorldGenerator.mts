@@ -1,15 +1,15 @@
-import { Directions } from "../utils-ts/modules/geometry/Direction.mjs";
-import { Rectangle } from "../utils-ts/modules/geometry/Rectangle.mjs";
-import { Vector } from "../utils-ts/modules/geometry/Vector.mjs";
-import { Grid } from "../utils-ts/modules/Grid.mjs";
-import { Utils } from "../utils-ts/modules/Utils.mjs";
-import { LevelGeneratorData, LizardData, RoomData, WorldData } from "./constants/GameData.mjs";
-import { Lizard } from "./creatures/Lizard.js";
-import { GameUtils } from "./GameUtils.mjs";
+import { Directions } from "../../utils-ts/modules/geometry/Direction.mjs";
+import { Rectangle } from "../../utils-ts/modules/geometry/Rectangle.mjs";
+import { Vector } from "../../utils-ts/modules/geometry/Vector.mjs";
+import { Grid } from "../../utils-ts/modules/Grid.mjs";
+import { Utils } from "../../utils-ts/modules/Utils.mjs";
+import { LevelGeneratorData, LizardData, RoomData, WorldData } from "../constants/GameData.mjs";
+import { Lizard } from "../creatures/Lizard.js";
+import { GameUtils } from "../GameUtils.mjs";
 import { LevelGenerator } from "./LevelGenerator.mjs";
 import { Room } from "./Room.mjs";
 import { ROOMS } from "./Rooms.mjs";
-import { World } from "./World.js";
+import { World } from "../World.js";
 
 export class WorldGenerator {
 	levelGenerator: LevelGenerator = new LevelGenerator();

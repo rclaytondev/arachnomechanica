@@ -4,13 +4,13 @@ import { DEBUG_SETTINGS } from "./constants/DebugSettings.mjs";
 import { RoomData } from "./constants/GameData.mjs";
 import { Lizard } from "./creatures/Lizard.js";
 import { GameUtils } from "./GameUtils.mjs";
-import { LevelGenerator } from "./LevelGenerator.mjs";
-import { Room } from "./Room.mjs";
+import { LevelGenerator } from "./level-generator/LevelGenerator.mjs";
+import { Room } from "./level-generator/Room.mjs";
 import { RoomEditor } from "./RoomEditor.mjs";
-import { ROOMS } from "./Rooms.mjs";
+import { ROOMS } from "./level-generator/Rooms.mjs";
 import { Gate } from "./tiles/Gate.mjs";
 import { World } from "./World.js";
-import { WorldGenerator } from "./WorldGenerator.mjs";
+import { WorldGenerator } from "./level-generator/WorldGenerator.mjs";
 
 const recordedRNG: number[] = [];
 let rngOverrideIndex = 0;

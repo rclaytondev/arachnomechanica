@@ -1,7 +1,7 @@
 import { Vector } from "../../utils-ts/modules/geometry/Vector.mjs";
 import { ParticleSettings } from "../Particle.mjs";
-import { Room, Traversability } from "../Room.mjs";
-import { GateState } from "../GateState.mjs";
+import { Room, Traversability } from "../level-generator/Room.mjs";
+import { GateState } from "../level-generator/GateState.mjs";
 import { World } from "../World";
 
 export class WorldData {

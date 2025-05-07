@@ -1,13 +1,13 @@
-import { Direction, Directions } from "../utils-ts/modules/geometry/Direction.mjs";
-import { Vector } from "../utils-ts/modules/geometry/Vector.mjs";
-import { Utils } from "../utils-ts/modules/Utils.mjs";
-import { GameUtils } from "./GameUtils.mjs";
+import { Direction, Directions } from "../../utils-ts/modules/geometry/Direction.mjs";
+import { Vector } from "../../utils-ts/modules/geometry/Vector.mjs";
+import { Utils } from "../../utils-ts/modules/Utils.mjs";
+import { GameUtils } from "../GameUtils.mjs";
 import { Traversability } from "./Room.mjs";
 import { GateState } from "./GateState.mjs";
 import { ROOMS } from "./Rooms.mjs";
-import { LevelGeneratorData, LizardData, RoomData, WorldData } from "./constants/GameData.mjs";
-import { Grid } from "../utils-ts/modules/Grid.mjs";
-import { Rectangle } from "../utils-ts/modules/geometry/Rectangle.mjs";
+import { LevelGeneratorData, LizardData, RoomData, WorldData } from "../constants/GameData.mjs";
+import { Grid } from "../../utils-ts/modules/Grid.mjs";
+import { Rectangle } from "../../utils-ts/modules/geometry/Rectangle.mjs";
 
 export type RoomPlaceholder = { exits: Direction[], traversability: Traversability };
 

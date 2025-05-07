@@ -2,7 +2,7 @@ import { canvasIO, CanvasIO } from "../utils-ts/modules/CanvasIO.mjs";
 import { Direction, Directions } from "../utils-ts/modules/geometry/Direction.mjs";
 import { Vector } from "../utils-ts/modules/geometry/Vector.mjs";
 import { Grid } from "../utils-ts/modules/Grid.mjs";
-import { Room } from "./Room.mjs";
+import { Room } from "./level-generator/Room.mjs";
 import { DEBUG_SETTINGS } from "./constants/DebugSettings.mjs";
 import { Gate } from "./tiles/Gate.mjs";
 import { Tile, World } from "./World.js";

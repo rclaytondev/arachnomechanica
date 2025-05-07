@@ -5,12 +5,12 @@ import { Vector } from "../utils-ts/modules/geometry/Vector.mjs";
 import { Grid } from "../utils-ts/modules/Grid.mjs";
 import { Creature } from "./creatures/Creature.js";
 import { LevelGeneratorData, RoomData, WorldData } from "./constants/GameData.mjs";
-import { LevelGenerator } from "./LevelGenerator.mjs";
+import { LevelGenerator } from "./level-generator/LevelGenerator.mjs";
 import { Main } from "./Main.js";
 import { DEBUG_SETTINGS } from "./constants/DebugSettings.mjs";
 import { Particle } from "./Particle.mjs";
 import { Player } from "./Player.mjs";
-import { Room } from "./Room.mjs";
+import { Room } from "./level-generator/Room.mjs";
 import { Gate } from "./tiles/Gate.mjs";
 
 export type Tile = (typeof WorldData.STRING_TILE_TYPES)[number] | Gate;
