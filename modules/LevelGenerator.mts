@@ -41,6 +41,8 @@ export class LevelGenerator {
 			this.rooms.get(x, y)!.exits.push(nextDirection);
 			[x, y] = [nextPosition.x, nextPosition.y];
 		}
+		const startRoom = this.rooms.get(this.path[this.path.length - 1])!;
+		startRoom.traversability = RoomData.NO_GATE_TRAVERSABILITY;
 	}
 	possibleNextDirections(x: number, y: number): Direction[] {
 		if(this.path.length <= 1) {
@@ -219,6 +221,7 @@ export class LevelGenerator {
 			let prunedSome = false;
 			const positions = new Rectangle(0, 0, LevelGeneratorData.WIDTH, LevelGeneratorData.HEIGHT).squares();
 			for(const position of GameUtils.randomPermutation(positions)) {
+				if(position.equals(this.path[this.path.length - 1])) { continue; }
 				const pruned = this.pruneRoom(position);
 				if(pruned) { prunedSome = true; }
 			}
