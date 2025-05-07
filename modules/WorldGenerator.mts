@@ -1,8 +1,11 @@
+import { Directions } from "../utils-ts/modules/geometry/Direction.mjs";
 import { Rectangle } from "../utils-ts/modules/geometry/Rectangle.mjs";
 import { Vector } from "../utils-ts/modules/geometry/Vector.mjs";
 import { Grid } from "../utils-ts/modules/Grid.mjs";
 import { Utils } from "../utils-ts/modules/Utils.mjs";
-import { LevelGeneratorData, RoomData, WorldData } from "./constants/GameData.mjs";
+import { LevelGeneratorData, LizardData, RoomData, WorldData } from "./constants/GameData.mjs";
+import { Lizard } from "./creatures/Lizard.js";
+import { GameUtils } from "./GameUtils.mjs";
 import { LevelGenerator } from "./LevelGenerator.mjs";
 import { Room } from "./Room.mjs";
 import { ROOMS } from "./Rooms.mjs";
@@ -152,14 +155,45 @@ export class WorldGenerator {
 		const lastRoom = this.levelGenerator.path[this.levelGenerator.path.length - 1];
 		this.world.player.physicsObject.positionInt = lastRoom.add(1/2, 1/2).multiply(WorldData.TILE_SIZE * RoomData.SIZE);
 	}
+	
+	spawnLizards() {
+		const positions = [];
+		const totalLizards = Math.ceil(LevelGeneratorData.WIDTH * LevelGeneratorData.HEIGHT * LizardData.LIZARDS_PER_ROOM);
+		let amountSpawned = 0;
+		while(amountSpawned < totalLizards) {
+			const position = GameUtils.randomEvenlySpaced(
+				new Rectangle(
+					0, 0,
+					LevelGeneratorData.WIDTH * (RoomData.SIZE + LevelGeneratorData.MARGIN_X) - LevelGeneratorData.MARGIN_X - 1,
+					LevelGeneratorData.HEIGHT * (RoomData.SIZE + LevelGeneratorData.MARGIN_Y) - LevelGeneratorData.MARGIN_Y - 1
+				),
+				positions,
+				LizardData.SPAWN_EVENNESS,
+				"int"
+			);
+			const direction = Utils.randomItem(Directions.DIRECTIONS);
+			const length = GameUtils.randomInt(LizardData.MIN_LENGTH, LizardData.MAX_LENGTH);
+			const lizard = new Lizard(
+				position.add(1/2, 1/2).multiply(WorldData.TILE_SIZE), 
+				direction, length * WorldData.TILE_SIZE, LizardData.SPEED
+			);
+			if(lizard.canSpawn(this.world)) {
+				this.world.creatures.push(lizard);
+				positions.push(position);
+				amountSpawned ++;
+			}
+		}
+		console.log(this.world.creatures.length);
+	}
 
 	generate() {
 		this.levelGenerator.generate();
 		this.generateRooms();
 		this.fillUnusedRegions();
 		this.generateMargins();
-		this.spawnPlayer();
 		this.fillBoundaries();
+		this.spawnPlayer();
+		this.spawnLizards();
 		return this.world;
 	}
 }
