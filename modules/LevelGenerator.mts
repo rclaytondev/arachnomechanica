@@ -20,6 +20,9 @@ export class LevelGenerator {
 		for(let i = 0; i < length; i ++) {
 			ROOMS.push(ROOMS[i].reflect());
 		}
+		for(let i = 0; i < 2 * length; i ++) {
+			ROOMS.push(ROOMS[i].toggleGates());
+		}
 	}
 
 	generatePath() {

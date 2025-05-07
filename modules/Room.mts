@@ -4,6 +4,7 @@ import { Grid } from "../utils-ts/modules/Grid.mjs";
 import { RoomData } from "./constants/GameData.mjs";
 import { GateState } from "./GateState.mjs";
 import { RoomPlaceholder } from "./LevelGenerator.mjs";
+import { Gate } from "./tiles/Gate.mjs";
 import { Tile, World } from "./World.js";
 
 export type Traversability = { start: GateState, end: GateState }[];
@@ -15,7 +16,7 @@ export class Room {
 	exitTiles: Grid<Direction | "none">;
 	traversability: Traversability;
 
-	constructor(name: string, tiles: { x: number, y: number, type: Tile }[] | Grid<Tile>, exitTiles: { x: number, y: number, direction: Direction }[] | Grid<Direction>, canSpawnWithExits: (exits: Direction[]) => boolean, traversability?: Traversability) {
+	constructor(name: string, tiles: { x: number, y: number, type: Tile }[] | Grid<Tile>, exitTiles: { x: number, y: number, direction: Direction }[] | Grid<Direction | "none">, canSpawnWithExits: (exits: Direction[]) => boolean, traversability?: Traversability) {
 		this.name = name;
 		if(tiles instanceof Grid) {
 			this.tiles = tiles;
@@ -91,6 +92,33 @@ export class Room {
 			}
 		}
 		return reflected;
+	}
+	copy() {
+		return new Room(
+			this.name,
+			this.tiles.map(tile => typeof tile === "string" ? tile : tile.copy()),
+			this.exitTiles.map(v => v),
+			this.canSpawnWithExits,
+			this.traversability.map(({ start, end }) => ({ start: start.copy(), end: end.copy() }))
+		);
+	}
+	toggleGates() {
+		const copy = this.copy();
+		copy.name += "-toggled";
+		for(const position of copy.tiles.positions()) {
+			const tile = copy.tiles.get(position);
+			if(tile instanceof Gate) {
+				const gateCopy = tile.copy();
+				gateCopy.open = !gateCopy.open;
+				gateCopy.openness = 1 - gateCopy.openness;
+				copy.tiles.set(position, gateCopy);
+			}
+		}
+		copy.traversability = copy.traversability.map(({ start, end }) => ({
+			start: new GateState(start.position, start.exit, !start.toggled),
+			end: new GateState(end.position, end.exit, !end.toggled)
+		}));
+		return copy;
 	}
 
 	static gatelessPath(exit1: Direction, exit2: Direction) {

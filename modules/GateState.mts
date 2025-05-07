@@ -33,6 +33,9 @@ export class GateState {
 			&& state1.toggled === state2.toggled
 		);
 	}
+	copy() {
+		return new GateState(this.position?.clone() ?? null, this.exit, this.toggled);
+	}
 	translate(amount: Vector) {
 		return new GateState(
 			(this.position ?? new Vector(0, 0)).add(amount),
