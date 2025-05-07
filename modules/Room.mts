@@ -11,12 +11,11 @@ export type Traversability = { start: GateState, end: GateState }[];
 export class Room {
 	name: string;
 	tiles: Grid<Tile>;
-	requiredExits: Direction[];
-	optionalExits: Direction[];
+	canSpawnWithExits: (exits: Direction[]) => boolean;
 	exitTiles: Grid<Direction | "none">;
 	traversability: Traversability;
 
-	constructor(name: string, tiles: { x: number, y: number, type: Tile }[] | Grid<Tile>, exitTiles: { x: number, y: number, direction: Direction }[] | Grid<Direction>, requiredExits: Direction[], optionalExits: Direction[], traversability?: Traversability) {
+	constructor(name: string, tiles: { x: number, y: number, type: Tile }[] | Grid<Tile>, exitTiles: { x: number, y: number, direction: Direction }[] | Grid<Direction>, canSpawnWithExits: (exits: Direction[]) => boolean, traversability?: Traversability) {
 		this.name = name;
 		if(tiles instanceof Grid) {
 			this.tiles = tiles;
@@ -36,25 +35,16 @@ export class Room {
 				this.exitTiles.set(x, y, direction);
 			}
 		}
-		this.requiredExits = requiredExits;
-		this.optionalExits = optionalExits;
-		const exits = [...requiredExits, ...optionalExits];
-		this.traversability = GateState.deduplicateTraversability((traversability ?? RoomData.NO_GATE_TRAVERSABILITY).filter(
-			({ start, end }) => exits.includes(start.exit) && exits.includes(end.exit)
-		));
+		this.canSpawnWithExits = canSpawnWithExits;
+		this.traversability = GateState.deduplicateTraversability((traversability ?? RoomData.NO_GATE_TRAVERSABILITY));
 	}
 
 	canAdd(roomPlaceholder: RoomPlaceholder, matchTraversability: boolean = true) {
-		const exitDirections = roomPlaceholder.exits;
-		const hasAllExits = exitDirections.every(exit =>
-			[...this.requiredExits, ...this.optionalExits].includes(exit)
-		);
-		const allRequiredExits = this.requiredExits.every(exit => exitDirections.includes(exit));
 		const traversabilityMatches = GateState.traversabilityEquals(
 			this.traversability,
 			roomPlaceholder.traversability
 		);
-		return hasAllExits && allRequiredExits && (traversabilityMatches || !matchTraversability);
+		return this.canSpawnWithExits(roomPlaceholder.exits) && (traversabilityMatches || !matchTraversability);
 	}
 
 	add(position: Vector, world: World, exits: Direction[]) {
@@ -82,8 +72,7 @@ export class Room {
 			`${this.name}-reflected`,
 			[],
 			[],
-			this.requiredExits.map(Directions.reflectX),
-			this.optionalExits.map(Directions.reflectX),
+			(exits) => this.canSpawnWithExits(exits.map(Directions.opposite))
 		);
 		for(let x = 0; x < RoomData.SIZE; x ++) {
 			for(let y = 0; y < RoomData.SIZE; y ++) {

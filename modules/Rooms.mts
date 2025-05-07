@@ -1,3 +1,4 @@
+import { Direction } from "../utils-ts/modules/geometry/Direction.mjs";
 import { Vector } from "../utils-ts/modules/geometry/Vector.mjs";
 import { Grid } from "../utils-ts/modules/Grid.mjs";
 import { RoomData } from "./constants/GameData.mjs";
@@ -72,8 +73,7 @@ export const ROOMS: Room[] = [
 			{ x: 0, y: 4, direction: "left" },
 			{ x: 0, y: 3, direction: "left" },
 		],
-		[],
-		["left", "right", "up", "down"]
+		() => true
 	),
 	new Room(
 		"empty-room",
@@ -147,8 +147,7 @@ export const ROOMS: Room[] = [
 			{ x: 0, y: 7, direction: "left" },
 			{ x: 0, y: 8, direction: "left" },
 		],
-		[],
-		["left", "right"]
+		(exits: Direction[]) => !exits.includes("up") && !exits.includes("down")
 	),
 	new Room(
 		"platform-over-pit",
@@ -252,8 +251,7 @@ export const ROOMS: Room[] = [
 			{ x: 7, y: 3, direction: "up" },
 			{ x: 8, y: 3, direction: "up" },
 		],
-		["down"],
-		["left", "right"]
+		(exits: Direction[]) => exits.includes("down") && !exits.includes("up")
 	),
 	new Room(
 		"vertical-chute",[
@@ -356,8 +354,7 @@ export const ROOMS: Room[] = [
 			{ x: 2, y: 5, direction: "left" },
 			{ x: 5, y: 11, direction: "down" },
 		],
-		["up", "down"],
-		["left"]
+		(exits: Direction[]) => exits.includes("up") && exits.includes("down") && !exits.includes("right")
 	),
 	new Room(
 		"hallway-gates", [
@@ -462,8 +459,7 @@ export const ROOMS: Room[] = [
 			{ x: 0, y: 3, direction: "left" },
 			{ x: 11, y: 3, direction: "right" },
 		],
-		["left", "right"],
-		[],
+		(exits: Direction[]) => exits.includes("left") && exits.includes("right") && !exits.includes("up") && !exits.includes("down"),
 		[
 			...Room.gatePath("left", "right", true),
 			...Room.gatePath("left", "right", false)
@@ -535,8 +531,7 @@ export const ROOMS: Room[] = [
 			{ x: 6, y: 0, direction: "up" },
 			{ x: 7, y: 0, direction: "up" },
 		],
-		[],
-		["left", "right"]
+		(exits: Direction[]) => !exits.includes("up") && !exits.includes("down")
 	),
 	new Room(
 		"tunnels-2", 
@@ -612,8 +607,7 @@ export const ROOMS: Room[] = [
 			{ x: 3, y: 11, direction: "down" },
 			{ x: 8, y: 11, direction: "down" },
 		],
-		[],
-		["left", "right", "up", "down"]
+		() => true
 	),
 	new Room(
 		"tunnels-and-gates",
@@ -689,8 +683,7 @@ export const ROOMS: Room[] = [
 			{ x: 0, y: 4, direction: "left" },
 			{ x: 0, y: 3, direction: "left" },
 		],
-		[],
-		["left", "right"],
+		(exits: Direction[]) => !exits.includes("up") && !exits.includes("down"),
 		Room.getTraversability([
 			...Room.gatePath("left", "right", true),
 			...Room.gatePath("left", "right", false),
@@ -777,8 +770,7 @@ export const ROOMS: Room[] = [
 			{ x: 11, y: 7, direction: "right" },
 			{ x: 11, y: 8, direction: "right" },
 		],
-		["up", "down"],
-		["right"],
+		(exits: Direction[]) => exits.includes("up") && exits.includes("down") && !exits.includes("left"),
 		Room.getTraversability([
 			...Room.gatelessPath("down", "right"),
 			...Room.onewayGatelessPath("down", "up"),
@@ -878,8 +870,7 @@ export const ROOMS: Room[] = [
 			{ x: 0, y: 7, direction: "left" },
 			{ x: 0, y: 8, direction: "left" },
 		],
-		["up", "right"],
-		["down"]
+		(exits: Direction[]) => exits.includes("up") && exits.includes("right") && !exits.includes("left")
 	),
 	new Room(
 		"gate-contraption",
@@ -969,8 +960,7 @@ export const ROOMS: Room[] = [
 			{ x: 5, y: 0, direction: "up" },
 			{ x: 6, y: 0, direction: "up" },
 		],
-		["left"],
-		["right", "down"],
+		(exits: Direction[]) => exits.includes("left") && !exits.includes("up"),
 		Room.getTraversability([
 			...Room.gatelessPath("down", "right"),
 			...Room.onewayGatelessPath("down", "left"),
@@ -1064,8 +1054,7 @@ export const ROOMS: Room[] = [
 			{ x: 5, y: 11, direction: "down" },
 			{ x: 4, y: 11, direction: "down" },
 		],
-		["up", "left"],
-		["down", "right"],
+		(exits: Direction[]) => exits.includes("up") && (exits.includes("left") || exits.includes("right")),
 		Room.getTraversability([
 			...Room.gatelessPath("left", "right"),
 			...Room.onewayGatelessPath("down", "left"),
@@ -1164,8 +1153,7 @@ export const ROOMS: Room[] = [
 			{ x: 5, y: 11, direction: "down" },
 			{ x: 4, y: 11, direction: "down" },
 		],
-		[],
-		["left", "right", "up", "down"],
+		() => true,
 		RoomData.ALL_TRAVERSABILITY
 	),
 	new Room(
@@ -1290,8 +1278,7 @@ export const ROOMS: Room[] = [
 			{ x: 0, y: 7, direction: "left" },
 			{ x: 0, y: 8, direction: "left" },
 		],
-		["left", "right"],
-		[],
+		(exits: Direction[]) => exits.includes("left") && exits.includes("right") && !exits.includes("up") && !exits.includes("down"),
 		Room.gatePath("left", "right", true)
 	)
 ];
