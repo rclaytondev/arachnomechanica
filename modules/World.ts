@@ -4,7 +4,7 @@ import { Rectangle } from "../utils-ts/modules/geometry/Rectangle.mjs";
 import { Vector } from "../utils-ts/modules/geometry/Vector.mjs";
 import { Grid } from "../utils-ts/modules/Grid.mjs";
 import { Creature } from "./creatures/Creature.js";
-import { LevelGeneratorData, RoomData, WorldData } from "./constants/GameData.mjs";
+import { BackgroundData, LevelGeneratorData, RoomData, WorldData } from "./constants/GameData.mjs";
 import { LevelGenerator } from "./level-generator/LevelGenerator.mjs";
 import { Main } from "./Main.js";
 import { DEBUG_SETTINGS } from "./constants/DebugSettings.mjs";
@@ -12,6 +12,7 @@ import { Particle } from "./Particle.mjs";
 import { Player } from "./Player.mjs";
 import { Room } from "./level-generator/Room.mjs";
 import { Gate } from "./tiles/Gate.mjs";
+import { GearsBackground } from "./GearsBackground.mjs";
 
 export type Tile = (typeof WorldData.STRING_TILE_TYPES)[number] | Gate;
 
@@ -19,12 +20,14 @@ export class World {
 	tiles: Grid<Tile> = new Grid("empty");
 	creatures: Creature[] = [];
 	particles: Particle[] = [];
+	background: GearsBackground = GearsBackground.generate();
 
 	player: Player = new Player();
 
 
 	display(canvasIO: CanvasIO) {
-		canvasIO.fillCanvas("white");
+		canvasIO.fillCanvas(BackgroundData.BACKGROUND_COLOR);
+		this.background.display(canvasIO, this.player.physicsObject.hitbox().center());
 		canvasIO.ctx.save();
 		if(Main.screen instanceof World && !DEBUG_SETTINGS.DISPLAY_WHOLE_LEVEL) {
 			const playerPosition = this.player.physicsObject.hitbox().center();

@@ -135,3 +135,40 @@ export class LizardData {
 	static MAX_LENGTH = 7;
 	static SPAWN_EVENNESS = 7; // higher number = more evenly distributed
 }
+
+export type BackgroundGearLayerData = {
+	minSize: number;
+	maxSize: number;
+	color: string;
+	parallax: number;
+	minSpeed: number;
+	maxSpeed: number;
+	density: number;
+	evenness: number;
+	minTeeth: number;
+	maxTeeth: number;
+	minInnerRadius: number;
+	maxInnerRadius: number;
+	blur: number;
+}
+export class BackgroundData {
+	static BACKGROUND_COLOR = "rgb(220, 220, 220)";
+	static MAX_GEAR_SPAWN_ATTEMPTS = 30;
+	static LAYERS: BackgroundGearLayerData[] = [
+		{
+			minSize: 200,
+			maxSize: 400,
+			color: "rgb(170, 170, 170)",
+			parallax: 1,
+			minSpeed: 0.25,
+			maxSpeed: 0.75,
+			density: 1,
+			evenness: 5,
+			minTeeth: 6,
+			maxTeeth: 8,
+			minInnerRadius: 0.8,
+			maxInnerRadius: 0.8,
+			blur: 2
+		}
+	];
+}
