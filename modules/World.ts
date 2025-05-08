@@ -48,12 +48,7 @@ export class World {
 	displayTiles(canvasIO: CanvasIO) {
 		for(const [tile, position] of this.tiles.entries()) {
 			if(tile === "solid") {
-				canvasIO.ctx.fillStyle = WorldData.TILE_COLOR;
-				canvasIO.ctx.fillRect(
-					position.x * WorldData.TILE_SIZE - 1, 
-					position.y * WorldData.TILE_SIZE - 1, 
-					WorldData.TILE_SIZE + 2, WorldData.TILE_SIZE + 2
-				);
+				this.displaySolidTile(position, canvasIO);
 			}
 			else if(tile === "platform") {
 				canvasIO.ctx.fillStyle = WorldData.TILE_COLOR;
@@ -67,6 +62,14 @@ export class World {
 				tile.display(canvasIO, position.x, position.y);
 			}
 		}
+	}
+	displaySolidTile(position: Vector, canvasIO: CanvasIO) {
+		canvasIO.ctx.fillStyle = WorldData.TILE_COLOR;
+		canvasIO.ctx.fillRect(
+			position.x * WorldData.TILE_SIZE - 1, 
+			position.y * WorldData.TILE_SIZE - 1, 
+			WorldData.TILE_SIZE + 2, WorldData.TILE_SIZE + 2
+		);
 	}
 	displayCreatures(canvasIO: CanvasIO) {
 		for(const creature of this.creatures) {
