@@ -43,16 +43,16 @@ let frameCount = 0;
 const FRAMERATE = 60;
 const world = new World();
 ROOMS.find(r => r.name === "empty-room")!.add(new Vector(-6, -6), world, []);
-world.creatures.push(new Lizard(new Vector(-75, -75), "right", 300, LizardData.SPEED));
-world.creatures.push(new Lizard(new Vector(75, -75), "up", 300, LizardData.SPEED));
-world.creatures.push(new Lizard(new Vector(25, 75), "right", 300, LizardData.SPEED));
+world.creatures.push(new Lizard(new Vector(125, -75), "down", 300, LizardData.SPEED));
+// world.creatures.push(new Lizard(new Vector(75, -75), "up", 300, LizardData.SPEED));
+// world.creatures.push(new Lizard(new Vector(25, 75), "right", 300, LizardData.SPEED));
 
 LevelGenerator.initializeRooms();
 
 export class Main {
-	// static screen: World | RoomEditor = new WorldGenerator().generate();
+	static screen: World | RoomEditor = new WorldGenerator().generate();
 	// static screen: World | RoomEditor = new RoomEditor();
-	static screen: World | RoomEditor = world;
+	// static screen: World | RoomEditor = world;
 
 	static update(canvasIO: CanvasIO) {
 		this.screen.update(canvasIO);

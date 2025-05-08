@@ -88,6 +88,7 @@ export class LizardData {
 	static HURTBOX_WIDTH = 1/2 * WorldData.TILE_SIZE;
 	static HURTBOX_SPEED = 6;
 	static MAX_HURTBOX_SIZE = 100;
+	static PLAYER_DETECTION_WIDTH = WorldData.TILE_SIZE * 0.8;
 
 	static FIRE_PARTICLES: ParticleSettings = {
 		color: { red: 0, green: 128, blue: 255 },

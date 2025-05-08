@@ -24,6 +24,7 @@ export class Lizard {
 	targetHeadAngle: number;
 	fireTimer: number = 0;
 	hurtboxSize: number = 0;
+	nextTurn: Direction | null = null;
 
 	constructor(position: Vector, direction: Direction, length: number, speed: number) {
 		this.position = position;
@@ -173,6 +174,11 @@ export class Lizard {
 		this.direction = direction;
 		this.targetHeadAngle = Vector.unit(this.direction).angle();
 	}
+	attemptTurn(direction: Direction, world: World) {
+		if(!this.isObstructed(world, direction)) {
+			this.turn(direction);
+		}
+	}
 	updateJoints() {
 		let length = (this.joints.length === 0) ? 0 : Vector.dist(this.position, this.joints[0].position);
 		for(let i = 0; i < this.joints.length; i ++) {
@@ -274,9 +280,50 @@ export class Lizard {
 		}
 	}
 	checkForPlayer(world: World) {
+		this.checkForPlayerFire(world);
+		this.checkForPlayerTurns(world);
+	}
+	checkForPlayerFire(world: World) {
 		const hurtbox = this.hurtbox(LizardData.MAX_HURTBOX_SIZE);
 		if(world.player.physicsObject.hitbox().intersects(hurtbox)) {
 			this.startFire();
+		}
+	}
+	checkForPlayerTurns(world: World) {
+		const player = world.player.physicsObject.hitbox();
+		const xDirection = player.center().x < this.position.x ? "left" : "right";
+		const yDirection = player.center().y < this.position.y ? "up" : "down";
+		const lookaheadPoint = this.lookaheadPoint();
+		const obstructedX = this.isObstructed(
+			world, xDirection, LizardData.LOOKAHEAD_DISTANCE, 
+			Math.min(MathUtils.dist(lookaheadPoint.x, player.left()), MathUtils.dist(lookaheadPoint.x, player.right()))
+		);
+		const obstructedY = this.isObstructed(
+			world, yDirection, LizardData.LOOKAHEAD_DISTANCE,
+			Math.min(MathUtils.dist(lookaheadPoint.y, player.top()), MathUtils.dist(lookaheadPoint.y, player.bottom()))
+		);
+		let nextTurn: Direction | null = null;
+		if(
+			player.bottom() > this.position.y - LizardData.PLAYER_DETECTION_WIDTH / 2 &&
+			player.top() < this.position.y + LizardData.PLAYER_DETECTION_WIDTH / 2 &&
+			!obstructedX
+		) { nextTurn = xDirection; }
+		else if(
+			player.right() > this.position.x - LizardData.PLAYER_DETECTION_WIDTH / 2 && 
+			player.left() < this.position.x + LizardData.PLAYER_DETECTION_WIDTH / 2 &&
+			!obstructedY
+		) { nextTurn = yDirection; }
+		if(nextTurn !== null && nextTurn !== Directions.opposite(this.direction)) {
+			this.nextTurn = nextTurn;
+		}
+
+		const canTurn = (Directions.isHorizontal(this.direction)
+			? MathUtils.dist(MathUtils.generalizedModulo(this.position.x, WorldData.TILE_SIZE), WorldData.TILE_SIZE / 2) < this.speed
+			: MathUtils.dist(MathUtils.generalizedModulo(this.position.y, WorldData.TILE_SIZE), WorldData.TILE_SIZE / 2) < this.speed
+		);
+		if(this.nextTurn !== null && canTurn) {
+			this.attemptTurn(this.nextTurn, world);
+			this.nextTurn = null;
 		}
 	}
 	startFire(duration: number = LizardData.FIRE_DURATION) {
@@ -298,23 +345,23 @@ export class Lizard {
 	lookaheadPoint(direction: Direction = this.direction, distance: number = LizardData.LOOKAHEAD_DISTANCE) {
 		return this.position.add(Vector.unit(direction).multiply(distance));
 	}
-	lookaheadRectangle(direction: Direction = this.direction, distance: number = LizardData.LOOKAHEAD_DISTANCE) {
+	lookaheadRectangle(direction: Direction = this.direction, distance: number = LizardData.LOOKAHEAD_DISTANCE, length: number = 1) {
 		const point = this.lookaheadPoint(direction, distance);
 		if(Directions.isHorizontal(direction)) {
 			return new Rectangle(
-				point.x, point.y - LizardData.LOOKAHEAD_WIDTH / 2,
-				1, LizardData.LOOKAHEAD_WIDTH
+				point.x - (direction === "left" ? length : 0), point.y - LizardData.LOOKAHEAD_WIDTH / 2,
+				length, LizardData.LOOKAHEAD_WIDTH
 			);
 		}
 		else {
 			return new Rectangle(
-				point.x - LizardData.LOOKAHEAD_WIDTH / 2, point.y,
-				LizardData.LOOKAHEAD_WIDTH, 1
+				point.x - LizardData.LOOKAHEAD_WIDTH / 2, point.y - (direction === "up" ? length : 0),
+				LizardData.LOOKAHEAD_WIDTH, length
 			);
 		}
 	}
-	isObstructed(world: World, direction: Direction = this.direction, distance: number = LizardData.LOOKAHEAD_DISTANCE) {
-		const lookaheadRectangle = this.lookaheadRectangle(direction, distance);
+	isObstructed(world: World, direction: Direction = this.direction, distance: number = LizardData.LOOKAHEAD_DISTANCE, length: number = 1) {
+		const lookaheadRectangle = this.lookaheadRectangle(direction, distance, length);
 		const tiles = world.getTilesAt(lookaheadRectangle);
 		if(tiles.some(({ tile }) => (
 			tile === "solid" ||
