@@ -99,6 +99,7 @@ export class Lizard {
 	}
 	displayLegs(canvasIO: CanvasIO) {
 		canvasIO.linePointedness = LizardData.LEG_POINTEDNESS;
+		canvasIO.ctx.lineWidth = LizardData.LEG_WIDTH;
 		for(let i = 1; i * LizardData.LEG_SPACING < this.length; i ++) {
 			const multiplier = (i % 2 === 0) ? 1 : -1;
 			const [position] = this.getPointOnBody(i * LizardData.LEG_SPACING);

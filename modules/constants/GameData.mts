@@ -112,6 +112,7 @@ export class LizardData {
 	static LEG_SPEED_MULTIPLIER = 1;
 	static LEG_MAX = 0.75 * LizardData.LEG_SCALE;
 	static LEG_MIN = 0.75 * -LizardData.LEG_SCALE;
+	static LEG_WIDTH = WorldData.TILE_SIZE * 0.1;
 	static LOWER_LEG_LENGTH = LizardData.LEG_SCALE * 0.6;
 	static LEG_ROTATION_START = WorldData.TILE_SIZE * 0.2;
 	static LEG_ROTATION_END = WorldData.TILE_SIZE * 0.2;
