@@ -28,6 +28,7 @@ export class Lizard {
 	nextTurn: Direction | null = null;
 	legPosition: number = 0;
 	legDestination: number = LizardData.LEG_MAX;
+	dead: boolean = false;
 
 	constructor(position: Vector, direction: Direction, length: number, speed: number) {
 		this.position = position;
@@ -270,26 +271,26 @@ export class Lizard {
 	hurtbox(size: number = this.hurtboxSize) {
 		if(this.direction === "left") {
 			return new Rectangle(
-				this.position.x - size, this.position.y - LizardData.HURTBOX_WIDTH / 2,
-				size, LizardData.HURTBOX_WIDTH
+				this.position.x - size - LizardData.HURTBOX_OFFSET, this.position.y - LizardData.HURTBOX_WIDTH / 2,
+				Math.max(0, size - LizardData.HURTBOX_OFFSET), LizardData.HURTBOX_WIDTH
 			);
 		}
 		else if(this.direction === "right") {
 			return new Rectangle(
-				this.position.x, this.position.y - LizardData.HURTBOX_WIDTH / 2,
-				size, LizardData.HURTBOX_WIDTH
+				this.position.x + LizardData.HURTBOX_OFFSET, this.position.y - LizardData.HURTBOX_WIDTH / 2,
+				Math.max(0, size - LizardData.HURTBOX_OFFSET), LizardData.HURTBOX_WIDTH
 			);
 		}
 		else if(this.direction === "up") {
 			return new Rectangle(
-				this.position.x - LizardData.HURTBOX_WIDTH / 2, this.position.y - size,
-				LizardData.HURTBOX_WIDTH, size
+				this.position.x - LizardData.HURTBOX_WIDTH / 2, this.position.y - size - LizardData.HURTBOX_OFFSET,
+				LizardData.HURTBOX_WIDTH, Math.max(0, size - LizardData.HURTBOX_OFFSET)
 			);
 		}
 		else {
 			return new Rectangle(
-				this.position.x - LizardData.HURTBOX_WIDTH / 2, this.position.y,
-				LizardData.HURTBOX_WIDTH, size
+				this.position.x - LizardData.HURTBOX_WIDTH / 2, this.position.y + LizardData.HURTBOX_OFFSET,
+				LizardData.HURTBOX_WIDTH, Math.max(0,size - LizardData.HURTBOX_OFFSET)
 			);
 		}
 	}
@@ -301,6 +302,9 @@ export class Lizard {
 		}
 		if(world.player.physicsObject.hitbox().intersects(hurtbox)) {
 			world.player.damage();
+		}
+		for(const lizard of world.creatures) {
+			lizard.damage(this.hurtbox());
 		}
 	}
 	checkForPlayer(world: World) {
@@ -355,6 +359,42 @@ export class Lizard {
 			this.hurtboxSize = 0;
 		}
 		this.fireTimer = LizardData.FIRE_DURATION;
+	}
+
+	lengthAfterDamage(rectangle: Rectangle) {
+		let distance = 0;
+		const joints = [this.position, ...this.joints.map(p => p.position), this.getPointOnBody(this.length)[0]];
+		for(let i = 0; i < joints.length - 1; i ++) {
+			const joint = joints[i];
+			const next = joints[i + 1];
+			if(
+				joint.y === next.y &&
+				rectangle.intersects(Rectangle.fromBounds(joint.x, next.x, joint.y, joint.y))
+			) {
+				return distance + ((joint.x > next.x) ? joint.x - rectangle.right() : rectangle.left() - joint.x);
+			}
+			if(
+				joint.x === next.x &&
+				rectangle.intersects(Rectangle.fromBounds(joint.x, joint.x, joint.y, next.y))
+			) {
+				return distance + ((joint.y > next.y) ? joint.y - rectangle.bottom() : rectangle.top() - joint.y);
+			}
+			distance += Vector.dist(joint, next);
+		}
+		return this.length;
+	}
+	roundedLengthAfterDamage(rectangle: Rectangle) {
+		const length = this.lengthAfterDamage(rectangle);
+		return (Math.floor(length / WorldData.TILE_SIZE - 1/2) + 1/2) * WorldData.TILE_SIZE;
+	}
+	damage(rectangle: Rectangle) {
+		const length = this.roundedLengthAfterDamage(rectangle);;
+		if(length < (LizardData.MIN_LENGTH + 1/2) * WorldData.TILE_SIZE) {
+			this.dead = true;
+		}
+		else {
+			this.length = length;
+		}
 	}
 
 

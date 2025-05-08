@@ -45,12 +45,13 @@ const world = new World();
 world.tiles.set(0, 1, "solid")
 world.tiles.set(1, 1, "solid")
 world.tiles.set(2, 1, "solid")
+world.tiles.set(3, 1, "solid")
 world.tiles.set(4, 1, "solid")
-world.tiles.set(5, 0, "solid")
+world.tiles.set(4, -1, "solid");
 // ROOMS.find(r => r.name === "empty-room")!.add(new Vector(-6, -6), world, []);
-world.creatures.push(new Lizard(new Vector(75, 25), "right", 75, LizardData.SPEED));
+world.creatures.push(new Lizard(new Vector(75, 25), "right", 175, LizardData.SPEED));
 // world.player.physicsObject.positionInt.y -= 350;
-// world.creatures.push(new Lizard(new Vector(75, -75), "up", 300, LizardData.SPEED));
+world.creatures.push(new Lizard(new Vector(275, 25), "down", 300, LizardData.SPEED));
 // world.creatures.push(new Lizard(new Vector(25, 75), "right", 300, LizardData.SPEED));
 
 LevelGenerator.initializeRooms();

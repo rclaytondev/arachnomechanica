@@ -89,6 +89,7 @@ export class World {
 		for(const creature of this.creatures) {
 			creature.update(this);
 		}
+		this.creatures = this.creatures.filter(c => !c.dead);
 	}
 	updateTiles() {
 		for(const [tile, position] of this.tiles.entries()) {

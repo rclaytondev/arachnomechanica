@@ -87,6 +87,7 @@ export class LizardData {
 	static FIRE_DURATION = 30;
 	static HURTBOX_WIDTH = 1/2 * WorldData.TILE_SIZE;
 	static HURTBOX_SPEED = 6;
+	static HURTBOX_OFFSET = WorldData.TILE_SIZE * 0.4;
 	static MAX_HURTBOX_SIZE = 100;
 	static PLAYER_DETECTION_WIDTH = WorldData.TILE_SIZE * 0.5;
 
