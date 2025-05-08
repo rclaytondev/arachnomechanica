@@ -70,6 +70,35 @@ export class World {
 			position.y * WorldData.TILE_SIZE - 1, 
 			WorldData.TILE_SIZE + 2, WorldData.TILE_SIZE + 2
 		);
+
+		canvasIO.ctx.strokeStyle = WorldData.TILE_ACCENT_COLOR;
+		canvasIO.ctx.lineWidth = WorldData.TILE_ACCENT_THICKNESS;
+		canvasIO.ctx.lineCap = "round";
+
+		const center = position.multiply(WorldData.TILE_SIZE).add(WorldData.TILE_SIZE / 2, WorldData.TILE_SIZE / 2);
+		for(const direction of Directions.DIRECTIONS) {
+			const adjacentTile = this.tiles.get(position.add(Vector.unit(direction))) === "solid";
+			const left = Directions.rotateCounterclockwise(direction);
+			const right = Directions.rotateClockwise(direction);
+			const edgeCenter = center.add(Vector.unit(direction).multiply(WorldData.TILE_ACCENT_DISTANCE / 2));
+			const leftCorner = edgeCenter.add(Vector.unit(left).multiply(WorldData.TILE_ACCENT_DISTANCE / 2));
+			const rightCorner = edgeCenter.add(Vector.unit(right).multiply(WorldData.TILE_ACCENT_DISTANCE / 2));
+			const tileLeft = this.tiles.get(position.add(Vector.unit(left))) === "solid";
+			const tileRight = this.tiles.get(position.add(Vector.unit(right))) === "solid";
+			const tileDiagonalLeft = this.tiles.get(position.add(Vector.unit(direction)).add(Vector.unit(left))) === "solid";
+			const tileDiagonalRight = this.tiles.get(position.add(Vector.unit(direction)).add(Vector.unit(right))) === "solid";
+			if(!adjacentTile) {
+				canvasIO.strokeLine(leftCorner.x, leftCorner.y, rightCorner.x, rightCorner.y);
+			}
+			if((!adjacentTile && tileLeft) || (adjacentTile && tileLeft && !tileDiagonalLeft)) {
+				const farLeftCorner = edgeCenter.add(Vector.unit(left).multiply(WorldData.TILE_SIZE / 2));
+				canvasIO.strokeLine(leftCorner.x, leftCorner.y, farLeftCorner.x, farLeftCorner.y);
+			}
+			if((!adjacentTile && tileRight) || (adjacentTile && tileRight && !tileDiagonalRight)) {
+				const farRightCorner = edgeCenter.add(Vector.unit(right).multiply(WorldData.TILE_SIZE / 2));
+				canvasIO.strokeLine(rightCorner.x, rightCorner.y, farRightCorner.x, farRightCorner.y);
+			}
+		}
 	}
 	displayCreatures(canvasIO: CanvasIO) {
 		for(const creature of this.creatures) {

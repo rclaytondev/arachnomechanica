@@ -7,6 +7,10 @@ import { World } from "../World";
 export class WorldData {
 	static TILE_SIZE = 50;
 	static TILE_COLOR = "rgb(100, 100, 100)";
+	static TILE_ACCENT_COLOR = "rgb(60, 60, 60)";
+	static TILE_ACCENT_DISTANCE = WorldData.TILE_SIZE * 0.7;
+	static TILE_ACCENT_THICKNESS = WorldData.TILE_SIZE * 0.1;
+
 	static PLATFORM_THICKNESS = WorldData.TILE_SIZE * 0.1;
 
 	static STRING_TILE_TYPES = ["solid", "empty", "platform"] as const;
