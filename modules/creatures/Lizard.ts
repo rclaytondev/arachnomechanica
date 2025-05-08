@@ -50,23 +50,16 @@ export class Lizard {
 	displayBody(canvasIO: CanvasIO) {
 		canvasIO.ctx.strokeStyle = this.color;
 		canvasIO.ctx.lineWidth = LizardData.BODY_WIDTH;
+		canvasIO.linePointedness = LizardData.BODY_POINTEDNESS;
 		canvasIO.ctx.lineCap = "round";
-		const segment1End = (
-			this.joints[0]?.position ?? 
-			this.position.subtract(Vector.unit(this.direction).multiply(this.length))
-		);
-		canvasIO.strokeLine(this.position.x, this.position.y, segment1End.x, segment1End.y);
-		let length = (this.joints.length === 0) ? 0 : Vector.dist(this.position, this.joints[0].position);
-		for(const [i, joint] of this.joints.entries()) {
-			const next = this.joints[i + 1];
-			if(next) {
-				length += Vector.dist(joint.position, next.position);
-				canvasIO.strokeLine(joint.position.x, joint.position.y, next.position.x, next.position.y);
+		const joints = [this.position, ...this.joints.map(j => j.position), this.getPointOnBody(this.length)[0]];
+		for(let i = 0; i < joints.length - 1; i ++) {
+			const [joint, next] = [joints[i], joints[i+1]];
+			if(i === joints.length - 2) {
+				canvasIO.halfPointedLine(joint.x, joint.y, next.x, next.y);
 			}
-			else if(this.length > length) {
-				const lengthRemaining = this.length - length;
-				const bodyEnd = joint.position.subtract(Vector.unit(joint.direction).multiply(lengthRemaining));
-				canvasIO.strokeLine(joint.position.x, joint.position.y, bodyEnd.x, bodyEnd.y);
+			else {
+				canvasIO.strokeLine(joint.x, joint.y, next.x, next.y);
 			}
 		}
 	}
@@ -105,6 +98,7 @@ export class Lizard {
 		}
 	}
 	displayLegs(canvasIO: CanvasIO) {
+		canvasIO.linePointedness = LizardData.LEG_POINTEDNESS;
 		for(let i = 1; i * LizardData.LEG_SPACING < this.length; i ++) {
 			const multiplier = (i % 2 === 0) ? 1 : -1;
 			const [position] = this.getPointOnBody(i * LizardData.LEG_SPACING);
@@ -119,8 +113,8 @@ export class Lizard {
 
 			const foot1 = knee1.add(tangentVector.multiply(LizardData.LOWER_LEG_LENGTH));
 			const foot2 = knee2.add(tangentVector.multiply(LizardData.LOWER_LEG_LENGTH));
-			canvasIO.strokeLine(knee1.x, knee1.y, foot1.x, foot1.y);
-			canvasIO.strokeLine(knee2.x, knee2.y, foot2.x, foot2.y);
+			canvasIO.halfPointedLine(knee1.x, knee1.y, foot1.x, foot1.y);
+			canvasIO.halfPointedLine(knee2.x, knee2.y, foot2.x, foot2.y);
 		}
 	}
 	displayHead(canvasIO: CanvasIO) {

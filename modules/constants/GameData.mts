@@ -104,6 +104,8 @@ export class LizardData {
 	static PARTICLE_CROSS_SPEED_VARIANCE = 1;
 
 	static BODY_WIDTH = WorldData.TILE_SIZE * 0.1;
+	static BODY_POINTEDNESS = 2;
+	static LEG_POINTEDNESS = 2;
 	static LEG_SCALE = WorldData.TILE_SIZE * 0.5;
 	static LEG_SPACING = LizardData.LEG_SCALE * 2; // distance between consecutive legs on the lizard's body.
 	static LEG_DISTANCE = LizardData.LEG_SCALE * 0.4; // how far away perpendicularly the foot should be from the body.
