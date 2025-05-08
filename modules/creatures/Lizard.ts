@@ -204,12 +204,15 @@ export class Lizard {
 		}
 	}
 	turn(direction: Direction) {
-		this.joints.unshift({ position: this.position.clone(), direction: this.direction });
-		this.direction = direction;
-		this.targetHeadAngle = Vector.unit(this.direction).angle();
+		if(direction !== this.direction) {
+			this.joints.unshift({ position: this.position.clone(), direction: this.direction });
+			this.direction = direction;
+			this.targetHeadAngle = Vector.unit(this.direction).angle();
+			this.stopFire();
+		}
 	}
 	attemptTurn(direction: Direction, world: World) {
-		if(!this.isObstructed(world, direction) && direction !== this.direction) {
+		if(!this.isObstructed(world, direction)) {
 			this.turn(direction);
 		}
 	}
@@ -359,6 +362,10 @@ export class Lizard {
 			this.hurtboxSize = 0;
 		}
 		this.fireTimer = LizardData.FIRE_DURATION;
+	}
+	stopFire() {
+		this.fireTimer = 0;
+		this.hurtboxSize = 0;
 	}
 
 	lengthAfterDamage(rectangle: Rectangle) {
