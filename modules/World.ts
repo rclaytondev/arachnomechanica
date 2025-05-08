@@ -45,21 +45,35 @@ export class World {
 		}
 		canvasIO.ctx.restore();
 	}
+	visibleRegion(canvasIO: CanvasIO) {
+		const center = this.player.physicsObject.hitbox().center().divide(WorldData.TILE_SIZE);
+		return Rectangle.fromBounds(
+			Math.floor(center.x - (canvasIO.canvas.width / 2 / WorldData.TILE_SIZE)),
+			Math.ceil(center.x + (canvasIO.canvas.width / 2 / WorldData.TILE_SIZE)),
+			Math.floor(center.y - (canvasIO.canvas.height / 2 / WorldData.TILE_SIZE)),
+			Math.ceil(center.y + (canvasIO.canvas.height / 2 / WorldData.TILE_SIZE))
+		);
+	}
 	displayTiles(canvasIO: CanvasIO) {
-		for(const [tile, position] of this.tiles.entries()) {
-			if(tile === "solid") {
-				this.displaySolidTile(position, canvasIO);
-			}
-			else if(tile === "platform") {
-				canvasIO.ctx.fillStyle = WorldData.TILE_COLOR;
-				canvasIO.ctx.fillRect(
-					position.x * WorldData.TILE_SIZE,
-					position.y * WorldData.TILE_SIZE,
-					WorldData.TILE_SIZE, WorldData.PLATFORM_THICKNESS
-				)
-			}
-			else if(tile !== "empty") {
-				tile.display(canvasIO, position.x, position.y);
+		const region = this.visibleRegion(canvasIO);
+		for(let x = region.left(); x < region.right(); x ++) {
+			for(let y = region.top(); y < region.bottom(); y ++) {
+				const position = new Vector(x, y);
+				const tile = this.tiles.get(position);
+				if(tile === "solid") {
+					this.displaySolidTile(position, canvasIO);
+				}
+				else if(tile === "platform") {
+					canvasIO.ctx.fillStyle = WorldData.TILE_COLOR;
+					canvasIO.ctx.fillRect(
+						x * WorldData.TILE_SIZE,
+						y * WorldData.TILE_SIZE,
+						WorldData.TILE_SIZE, WorldData.PLATFORM_THICKNESS
+					);
+				}
+				else if(tile !== "empty") {
+					tile.display(canvasIO, x, y);
+				}
 			}
 		}
 	}
