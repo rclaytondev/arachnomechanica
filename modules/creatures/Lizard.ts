@@ -12,19 +12,22 @@ import { Gate } from "../tiles/Gate.mjs";
 import { Particle, ParticleSettings } from "../Particle.mjs";
 import { LizardData, WorldData } from "../constants/GameData.mjs";
 
+type Joint = { position: Vector, direction: Direction };
+
 export class Lizard {
 	direction: Direction;
 	position: Vector;
-	joints: { position: Vector, direction: Direction }[] = [];
+	joints: Joint[] = [];
 	length: number;
 	color: string = "rgb(0, 0, 0)";
 	speed: number;
-	legs: LizardLeg[];
 	headAngle: number;
 	targetHeadAngle: number;
 	fireTimer: number = 0;
 	hurtboxSize: number = 0;
 	nextTurn: Direction | null = null;
+	legPosition: number = 0;
+	legDestination: number = LizardData.LEG_MAX;
 
 	constructor(position: Vector, direction: Direction, length: number, speed: number) {
 		this.position = position;
@@ -33,19 +36,6 @@ export class Lizard {
 		this.targetHeadAngle = this.headAngle;
 		this.length = length;
 		this.speed = speed;
-
-		this.legs = [];
-		for(let i = 2; i * LizardData.LEG_SPACING < this.length; i ++) {
-			const leftDirection = Directions.rotateCounterclockwise(this.direction);
-			const rightDirection = Directions.rotateClockwise(this.direction);
-			const jointPosition = this.position.subtract(Vector.unit(this.direction).multiply(i * LizardData.LEG_SPACING));
-			const forwardOffset = Vector.unit(this.direction).multiply(LizardData.STEP_SIZE / 2);
-			const backwardOffset = Vector.unit(this.direction).multiply(-LizardData.STEP_SIZE / 2);
-			const leftOffset = Vector.unit(leftDirection).multiply(LizardData.LEG_DISTANCE);
-			const rightOffset = Vector.unit(rightDirection).multiply(LizardData.LEG_DISTANCE);
-			this.legs.push(new LizardLeg("left", i * LizardData.LEG_SPACING, jointPosition.add(i % 2 === 0 ? forwardOffset : backwardOffset).add(leftOffset)));
-			this.legs.push(new LizardLeg("right", i * LizardData.LEG_SPACING, jointPosition.add(i % 2 === 0 ? backwardOffset : forwardOffset).add(rightOffset)));
-		}
 	}
 
 	display(canvasIO: CanvasIO) {
@@ -85,16 +75,52 @@ export class Lizard {
 			canvasIO.drawArrow(joint.position, 10, joint.direction);
 		}
 	}
-	displayLegs(canvasIO: CanvasIO) {
-		for(const leg of this.legs) {
-			this.displayLeg(leg, canvasIO);
+	getLegAngle(distance: number) {
+		const [, , jointBefore, jointAfter, distanceBefore, distanceAfter] = this.getPointOnBody(distance);
+		const directionBefore = (jointBefore === "head") ? this.direction : jointBefore.direction;
+		const angleBefore = Directions.angle(directionBefore);
+		if(distance < distanceBefore + LizardData.LEG_ROTATION_START && jointBefore !=="head") {
+			const index = this.joints.indexOf(jointBefore);
+			const previousDirection = this.joints[index - 1]?.direction ?? this.direction;
+			return GameUtils.lerpAngle(
+				distance,
+				distanceBefore,
+				distanceBefore + LizardData.LEG_ROTATION_START,
+				GameUtils.diagonalAngle(directionBefore, previousDirection),
+				angleBefore
+			);
+		}
+		else if(distance > distanceAfter - LizardData.LEG_ROTATION_END && jointAfter !== "tail") {
+			return GameUtils.lerpAngle(
+				distance,
+				distanceAfter - LizardData.LEG_ROTATION_END,
+				distanceAfter,
+				angleBefore,
+				GameUtils.diagonalAngle(directionBefore, jointAfter.direction)
+			);
+		}
+		else {
+			return angleBefore;
 		}
 	}
-	displayLeg(leg: LizardLeg, canvasIO: CanvasIO) {
-		canvasIO.ctx.strokeStyle = this.color;
-		const [point] = this.getPointOnBody(leg.distance);
-		canvasIO.strokeLine(point.x, point.y, leg.position.x, leg.position.y);
-		canvasIO.fillCircle(leg.position.x, leg.position.y, LizardData.FOOT_SIZE);
+	displayLegs(canvasIO: CanvasIO) {
+		for(let i = 1; i * LizardData.LEG_SPACING < this.length; i ++) {
+			const multiplier = (i % 2 === 0) ? 1 : -1;
+			const [position] = this.getPointOnBody(i * LizardData.LEG_SPACING);
+			const tangentAngle = this.getLegAngle(i * LizardData.LEG_SPACING);
+			const tangentVector = new Vector(Math.cos(tangentAngle), -Math.sin(tangentAngle));
+			const normalVector = new Vector(-tangentVector.y, tangentVector.x);
+
+			const knee1 = position.add(normalVector.multiply(LizardData.LEG_DISTANCE).add(tangentVector.multiply(this.legPosition * multiplier)));
+			const knee2 = position.add(normalVector.multiply(-LizardData.LEG_DISTANCE).add(tangentVector.multiply(-this.legPosition * multiplier)));
+			canvasIO.strokeLine(position.x, position.y, knee1.x, knee1.y);
+			canvasIO.strokeLine(position.x, position.y, knee2.x, knee2.y);
+
+			const foot1 = knee1.add(tangentVector.multiply(LizardData.LOWER_LEG_LENGTH));
+			const foot2 = knee2.add(tangentVector.multiply(LizardData.LOWER_LEG_LENGTH));
+			canvasIO.strokeLine(knee1.x, knee1.y, foot1.x, foot1.y);
+			canvasIO.strokeLine(knee2.x, knee2.y, foot2.x, foot2.y);
+		}
 	}
 	displayHead(canvasIO: CanvasIO) {
 		const mouthX = LizardData.HEAD_WIDTH / 2 * (1 + Math.sin(frameCount * 0.5)) / 2;
@@ -136,16 +162,23 @@ export class Lizard {
 
 	update(world: World) {
 		this.position = this.position.add(Vector.unit(this.direction).multiply(this.speed));
-		for(const leg of this.legs) {
-			this.updateLeg(leg);
-		}
 
+		this.updateLegs();
 		this.checkForCollisions(world);
 		this.updateJoints();
 		this.updateHeadAngle();
 		this.updateFire(world);
 		this.updateHurtbox(world);
 		this.checkForPlayer(world);
+	}
+	updateLegs() {
+		this.legPosition = GameUtils.moveTowards(this.legPosition, this.legDestination, this.speed * LizardData.LEG_SPEED_MULTIPLIER);
+		if(this.legPosition >= LizardData.LEG_MAX) {
+			this.legDestination = LizardData.LEG_MIN;
+		}
+		else if(this.legPosition <= LizardData.LEG_MIN) {
+			this.legDestination = LizardData.LEG_MAX;
+		}
 	}
 	checkForCollisions(world: World) {
 		const lookaheadPoint = this.position.add(Vector.unit(this.direction).multiply(LizardData.LOOKAHEAD_DISTANCE));
@@ -175,7 +208,7 @@ export class Lizard {
 		this.targetHeadAngle = Vector.unit(this.direction).angle();
 	}
 	attemptTurn(direction: Direction, world: World) {
-		if(!this.isObstructed(world, direction)) {
+		if(!this.isObstructed(world, direction) && direction !== this.direction) {
 			this.turn(direction);
 		}
 	}
@@ -202,15 +235,6 @@ export class Lizard {
 
 		this.headAngle = MathUtils.generalizedModulo(this.headAngle, 2 * Math.PI);
 		this.targetHeadAngle = MathUtils.generalizedModulo(this.targetHeadAngle, 2 * Math.PI);
-	}
-	updateLeg(leg: LizardLeg) {
-		const [connection] = this.getPointOnBody(leg.distance);
-		if(Vector.dist(leg.position, connection) > LizardData.MAX_LEG_DISTANCE) {
-			leg.destination = this.getLegDestination(leg);
-		}
-		const legSpeed = this.speed * LizardData.LEG_SPEED_MULTIPLIER;
-		leg.position.x = GameUtils.moveTowards(leg.position.x, leg.destination.x, legSpeed);
-		leg.position.y = GameUtils.moveTowards(leg.position.y, leg.destination.y, legSpeed);
 	}
 	generateFireParticleVelocity() {
 		const speed = LizardData.PARTICLE_SPEED + GameUtils.random(-LizardData.PARTICLE_SPEED_VARIANCE, LizardData.PARTICLE_SPEED_VARIANCE);
@@ -334,14 +358,6 @@ export class Lizard {
 	}
 
 
-	getLegDestination(leg: LizardLeg) {
-		const [point, direction] = this.getPointOnBody(leg.distance);
-		const perpendicular = (leg.side === "left") ? 
-			Vector.unit(Directions.rotateCounterclockwise(direction)).multiply(LizardData.LEG_DISTANCE) :
-			Vector.unit(Directions.rotateClockwise(direction)).multiply(LizardData.LEG_DISTANCE);
-		const paralell = Vector.unit(direction).multiply(LizardData.STEP_SIZE);
-		return point.add(perpendicular).add(paralell);
-	}
 	lookaheadPoint(direction: Direction = this.direction, distance: number = LizardData.LOOKAHEAD_DISTANCE) {
 		return this.position.add(Vector.unit(direction).multiply(distance));
 	}
@@ -373,9 +389,16 @@ export class Lizard {
 		}
 		return false;
 	}
-	getPointOnBody(distance: number): [Vector, Direction] {
+	getPointOnBody(distance: number): [Vector, Direction, Joint | "head",  Joint | "tail", number, number] {
 		if(this.joints.length === 0 || distance < Vector.dist(this.position, this.joints[0].position)) {
-			return [this.position.subtract(Vector.unit(this.direction).multiply(distance)), this.direction];
+			return [
+				this.position.subtract(Vector.unit(this.direction).multiply(distance)), 
+				this.direction,
+				"head",
+				this.joints[0] ?? "tail",
+				0,
+				this.joints.length === 0 ? this.length : Vector.dist(this.position, this.joints[0].position)
+			];
 		}
 		let length = Vector.dist(this.position, this.joints[0].position);
 		let lastLength = length;
@@ -385,12 +408,26 @@ export class Lizard {
 				length += Vector.dist(joint.position, next.position);
 			}
 			if(length > distance) {
-				return [joint.position.subtract(Vector.unit(joint.direction).multiply(distance - lastLength)), joint.direction];
+				return [
+					joint.position.subtract(Vector.unit(joint.direction).multiply(distance - lastLength)),
+					joint.direction,
+					joint,
+					next,
+					lastLength,
+					length
+				];
 			}
 			lastLength = length;
 		}
 		const last = this.joints[this.joints.length - 1];
-		return [last.position.subtract(Vector.unit(last.direction).multiply(distance - length)), last.direction];
+		return [
+			last.position.subtract(Vector.unit(last.direction).multiply(distance - length)),
+			last.direction,
+			last,
+			"tail",
+			length,
+			this.length
+		];
 	}
 
 	static segmentHitbox(point1: Vector, point2: Vector) {
@@ -426,16 +463,3 @@ export class Lizard {
 	}
 }
 
-class LizardLeg {
-	side: "right" | "left";
-	distance: number;
-	position: Vector;
-	destination: Vector;
-
-	constructor(side: "right" | "left", distance: number, position: Vector) {
-		this.side = side;
-		this.distance = distance;
-		this.position = position;
-		this.destination = this.position;
-	}
-}

@@ -104,12 +104,14 @@ export class LizardData {
 
 	static BODY_WIDTH = WorldData.TILE_SIZE * 0.1;
 	static LEG_SCALE = WorldData.TILE_SIZE * 0.5;
-	static LEG_SPACING = LizardData.LEG_SCALE; // distance between consecutive legs on the lizard's body.
+	static LEG_SPACING = LizardData.LEG_SCALE * 2; // distance between consecutive legs on the lizard's body.
 	static LEG_DISTANCE = LizardData.LEG_SCALE * 0.4; // how far away perpendicularly the foot should be from the body.
-	static STEP_SIZE = LizardData.LEG_SCALE * 1.5; // how far past the connection it should move the leg each step.
-	static MAX_LEG_DISTANCE = LizardData.LEG_SCALE; // maximum distance between leg and connection before taking a step.
-	static FOOT_SIZE = WorldData.TILE_SIZE * 0;
-	static LEG_SPEED_MULTIPLIER = 2.5;
+	static LEG_SPEED_MULTIPLIER = 1;
+	static LEG_MAX = 0.75 * LizardData.LEG_SCALE;
+	static LEG_MIN = 0.75 * -LizardData.LEG_SCALE;
+	static LOWER_LEG_LENGTH = LizardData.LEG_SCALE * 0.6;
+	static LEG_ROTATION_START = WorldData.TILE_SIZE * 0.2;
+	static LEG_ROTATION_END = WorldData.TILE_SIZE * 0.2;
 
 	static HEAD_WIDTH = WorldData.TILE_SIZE * 0.2;
 	static HEAD_HEIGHT = WorldData.TILE_SIZE * 0.3;

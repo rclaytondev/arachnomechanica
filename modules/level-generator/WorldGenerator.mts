@@ -175,7 +175,7 @@ export class WorldGenerator {
 			const length = GameUtils.randomInt(LizardData.MIN_LENGTH, LizardData.MAX_LENGTH);
 			const lizard = new Lizard(
 				position.add(1/2, 1/2).multiply(WorldData.TILE_SIZE), 
-				direction, length * WorldData.TILE_SIZE, LizardData.SPEED
+				direction, (length + 1/2) * WorldData.TILE_SIZE, LizardData.SPEED
 			);
 			if(lizard.canSpawn(this.world)) {
 				this.world.creatures.push(lizard);

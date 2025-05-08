@@ -1,5 +1,7 @@
+import { Direction, Directions } from "../utils-ts/modules/geometry/Direction.mjs";
 import { Rectangle } from "../utils-ts/modules/geometry/Rectangle.mjs";
 import { Vector } from "../utils-ts/modules/geometry/Vector.mjs";
+import { MathUtils } from "../utils-ts/modules/math/MathUtils.mjs";
 import { Utils } from "../utils-ts/modules/Utils.mjs";
 
 export class GameUtils {
@@ -11,6 +13,35 @@ export class GameUtils {
 			return Math.max(value - speed, target);
 		}
 	}
+	static lerp(value: number, min1: number, max1: number, min2: number, max2: number) {
+		return (value - min1) / (max1 - min1) * (max2 - min2) + min2;
+	}
+	static lerpAngle(value: number, min1: number, max1: number, min2: number, max2: number) {
+		/* As `value` moves from `min1` to `max1`, the output will move from `min2` to `max2`, taking the shorter path around the circle. */
+		const closest = Utils.minValue(
+			[max2, max2 + 2 * Math.PI, max2 - 2 * Math.PI],
+			n => MathUtils.dist(min2, n)
+		);
+		return GameUtils.lerp(value, min1, max1, min2, closest);
+	}
+	static diagonalAngle(direction1: Direction, direction2: Direction) {
+		if((direction1 === "right" && direction2 === "up") || (direction1 === "up" && direction2 === "right")) {
+			return Math.PI / 4;
+		}
+		else if((direction1 === "up" && direction2 === "left") || (direction1 === "left" && direction2 === "up")) {
+			return 3 * Math.PI / 4;
+		}
+		else if((direction1 === "left" && direction2 === "down") || (direction1 === "down" && direction2 === "left")) {
+			return 5 * Math.PI / 4;
+		}
+		else if((direction1 === "down" && direction2 === "right") || (direction1 === "right" && direction2 === "down")) {
+			return 7 * Math.PI / 4;
+		}
+		else {
+			return Directions.angle(direction1);
+		}
+	}
+
 	static randomInt(min: number, max: number) {
 		return Math.floor(Math.random() * (max - min + 1)) + min;
 	}
