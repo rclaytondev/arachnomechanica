@@ -208,7 +208,7 @@ export class World {
 		}
 		else if(tile instanceof Gate) {
 			const result = tile.copy();
-			tile.direction = Directions.reflectX(tile.direction);
+			result.direction = Directions.reflectX(result.direction);
 			return result;
 		}
 		else { const _: never = tile; throw new Error(); }
