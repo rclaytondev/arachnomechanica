@@ -26,35 +26,35 @@ export class Gate {
 		return 1 - this.openness;
 	}
 
-	getPhysicsBox(x: number, y: number) {
+	getPhysicsBox(x: number, y: number, closedness: number = 1 - this.openness) {
 		if(this.direction === "down") {
 			return new Rectangle(
 				x * WorldData.TILE_SIZE, y * WorldData.TILE_SIZE,
-				WorldData.TILE_SIZE, this.closedness * WorldData.TILE_SIZE
+				WorldData.TILE_SIZE, closedness * WorldData.TILE_SIZE
 			);
 		}
 		else if(this.direction === "up") {
 			return new Rectangle(
-				x * WorldData.TILE_SIZE, (y + 1 - this.closedness) * WorldData.TILE_SIZE,
-				WorldData.TILE_SIZE, this.closedness * WorldData.TILE_SIZE
+				x * WorldData.TILE_SIZE, (y + 1 - closedness) * WorldData.TILE_SIZE,
+				WorldData.TILE_SIZE, closedness * WorldData.TILE_SIZE
 			);
 		}
 		else if(this.direction === "left") {
 			return new Rectangle(
-				(x + 1 - this.closedness) * WorldData.TILE_SIZE, y * WorldData.TILE_SIZE,
-				this.closedness * WorldData.TILE_SIZE, WorldData.TILE_SIZE
+				(x + 1 - closedness) * WorldData.TILE_SIZE, y * WorldData.TILE_SIZE,
+				closedness * WorldData.TILE_SIZE, WorldData.TILE_SIZE
 			)
 		}
 		else {
 			return new Rectangle(
 				x * WorldData.TILE_SIZE, y * WorldData.TILE_SIZE,
-				this.closedness * WorldData.TILE_SIZE, WorldData.TILE_SIZE
+				closedness * WorldData.TILE_SIZE, WorldData.TILE_SIZE
 			);
 		}
 	}
 
 	display(canvasIO: CanvasIO, x: number, y: number) {
-		const box = this.getPhysicsBox(x, y);
+		const box = this.getPhysicsBox(x, y, Math.max(1 - this.openness, GateData.MIN_DISPLAY_SIZE));
 		canvasIO.ctx.fillStyle = GateData.COLOR;
 		canvasIO.fillRect(box);
 	}

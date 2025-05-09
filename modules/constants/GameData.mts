@@ -84,6 +84,7 @@ export class GateData {
 
 	static TOGGLE_DISTANCE = 0;
 	static SPEED = 0.2;
+	static MIN_DISPLAY_SIZE = 0.15;
 }
 
 export class LizardData {
