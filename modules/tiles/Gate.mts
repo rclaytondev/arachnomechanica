@@ -82,8 +82,8 @@ export class Gate {
 	checkPlayer(world: World, x: number, y: number) {
 		const hitbox = world.player.physicsObject.hitbox();
 		const sameRowOrColumn = (Directions.isVertical(this.direction)
-			? (hitbox.bottom() >= y * WorldData.TILE_SIZE && hitbox.top() <= (y + 1) * WorldData.TILE_SIZE)
-			: (hitbox.right() >= x * WorldData.TILE_SIZE && hitbox.left() <= (x + 1) * WorldData.TILE_SIZE)
+			? (hitbox.bottom() >= (y + 1 - GateData.HITBOX_SIZE) * WorldData.TILE_SIZE && hitbox.top() <= (y + GateData.HITBOX_SIZE) * WorldData.TILE_SIZE)
+			: (hitbox.right() >= (x + 1 - GateData.HITBOX_SIZE) * WorldData.TILE_SIZE && hitbox.left() <= (x + GateData.HITBOX_SIZE) * WorldData.TILE_SIZE)
 		);
 
 		
