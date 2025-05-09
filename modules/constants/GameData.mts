@@ -144,6 +144,7 @@ export class LizardData {
 	static MIN_LENGTH = 2;
 	static MAX_LENGTH = 7;
 	static SPAWN_EVENNESS = 7; // higher number = more evenly distributed
+	static MIN_PLAYER_SPAWN_DISTANCE = 600;
 }
 
 export type BackgroundGearLayerData = {

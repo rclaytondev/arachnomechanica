@@ -510,7 +510,11 @@ export class Lizard {
 	}
 
 	canSpawn(world: World) {
-		return !this.hitboxes().some(box => world.isInSolid(box));
+		const distance = Vector.dist(this.position, world.player.physicsObject.hitbox().center());
+		return (
+			distance > LizardData.MIN_PLAYER_SPAWN_DISTANCE &&
+			!this.hitboxes().some(box => world.isInSolid(box))
+		);
 	}
 }
 
