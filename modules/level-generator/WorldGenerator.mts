@@ -153,7 +153,20 @@ export class WorldGenerator {
 
 	spawnPlayer() {
 		const lastRoom = this.levelGenerator.path[this.levelGenerator.path.length - 1];
-		this.world.player.physicsObject.positionInt = lastRoom.add(1/2, 1/2).multiply(WorldData.TILE_SIZE * RoomData.SIZE);
+		const emptyTiles = [];
+		for(let x = 0; x < RoomData.SIZE; x ++) {
+			for(let y = 0; y < RoomData.SIZE; y ++) {
+				const position = new Vector(
+					lastRoom.x * (RoomData.SIZE + LevelGeneratorData.MARGIN_X) + x,
+					lastRoom.y * (RoomData.SIZE + LevelGeneratorData.MARGIN_Y) + y
+				);
+				if(this.world.tiles.get(position) === "empty" && this.world.tiles.get(position.x, position.y + 1) === "solid") {
+					emptyTiles.push(position);
+				}
+			}
+		}
+		const tile = Utils.randomItem(emptyTiles);
+		this.world.player.physicsObject.positionInt = tile.multiply(WorldData.TILE_SIZE)
 	}
 	
 	spawnLizards() {

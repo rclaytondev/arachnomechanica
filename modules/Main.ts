@@ -61,9 +61,9 @@ world.tiles.set(4, 0, "solid");
 LevelGenerator.initializeRooms();
 
 export class Main {
-	// static screen: World | RoomEditor = new WorldGenerator().generate();
+	static screen: World | RoomEditor = new WorldGenerator().generate();
 	// static screen: World | RoomEditor = new RoomEditor();
-	static screen: World | RoomEditor = world;
+	// static screen: World | RoomEditor = world;
 
 	static update(canvasIO: CanvasIO) {
 		this.screen.update(canvasIO);
