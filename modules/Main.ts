@@ -50,16 +50,20 @@ world.tiles.set(4, 1, "solid")
 world.tiles.set(4, -1, "solid");
 // ROOMS.find(r => r.name === "empty-room")!.add(new Vector(-6, -6), world, []);
 world.creatures.push(new Lizard(new Vector(75, 25), "right", 175, LizardData.SPEED));
+world.tiles.set(5, 0, new Gate("down", true));
+world.tiles.set(6, 0, "platform");
+world.tiles.set(3, -1, "solid");
+world.tiles.set(4, 0, "solid");
 // world.player.physicsObject.positionInt.y -= 350;
-world.creatures.push(new Lizard(new Vector(275, 25), "down", 300, LizardData.SPEED));
+// world.creatures.push(new Lizard(new Vector(275, 25), "down", 300, LizardData.SPEED));
 // world.creatures.push(new Lizard(new Vector(25, 75), "right", 300, LizardData.SPEED));
 
 LevelGenerator.initializeRooms();
 
 export class Main {
-	static screen: World | RoomEditor = new WorldGenerator().generate();
+	// static screen: World | RoomEditor = new WorldGenerator().generate();
 	// static screen: World | RoomEditor = new RoomEditor();
-	// static screen: World | RoomEditor = world;
+	static screen: World | RoomEditor = world;
 
 	static update(canvasIO: CanvasIO) {
 		this.screen.update(canvasIO);

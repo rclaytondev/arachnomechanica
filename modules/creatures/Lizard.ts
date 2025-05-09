@@ -5,7 +5,7 @@ import { MathUtils } from "../../utils-ts/modules/math/MathUtils.mjs";
 import { Utils } from "../../utils-ts/modules/Utils.mjs";
 import { GameUtils } from "../GameUtils.mjs";
 import { DEBUG_SETTINGS } from "../constants/DebugSettings.mjs";
-import { World } from "../World.js";
+import { Tile, World } from "../World.js";
 import { frameCount } from "../Main.js";
 import { Rectangle } from "../../utils-ts/modules/geometry/Rectangle.mjs";
 import { Gate } from "../tiles/Gate.mjs";
@@ -293,11 +293,19 @@ export class Lizard {
 			);
 		}
 	}
+	shouldDestroy(tile: Tile) {
+		return !(
+			(tile === "platform" && this.direction !== "down") ||
+			(tile instanceof Gate && tile.openness >= 1)
+		);
+	}
 	updateHurtbox(world: World) {
 		if(this.hurtboxSize === 0) { return; }
 		const hurtbox = this.hurtbox();
-		for(const { position } of world.getTilesAt(hurtbox)) {
-			world.tiles.set(position, "empty");
+		for(const { position, tile } of world.getTilesAt(hurtbox)) {
+			if(this.shouldDestroy(tile)){
+				world.tiles.set(position, "empty");
+			}
 		}
 		if(world.player.physicsObject.hitbox().intersects(hurtbox)) {
 			world.player.damage();
