@@ -136,6 +136,7 @@ export class Lizard {
 
 		canvasIO.ctx.fillStyle = LizardData.EYE_COLOR;
 		canvasIO.fillDiamond(0, LizardData.EYE_Y + LizardData.HEAD_OFFSET, LizardData.EYE_SIZE);
+		GameUtils.glowCircle(0, LizardData.EYE_Y + LizardData.HEAD_OFFSET, LizardData.LIGHT_SIZE, LizardData.LIGHT_INTENSITY, canvasIO);
 
 		canvasIO.ctx.restore();
 	}

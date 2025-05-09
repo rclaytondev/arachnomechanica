@@ -1,3 +1,4 @@
+import { CanvasIO } from "../utils-ts/modules/CanvasIO.mjs";
 import { Direction, Directions } from "../utils-ts/modules/geometry/Direction.mjs";
 import { Rectangle } from "../utils-ts/modules/geometry/Rectangle.mjs";
 import { Vector } from "../utils-ts/modules/geometry/Vector.mjs";
@@ -71,5 +72,22 @@ export class GameUtils {
 		if(previousPoints.length === 0) { return randomPoint(); }
 		const points = new Array(numTrials).fill(0).map(randomPoint);
 		return Utils.maxValue(points, point => Utils.minOutput(previousPoints, p => Vector.dist(point, p)));
+	}
+	
+	static hexColor(red: number, green: number, blue: number, alpha: number) {
+		return "#" + red.toString(16).padStart(2, "0") + green.toString(16).padStart(2, "0") + blue.toString(16).padStart(2, "0") + alpha.toString(16).padStart(2, "0");
+	}
+	static glowCircle(x: number, y: number, size: number, intensity: number, canvasIO: CanvasIO) {
+		canvasIO.ctx.save();
+		const gradient = canvasIO.ctx.createRadialGradient(x, y, 0, x, y, size);
+		for(let i = 0; i < 1; i += 1 / size) {
+			const color = GameUtils.hexColor(255, 255, 255, Math.floor(intensity * 255 * (1 - i) ** 2));
+			gradient.addColorStop(i, color);
+		}
+
+		canvasIO.ctx.fillStyle = gradient;
+		canvasIO.ctx.globalCompositeOperation = "lighter";
+		canvasIO.fillCircle(x, y, size * 2);
+		canvasIO.ctx.restore();
 	}
 }

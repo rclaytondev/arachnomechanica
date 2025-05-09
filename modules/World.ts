@@ -40,12 +40,12 @@ export class World {
 			);
 			canvasIO.ctx.scale(amount, amount);
 		}
-		this.displayTiles(canvasIO);
-		this.displayParticles(canvasIO);
-		this.displayCreatures(canvasIO);
 		if(!this.player.dead) {
 			this.player.display(canvasIO);
 		}
+		this.displayParticles(canvasIO);
+		this.displayCreatures(canvasIO);
+		this.displayTiles(canvasIO);
 		canvasIO.ctx.restore();
 	}
 	visibleRegion(canvasIO: CanvasIO) {

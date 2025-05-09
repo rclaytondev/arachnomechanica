@@ -16,6 +16,8 @@ export type ParticleSettings = {
 	rotation?: number;
 	colorVariance?: number;
 	solid?: boolean;
+	glowSize?: number;
+	glowIntensity?: number;
 };
 
 export class Particle {
@@ -33,6 +35,8 @@ export class Particle {
 	rotationalVelocity: number;
 	rotation: number;
 	solid: boolean;
+	glowSize: number;
+	glowIntensity: number;
 
 	constructor(position: Vector, velocity: Vector, settings: ParticleSettings) {
 		this.position = position;
@@ -56,6 +60,8 @@ export class Particle {
 		);
 		this.rotation = settings.rotation ?? GameUtils.random(0, 2 * Math.PI);
 		this.solid = settings.solid ?? true;
+		this.glowSize = settings.glowSize ?? 0;
+		this.glowIntensity = settings.glowIntensity ?? 1;
 	}
 
 	display(canvasIO: CanvasIO) {
@@ -80,6 +86,9 @@ export class Particle {
 			else {
 				canvasIO.strokeRegularPoly(new Vector(0, 0), this.size, this.shape);
 			}
+		}
+		if(this.glowSize !== 0 && this.glowIntensity !== 0) {
+			GameUtils.glowCircle(0, 0, this.glowSize, this.glowIntensity, canvasIO);
 		}
 		canvasIO.ctx.restore();
 	}

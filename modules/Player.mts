@@ -22,6 +22,8 @@ export class Player {
 	display(canvasIO: CanvasIO) {
 		canvasIO.ctx.fillStyle = PlayerData.COLOR;
 		canvasIO.fillRect(this.physicsObject.hitbox());
+		const center = this.physicsObject.hitbox().center();
+		GameUtils.glowCircle(center.x, center.y, PlayerData.GLOW_SIZE, PlayerData.GLOW_INTENSITY, canvasIO);
 	}
 
 	update(world: World, canvasIO: CanvasIO) {

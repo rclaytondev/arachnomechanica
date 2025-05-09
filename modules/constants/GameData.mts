@@ -6,8 +6,8 @@ import { World } from "../World";
 
 export class WorldData {
 	static TILE_SIZE = 50;
-	static TILE_COLOR = "rgb(100, 100, 100)";
-	static TILE_ACCENT_COLOR = "rgb(60, 60, 60)";
+	static TILE_COLOR = "rgb(30, 30, 30)";
+	static TILE_ACCENT_COLOR = "rgb(40, 40, 40)";
 	static TILE_ACCENT_DISTANCE = WorldData.TILE_SIZE * 0.7;
 	static TILE_ACCENT_THICKNESS = WorldData.TILE_SIZE * 0.1;
 
@@ -39,6 +39,9 @@ export class PlayerData {
 	static JUMP_VELOCITY = 12;
 	static MAX_X_VELOCITY = 8;
 	static FRICTION_X = 0.7;
+
+	static GLOW_SIZE = 300;
+	static GLOW_INTENSITY = 1/4;
 }
 
 export class RoomData {
@@ -77,7 +80,7 @@ export class RoomData {
 }
 
 export class GateData {
-	static COLOR = "rgb(59, 67, 70)";
+	static COLOR = "rgb(15, 15, 15)";
 
 	static TOGGLE_DISTANCE = 0;
 	static SPEED = 0.2;
@@ -96,11 +99,13 @@ export class LizardData {
 	static PLAYER_DETECTION_WIDTH = WorldData.TILE_SIZE * 0.5;
 
 	static FIRE_PARTICLES: ParticleSettings = {
-		color: { red: 0, green: 128, blue: 255 },
+		color: { red: 255, green: 128, blue: 0 },
 		size: WorldData.TILE_SIZE * 0.2,
 		shape: 3,
 		minRotationalVelocity: 0,
-		maxRotationalVelocity: 1
+		maxRotationalVelocity: 1,
+		glowSize: 30,
+		glowIntensity: 1/8
 	};
 	static PARTICLES_PER_FRAME = 2;
 	static PARTICLE_SPEED = LizardData.SPEED + 6;
@@ -130,6 +135,9 @@ export class LizardData {
 	static EYE_COLOR = "rgb(0, 150, 255)";
 	static HEAD_ROTATION_SPEED = 0.2;
 
+	static LIGHT_SIZE = 100;
+	static LIGHT_INTENSITY = 1/8;
+
 	static LIZARDS_PER_ROOM = 0.5;
 	static MIN_LENGTH = 2;
 	static MAX_LENGTH = 7;
@@ -152,13 +160,13 @@ export type BackgroundGearLayerData = {
 	blur: number;
 }
 export class BackgroundData {
-	static BACKGROUND_COLOR = "rgb(220, 220, 220)";
+	static BACKGROUND_COLOR = "rgb(50, 50, 50)";
 	static MAX_GEAR_SPAWN_ATTEMPTS = 30;
 	static LAYERS: BackgroundGearLayerData[] = [
 		{
 			minSize: 200,
 			maxSize: 400,
-			color: "rgb(170, 170, 170)",
+			color: "rgb(40, 40, 40)",
 			parallax: 1,
 			minSpeed: 0.25,
 			maxSpeed: 0.75,
@@ -169,6 +177,21 @@ export class BackgroundData {
 			minInnerRadius: 0.8,
 			maxInnerRadius: 0.8,
 			blur: 2
+		},
+		{
+			minSize: 100,
+			maxSize: 200,
+			color: "rgb(35, 35, 35)",
+			parallax: 0.75,
+			minSpeed: 0.25,
+			maxSpeed: 0.75,
+			density: 2,
+			evenness: 5,
+			minTeeth: 6,
+			maxTeeth: 8,
+			minInnerRadius: 0.8,
+			maxInnerRadius: 0.8,
+			blur: 10
 		}
 	];
 }
