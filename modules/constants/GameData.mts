@@ -132,6 +132,10 @@ export class LizardData {
 	static HEAD_HEIGHT = WorldData.TILE_SIZE * 0.3;
 	static HEAD_OFFSET = -WorldData.TILE_SIZE * 0.5;
 	static MOUTH_LENGTH = WorldData.TILE_SIZE;
+	static MOUTH_SPEED_OPENING = 2;
+	static MOUTH_SPEED_CLOSING = 3;
+	static MAX_MOUTH_ANGLE = 15;
+	static FIRE_MOUTH_OPENNESS = 25;
 	static EYE_SIZE = WorldData.TILE_SIZE * 0.1;
 	static EYE_Y = WorldData.TILE_SIZE * 0.3;
 	static EYE_COLOR = "rgb(0, 150, 255)";

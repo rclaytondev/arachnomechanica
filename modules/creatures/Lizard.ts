@@ -29,6 +29,8 @@ export class Lizard {
 	legPosition: number = 0;
 	legDestination: number = LizardData.LEG_MAX;
 	dead: boolean = false;
+	mouthAngle: number = 0;
+	mouthDestination: number = LizardData.MAX_MOUTH_ANGLE;
 
 	constructor(position: Vector, direction: Direction, length: number, speed: number) {
 		this.position = position;
@@ -119,7 +121,7 @@ export class Lizard {
 		}
 	}
 	displayHead(canvasIO: CanvasIO) {
-		const mouthX = LizardData.HEAD_WIDTH / 2 * (1 + Math.sin(frameCount * 0.5)) / 2;
+		const mouthEnd = new Vector(0, LizardData.HEAD_HEIGHT + LizardData.MOUTH_LENGTH + LizardData.HEAD_OFFSET).rotate(-this.mouthAngle);
 		canvasIO.ctx.save();
 		canvasIO.ctx.translate(this.position.x, this.position.y);
 		canvasIO.ctx.rotate(this.headAngle - Math.PI / 2);
@@ -127,9 +129,9 @@ export class Lizard {
 		canvasIO.fillPoly(
 			0, LizardData.HEAD_OFFSET,
 			-LizardData.HEAD_WIDTH, LizardData.HEAD_HEIGHT + LizardData.HEAD_OFFSET,
-			-mouthX, LizardData.HEAD_HEIGHT + LizardData.MOUTH_LENGTH + LizardData.HEAD_OFFSET,
+			-mouthEnd.x, mouthEnd.y,
 			0, LizardData.HEAD_HEIGHT * 1.5 + LizardData.HEAD_OFFSET,
-			mouthX, LizardData.HEAD_HEIGHT + LizardData.MOUTH_LENGTH + LizardData.HEAD_OFFSET,
+			mouthEnd.x, mouthEnd.y,
 			LizardData.HEAD_WIDTH, LizardData.HEAD_HEIGHT + LizardData.HEAD_OFFSET,
 		);
 
@@ -161,6 +163,7 @@ export class Lizard {
 		this.position = this.position.add(Vector.unit(this.direction).multiply(this.speed));
 
 		this.updateLegs();
+		this.updateMouth();
 		this.checkForCollisions(world);
 		this.updateJoints();
 		this.updateHeadAngle();
@@ -175,6 +178,17 @@ export class Lizard {
 		}
 		else if(this.legPosition <= LizardData.LEG_MIN) {
 			this.legDestination = LizardData.LEG_MAX;
+		}
+	}
+	updateMouth() {
+		this.mouthAngle = GameUtils.moveTowards(
+			this.mouthAngle, this.mouthDestination, 
+			(this.mouthAngle < this.mouthDestination) ? LizardData.MOUTH_SPEED_OPENING : LizardData.MOUTH_SPEED_CLOSING
+		);
+		if(this.mouthAngle <= 0) { this.mouthDestination = LizardData.MAX_MOUTH_ANGLE; }
+		if(this.mouthAngle >= LizardData.MAX_MOUTH_ANGLE) { this.mouthDestination = 0; }
+		if(this.fireTimer > 0) {
+			this.mouthDestination = LizardData.FIRE_MOUTH_OPENNESS;
 		}
 	}
 	checkForCollisions(world: World) {
