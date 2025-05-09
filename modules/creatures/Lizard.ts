@@ -334,11 +334,12 @@ export class Lizard {
 	}
 	checkForPlayerFire(world: World) {
 		const hurtbox = this.hurtbox(LizardData.MAX_HURTBOX_SIZE);
-		if(world.player.physicsObject.hitbox().intersects(hurtbox)) {
+		if(!world.player.dead && world.player.physicsObject.hitbox().intersects(hurtbox)) {
 			this.startFire();
 		}
 	}
 	checkForPlayerTurns(world: World) {
+		if(world.player.dead) { return; }
 		const player = world.player.physicsObject.hitbox();
 		const xDirection = player.center().x < this.position.x ? "left" : "right";
 		const yDirection = player.center().y < this.position.y ? "up" : "down";
