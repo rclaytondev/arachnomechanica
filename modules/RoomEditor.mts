@@ -7,6 +7,7 @@ import { DEBUG_SETTINGS } from "./constants/DebugSettings.mjs";
 import { Gate } from "./tiles/Gate.mjs";
 import { Tile, World } from "./World.js";
 import { WorldData } from "./constants/GameData.mjs";
+import { Rectangle } from "../utils-ts/modules/geometry/Rectangle.mjs";
 
 export class RoomEditor {
 	room: Room;
@@ -78,7 +79,10 @@ export class RoomEditor {
 	}
 
 	display(canvasIO: CanvasIO) {
-		this.world.display(canvasIO);
+		this.world.display(
+			canvasIO, 
+			new Rectangle(0, 0, canvasIO.canvas.width / WorldData.TILE_SIZE, canvasIO.canvas.height / WorldData.TILE_SIZE)
+		);
 		this.displayHoveredTile(canvasIO);
 		this.displayExits(canvasIO);
 		this.displayGates(canvasIO);

@@ -25,7 +25,7 @@ export class World {
 	player: Player = new Player();
 
 
-	display(canvasIO: CanvasIO) {
+	display(canvasIO: CanvasIO, visibleRegion: Rectangle = this.visibleRegion(canvasIO)) {
 		canvasIO.fillCanvas(BackgroundData.BACKGROUND_COLOR);
 		this.background.display(canvasIO, this.player.physicsObject.hitbox().center());
 		canvasIO.ctx.save();
@@ -45,7 +45,7 @@ export class World {
 		}
 		this.displayParticles(canvasIO);
 		this.displayCreatures(canvasIO);
-		this.displayTiles(canvasIO);
+		this.displayTiles(canvasIO, visibleRegion);
 		canvasIO.ctx.restore();
 	}
 	visibleRegion(canvasIO: CanvasIO) {
@@ -57,8 +57,7 @@ export class World {
 			Math.ceil(center.y + (canvasIO.canvas.height / 2 / WorldData.TILE_SIZE))
 		);
 	}
-	displayTiles(canvasIO: CanvasIO) {
-		const region = this.visibleRegion(canvasIO);
+	displayTiles(canvasIO: CanvasIO, region: Rectangle) {
 		for(let x = region.left(); x < region.right(); x ++) {
 			for(let y = region.top(); y < region.bottom(); y ++) {
 				const position = new Vector(x, y);
