@@ -62,13 +62,13 @@ export class GameUtils {
 
 	static pastKeys: { [ key: string ]: boolean } = {};
 
-	static randomEvenlySpaced(region: Rectangle, previousPoints: Vector[], numTrials: number, type: "int" | "float" = "float") {
+	static randomEvenlySpaced(region: Rectangle, previousPoints: Vector[], numTrials: number, type: "int" | "float" = "float", randomGenerator?: () => Vector) {
 		/* Implements Mitchell's Best-Candidate Algorithm. */
 		const random = (type === "int") ? GameUtils.randomInt : GameUtils.random;
-		const randomPoint = () => new Vector(
+		const randomPoint = randomGenerator ?? (() => new Vector(
 			random(region.left(), region.right()),
 			random(region.top(), region.bottom())
-		);
+		));
 		if(previousPoints.length === 0) { return randomPoint(); }
 		const points = new Array(numTrials).fill(0).map(randomPoint);
 		return Utils.maxValue(points, point => Utils.minOutput(previousPoints, p => Vector.dist(point, p)));

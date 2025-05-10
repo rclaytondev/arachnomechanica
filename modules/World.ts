@@ -13,6 +13,7 @@ import { Player } from "./Player.mjs";
 import { Room } from "./level-generator/Room.mjs";
 import { Gate } from "./tiles/Gate.mjs";
 import { GearsBackground } from "./backgrounds/GearsBackground.mjs";
+import { SkyBackground } from "./backgrounds/SkyBackground.mjs";
 
 export type Tile = (typeof WorldData.STRING_TILE_TYPES)[number] | Gate;
 
@@ -20,7 +21,8 @@ export class World {
 	tiles: Grid<Tile> = new Grid("empty");
 	creatures: Creature[] = [];
 	particles: Particle[] = [];
-	background: GearsBackground = GearsBackground.generate();
+	gearsBackground: GearsBackground = GearsBackground.generate();
+	skyBackground: SkyBackground = new SkyBackground();
 
 	player: Player = new Player();
 
@@ -49,6 +51,7 @@ export class World {
 		canvasIO.ctx.restore();
 	}
 	displayBackground(canvasIO: CanvasIO) {
+		this.skyBackground.display(canvasIO);
 		canvasIO.ctx.save();
 		const rectangle = new Rectangle(
 			-LevelGeneratorData.BORDER_X, -LevelGeneratorData.BORDER_Y,
@@ -57,7 +60,7 @@ export class World {
 		).translate(this.translationToPlayer(canvasIO));
 		canvasIO.clipRect(rectangle.x, rectangle.y, rectangle.width, rectangle.height);
 		canvasIO.fillCanvas(BackgroundData.BACKGROUND_COLOR);
-		this.background.display(canvasIO, this.player.physicsObject.hitbox().center());
+		this.gearsBackground.display(canvasIO, this.player.physicsObject.hitbox().center());
 		canvasIO.ctx.restore();
 	}
 	translationToPlayer(canvasIO: CanvasIO) {

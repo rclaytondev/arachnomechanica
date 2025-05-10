@@ -173,6 +173,16 @@ export type BackgroundGearLayerData = {
 export class BackgroundData {
 	static BACKGROUND_COLOR = "rgb(50, 50, 50)";
 	static MAX_GEAR_SPAWN_ATTEMPTS = 30;
+
+	static SKY_BACKGROUND_COLORS = [
+		{ color: "rgb(30, 20, 50)", y: 0 },
+		{ color: "rgb(75, 40, 100)", y: 0.5 },
+		{ color: "rgb(50, 64, 128)", y: 1 }
+	];
+	static STAR_DENSITY = 0.0001;
+	static STAR_EVENNESS = 6;
+	static STAR_SIZE = 1;
+
 	static LAYERS: BackgroundGearLayerData[] = [
 		{
 			minSize: 200,
