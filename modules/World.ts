@@ -26,12 +26,12 @@ export class World {
 
 
 	display(canvasIO: CanvasIO, visibleRegion: Rectangle = this.visibleRegion(canvasIO)) {
-		canvasIO.fillCanvas(BackgroundData.BACKGROUND_COLOR);
-		this.background.display(canvasIO, this.player.physicsObject.hitbox().center());
+		canvasIO.fillCanvas("white");
+		this.displayBackground(canvasIO);
 		canvasIO.ctx.save();
 		if(Main.screen instanceof World && !DEBUG_SETTINGS.DISPLAY_WHOLE_LEVEL) {
-			const playerPosition = this.player.physicsObject.hitbox().center();
-			canvasIO.ctx.translate(canvasIO.canvas.width / 2 - playerPosition.x, canvasIO.canvas.height / 2 - playerPosition.y);
+			const translation = this.translationToPlayer(canvasIO);
+			canvasIO.ctx.translate(translation.x, translation.y);
 		}
 		if(Main.screen instanceof World && DEBUG_SETTINGS.DISPLAY_WHOLE_LEVEL) {
 			const amount = Math.min(
@@ -47,6 +47,22 @@ export class World {
 		this.displayCreatures(canvasIO);
 		this.displayTiles(canvasIO, visibleRegion);
 		canvasIO.ctx.restore();
+	}
+	displayBackground(canvasIO: CanvasIO) {
+		canvasIO.ctx.save();
+		const rectangle = new Rectangle(
+			-LevelGeneratorData.BORDER_X, -LevelGeneratorData.BORDER_Y,
+			LevelGeneratorData.WIDTH * (RoomData.SIZE + LevelGeneratorData.MARGIN_X) * WorldData.TILE_SIZE + 2 * LevelGeneratorData.BORDER_X,
+			LevelGeneratorData.HEIGHT * (RoomData.SIZE + LevelGeneratorData.MARGIN_X) * WorldData.TILE_SIZE + 2 * LevelGeneratorData.BORDER_Y,
+		).translate(this.translationToPlayer(canvasIO));
+		canvasIO.clipRect(rectangle.x, rectangle.y, rectangle.width, rectangle.height);
+		canvasIO.fillCanvas(BackgroundData.BACKGROUND_COLOR);
+		this.background.display(canvasIO, this.player.physicsObject.hitbox().center());
+		canvasIO.ctx.restore();
+	}
+	translationToPlayer(canvasIO: CanvasIO) {
+		const playerPosition = this.player.physicsObject.hitbox().center();
+		return new Vector(canvasIO.canvas.width / 2 - playerPosition.x, canvasIO.canvas.height / 2 - playerPosition.y);
 	}
 	visibleRegion(canvasIO: CanvasIO) {
 		const center = this.player.physicsObject.hitbox().center().divide(WorldData.TILE_SIZE);
