@@ -120,13 +120,17 @@ window.setInterval(() => {
 	Main.display(canvasIO!);
 	frameCount ++;
 
-	if(DEBUG_SETTINGS.LOG_FRAMERATE) {
+	if(DEBUG_SETTINGS.SHOW_FRAMERATE) {
 		const now = Date.now();
 		frameTimes.push(now);
 		while(frameTimes[0] < now - 1000) {
 			frameTimes.shift();
 		}
-		console.log(frameTimes.length);
+		canvasIO!.ctx.resetTransform();
+		canvasIO!.ctx.fillStyle = "red";
+		canvasIO!.ctx.textBaseline = "top";
+		canvasIO!.ctx.font = "30px monospace";
+		canvasIO!.ctx.fillText(`${frameTimes.length} FPS`, 0, 0);
 	}
 }, 1000 / FRAMERATE);
 

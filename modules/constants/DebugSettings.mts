@@ -4,7 +4,7 @@ export const DEBUG_SETTINGS = {
 	HOVERED_TILE_COLOR: "rgb(0, 0, 0)", // set to transparent to disable
 	EXIT_TILE_COLOR: "rgb(0, 200, 0)",
 	EDITOR_ROOM: "empty-room" as string | number,
-	LOG_FRAMERATE: false,
+	SHOW_FRAMERATE: true,
 	EDITOR_UI_COLOR: "rgb(255, 150, 0)",
 	GATE_VISUALIZATION_COLOR: "rgb(255, 150, 0)",
 	LIZARD_HITBOX_COLOR: "rgb(0, 128, 255, 0)",
