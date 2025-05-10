@@ -42,6 +42,10 @@ export class PlayerData {
 
 	static GLOW_SIZE = 300;
 	static GLOW_INTENSITY = 1/4;
+
+	static DEATH_RESET_DELAY = 90;
+	static FADE_SPEED = 0.03;
+	static FADE_DELAY = 30;
 }
 
 export class RoomData {

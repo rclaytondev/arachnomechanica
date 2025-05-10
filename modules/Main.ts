@@ -1,7 +1,7 @@
 import { CanvasIO, canvasIO } from "../utils-ts/modules/CanvasIO.mjs";
 import { Vector } from "../utils-ts/modules/geometry/Vector.mjs";
 import { DEBUG_SETTINGS } from "./constants/DebugSettings.mjs";
-import { LizardData, RoomData } from "./constants/GameData.mjs";
+import { LizardData, PlayerData, RoomData } from "./constants/GameData.mjs";
 import { Lizard } from "./creatures/Lizard.js";
 import { GameUtils } from "./GameUtils.mjs";
 import { LevelGenerator } from "./level-generator/LevelGenerator.mjs";
@@ -65,6 +65,10 @@ export class Main {
 	// static screen: World | RoomEditor = new RoomEditor();
 	// static screen: World | RoomEditor = world;
 
+	static fadingOpacity: number = 0;
+	static fadingDestination: number = 0;
+	static fadingTimer: number = 0;
+
 	static update(canvasIO: CanvasIO) {
 		this.screen.update(canvasIO);
 
@@ -72,9 +76,28 @@ export class Main {
 		if(DEBUG_SETTINGS.PRINT_RNG_KEY !== null && canvasIO.keys[DEBUG_SETTINGS.PRINT_RNG_KEY]) {
 			console.log(recordedRNG.join(", "));
 		}
+		Main.updateFading();
+	}
+	static updateFading() {
+		if(this.screen instanceof World && this.screen.player.timeSinceDeath > PlayerData.DEATH_RESET_DELAY) {
+			Main.fadingDestination = 1;
+		}
+		Main.fadingOpacity = GameUtils.moveTowards(Main.fadingOpacity, Main.fadingDestination, PlayerData.FADE_SPEED);
+		if(Main.fadingOpacity === 1) {
+			Main.fadingTimer ++;
+		}
+		if(Main.fadingTimer > PlayerData.FADE_DELAY) {
+			Main.fadingTimer = 0;
+			Main.screen = new WorldGenerator().generate();
+			Main.fadingDestination = 0;
+		}
 	}
 	static display(canvasIO: CanvasIO) {
 		this.screen.display(canvasIO);
+		Main.displayFading(canvasIO);
+	}
+	static displayFading(canvasIO: CanvasIO) {
+		canvasIO.fillCanvas(`rgba(0, 0, 0, ${this.fadingOpacity})`);
 	}
 }
 

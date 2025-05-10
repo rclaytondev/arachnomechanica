@@ -14,6 +14,7 @@ export class Player {
 	);
 	hasDoubleJump: boolean = false;
 	dead: boolean = false;
+	timeSinceDeath: number = 0;
 
 	constructor() {
 		
@@ -27,7 +28,10 @@ export class Player {
 	}
 
 	update(world: World, canvasIO: CanvasIO) {
-		if(this.dead) { return; }
+		if(this.dead) {
+			this.timeSinceDeath ++;
+			return;
+		}
 		this.checkInputs(world, canvasIO);
 		if(this.onGround(world)) {
 			this.hasDoubleJump = true;
