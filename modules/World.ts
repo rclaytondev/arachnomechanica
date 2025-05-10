@@ -26,6 +26,8 @@ export class World {
 	skyBackground: SkyBackground = new SkyBackground();
 	tileGlowGradient: CanvasGradient | null = null;
 	diagonalGlowGradient: CanvasGradient | null = null;
+	screenShakeTimer: number = 0;
+	screenShakeIntensity: number = 0;
 
 	player: Player = new Player();
 
@@ -34,6 +36,7 @@ export class World {
 		canvasIO.fillCanvas("white");
 		this.displayBackground(canvasIO);
 		canvasIO.ctx.save();
+		this.applyScreenShake(canvasIO);
 		if(Main.screen instanceof World && !DEBUG_SETTINGS.DISPLAY_WHOLE_LEVEL) {
 			const translation = this.translationToPlayer(canvasIO);
 			canvasIO.ctx.translate(translation.x, translation.y);
@@ -53,6 +56,13 @@ export class World {
 		this.displayCreatures(canvasIO);
 		this.displayTiles(canvasIO, visibleRegion);
 		canvasIO.ctx.restore();
+	}
+	applyScreenShake(canvasIO: CanvasIO) {
+		if(this.screenShakeTimer > 0) {
+			const amountX = GameUtils.random(-this.screenShakeIntensity, this.screenShakeIntensity);
+			const amountY = GameUtils.random(-this.screenShakeIntensity, this.screenShakeIntensity);
+			canvasIO.ctx.translate(amountX, amountY);
+		}
 	}
 	displayBackground(canvasIO: CanvasIO) {
 		this.skyBackground.display(canvasIO);
@@ -219,6 +229,7 @@ export class World {
 		this.player.update(this, canvasIO);
 		this.updateTiles();
 		this.updateParticles();
+		this.screenShakeTimer --;
 	}
 	updateCreatures() {
 		for(const creature of this.creatures) {

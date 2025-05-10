@@ -99,6 +99,9 @@ export class GateData {
 	static SPEED = 0.2;
 	static MIN_DISPLAY_SIZE = 0.15;
 	static HITBOX_SIZE = 0.8;
+
+	static SCREEN_SHAKE_TIME = 5;
+	static SCREEN_SHAKE_INTENSITY = 5;
 }
 
 export class LizardData {

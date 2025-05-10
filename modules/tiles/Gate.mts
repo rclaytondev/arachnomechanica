@@ -64,7 +64,12 @@ export class Gate {
 			this.initialized = true;
 		}
 		this.checkPlayer(world, x, y);
+		let open = this.openness === 1;
 		this.openness = GameUtils.moveTowards(this.openness, this.open ? 1 : 0, GateData.SPEED);
+		if(!open && this.openness === 1) {
+			world.screenShakeTimer = GateData.SCREEN_SHAKE_TIME;
+			world.screenShakeIntensity = GateData.SCREEN_SHAKE_INTENSITY;
+		}
 	}
 	getPlayerSide(player: Player, x: number, y: number) {
 		const hitbox = player.physicsObject.hitbox();
