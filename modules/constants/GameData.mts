@@ -7,9 +7,18 @@ import { World } from "../World";
 export class WorldData {
 	static TILE_SIZE = 50;
 	static TILE_COLOR = "rgb(30, 30, 30)";
-	static TILE_ACCENT_COLOR = "rgb(40, 40, 40)";
+	static TILE_ACCENT_COLOR = "rgb(100, 180, 255)";
 	static TILE_ACCENT_DISTANCE = WorldData.TILE_SIZE * 0.7;
-	static TILE_ACCENT_THICKNESS = WorldData.TILE_SIZE * 0.1;
+	static TILE_ACCENT_THICKNESS = 2;
+
+	static TILE_GLOW_SIZE = 40;
+	static TILE_GLOW_INTENSITY = 0.3;
+	static TILE_GLOW_COLOR = {
+		red: 100,
+		green: 180,
+		blue: 255
+	};
+	static TILE_DIAGONAL_GLOW_SCALE = 1.2;
 
 	static PLATFORM_THICKNESS = WorldData.TILE_SIZE * 0.1;
 
@@ -146,7 +155,7 @@ export class LizardData {
 	static HEAD_ROTATION_SPEED = 0.2;
 
 	static LIGHT_SIZE = 100;
-	static LIGHT_INTENSITY = 1/8;
+	static LIGHT_INTENSITY = 0.3;
 
 	static LIZARDS_PER_ROOM = 0.5;
 	static MIN_LENGTH = 2;
@@ -171,7 +180,7 @@ export type BackgroundGearLayerData = {
 	blur: number;
 }
 export class BackgroundData {
-	static BACKGROUND_COLOR = "rgb(50, 50, 50)";
+	static BACKGROUND_COLOR = "rgb(30, 30, 30)";
 	static MAX_GEAR_SPAWN_ATTEMPTS = 30;
 
 	static SKY_BACKGROUND_COLORS = [
@@ -185,24 +194,9 @@ export class BackgroundData {
 
 	static LAYERS: BackgroundGearLayerData[] = [
 		{
-			minSize: 200,
-			maxSize: 400,
-			color: "rgb(40, 40, 40)",
-			parallax: 1,
-			minSpeed: 0.25,
-			maxSpeed: 0.75,
-			density: 1,
-			evenness: 5,
-			minTeeth: 6,
-			maxTeeth: 8,
-			minInnerRadius: 0.8,
-			maxInnerRadius: 0.8,
-			blur: 2
-		},
-		{
 			minSize: 100,
 			maxSize: 200,
-			color: "rgb(35, 35, 35)",
+			color: "rgb(20, 20, 20)",
 			parallax: 0.75,
 			minSpeed: 0.25,
 			maxSpeed: 0.75,
@@ -212,7 +206,7 @@ export class BackgroundData {
 			maxTeeth: 8,
 			minInnerRadius: 0.8,
 			maxInnerRadius: 0.8,
-			blur: 10
+			blur: 6
 		}
 	];
 }

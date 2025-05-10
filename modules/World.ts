@@ -14,6 +14,7 @@ import { Room } from "./level-generator/Room.mjs";
 import { Gate } from "./tiles/Gate.mjs";
 import { GearsBackground } from "./backgrounds/GearsBackground.mjs";
 import { SkyBackground } from "./backgrounds/SkyBackground.mjs";
+import { GameUtils } from "./GameUtils.mjs";
 
 export type Tile = (typeof WorldData.STRING_TILE_TYPES)[number] | Gate;
 
@@ -23,6 +24,8 @@ export class World {
 	particles: Particle[] = [];
 	gearsBackground: GearsBackground = GearsBackground.generate();
 	skyBackground: SkyBackground = new SkyBackground();
+	tileGlowGradient: CanvasGradient | null = null;
+	diagonalGlowGradient: CanvasGradient | null = null;
 
 	player: Player = new Player();
 
@@ -75,6 +78,24 @@ export class World {
 			Math.floor(center.y - (canvasIO.canvas.height / 2 / WorldData.TILE_SIZE)),
 			Math.ceil(center.y + (canvasIO.canvas.height / 2 / WorldData.TILE_SIZE))
 		);
+	}
+	getTileGlowGradent(canvasIO: CanvasIO) {
+		if(this.tileGlowGradient) { return this.tileGlowGradient; }
+		this.tileGlowGradient = GameUtils.glowLineGradient(
+			0, 0, 0, -WorldData.TILE_SIZE, 
+			WorldData.TILE_GLOW_INTENSITY, canvasIO,
+			WorldData.TILE_GLOW_COLOR.red, WorldData.TILE_GLOW_COLOR.green, WorldData.TILE_GLOW_COLOR.blue
+		);
+		return this.tileGlowGradient;
+	}
+	getDiagonalGlowGradient(canvasIO: CanvasIO) {
+		if(this.diagonalGlowGradient) { return this.diagonalGlowGradient; }
+		this.diagonalGlowGradient = GameUtils.glowCircleGradient(
+			0, 0, WorldData.TILE_GLOW_SIZE * WorldData.TILE_DIAGONAL_GLOW_SCALE,
+			WorldData.TILE_GLOW_INTENSITY, canvasIO,
+			WorldData.TILE_GLOW_COLOR.red, WorldData.TILE_GLOW_COLOR.green, WorldData.TILE_GLOW_COLOR.blue
+		);
+		return this.diagonalGlowGradient;
 	}
 	displayTiles(canvasIO: CanvasIO, region: Rectangle) {
 		for(let x = region.left(); x < region.right(); x ++) {
@@ -132,6 +153,28 @@ export class World {
 			if((!adjacentTile && tileRight) || (adjacentTile && tileRight && !tileDiagonalRight)) {
 				const farRightCorner = edgeCenter.add(Vector.unit(right).multiply(WorldData.TILE_SIZE / 2));
 				canvasIO.strokeLine(rightCorner.x, rightCorner.y, farRightCorner.x, farRightCorner.y);
+			}
+
+			if(!adjacentTile) {
+				const tileEdgeCenter = center.add(Vector.unit(direction).multiply(WorldData.TILE_SIZE / 2));
+				canvasIO.ctx.save();
+				canvasIO.ctx.translate(tileEdgeCenter.x, tileEdgeCenter.y);
+				canvasIO.ctx.rotate(-Directions.angle(direction) + Math.PI / 2);
+				canvasIO.ctx.fillStyle = this.getTileGlowGradent(canvasIO);
+				canvasIO.ctx.globalCompositeOperation = "lighter";
+				canvasIO.ctx.fillRect(-WorldData.TILE_SIZE / 2, -WorldData.TILE_GLOW_SIZE, WorldData.TILE_SIZE, WorldData.TILE_GLOW_SIZE);
+				canvasIO.ctx.restore();
+
+				if(!tileRight && !tileDiagonalRight) {
+					const rightEdgeCorner = tileEdgeCenter.add(Vector.unit(right).multiply(WorldData.TILE_SIZE / 2));
+					canvasIO.ctx.save();
+					canvasIO.ctx.translate(rightEdgeCorner.x, rightEdgeCorner.y);
+					canvasIO.ctx.rotate(-Directions.angle(direction) + Math.PI / 2);
+					canvasIO.ctx.fillStyle = this.getDiagonalGlowGradient(canvasIO);
+					canvasIO.ctx.globalCompositeOperation = "lighter";
+					canvasIO.ctx.fillRect(0, -WorldData.TILE_GLOW_SIZE, WorldData.TILE_SIZE, WorldData.TILE_GLOW_SIZE);
+					canvasIO.ctx.restore();
+				}
 			}
 		}
 	}

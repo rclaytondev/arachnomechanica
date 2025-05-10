@@ -77,17 +77,28 @@ export class GameUtils {
 	static hexColor(red: number, green: number, blue: number, alpha: number) {
 		return "#" + red.toString(16).padStart(2, "0") + green.toString(16).padStart(2, "0") + blue.toString(16).padStart(2, "0") + alpha.toString(16).padStart(2, "0");
 	}
-	static glowCircle(x: number, y: number, size: number, intensity: number, canvasIO: CanvasIO) {
+	static glowCircle(x: number, y: number, size: number, intensity: number, canvasIO: CanvasIO, red: number = 255, green: number = 255, blue: number = 255) {
+		const gradient = GameUtils.glowCircleGradient(x, y, size, intensity, canvasIO, red, green, blue);
 		canvasIO.ctx.save();
-		const gradient = canvasIO.ctx.createRadialGradient(x, y, 0, x, y, size);
-		for(let i = 0; i < 1; i += 1 / size) {
-			const color = GameUtils.hexColor(255, 255, 255, Math.floor(intensity * 255 * (1 - i) ** 2));
-			gradient.addColorStop(i, color);
-		}
-
 		canvasIO.ctx.fillStyle = gradient;
 		canvasIO.ctx.globalCompositeOperation = "lighter";
 		canvasIO.fillCircle(x, y, size * 2);
 		canvasIO.ctx.restore();
+	}
+	static glowCircleGradient(x: number, y: number, size: number, intensity: number, canvasIO: CanvasIO, red: number = 255, green: number = 255, blue: number = 255) {
+		const gradient = canvasIO.ctx.createRadialGradient(x, y, 0, x, y, size);
+		for(let i = 0; i < 1; i += 1 / size) {
+			const color = GameUtils.hexColor(red, green, blue, Math.floor(intensity * 255 * (1 - i) ** 2));
+			gradient.addColorStop(i, color);
+		}
+		return gradient;
+	}
+	static glowLineGradient(x1: number, y1: number, x2: number, y2: number, intensity: number, canvasIO: CanvasIO, red: number = 255, green: number = 255, blue: number = 255) {
+		const gradient = canvasIO.ctx.createLinearGradient(x1, y1, x2, y2);
+		for(let i = 0; i < 1; i += 1 / Math.floor(Vector.dist(new Vector(x1, y1), new Vector(x2, y2)))) {
+			const color = GameUtils.hexColor(red, green, blue, Math.floor(intensity * 255 * (1 - i) ** 2));
+			gradient.addColorStop(i, color);
+		}
+		return gradient;
 	}
 }
