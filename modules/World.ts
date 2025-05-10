@@ -45,6 +45,7 @@ export class World {
 			);
 			canvasIO.ctx.scale(amount, amount);
 		}
+		this.displayGlowEffects(canvasIO, visibleRegion);
 		if(!this.player.dead) {
 			this.player.display(canvasIO);
 		}
@@ -96,6 +97,22 @@ export class World {
 			WorldData.TILE_GLOW_COLOR.red, WorldData.TILE_GLOW_COLOR.green, WorldData.TILE_GLOW_COLOR.blue
 		);
 		return this.diagonalGlowGradient;
+	}
+	displayGlowEffects(canvasIO: CanvasIO, visibleRegion: Rectangle) {
+		for(const creature of this.creatures) {
+			creature.displayGlowEffect(canvasIO);
+		}
+		for(let x = visibleRegion.left(); x < visibleRegion.right(); x ++) {
+			for(let y = visibleRegion.top(); y < visibleRegion.bottom(); y ++) {
+				if(this.tiles.get(x, y) === "solid") {
+					this.displayTileGlow(new Vector(x, y), canvasIO);
+				}
+			}
+		}
+
+		for(const particle of this.particles) {
+			particle.displayGlow(canvasIO);
+		}
 	}
 	displayTiles(canvasIO: CanvasIO, region: Rectangle) {
 		for(let x = region.left(); x < region.right(); x ++) {
@@ -154,7 +171,15 @@ export class World {
 				const farRightCorner = edgeCenter.add(Vector.unit(right).multiply(WorldData.TILE_SIZE / 2));
 				canvasIO.strokeLine(rightCorner.x, rightCorner.y, farRightCorner.x, farRightCorner.y);
 			}
-
+		}
+	}
+	displayTileGlow(position: Vector, canvasIO: CanvasIO) {
+		const center = position.multiply(WorldData.TILE_SIZE).add(WorldData.TILE_SIZE / 2, WorldData.TILE_SIZE / 2);
+		for(const direction of Directions.DIRECTIONS) {
+			const adjacentTile = this.tiles.get(position.add(Vector.unit(direction))) === "solid";
+			const right = Directions.rotateClockwise(direction);
+			const tileRight = this.tiles.get(position.add(Vector.unit(right))) === "solid";
+			const tileDiagonalRight = this.tiles.get(position.add(Vector.unit(direction)).add(Vector.unit(right))) === "solid";
 			if(!adjacentTile) {
 				const tileEdgeCenter = center.add(Vector.unit(direction).multiply(WorldData.TILE_SIZE / 2));
 				canvasIO.ctx.save();

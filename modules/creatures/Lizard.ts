@@ -71,6 +71,12 @@ export class Lizard {
 			canvasIO.drawArrow(joint.position, 10, joint.direction);
 		}
 	}
+	displayGlowEffect(canvasIO: CanvasIO) {
+		canvasIO.ctx.save();
+		this.transformToHead(canvasIO);
+		GameUtils.glowCircle(0, LizardData.EYE_Y + LizardData.HEAD_OFFSET, LizardData.LIGHT_SIZE, LizardData.LIGHT_INTENSITY, canvasIO);
+		canvasIO.ctx.restore();
+	}
 	getLegAngle(distance: number) {
 		const [, , jointBefore, jointAfter, distanceBefore, distanceAfter] = this.getPointOnBody(distance);
 		const directionBefore = (jointBefore === "head") ? this.direction : jointBefore.direction;
@@ -120,11 +126,14 @@ export class Lizard {
 			canvasIO.halfPointedLine(knee2.x, knee2.y, foot2.x, foot2.y);
 		}
 	}
+	transformToHead(canvasIO: CanvasIO) {
+		canvasIO.ctx.translate(this.position.x, this.position.y);
+		canvasIO.ctx.rotate(this.headAngle - Math.PI / 2);
+	}
 	displayHead(canvasIO: CanvasIO) {
 		const mouthEnd = new Vector(0, LizardData.HEAD_HEIGHT + LizardData.MOUTH_LENGTH + LizardData.HEAD_OFFSET).rotate(-this.mouthAngle);
 		canvasIO.ctx.save();
-		canvasIO.ctx.translate(this.position.x, this.position.y);
-		canvasIO.ctx.rotate(this.headAngle - Math.PI / 2);
+		this.transformToHead(canvasIO);
 		canvasIO.ctx.fillStyle = this.color;
 		canvasIO.fillPoly(
 			0, LizardData.HEAD_OFFSET,
@@ -138,7 +147,6 @@ export class Lizard {
 
 		canvasIO.ctx.fillStyle = LizardData.EYE_COLOR;
 		canvasIO.fillDiamond(0, LizardData.EYE_Y + LizardData.HEAD_OFFSET, LizardData.EYE_SIZE);
-		GameUtils.glowCircle(0, LizardData.EYE_Y + LizardData.HEAD_OFFSET, LizardData.LIGHT_SIZE, LizardData.LIGHT_INTENSITY, canvasIO);
 
 		canvasIO.ctx.restore();
 	}

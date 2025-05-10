@@ -87,10 +87,12 @@ export class Particle {
 				canvasIO.strokeRegularPoly(new Vector(0, 0), this.size, this.shape);
 			}
 		}
-		if(this.glowSize !== 0 && this.glowIntensity !== 0) {
-			GameUtils.glowCircle(0, 0, this.glowSize, this.glowIntensity, canvasIO);
-		}
 		canvasIO.ctx.restore();
+	}
+	displayGlow(canvasIO: CanvasIO) {
+		if(this.glowSize !== 0 && this.glowIntensity !== 0) {
+			GameUtils.glowCircle(this.position.x, this.position.y, this.glowSize, this.glowIntensity, canvasIO);
+		}
 	}
 
 	update() {

@@ -12,7 +12,7 @@ export class WorldData {
 	static TILE_ACCENT_THICKNESS = 2;
 
 	static TILE_GLOW_SIZE = 40;
-	static TILE_GLOW_INTENSITY = 0.3;
+	static TILE_GLOW_INTENSITY = 0.13;
 	static TILE_GLOW_COLOR = {
 		red: 100,
 		green: 180,
@@ -50,7 +50,7 @@ export class PlayerData {
 	static FRICTION_X = 0.7;
 
 	static GLOW_SIZE = 300;
-	static GLOW_INTENSITY = 1/4;
+	static GLOW_INTENSITY = 1/8;
 
 	static DEATH_RESET_DELAY = 90;
 	static FADE_SPEED = 0.03;
