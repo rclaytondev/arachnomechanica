@@ -1,10 +1,10 @@
-import { CanvasIO } from "../utils-ts/modules/CanvasIO.mjs";
-import { Rectangle } from "../utils-ts/modules/geometry/Rectangle.mjs";
-import { Vector } from "../utils-ts/modules/geometry/Vector.mjs";
-import { MathUtils } from "../utils-ts/modules/math/MathUtils.mjs";
-import { BackgroundData, BackgroundGearLayerData, LevelGeneratorData, RoomData, WorldData } from "./constants/GameData.mjs";
-import { GameUtils } from "./GameUtils.mjs";
-import { frameCount } from "./Main.js";
+import { CanvasIO } from "../../utils-ts/modules/CanvasIO.mjs";
+import { Rectangle } from "../../utils-ts/modules/geometry/Rectangle.mjs";
+import { Vector } from "../../utils-ts/modules/geometry/Vector.mjs";
+import { MathUtils } from "../../utils-ts/modules/math/MathUtils.mjs";
+import { BackgroundData, BackgroundGearLayerData, LevelGeneratorData, RoomData, WorldData } from "../constants/GameData.mjs";
+import { GameUtils } from "../GameUtils.mjs";
+import { frameCount } from "../Main.js";
 
 class BackgroundGear {
 	position: Vector;

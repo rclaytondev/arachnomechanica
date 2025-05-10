@@ -12,7 +12,7 @@ import { Particle } from "./Particle.mjs";
 import { Player } from "./Player.mjs";
 import { Room } from "./level-generator/Room.mjs";
 import { Gate } from "./tiles/Gate.mjs";
-import { GearsBackground } from "./GearsBackground.mjs";
+import { GearsBackground } from "./backgrounds/GearsBackground.mjs";
 
 export type Tile = (typeof WorldData.STRING_TILE_TYPES)[number] | Gate;
 
