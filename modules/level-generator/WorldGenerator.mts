@@ -22,7 +22,7 @@ export class WorldGenerator {
 				const roomPlaceholder = this.levelGenerator.rooms.get(x, y);
 				if(!roomPlaceholder) { continue; }
 				const possibleRooms = ROOMS.filter(room => room.canAdd(roomPlaceholder));
-				const room = Utils.randomItem(possibleRooms);
+				const room = GameUtils.weightedRandom(possibleRooms, possibleRooms.map(r => r.weight));
 				room.add(new Vector(
 					x * (RoomData.SIZE + LevelGeneratorData.MARGIN_X),
 					y * (RoomData.SIZE + LevelGeneratorData.MARGIN_Y)

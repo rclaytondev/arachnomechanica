@@ -59,6 +59,18 @@ export class GameUtils {
 		}
 		return result;
 	}
+	static weightedRandom<T>(items: T[], weights: number[]) {
+		const sum = MathUtils.sum(weights);
+		const randomValue = GameUtils.random(0, sum);
+		let partialSum = 0;
+		for(let i = 0; i < items.length; i ++) {
+			partialSum += weights[i];
+			if(partialSum >= randomValue) {
+				return items[i];
+			}
+		}
+		throw new Error("Unexpected: unreachable code reached in weightedRandom.");
+	}
 
 	static pastKeys: { [ key: string ]: boolean } = {};
 

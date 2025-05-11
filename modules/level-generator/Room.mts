@@ -15,8 +15,9 @@ export class Room {
 	canSpawnWithExits: (exits: Direction[]) => boolean;
 	exitTiles: Grid<Direction | "none">;
 	traversability: Traversability;
+	weight: number;
 
-	constructor(name: string, tiles: { x: number, y: number, type: Tile }[] | Grid<Tile>, exitTiles: { x: number, y: number, direction: Direction }[] | Grid<Direction | "none">, canSpawnWithExits: (exits: Direction[]) => boolean, traversability?: Traversability) {
+	constructor(name: string, tiles: { x: number, y: number, type: Tile }[] | Grid<Tile>, exitTiles: { x: number, y: number, direction: Direction }[] | Grid<Direction | "none">, canSpawnWithExits: (exits: Direction[]) => boolean, traversability?: Traversability, weight: number = 1) {
 		this.name = name;
 		if(tiles instanceof Grid) {
 			this.tiles = tiles;
@@ -38,6 +39,7 @@ export class Room {
 		}
 		this.canSpawnWithExits = canSpawnWithExits;
 		this.traversability = GateState.deduplicateTraversability((traversability ?? RoomData.NO_GATE_TRAVERSABILITY));
+		this.weight = weight;
 	}
 
 	canAdd(roomPlaceholder: RoomPlaceholder, matchTraversability: boolean = true) {
