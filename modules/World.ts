@@ -47,6 +47,11 @@ export class World {
 				canvasIO.canvas.height / (LevelGeneratorData.HEIGHT * (RoomData.SIZE + LevelGeneratorData.MARGIN_Y) * WorldData.TILE_SIZE)
 			);
 			canvasIO.ctx.scale(amount, amount);
+			visibleRegion = new Rectangle(
+				0, 0,
+				LevelGeneratorData.WIDTH * (RoomData.SIZE + LevelGeneratorData.MARGIN_X) * WorldData.TILE_SIZE,
+				LevelGeneratorData.HEIGHT * (RoomData.SIZE + LevelGeneratorData.MARGIN_Y) * WorldData.TILE_SIZE,
+			);
 		}
 		this.displayGlowEffects(canvasIO, visibleRegion);
 		if(!this.player.dead) {
@@ -56,6 +61,10 @@ export class World {
 		this.displayCreatures(canvasIO);
 		this.displayTiles(canvasIO, visibleRegion);
 		canvasIO.ctx.restore();
+
+		if(DEBUG_SETTINGS.DISPLAY_WHOLE_LEVEL) {
+			debugger;
+		}
 	}
 	applyScreenShake(canvasIO: CanvasIO) {
 		if(this.screenShakeTimer > 0) {
