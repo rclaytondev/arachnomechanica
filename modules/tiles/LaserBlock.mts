@@ -130,9 +130,6 @@ export class LaserBlock {
 				x * WorldData.TILE_SIZE
 			);
 			const y = Math.floor(position.y + 1/2 + (direction.y * distance) / WorldData.TILE_SIZE);
-			if(world.tiles.get(x - 1, y) === "solid" || world.tiles.get(x, y) === "solid") {
-				break;
-			}
 			for(const position of [new Vector(x - 1, y), new Vector(x, y)]) {
 				const tile = world.tiles.get(position.x, position.y);
 				if(tile === "solid" || (tile instanceof LaserBlock && tile !== this)) {
