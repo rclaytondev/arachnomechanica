@@ -117,6 +117,11 @@ export class LaserBlockData {
 	static LASER_THICKNESS = 5;
 	static LASER_GLOW_SIZE = 100;
 	static LASER_GLOW_INTENSITY = 0.5;
+
+	static LASERS_PER_ROOM = 0.4;
+	static SPAWN_EVENNESS = 5;
+	static MIN_SPEED = 0.01;
+	static MAX_SPEED = 0.01;
 }
 
 export class LizardData {
@@ -175,7 +180,7 @@ export class LizardData {
 	static LIGHT_SIZE = 100;
 	static LIGHT_INTENSITY = 0.3;
 
-	static LIZARDS_PER_ROOM = 0.5;
+	static LIZARDS_PER_ROOM = 0.3;
 	static MIN_LENGTH = 2;
 	static MAX_LENGTH = 7;
 	static SPAWN_EVENNESS = 7; // higher number = more evenly distributed

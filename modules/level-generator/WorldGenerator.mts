@@ -3,13 +3,14 @@ import { Rectangle } from "../../utils-ts/modules/geometry/Rectangle.mjs";
 import { Vector } from "../../utils-ts/modules/geometry/Vector.mjs";
 import { Grid } from "../../utils-ts/modules/Grid.mjs";
 import { Utils } from "../../utils-ts/modules/Utils.mjs";
-import { LevelGeneratorData, LizardData, RoomData, WorldData } from "../constants/GameData.mjs";
+import { LaserBlockData, LevelGeneratorData, LizardData, RoomData, WorldData } from "../constants/GameData.mjs";
 import { Lizard } from "../creatures/Lizard.js";
 import { GameUtils } from "../GameUtils.mjs";
 import { LevelGenerator } from "./LevelGenerator.mjs";
 import { Room } from "./Room.mjs";
 import { ROOMS } from "./Rooms.mjs";
 import { World } from "../World.js";
+import { LaserBlock } from "../tiles/LaserBlock.mjs";
 
 export class WorldGenerator {
 	levelGenerator: LevelGenerator = new LevelGenerator();
@@ -198,6 +199,33 @@ export class WorldGenerator {
 		}
 		console.log(this.world.creatures.length);
 	}
+	spawnLasers() {
+		const positions: Vector[] = [];
+		const totalLasers = Math.ceil(LevelGeneratorData.WIDTH * LevelGeneratorData.HEIGHT * LaserBlockData.LASERS_PER_ROOM);
+		let amountSpawned = 0;
+		while(amountSpawned < totalLasers) {
+			const position = GameUtils.randomEvenlySpaced(
+				new Rectangle(
+					0, 0,
+					LevelGeneratorData.WIDTH * (RoomData.SIZE + LevelGeneratorData.MARGIN_X) - LevelGeneratorData.MARGIN_X - 1,
+					LevelGeneratorData.HEIGHT * (RoomData.SIZE + LevelGeneratorData.MARGIN_Y) - LevelGeneratorData.MARGIN_Y - 1
+				),
+				positions,
+				LaserBlockData.SPAWN_EVENNESS,
+				"int"
+			);
+			const neighbors = Directions.DIRECTIONS.map(d => position.add(Vector.unit(d)));
+			const numEmpty = neighbors.filter(n => this.world.tiles.get(n) === "empty").length;
+			if(this.world.tiles.get(position) === "solid" && numEmpty >= 2) {
+				this.world.tiles.set(position, new LaserBlock(
+					Math.max(1, 4 - numEmpty),
+					GameUtils.random(LaserBlockData.MIN_SPEED, LaserBlockData.MAX_SPEED),
+					GameUtils.random(0, 2 * Math.PI)
+				));
+				amountSpawned ++;
+			}
+		}
+	}
 
 	generate() {
 		this.levelGenerator.generate();
@@ -207,6 +235,7 @@ export class WorldGenerator {
 		this.fillBoundaries();
 		this.spawnPlayer();
 		this.spawnLizards();
+		this.spawnLasers();
 		return this.world;
 	}
 }
