@@ -16,6 +16,11 @@ export class LaserBlock {
 		LaserBlockData.LASER_GLOW_INTENSITY, 
 		LaserBlockData.LASER_COLOR.red, LaserBlockData.LASER_COLOR.green, LaserBlockData.LASER_COLOR.blue
 	);
+	static circleGradient = GameUtils.glowCircleGradient(
+		0, 0,
+		LaserBlockData.LASER_GLOW_SIZE, LaserBlockData.LASER_GLOW_INTENSITY,
+		LaserBlockData.LASER_COLOR.red, LaserBlockData.LASER_COLOR.green, LaserBlockData.LASER_COLOR.blue
+	);
 
 	lasers: number;
 	speed: number;
@@ -50,6 +55,13 @@ export class LaserBlock {
 			canvasIO.ctx.fillRect(0, -LaserBlockData.LASER_GLOW_SIZE, intersectionDistance, LaserBlockData.LASER_GLOW_SIZE);
 			canvasIO.ctx.fillStyle = LaserBlock.glowLineGradient2;
 			canvasIO.ctx.fillRect(0, 0, intersectionDistance, LaserBlockData.LASER_GLOW_SIZE);
+
+			canvasIO.ctx.fillStyle = LaserBlock.circleGradient;
+			canvasIO.fillArc(0, 0, LaserBlockData.LASER_GLOW_SIZE, Math.PI / 2, 3 * Math.PI / 2);
+			
+			canvasIO.ctx.translate(intersectionDistance, 0);
+			canvasIO.fillArc(0, 0, LaserBlockData.LASER_GLOW_SIZE, -Math.PI / 2, Math.PI / 2);
+
 			canvasIO.ctx.restore();
 		}
 	}

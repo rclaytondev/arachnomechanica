@@ -114,7 +114,7 @@ export class World {
 		if(this.diagonalGlowGradient) { return this.diagonalGlowGradient; }
 		this.diagonalGlowGradient = GameUtils.glowCircleGradient(
 			0, 0, WorldData.TILE_GLOW_SIZE * WorldData.TILE_DIAGONAL_GLOW_SCALE,
-			WorldData.TILE_GLOW_INTENSITY, canvasIO,
+			WorldData.TILE_GLOW_INTENSITY,
 			WorldData.TILE_GLOW_COLOR.red, WorldData.TILE_GLOW_COLOR.green, WorldData.TILE_GLOW_COLOR.blue
 		);
 		return this.diagonalGlowGradient;

@@ -90,15 +90,17 @@ export class GameUtils {
 		return "#" + red.toString(16).padStart(2, "0") + green.toString(16).padStart(2, "0") + blue.toString(16).padStart(2, "0") + alpha.toString(16).padStart(2, "0");
 	}
 	static glowCircle(x: number, y: number, size: number, intensity: number, canvasIO: CanvasIO, red: number = 255, green: number = 255, blue: number = 255) {
-		const gradient = GameUtils.glowCircleGradient(x, y, size, intensity, canvasIO, red, green, blue);
+		const gradient = GameUtils.glowCircleGradient(x, y, size, intensity, red, green, blue);
 		canvasIO.ctx.save();
 		canvasIO.ctx.fillStyle = gradient;
 		canvasIO.ctx.globalCompositeOperation = "lighter";
 		canvasIO.fillCircle(x, y, size * 2);
 		canvasIO.ctx.restore();
 	}
-	static glowCircleGradient(x: number, y: number, size: number, intensity: number, canvasIO: CanvasIO, red: number = 255, green: number = 255, blue: number = 255) {
-		const gradient = canvasIO.ctx.createRadialGradient(x, y, 0, x, y, size);
+	static glowCircleGradient(x: number, y: number, size: number, intensity: number, red: number = 255, green: number = 255, blue: number = 255) {
+		const canvas = document.createElement("canvas");
+		const ctx = canvas.getContext("2d")!;
+		const gradient = ctx.createRadialGradient(x, y, 0, x, y, size);
 		for(let i = 0; i < 1; i += 1 / size) {
 			const color = GameUtils.hexColor(red, green, blue, Math.floor(intensity * 255 * (1 - i) ** 2));
 			gradient.addColorStop(i, color);
