@@ -78,11 +78,13 @@ export class LaserBlock {
 	screenIntersectionDistance(position: Vector, direction: Vector, world: World, canvasIO: CanvasIO) {
 		const onscreenPosition = position.add(1/2, 1/2).multiply(WorldData.TILE_SIZE);
 		const player = world.player.physicsObject.hitbox().center();
-		const xSide = (direction.x >= 0) ? 1 : -1;
-		const ySide = (direction.y >= 0) ? 1 : -1;
+		const left = player.x - canvasIO.canvas.width / 2;
+		const right = player.x + canvasIO.canvas.width / 2;
+		const top = player.y - canvasIO.canvas.height / 2;
+		const bottom = player.y + canvasIO.canvas.height / 2;
 		return Math.min(
-			GameUtils.rayIntersectsVertical(onscreenPosition, direction, player.x + xSide * canvasIO.canvas.width / 2),
-			GameUtils.rayIntersectsHorizontal(onscreenPosition, direction, player.y + ySide * canvasIO.canvas.height / 2)
+			GameUtils.rayIntersectsVSegment(onscreenPosition, direction, direction.x >= 0 ? right : left, top, bottom),
+			GameUtils.rayIntersectsHSegment(onscreenPosition, direction, direction.y >= 0 ? bottom : top, left, right)
 		);
 	}
 	tileIntersectionDistance(position: Vector, direction: Vector, world: World, maxDistance: number) {
@@ -93,7 +95,7 @@ export class LaserBlock {
 				direction,
 				x * WorldData.TILE_SIZE
 			);
-			const y = Math.floor(position.y + (direction.y * distance) / WorldData.TILE_SIZE);
+			const y = Math.floor(position.y + 1/2 + (direction.y * distance) / WorldData.TILE_SIZE);
 			if(world.tiles.get(x - 1, y) === "solid" || world.tiles.get(x, y) === "solid") {
 				result = Math.min(result, distance);
 				break;
@@ -106,7 +108,7 @@ export class LaserBlock {
 				direction,
 				y * WorldData.TILE_SIZE
 			);
-			const x = Math.floor(position.x + (direction.x * distance) / WorldData.TILE_SIZE);
+			const x = Math.floor(position.x + 1/2 + (direction.x * distance) / WorldData.TILE_SIZE);
 			if(world.tiles.get(x, y - 1) === "solid" || world.tiles.get(x, y) === "solid") {
 				result = Math.min(result, distance);
 				break;
@@ -125,6 +127,7 @@ export class LaserBlock {
 	}
 	endpointDistance(position: Vector, direction: Vector, world: World, canvasIO: CanvasIO) {
 		let distance = this.screenIntersectionDistance(position, direction, world, canvasIO);
+		if(distance === Infinity) { return 0; }
 		distance = Math.min(distance, this.tileIntersectionDistance(position, direction, world, distance));
 		return distance;
 	}

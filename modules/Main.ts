@@ -51,7 +51,9 @@ world.tiles.set(1, 1, "solid")
 world.tiles.set(2, 1, "solid")
 world.tiles.set(3, 1, "solid")
 world.tiles.set(4, 1, "solid")
-world.tiles.set(4, -1, new LaserBlock(1, 0.03, 0));
+world.tiles.set(4, -1, new LaserBlock(1, 0.03, 3 * Math.PI / 2 - 0.05));
+world.tiles.set(5, -1, "solid");
+world.tiles.set(4, -3, "solid");
 
 LevelGenerator.initializeRooms();
 
