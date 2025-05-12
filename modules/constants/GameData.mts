@@ -45,9 +45,10 @@ export class PlayerData {
 
 	static HITBOX_WIDTH = WorldData.TILE_SIZE * 0.8;
 	static HITBOX_HEIGHT = WorldData.TILE_SIZE * 0.8;
-	static GRAVITY = 0.5;
+	static GRAVITY = 1;
+	static GRAVITY_WHILE_JUMPING = 0.7;
 	static HORIZONTAL_ACCELERATION = 0.7;
-	static JUMP_VELOCITY = 12;
+	static JUMP_VELOCITY = 14;
 	static MAX_X_VELOCITY = 8;
 	static FRICTION_X = 0.7;
 
