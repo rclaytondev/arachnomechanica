@@ -105,8 +105,10 @@ export class GameUtils {
 		}
 		return gradient;
 	}
-	static glowLineGradient(x1: number, y1: number, x2: number, y2: number, intensity: number, canvasIO: CanvasIO, red: number = 255, green: number = 255, blue: number = 255) {
-		const gradient = canvasIO.ctx.createLinearGradient(x1, y1, x2, y2);
+	static glowLineGradient(x1: number, y1: number, x2: number, y2: number, intensity: number, red: number = 255, green: number = 255, blue: number = 255) {
+		const canvas = document.createElement("canvas");
+		const ctx = canvas.getContext("2d")!;
+		const gradient = ctx.createLinearGradient(x1, y1, x2, y2);
 		for(let i = 0; i < 1; i += 1 / Math.floor(Vector.dist(new Vector(x1, y1), new Vector(x2, y2)))) {
 			const color = GameUtils.hexColor(red, green, blue, Math.floor(intensity * 255 * (1 - i) ** 2));
 			gradient.addColorStop(i, color);

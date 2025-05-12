@@ -6,6 +6,17 @@ import { GameUtils } from "../GameUtils.mjs";
 import { World } from "../World";
 
 export class LaserBlock {
+	static glowLineGradient = GameUtils.glowLineGradient(
+		0, 0, 0, -LaserBlockData.LASER_GLOW_SIZE,
+		LaserBlockData.LASER_GLOW_INTENSITY, 
+		LaserBlockData.LASER_COLOR.red, LaserBlockData.LASER_COLOR.green, LaserBlockData.LASER_COLOR.blue
+	);
+	static glowLineGradient2 = GameUtils.glowLineGradient(
+		0, 0, 0, LaserBlockData.LASER_GLOW_SIZE,
+		LaserBlockData.LASER_GLOW_INTENSITY, 
+		LaserBlockData.LASER_COLOR.red, LaserBlockData.LASER_COLOR.green, LaserBlockData.LASER_COLOR.blue
+	);
+
 	lasers: number;
 	speed: number;
 	angle: number;
@@ -27,10 +38,19 @@ export class LaserBlock {
 	displayLasers(canvasIO: CanvasIO, x: number, y: number, world: World) {
 		canvasIO.ctx.lineWidth = LaserBlockData.LASER_THICKNESS;
 		const center = new Vector(x + 1/2, y + 1/2).multiply(WorldData.TILE_SIZE);
-		for(const direction of this.directions()) {
-			const intersection = this.endpoint(new Vector(x, y), direction, world, canvasIO);
-			canvasIO.ctx.strokeStyle = LaserBlockData.LASER_COLOR;
-			canvasIO.strokeLine(center.x, center.y, intersection.x, intersection.y);
+		for(const angle of this.angles()) {
+			const direction = new Vector(Math.cos(angle), Math.sin(angle));
+			const intersectionDistance = this.endpointDistance(new Vector(x, y), direction, world, canvasIO);
+			canvasIO.ctx.strokeStyle = `rgb(${LaserBlockData.LASER_COLOR.red}, ${LaserBlockData.LASER_COLOR.green}, ${LaserBlockData.LASER_COLOR.blue})`;
+			canvasIO.ctx.save();
+			canvasIO.ctx.translate(center.x, center.y);
+			canvasIO.ctx.rotate(angle);
+			canvasIO.strokeLine(0, 0, intersectionDistance, 0);
+			canvasIO.ctx.fillStyle = LaserBlock.glowLineGradient;
+			canvasIO.ctx.fillRect(0, -LaserBlockData.LASER_GLOW_SIZE, intersectionDistance, LaserBlockData.LASER_GLOW_SIZE);
+			canvasIO.ctx.fillStyle = LaserBlock.glowLineGradient2;
+			canvasIO.ctx.fillRect(0, 0, intersectionDistance, LaserBlockData.LASER_GLOW_SIZE);
+			canvasIO.ctx.restore();
 		}
 	}
 

@@ -101,11 +101,11 @@ export class World {
 			Math.ceil(center.y + (canvasIO.canvas.height / 2 / WorldData.TILE_SIZE))
 		);
 	}
-	getTileGlowGradent(canvasIO: CanvasIO) {
+	getTileGlowGradent() {
 		if(this.tileGlowGradient) { return this.tileGlowGradient; }
 		this.tileGlowGradient = GameUtils.glowLineGradient(
 			0, 0, 0, -WorldData.TILE_SIZE, 
-			WorldData.TILE_GLOW_INTENSITY, canvasIO,
+			WorldData.TILE_GLOW_INTENSITY,
 			WorldData.TILE_GLOW_COLOR.red, WorldData.TILE_GLOW_COLOR.green, WorldData.TILE_GLOW_COLOR.blue
 		);
 		return this.tileGlowGradient;
@@ -213,7 +213,7 @@ export class World {
 				canvasIO.ctx.save();
 				canvasIO.ctx.translate(tileEdgeCenter.x, tileEdgeCenter.y);
 				canvasIO.ctx.rotate(-Directions.angle(direction) + Math.PI / 2);
-				canvasIO.ctx.fillStyle = this.getTileGlowGradent(canvasIO);
+				canvasIO.ctx.fillStyle = this.getTileGlowGradent();
 				canvasIO.ctx.globalCompositeOperation = "lighter";
 				canvasIO.ctx.fillRect(-WorldData.TILE_SIZE / 2, -WorldData.TILE_GLOW_SIZE, WorldData.TILE_SIZE, WorldData.TILE_GLOW_SIZE);
 				canvasIO.ctx.restore();
