@@ -114,10 +114,34 @@ export class GameUtils {
 		return gradient;
 	}
 
-	static lineIntersectVertical(rayStart: Vector, rayDirection: Vector, verticalLineX: number) {
+	static rayIntersectsVertical(rayStart: Vector, rayDirection: Vector, verticalLineX: number) {
+		if((rayDirection.x < 0 && rayStart.x < verticalLineX) || (rayDirection.x > 0 && rayStart.x > verticalLineX)) {
+			return Infinity;
+		}
 		return (verticalLineX - rayStart.x) / rayDirection.x;
 	}
-	static lineIntersectHorizontal(rayStart: Vector, rayDirection: Vector, horizontalLineY: number) {
+	static rayIntersectsHorizontal(rayStart: Vector, rayDirection: Vector, horizontalLineY: number) {
+		if((rayDirection.y < 0 && rayStart.y < horizontalLineY) || (rayDirection.y > 0 && rayStart.y > horizontalLineY)) {
+			return Infinity;
+		}
 		return (horizontalLineY - rayStart.y) / rayDirection.y;
+	}
+	static rayIntersectsHSegment(rayStart: Vector, rayDirection: Vector, horizontalLineY: number, xStart: number, xEnd: number) {
+		const distance = GameUtils.rayIntersectsHorizontal(rayStart, rayDirection, horizontalLineY);
+		const intersectionX = rayStart.x + distance * rayDirection.x;
+		return (xStart <= intersectionX && intersectionX <= xEnd) ? distance : Infinity;
+	}
+	static rayIntersectsVSegment(rayStart: Vector, rayDirection: Vector, verticalLineX: number, yStart: number, yEnd: number) {
+		const distance = GameUtils.rayIntersectsVertical(rayStart, rayDirection, verticalLineX);
+		const intersectionY = rayStart.y + distance * rayDirection.y;
+		return (yStart <= intersectionY && intersectionY <= yEnd) ? distance : Infinity;
+	}
+	static rayIntersectsRectangle(rayStart: Vector, rayDirection: Vector, rectangle: Rectangle) {
+		return Math.min(
+			GameUtils.rayIntersectsHSegment(rayStart, rayDirection, rectangle.top(), rectangle.left(), rectangle.right()),
+			GameUtils.rayIntersectsHSegment(rayStart, rayDirection, rectangle.bottom(), rectangle.left(), rectangle.right()),
+			GameUtils.rayIntersectsVSegment(rayStart, rayDirection, rectangle.left(), rectangle.top(), rectangle.bottom()),
+			GameUtils.rayIntersectsVSegment(rayStart, rayDirection, rectangle.right(), rectangle.top(), rectangle.bottom())
+		);
 	}
 }

@@ -245,7 +245,7 @@ export class World {
 	update(canvasIO: CanvasIO) {
 		this.updateCreatures();
 		this.player.update(this, canvasIO);
-		this.updateTiles();
+		this.updateTiles(canvasIO);
 		this.updateParticles();
 		this.screenShakeTimer --;
 	}
@@ -255,10 +255,10 @@ export class World {
 		}
 		this.creatures = this.creatures.filter(c => !c.dead);
 	}
-	updateTiles() {
+	updateTiles(canvasIO: CanvasIO) {
 		for(const [tile, position] of this.tiles.entries()) {
 			if(typeof tile !== "string") {
-				tile.update(this, position.x, position.y);
+				tile.update(this, position.x, position.y, canvasIO);
 			}
 		}
 		Gate.cooldown --;
