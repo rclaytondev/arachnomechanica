@@ -124,7 +124,7 @@ export class LaserBlockData {
 	static BARREL_LENGTH = WorldData.TILE_SIZE * 0.4;
 
 	static LASERS_PER_ROOM = 0.4;
-	static SPAWN_EVENNESS = 5;
+	static SPAWN_EVENNESS = 9;
 	static MIN_SPEED = 0.01;
 	static MAX_SPEED = 0.01;
 }

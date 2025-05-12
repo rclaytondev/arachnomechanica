@@ -216,9 +216,9 @@ export class WorldGenerator {
 			);
 			const neighbors = Directions.DIRECTIONS.map(d => position.add(Vector.unit(d)));
 			const numEmpty = neighbors.filter(n => this.world.tiles.get(n) === "empty").length;
-			if(this.world.tiles.get(position) === "solid" && numEmpty >= 2) {
+			if(this.world.tiles.get(position) === "solid" && numEmpty >= 1) {
 				this.world.tiles.set(position, new LaserBlock(
-					Math.max(1, 4 - numEmpty),
+					3,
 					GameUtils.random(LaserBlockData.MIN_SPEED, LaserBlockData.MAX_SPEED),
 					GameUtils.random(0, 2 * Math.PI)
 				));
