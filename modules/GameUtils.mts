@@ -113,4 +113,11 @@ export class GameUtils {
 		}
 		return gradient;
 	}
+
+	static lineIntersectVertical(rayStart: Vector, rayDirection: Vector, verticalLineX: number) {
+		return (verticalLineX - rayStart.x) / rayDirection.x;
+	}
+	static lineIntersectHorizontal(rayStart: Vector, rayDirection: Vector, horizontalLineY: number) {
+		return (horizontalLineY - rayStart.y) / rayDirection.y;
+	}
 }

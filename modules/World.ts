@@ -54,6 +54,7 @@ export class World {
 				LevelGeneratorData.HEIGHT * (RoomData.SIZE + LevelGeneratorData.MARGIN_Y) * WorldData.TILE_SIZE,
 			);
 		}
+		this.displayLasers(canvasIO);
 		this.displayGlowEffects(canvasIO, visibleRegion);
 		if(!this.player.dead) {
 			this.player.display(canvasIO);
@@ -132,6 +133,13 @@ export class World {
 
 		for(const particle of this.particles) {
 			particle.displayGlow(canvasIO);
+		}
+	}
+	displayLasers(canvasIO: CanvasIO) {
+		for(const [tile, position] of this.tiles.entries()) {
+			if(tile instanceof LaserBlock) {
+				tile.displayLasers(canvasIO, position.x, position.y, this);
+			}
 		}
 	}
 	displayTiles(canvasIO: CanvasIO, region: Rectangle) {
@@ -249,7 +257,7 @@ export class World {
 	}
 	updateTiles() {
 		for(const [tile, position] of this.tiles.entries()) {
-			if(tile instanceof Gate) {
+			if(typeof tile !== "string") {
 				tile.update(this, position.x, position.y);
 			}
 		}
