@@ -25,6 +25,7 @@ export class LaserBlock {
 		canvasIO.ctx.fillRect(x * WorldData.TILE_SIZE, y * WorldData.TILE_SIZE, WorldData.TILE_SIZE, WorldData.TILE_SIZE);
 	}
 	displayLasers(canvasIO: CanvasIO, x: number, y: number, world: World) {
+		canvasIO.ctx.lineWidth = LaserBlockData.LASER_THICKNESS;
 		const center = new Vector(x + 1/2, y + 1/2).multiply(WorldData.TILE_SIZE);
 		for(const direction of this.directions()) {
 			const intersection = this.endpoint(new Vector(x, y), direction, world, canvasIO);

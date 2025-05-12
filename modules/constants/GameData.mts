@@ -110,6 +110,7 @@ export class GateData {
 export class LaserBlockData {
 	static COLOR = "rgb(15, 15, 15)";
 	static LASER_COLOR = "red";
+	static LASER_THICKNESS = 5;
 }
 
 export class LizardData {
