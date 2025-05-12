@@ -166,6 +166,16 @@ export class LaserBlock {
 		}
 		return result;
 	}
+	entityIntersectionDistance(position: Vector, direction: Vector, world: World) {
+		let result = Infinity;
+		const center = new Vector(position.x + 1/2, position.y + 1/2).multiply(WorldData.TILE_SIZE);
+		for(const creature of world.creatures) {
+			for(const hitbox of creature.hitboxes()) {
+				result = Math.min(result, GameUtils.rayIntersectsRectangle(center, direction, hitbox));
+			}
+		}
+		return result;
+	}
 	intersectsBox(position: Vector, direction: Vector, world: World, canvasIO: CanvasIO, box: Rectangle) {
 		const distance = this.endpointDistance(position, direction, world, canvasIO);
 		const onscreenPosition = position.add(1/2, 1/2).multiply(WorldData.TILE_SIZE);
@@ -178,6 +188,7 @@ export class LaserBlock {
 		let distance = this.screenIntersectionDistance(position, direction, world, canvasIO);
 		if(distance === Infinity) { return 0; }
 		distance = Math.min(distance, this.tileIntersectionDistance(position, direction, world, distance));
+		distance = Math.min(distance, this.entityIntersectionDistance(position, direction, world));
 		return distance;
 	}
 	endpoint(position: Vector, direction: Vector, world: World, canvasIO: CanvasIO) {
