@@ -4,6 +4,7 @@ import { Vector } from "../../utils-ts/modules/geometry/Vector.mjs";
 import { LaserBlockData, WorldData } from "../constants/GameData.mjs";
 import { GameUtils } from "../GameUtils.mjs";
 import { World } from "../World";
+import { Gate } from "./Gate.mjs";
 
 export class LaserBlock {
 	static glowLineGradient = GameUtils.glowLineGradient(
@@ -120,30 +121,46 @@ export class LaserBlock {
 		);
 	}
 	tileIntersectionDistance(position: Vector, direction: Vector, world: World, maxDistance: number) {
+		const center = position.add(1/2, 1/2).multiply(WorldData.TILE_SIZE);
 		let result = Infinity;
-		for(let x = (direction.x >= 0) ? position.x + 1 : position.x; true; x += (direction.x >= 0) ? 1 : -1) {
+		outerLoop: for(let x = (direction.x >= 0) ? position.x + 1 : position.x; true; x += (direction.x >= 0) ? 1 : -1) {
 			const distance = GameUtils.rayIntersectsVertical(
-				position.add(1/2, 1/2).multiply(WorldData.TILE_SIZE),
+				center,
 				direction,
 				x * WorldData.TILE_SIZE
 			);
 			const y = Math.floor(position.y + 1/2 + (direction.y * distance) / WorldData.TILE_SIZE);
 			if(world.tiles.get(x - 1, y) === "solid" || world.tiles.get(x, y) === "solid") {
-				result = Math.min(result, distance);
 				break;
+			}
+			for(const position of [new Vector(x - 1, y), new Vector(x, y)]) {
+				const tile = world.tiles.get(position.x, position.y);
+				if(tile === "solid" || (tile instanceof LaserBlock && tile !== this)) {
+					result = Math.min(result, distance);
+					break outerLoop;
+				}
+				else if(tile instanceof Gate) {
+					result = Math.min(result, GameUtils.rayIntersectsRectangle(center, direction, tile.getPhysicsBox(position.x, position.y)));
+				}
 			}
 			if(distance > maxDistance) { break; }
 		}
-		for(let y = (direction.y >= 0) ? position.y + 1 : position.y; true; y += (direction.y >= 0) ? 1 : -1) {
+		outerLoop: for(let y = (direction.y >= 0) ? position.y + 1 : position.y; true; y += (direction.y >= 0) ? 1 : -1) {
 			const distance = GameUtils.rayIntersectsHorizontal(
 				position.add(1/2, 1/2).multiply(WorldData.TILE_SIZE),
 				direction,
 				y * WorldData.TILE_SIZE
 			);
 			const x = Math.floor(position.x + 1/2 + (direction.x * distance) / WorldData.TILE_SIZE);
-			if(world.tiles.get(x, y - 1) === "solid" || world.tiles.get(x, y) === "solid") {
-				result = Math.min(result, distance);
-				break;
+			for(const position of [new Vector(x, y - 1), new Vector(x, y)]) {
+				const tile = world.tiles.get(position.x, position.y);
+				if(tile === "solid" || (tile instanceof LaserBlock && tile !== this)) {
+					result = Math.min(result, distance);
+					break outerLoop;
+				}
+				else if(tile instanceof Gate) {
+					result = Math.min(result, GameUtils.rayIntersectsRectangle(center, direction, tile.getPhysicsBox(position.x, position.y)));
+				}
 			}
 			if(distance > maxDistance) { break; }
 		}
