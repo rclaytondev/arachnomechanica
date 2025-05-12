@@ -64,11 +64,12 @@ export class Gate {
 			this.initialized = true;
 		}
 		this.checkPlayer(world, x, y);
-		let open = this.openness === 1;
+		let closed = this.openness === 0;
 		this.openness = GameUtils.moveTowards(this.openness, this.open ? 1 : 0, GateData.SPEED);
-		if(!open && this.openness === 1) {
+		if(!closed && this.openness === 0) {
 			world.screenShakeTimer = GateData.SCREEN_SHAKE_TIME;
 			world.screenShakeIntensity = GateData.SCREEN_SHAKE_INTENSITY;
+			this.destroyOverlapping(world, x, y);
 		}
 	}
 	getPlayerSide(player: Player, x: number, y: number) {
@@ -109,6 +110,12 @@ export class Gate {
 			if(tile instanceof Gate) {
 				tile.open = !tile.open;
 			}
+		}
+	}
+	destroyOverlapping(world: World, x: number, y: number) {
+		const box = this.getPhysicsBox(x, y);
+		for(const creature of world.creatures) {
+			creature.damage(box);
 		}
 	}
 
