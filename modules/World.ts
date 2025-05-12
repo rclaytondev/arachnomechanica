@@ -303,7 +303,8 @@ export class World {
 			const { x, y } = position;
 			if(
 				tile === "solid" ||
-				(tile instanceof Gate && tile.openness !== 1 && rectangle.intersects(tile.getPhysicsBox(x, y)))
+				(tile instanceof Gate && tile.openness !== 1 && rectangle.intersects(tile.getPhysicsBox(x, y))) ||
+				tile instanceof LaserBlock
 			) { return true; }
 		}
 		for(const lizard of this.creatures) {
