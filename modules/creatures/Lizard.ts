@@ -326,7 +326,7 @@ export class Lizard {
 		const hurtbox = this.hurtbox();
 		for(const { position, tile } of world.getTilesAt(hurtbox)) {
 			if(this.shouldDestroy(tile)){
-				world.tiles.set(position, "empty");
+				world.destroyTile(position);
 			}
 		}
 		if(world.player.physicsObject.hitbox().intersects(hurtbox)) {

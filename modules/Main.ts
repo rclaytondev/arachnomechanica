@@ -50,8 +50,10 @@ world.tiles.set(4, 1, "solid")
 world.tiles.set(4, -1, "solid");
 // ROOMS.find(r => r.name === "empty-room")!.add(new Vector(-6, -6), world, []);
 world.creatures.push(new Lizard(new Vector(75, 25), "right", 175, LizardData.SPEED));
-world.tiles.set(5, 0, new Gate("down", true));
-world.tiles.set(6, 0, "platform");
+world.tiles.set(5, 0, new Gate("down", false));
+world.tiles.set(5, 1, new Gate("up", false));
+world.tiles.set(6, 0, "solid");
+world.tiles.set(6, -1, new Gate("up", true));
 world.tiles.set(3, -1, "solid");
 world.tiles.set(4, 0, "solid");
 // world.player.physicsObject.positionInt.y -= 350;
@@ -61,9 +63,9 @@ world.tiles.set(4, 0, "solid");
 LevelGenerator.initializeRooms();
 
 export class Main {
-	static screen: World | RoomEditor = new WorldGenerator().generate();
+	// static screen: World | RoomEditor = new WorldGenerator().generate();
 	// static screen: World | RoomEditor = new RoomEditor();
-	// static screen: World | RoomEditor = world;
+	static screen: World | RoomEditor = world;
 
 	static fadingOpacity: number = 0;
 	static fadingDestination: number = 0;

@@ -304,6 +304,20 @@ export class World {
 		}
 		return false;
 	}
+	destroyTile(position: Vector) {
+		const tile = this.tiles.get(position);
+		this.tiles.set(position, "empty");
+		for(const direction of Directions.DIRECTIONS) {
+			const adjacentPosition = position.add(Vector.unit(direction));
+			const adjacentTile = this.tiles.get(adjacentPosition);
+			if(adjacentTile instanceof Gate && adjacentTile.direction === Directions.opposite(direction)) {
+				this.destroyTile(adjacentPosition);
+			}
+			else if(tile === "solid" && adjacentTile instanceof Gate && adjacentTile.direction === direction) {
+				this.destroyTile(adjacentPosition);
+			}
+		}
+	}
 
 	static isTile(value: unknown): value is Tile {
 		return (typeof value === "string" && (WorldData.STRING_TILE_TYPES as readonly string[]).includes(value))
