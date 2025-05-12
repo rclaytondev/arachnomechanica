@@ -8,6 +8,8 @@ import { Gate } from "./tiles/Gate.mjs";
 import { Tile, World } from "./World.js";
 import { WorldData } from "./constants/GameData.mjs";
 import { Rectangle } from "../utils-ts/modules/geometry/Rectangle.mjs";
+import { ROOMS } from "./level-generator/Rooms.mjs";
+import { GameUtils } from "./GameUtils.mjs";
 
 export class RoomEditor {
 	room: Room;
@@ -76,6 +78,32 @@ export class RoomEditor {
 		}
 
 		this.direction = (canvasIO.keyDirection() ?? this.direction);
+
+		if(canvasIO.keys.Equal && !GameUtils.pastKeys.Equal) {
+			this.loadNextRoom();
+		}
+		else if(canvasIO.keys.Minus && !GameUtils.pastKeys.Minus) {
+			this.loadPreviousRoom();
+		}
+	}
+	loadRoom(room: Room) {
+		this.room = room;
+		this.world = new World();
+		room.add(new Vector(0, 0), this.world, ["left", "right", "up", "down"]);
+	}
+	loadNextRoom() {
+		const index = ROOMS.indexOf(this.room);
+		if(index < ROOMS.length - 1) {
+			this.loadRoom(ROOMS[index + 1]);
+			console.log(`loaded room ${index + 1} (${ROOMS[index + 1].name}) in the editor`);
+		}
+	}
+	loadPreviousRoom() {
+		const index = ROOMS.indexOf(this.room);
+		if(index > 0) {
+			this.loadRoom(ROOMS[index - 1]);
+			console.log(`loaded room ${index - 1} (${ROOMS[index - 1].name}) in the editor`);
+		}
 	}
 
 	display(canvasIO: CanvasIO) {
