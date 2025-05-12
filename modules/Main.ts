@@ -11,6 +11,7 @@ import { ROOMS } from "./level-generator/Rooms.mjs";
 import { Gate } from "./tiles/Gate.mjs";
 import { World } from "./World.js";
 import { WorldGenerator } from "./level-generator/WorldGenerator.mjs";
+import { LaserBlock } from "./tiles/LaserBlock.mjs";
 
 const recordedRNG: number[] = [];
 let rngOverrideIndex = 0;
@@ -42,8 +43,6 @@ for(let i = 0; i < CORNER_SIZE; i ++) {
 let frameCount = 0;
 const FRAMERATE = 60;
 const world = new World();
-world.tiles.set(-1, 0, new Gate("down", true))
-world.tiles.set(-2, 0, new Gate("down", true))
 world.tiles.set(-1, 1, "solid");
 world.tiles.set(-2, 1, "solid");
 world.tiles.set(-3, 1, "solid");
@@ -52,19 +51,7 @@ world.tiles.set(1, 1, "solid")
 world.tiles.set(2, 1, "solid")
 world.tiles.set(3, 1, "solid")
 world.tiles.set(4, 1, "solid")
-world.tiles.set(4, -1, "solid");
-// ROOMS.find(r => r.name === "empty-room")!.add(new Vector(-6, -6), world, []);
-// world.creatures.push(new Lizard(new Vector(75, 25), "right", 175, LizardData.SPEED));
-world.creatures.push(new Lizard(new Vector(325, 25), "down", 175, LizardData.SPEED));
-world.tiles.set(5, 0, new Gate("down", true));
-world.tiles.set(5, 1, new Gate("up", true));
-// world.tiles.set(6, 0, "solid");
-// world.tiles.set(6, -1, new Gate("up", true));
-world.tiles.set(3, -1, "solid");
-world.tiles.set(4, 0, "solid");
-// world.player.physicsObject.positionInt.y -= 350;
-// world.creatures.push(new Lizard(new Vector(275, 25), "down", 300, LizardData.SPEED));
-// world.creatures.push(new Lizard(new Vector(25, 75), "right", 300, LizardData.SPEED));
+world.tiles.set(4, -1, new LaserBlock(1, 3, 0));
 
 LevelGenerator.initializeRooms();
 

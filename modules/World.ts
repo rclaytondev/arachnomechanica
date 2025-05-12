@@ -15,8 +15,9 @@ import { Gate } from "./tiles/Gate.mjs";
 import { GearsBackground } from "./backgrounds/GearsBackground.mjs";
 import { SkyBackground } from "./backgrounds/SkyBackground.mjs";
 import { GameUtils } from "./GameUtils.mjs";
+import { LaserBlock } from "./tiles/LaserBlock.mjs";
 
-export type Tile = (typeof WorldData.STRING_TILE_TYPES)[number] | Gate;
+export type Tile = (typeof WorldData.STRING_TILE_TYPES)[number] | Gate | LaserBlock;
 
 export class World {
 	tiles: Grid<Tile> = new Grid("empty");
@@ -332,6 +333,8 @@ export class World {
 			result.direction = Directions.reflectX(result.direction);
 			return result;
 		}
-		else { const _: never = tile; throw new Error(); }
+		else {
+			throw new Error("Cannot reflect tile.");
+		}
 	}
 }

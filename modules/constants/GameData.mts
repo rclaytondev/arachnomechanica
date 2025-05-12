@@ -107,6 +107,10 @@ export class GateData {
 	static SCREEN_SHAKE_INTENSITY = 5;
 }
 
+export class LaserBlockData {
+	static COLOR = "rgb(15, 15, 15)";
+}
+
 export class LizardData {
 	static SPEED = 3;
 	static LOOKAHEAD_WIDTH = WorldData.TILE_SIZE * 0.8;

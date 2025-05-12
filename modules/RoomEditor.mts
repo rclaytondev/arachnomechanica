@@ -157,8 +157,11 @@ export class RoomEditor {
 		if(typeof tile === "string"){
 			return `"${tile}"`;
 		}
-		else {
+		else if(tile instanceof Gate) {
 			return `new Gate("${tile.direction}", ${tile.open})`;
+		}
+		else {
+			throw new Error("Found unexpected tile in level editor.");
 		}
 	}
 	logBlocks() {
