@@ -54,8 +54,9 @@ export class World {
 				LevelGeneratorData.HEIGHT * (RoomData.SIZE + LevelGeneratorData.MARGIN_Y) * WorldData.TILE_SIZE,
 			);
 		}
-		this.displayLasers(canvasIO);
 		this.displayGlowEffects(canvasIO, visibleRegion);
+		this.displayLaserBlocks(canvasIO, visibleRegion);
+		this.displayLasers(canvasIO);
 		if(!this.player.dead) {
 			this.player.display(canvasIO);
 		}
@@ -130,9 +131,24 @@ export class World {
 				}
 			}
 		}
+		for(const [tile, position] of this.tiles.entries()) {
+			if(tile instanceof LaserBlock) {
+				tile.displayLaserGlow(canvasIO, position.x, position.y, this);
+			}
+		}
 
 		for(const particle of this.particles) {
 			particle.displayGlow(canvasIO);
+		}
+	}
+	displayLaserBlocks(canvasIO: CanvasIO, visibleRegion: Rectangle) {
+		for(let x = visibleRegion.left(); x < visibleRegion.right(); x ++) {
+			for(let y = visibleRegion.top(); y < visibleRegion.bottom(); y ++) {
+				const tile = this.tiles.get(x, y);
+				if(tile instanceof LaserBlock) {
+					tile.display(canvasIO, x, y);
+				}
+			}
 		}
 	}
 	displayLasers(canvasIO: CanvasIO) {
@@ -158,8 +174,11 @@ export class World {
 						WorldData.TILE_SIZE, WorldData.PLATFORM_THICKNESS
 					);
 				}
-				else if(tile !== "empty") {
+				else if(tile !== "empty" && !(tile instanceof LaserBlock)) {
 					tile.display(canvasIO, x, y);
+				}
+				else if(tile instanceof LaserBlock) {
+					tile.displayBarrels(canvasIO, x, y);
 				}
 			}
 		}

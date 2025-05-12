@@ -51,18 +51,38 @@ export class LaserBlock {
 			canvasIO.ctx.translate(center.x, center.y);
 			canvasIO.ctx.rotate(angle);
 			canvasIO.strokeLine(0, 0, intersectionDistance, 0);
+			canvasIO.ctx.restore();
+		}
+	}
+	displayLaserGlow(canvasIO: CanvasIO, x: number, y: number, world: World) {
+		const center = new Vector(x + 1/2, y + 1/2).multiply(WorldData.TILE_SIZE);
+		for(const angle of this.angles()) {
+			const direction = new Vector(Math.cos(angle), Math.sin(angle));
+			const intersectionDistance = this.endpointDistance(new Vector(x, y), direction, world, canvasIO);
+			canvasIO.ctx.save();
+			canvasIO.ctx.translate(center.x, center.y);
+			canvasIO.ctx.rotate(angle);
 			canvasIO.ctx.fillStyle = LaserBlock.glowLineGradient;
 			canvasIO.ctx.fillRect(0, -LaserBlockData.LASER_GLOW_SIZE, intersectionDistance, LaserBlockData.LASER_GLOW_SIZE);
 			canvasIO.ctx.fillStyle = LaserBlock.glowLineGradient2;
 			canvasIO.ctx.fillRect(0, 0, intersectionDistance, LaserBlockData.LASER_GLOW_SIZE);
-
 			canvasIO.ctx.fillStyle = LaserBlock.circleGradient;
 			canvasIO.fillArc(0, 0, LaserBlockData.LASER_GLOW_SIZE, Math.PI / 2, 3 * Math.PI / 2);
-			
 			canvasIO.ctx.translate(intersectionDistance, 0);
 			canvasIO.fillArc(0, 0, LaserBlockData.LASER_GLOW_SIZE, -Math.PI / 2, Math.PI / 2);
-
 			canvasIO.ctx.restore();
+		}
+	}
+	displayBarrels(canvasIO: CanvasIO, x: number, y: number) {
+		const center = new Vector(x + 1/2, y + 1/2).multiply(WorldData.TILE_SIZE);
+		canvasIO.ctx.strokeStyle = LaserBlockData.BARREL_COLOR;
+		canvasIO.ctx.lineWidth = LaserBlockData.BARREL_THICKNESS;
+		for(const direction of this.directions()) {
+			canvasIO.strokeLine(
+				center.x, center.y,
+				center.x + direction.x * LaserBlockData.BARREL_LENGTH,
+				center.y + direction.y * LaserBlockData.BARREL_LENGTH
+			)
 		}
 	}
 

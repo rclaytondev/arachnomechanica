@@ -119,6 +119,10 @@ export class LaserBlockData {
 	static LASER_GLOW_INTENSITY = 0.5;
 	static LASER_OFFSCREEN_DISTANCE = 100;
 
+	static BARREL_COLOR = "rgb(50, 50, 50)";
+	static BARREL_THICKNESS = WorldData.TILE_SIZE * 0.2;
+	static BARREL_LENGTH = WorldData.TILE_SIZE * 0.4;
+
 	static LASERS_PER_ROOM = 0.4;
 	static SPAWN_EVENNESS = 5;
 	static MIN_SPEED = 0.01;
