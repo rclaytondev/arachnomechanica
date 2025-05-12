@@ -53,13 +53,39 @@ export class LaserBlock {
 			GameUtils.lineIntersectHorizontal(onscreenPosition, direction, player.y + ySide * canvasIO.canvas.height / 2)
 		);
 	}
+	tileIntersectionDistance(position: Vector, direction: Vector, world: World, maxDistance: number) {
+		let result = Infinity;
+		for(let x = (direction.x >= 0) ? position.x + 1 : position.x; true; x += (direction.x >= 0) ? 1 : -1) {
+			const distance = GameUtils.lineIntersectVertical(
+				position.add(1/2, 1/2).multiply(WorldData.TILE_SIZE),
+				direction,
+				x * WorldData.TILE_SIZE
+			);
+			const y = Math.floor(position.y + (direction.y * distance) / WorldData.TILE_SIZE);
+			if(world.tiles.get(x - 1, y) === "solid" || world.tiles.get(x, y) === "solid") {
+				result = Math.min(result, distance);
+				break;
+			}
+			if(distance > maxDistance) { break; }
+		}
+		for(let y = (direction.y >= 0) ? position.y + 1 : position.y; true; y += (direction.y >= 0) ? 1 : -1) {
+			const distance = GameUtils.lineIntersectHorizontal(
+				position.add(1/2, 1/2).multiply(WorldData.TILE_SIZE),
+				direction,
+				y * WorldData.TILE_SIZE
+			);
+			const x = Math.floor(position.x + (direction.x * distance) / WorldData.TILE_SIZE);
+			if(world.tiles.get(x, y - 1) === "solid" || world.tiles.get(x, y) === "solid") {
+				result = Math.min(result, distance);
+				break;
+			}
+			if(distance > maxDistance) { break; }
+		}
+		return result;
+	}
 	endpoint(position: Vector, direction: Vector, world: World, canvasIO: CanvasIO) {
-		const distance = this.screenIntersectionDistance(
-			position,
-			direction,
-			world,
-			canvasIO
-		);
+		let distance = this.screenIntersectionDistance(position, direction, world, canvasIO);
+		distance = Math.min(distance, this.tileIntersectionDistance(position, direction, world, distance));
 		return position.add(1/2, 1/2).multiply(WorldData.TILE_SIZE).add(direction.multiply(distance));
 	}
 }
