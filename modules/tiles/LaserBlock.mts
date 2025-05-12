@@ -26,11 +26,13 @@ export class LaserBlock {
 	lasers: number;
 	speed: number;
 	angle: number;
+	lengths: number[];
 
 	constructor(lasers: number, speed: number, angle: number) {
 		this.lasers = lasers;
 		this.speed = speed;
 		this.angle = angle;
+		this.lengths = new Array(lasers).fill(0);
 	}
 
 	copy() {
@@ -44,32 +46,31 @@ export class LaserBlock {
 	displayLasers(canvasIO: CanvasIO, x: number, y: number, world: World) {
 		canvasIO.ctx.lineWidth = LaserBlockData.LASER_THICKNESS;
 		const center = new Vector(x + 1/2, y + 1/2).multiply(WorldData.TILE_SIZE);
-		for(const angle of this.angles()) {
-			const direction = new Vector(Math.cos(angle), Math.sin(angle));
-			const intersectionDistance = this.endpointDistance(new Vector(x, y), direction, world, canvasIO);
+		for(const [i, angle] of this.angles().entries()) {
+			const distance = this.lengths[i];
 			canvasIO.ctx.strokeStyle = `rgb(${LaserBlockData.LASER_COLOR.red}, ${LaserBlockData.LASER_COLOR.green}, ${LaserBlockData.LASER_COLOR.blue})`;
 			canvasIO.ctx.save();
 			canvasIO.ctx.translate(center.x, center.y);
 			canvasIO.ctx.rotate(angle);
-			canvasIO.strokeLine(0, 0, intersectionDistance, 0);
+			canvasIO.strokeLine(0, 0, distance, 0);
 			canvasIO.ctx.restore();
 		}
 	}
 	displayLaserGlow(canvasIO: CanvasIO, x: number, y: number, world: World) {
 		const center = new Vector(x + 1/2, y + 1/2).multiply(WorldData.TILE_SIZE);
-		for(const angle of this.angles()) {
+		for(const [i, angle] of this.angles().entries()) {
 			const direction = new Vector(Math.cos(angle), Math.sin(angle));
-			const intersectionDistance = this.endpointDistance(new Vector(x, y), direction, world, canvasIO);
+			const distance = this.lengths[i];
 			canvasIO.ctx.save();
 			canvasIO.ctx.translate(center.x, center.y);
 			canvasIO.ctx.rotate(angle);
 			canvasIO.ctx.fillStyle = LaserBlock.glowLineGradient;
-			canvasIO.ctx.fillRect(0, -LaserBlockData.LASER_GLOW_SIZE, intersectionDistance, LaserBlockData.LASER_GLOW_SIZE);
+			canvasIO.ctx.fillRect(0, -LaserBlockData.LASER_GLOW_SIZE, distance, LaserBlockData.LASER_GLOW_SIZE);
 			canvasIO.ctx.fillStyle = LaserBlock.glowLineGradient2;
-			canvasIO.ctx.fillRect(0, 0, intersectionDistance, LaserBlockData.LASER_GLOW_SIZE);
+			canvasIO.ctx.fillRect(0, 0, distance, LaserBlockData.LASER_GLOW_SIZE);
 			canvasIO.ctx.fillStyle = LaserBlock.circleGradient;
 			canvasIO.fillArc(0, 0, LaserBlockData.LASER_GLOW_SIZE, Math.PI / 2, 3 * Math.PI / 2);
-			canvasIO.ctx.translate(intersectionDistance, 0);
+			canvasIO.ctx.translate(distance, 0);
 			canvasIO.fillArc(0, 0, LaserBlockData.LASER_GLOW_SIZE, -Math.PI / 2, Math.PI / 2);
 			canvasIO.ctx.restore();
 		}
@@ -91,8 +92,11 @@ export class LaserBlock {
 		this.angle += this.speed;
 		
 		const player = world.player.physicsObject.hitbox();
-		for(const direction of this.directions()) {
-			if(this.intersectsBox(new Vector(x, y), direction, world, canvasIO, player)) {
+		for(const [i, direction] of this.directions().entries()) {
+			const length = this.endpointDistance(new Vector(x, y), direction, world, canvasIO);
+			this.lengths[i] = GameUtils.moveTowards(this.lengths[i], length, LaserBlockData.LASER_LINEAR_SPEED);
+			this.lengths[i] = Math.min(this.lengths[i], length);
+			if(this.intersectsBox(new Vector(x, y), direction, player, length)) {
 				world.player.damage();
 			}
 		}
@@ -173,13 +177,12 @@ export class LaserBlock {
 		}
 		return result;
 	}
-	intersectsBox(position: Vector, direction: Vector, world: World, canvasIO: CanvasIO, box: Rectangle) {
-		const distance = this.endpointDistance(position, direction, world, canvasIO);
+	intersectsBox(position: Vector, direction: Vector, box: Rectangle, length: number) {
 		const onscreenPosition = position.add(1/2, 1/2).multiply(WorldData.TILE_SIZE);
 		return GameUtils.rayIntersectsRectangle(
 			onscreenPosition, direction,
-			world.player.physicsObject.hitbox()
-		) <= distance;
+			box
+		) <= length;
 	}
 	endpointDistance(position: Vector, direction: Vector, world: World, canvasIO: CanvasIO) {
 		let distance = this.screenIntersectionDistance(position, direction, world, canvasIO);
