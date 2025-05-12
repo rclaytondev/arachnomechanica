@@ -43,6 +43,8 @@ export class LevelGeneratorData {
 export class PlayerData {
 	static COLOR = "rgb(0, 128, 0)"; // temporary
 
+	static HITBOX_WIDTH = WorldData.TILE_SIZE * 0.8;
+	static HITBOX_HEIGHT = WorldData.TILE_SIZE * 0.8;
 	static GRAVITY = 0.5;
 	static HORIZONTAL_ACCELERATION = 0.7;
 	static JUMP_VELOCITY = 12;

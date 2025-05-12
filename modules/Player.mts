@@ -10,7 +10,7 @@ import { World } from "./World.js";
 export class Player {
 	physicsObject: PhysicsObject = new PhysicsObject(
 		new Vector(0, 0), 
-		new Rectangle(0, 0, WorldData.TILE_SIZE * 0.9, WorldData.TILE_SIZE * 0.9)
+		new Rectangle(0, 0, PlayerData.HITBOX_WIDTH, PlayerData.HITBOX_HEIGHT)
 	);
 	hasDoubleJump: boolean = false;
 	dead: boolean = false;
