@@ -3,6 +3,8 @@ import { Rectangle } from "../../utils-ts/modules/geometry/Rectangle.mjs";
 import { Vector } from "../../utils-ts/modules/geometry/Vector.mjs";
 import { LaserBlockData, WorldData } from "../constants/GameData.mjs";
 import { GameUtils } from "../GameUtils.mjs";
+import { frameCount } from "../Main.js";
+import { Particle } from "../Particle.mjs";
 import { World } from "../World";
 import { Gate } from "./Gate.mjs";
 
@@ -96,6 +98,17 @@ export class LaserBlock {
 			const length = this.endpointDistance(new Vector(x, y), direction, world, canvasIO);
 			this.lengths[i] = GameUtils.moveTowards(this.lengths[i], length, LaserBlockData.LASER_LINEAR_SPEED);
 			this.lengths[i] = Math.min(this.lengths[i], length);
+			if(this.lengths[i] === length && frameCount % LaserBlockData.FRAMES_PER_PARTICLE == 0) {
+				const position = new Vector(x + 1/2, y + 1/2).multiply(WorldData.TILE_SIZE).add(direction.multiply(length));
+				world.particles.push(new Particle(
+					position,
+					new Vector(
+						GameUtils.random(-LaserBlockData.PARTICLE_SPEED, LaserBlockData.PARTICLE_SPEED),
+						GameUtils.random(-LaserBlockData.PARTICLE_SPEED, LaserBlockData.PARTICLE_SPEED),
+					),
+					LaserBlockData.PARTICLE_INFO
+				));
+			}
 			if(this.intersectsBox(new Vector(x, y), direction, player, length)) {
 				world.player.damage();
 			}

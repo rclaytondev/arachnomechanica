@@ -59,9 +59,9 @@ world.creatures.push(new Lizard(new Vector(275, -125), "left", 500, 3));
 LevelGenerator.initializeRooms();
 
 export class Main {
-	// static screen: World | RoomEditor = new WorldGenerator().generate();
+	static screen: World | RoomEditor = new WorldGenerator().generate();
 	// static screen: World | RoomEditor = new RoomEditor();
-	static screen: World | RoomEditor = world;
+	// static screen: World | RoomEditor = world;
 
 	static fadingOpacity: number = 0;
 	static fadingDestination: number = 0;

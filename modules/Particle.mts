@@ -18,6 +18,7 @@ export type ParticleSettings = {
 	solid?: boolean;
 	glowSize?: number;
 	glowIntensity?: number;
+	grayscaleColorVariance?: number;
 };
 
 export class Particle {
@@ -37,6 +38,7 @@ export class Particle {
 	solid: boolean;
 	glowSize: number;
 	glowIntensity: number;
+	glowGradient: CanvasGradient | null;
 
 	constructor(position: Vector, velocity: Vector, settings: ParticleSettings) {
 		this.position = position;
@@ -44,10 +46,19 @@ export class Particle {
 
 		this.size = settings.size;
 
-		const red = settings.color.red + GameUtils.random(-(settings.colorVariance ?? 0), settings.colorVariance ?? 0);
-		const green = settings.color.green + GameUtils.random(-(settings.colorVariance ?? 0), settings.colorVariance ?? 0);
-		const blue = settings.color.blue + GameUtils.random(-(settings.colorVariance ?? 0), settings.colorVariance ?? 0);
-		this.color = `rgb(${red}, ${green}, ${blue})`;
+		if(settings.colorVariance) {
+			const red = settings.color.red + GameUtils.random(-settings.colorVariance, settings.colorVariance);
+			const green = settings.color.green + GameUtils.random(-settings.colorVariance, settings.colorVariance);
+			const blue = settings.color.blue + GameUtils.random(-settings.colorVariance, settings.colorVariance);
+			this.color = `rgb(${red}, ${green}, ${blue})`;
+		}
+		else if(settings.grayscaleColorVariance) {
+			const offset = GameUtils.random(-settings.grayscaleColorVariance, settings.grayscaleColorVariance);
+			this.color = `rgb(${settings.color.red + offset}, ${settings.color.green + offset}, ${settings.color.blue + offset})`;
+		}
+		else {
+			this.color = `rgb(${settings.color.red}, ${settings.color.green}, ${settings.color.blue})`;
+		}
 
 		this.opacity = settings.opacity ?? 1;
 		this.opacityDecay = settings.opacityDecay ?? 1/20;
@@ -62,6 +73,7 @@ export class Particle {
 		this.solid = settings.solid ?? true;
 		this.glowSize = settings.glowSize ?? 0;
 		this.glowIntensity = settings.glowIntensity ?? 1;
+		this.glowGradient = GameUtils.glowCircleGradient(0, 0, this.glowSize, this.glowIntensity);
 	}
 
 	display(canvasIO: CanvasIO) {
@@ -90,8 +102,9 @@ export class Particle {
 		canvasIO.ctx.restore();
 	}
 	displayGlow(canvasIO: CanvasIO) {
-		if(this.glowSize !== 0 && this.glowIntensity !== 0) {
-			GameUtils.glowCircle(this.position.x, this.position.y, this.glowSize, this.glowIntensity, canvasIO);
+		if(this.glowSize !== 0 && this.glowIntensity !== 0 && this.glowGradient !== null) {
+			canvasIO.ctx.fillStyle = this.glowGradient;
+			canvasIO.fillCircle(this.position.x, this.position.y, this.glowSize);
 		}
 	}
 

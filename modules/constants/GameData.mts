@@ -110,8 +110,8 @@ export class GateData {
 export class LaserBlockData {
 	static COLOR = "rgb(15, 15, 15)";
 	static LASER_COLOR = {
-		red: 255,
-		green: 0,
+		red: 0,
+		green: 200,
 		blue: 0
 	}
 	static LASER_THICKNESS = 5;
@@ -120,14 +120,29 @@ export class LaserBlockData {
 	static LASER_OFFSCREEN_DISTANCE = 100;
 	static LASER_LINEAR_SPEED = 50;
 
+	static FRAMES_PER_PARTICLE = 4;
+	static PARTICLE_INFO: ParticleSettings = {
+		color: {
+			red: 70,
+			green: 70,
+			blue: 70,
+		},
+		grayscaleColorVariance: 5,
+		size: 7,
+		opacityDecay: 1/240,
+		glowIntensity: 1/8,
+		glowSize: 30
+	};
+	static PARTICLE_SPEED = 0.1;
+
 	static BARREL_COLOR = "rgb(50, 50, 50)";
 	static BARREL_THICKNESS = WorldData.TILE_SIZE * 0.2;
 	static BARREL_LENGTH = WorldData.TILE_SIZE * 0.4;
 
 	static LASERS_PER_ROOM = 0.4;
 	static SPAWN_EVENNESS = 9;
-	static MIN_SPEED = 0.01;
-	static MAX_SPEED = 0.01;
+	static MIN_SPEED = 0.005;
+	static MAX_SPEED = 0.005;
 }
 
 export class LizardData {
