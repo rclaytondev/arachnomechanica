@@ -2536,7 +2536,7 @@ export const ROOMS: Room[] = [
 			{ x: 11, y: 7, direction: "right" },
 			{ x: 11, y: 8, direction: "right" },
 		],
-		(exits: Direction[]) => exits.includes("left") && exits.includes("right"),
+		(exits: Direction[]) => exits.includes("left") && exits.includes("right") && !exits.includes("up") && !exits.includes("down"),
 		Room.doubleGatePath("left", "right")
 	),
 	new Room(
