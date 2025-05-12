@@ -72,16 +72,29 @@ export class Gate {
 			this.destroyOverlapping(world, x, y);
 		}
 	}
-	getPlayerSide(player: Player, x: number, y: number) {
-		const hitbox = player.physicsObject.hitbox();
+	adjacentGates(world: World, x: number, y: number, direction: Direction) {
+		let position = Vector.unit(direction).add(x, y);
+		let count = 0;
+		while(world.tiles.get(position) instanceof Gate) {
+			count ++;
+			position = position.add(Vector.unit(direction));
+		}
+		return count;
+	}
+	getPlayerSide(world: World, x: number, y: number) {
+		const hitbox = world.player.physicsObject.hitbox();
 		if(Directions.isVertical(this.direction)) {
-			const onLeft = (hitbox.right() <= x * WorldData.TILE_SIZE - GateData.TOGGLE_DISTANCE);
-			const onRight = (hitbox.x >= (x + 1) * WorldData.TILE_SIZE + GateData.TOGGLE_DISTANCE);
+			const gatesLeft = this.adjacentGates(world, x, y, "left");
+			const gatesRight = this.adjacentGates(world, x, y, "right");
+			const onLeft = (hitbox.right() <= (x - gatesLeft) * WorldData.TILE_SIZE - GateData.TOGGLE_DISTANCE);
+			const onRight = (hitbox.x >= (x + gatesRight + 1) * WorldData.TILE_SIZE + GateData.TOGGLE_DISTANCE);
 			return onLeft ? "negative" : (onRight ? "positive" : this.playerSide);
 		}
 		else {
-			const above = hitbox.bottom() <= y * WorldData.TILE_SIZE - GateData.TOGGLE_DISTANCE;
-			const below = hitbox.y >= (y + 1) * WorldData.TILE_SIZE + GateData.TOGGLE_DISTANCE;
+			const gatesAbove = this.adjacentGates(world, x, y, "up");
+			const gatesBelow = this.adjacentGates(world, x, y, "down");
+			const above = hitbox.bottom() <= (y - gatesAbove) * WorldData.TILE_SIZE - GateData.TOGGLE_DISTANCE;
+			const below = hitbox.y >= (y + gatesBelow + 1) * WorldData.TILE_SIZE + GateData.TOGGLE_DISTANCE;
 			return above ? "negative" : (below ? "positive" : this.playerSide);
 		}
 	}
@@ -93,7 +106,7 @@ export class Gate {
 		);
 
 		
-		const newSide = this.getPlayerSide(world.player, x, y);
+		const newSide = this.getPlayerSide(world, x, y);
 		const adjacentGate = world.tiles.get(Vector.unit(
 			(Directions.isVertical(this.direction))
 			? (newSide === "negative" ? "left" : "right")

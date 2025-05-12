@@ -43,8 +43,10 @@ let frameCount = 0;
 const FRAMERATE = 60;
 const world = new World();
 world.tiles.set(-1, 0, new Gate("down", true))
+world.tiles.set(-2, 0, new Gate("down", true))
 world.tiles.set(-1, 1, "solid");
 world.tiles.set(-2, 1, "solid");
+world.tiles.set(-3, 1, "solid");
 world.tiles.set(0, 1, "solid")
 world.tiles.set(1, 1, "solid")
 world.tiles.set(2, 1, "solid")
