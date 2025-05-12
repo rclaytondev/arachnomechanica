@@ -117,6 +117,7 @@ export class LaserBlockData {
 	static LASER_THICKNESS = 5;
 	static LASER_GLOW_SIZE = 100;
 	static LASER_GLOW_INTENSITY = 0.5;
+	static LASER_OFFSCREEN_DISTANCE = 100;
 
 	static LASERS_PER_ROOM = 0.4;
 	static SPAWN_EVENNESS = 5;
