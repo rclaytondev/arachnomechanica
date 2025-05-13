@@ -141,6 +141,7 @@ export class LaserBlock {
 		const center = position.add(1/2, 1/2).multiply(WorldData.TILE_SIZE);
 		let result = Infinity;
 		outerLoop: for(let x = (direction.x >= 0) ? position.x + 1 : position.x; true; x += (direction.x >= 0) ? 1 : -1) {
+			if(direction.x === 0) { break; }
 			const distance = GameUtils.rayIntersectsVertical(
 				center,
 				direction,
@@ -160,6 +161,7 @@ export class LaserBlock {
 			if(distance > maxDistance) { break; }
 		}
 		outerLoop: for(let y = (direction.y >= 0) ? position.y + 1 : position.y; true; y += (direction.y >= 0) ? 1 : -1) {
+			if(direction.y === 0) { break; }
 			const distance = GameUtils.rayIntersectsHorizontal(
 				position.add(1/2, 1/2).multiply(WorldData.TILE_SIZE),
 				direction,
