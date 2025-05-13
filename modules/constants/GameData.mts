@@ -267,4 +267,13 @@ export class BackgroundData {
 export class SpikeballData {
 	static RADIUS = WorldData.TILE_SIZE * 0.4;
 	static COLOR = "rgb(0, 0, 0)";
+	static ACCENT_COLOR = {
+		red: 255,
+		green: 255,
+		blue: 0
+	};
+	static ACCENT_THICKNESS = 2;
+	static ACCENT_RADIUS_MULTIPLIER = 0.8;
+	static GLOW_SIZE = 100;
+	static GLOW_INTENSITY = 0.6;
 }
