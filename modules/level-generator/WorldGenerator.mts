@@ -205,15 +205,9 @@ export class WorldGenerator {
 		let possiblePositions: Vector[] = [];
 		for(let x = -1; x < LevelGeneratorData.WIDTH * (RoomData.SIZE + LevelGeneratorData.MARGIN_X) + 1; x ++) {
 			for(let y = -1; y < LevelGeneratorData.HEIGHT * (RoomData.SIZE + LevelGeneratorData.MARGIN_Y) + 1; y ++) {
-				const tile = this.world.tiles.get(x, y);
-				const neighbors = Directions.DIRECTIONS.map(d => this.world.tiles.get(Vector.unit(d).add(x, y)));
-				const valid = (
-					tile === "solid" &&
-					neighbors.filter(n => n === "empty" || n === "platform").length >= 2 &&
-					!neighbors.some(n => n instanceof Gate)
-				);
-				if(valid) {
-					possiblePositions.push(new Vector(x, y));
+				const position = new Vector(x, y);
+				if(LaserBlock.canSpawn(position, this.world)) {
+					possiblePositions.push(position);
 				}
 			}
 		}

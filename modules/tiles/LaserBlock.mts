@@ -1,4 +1,5 @@
 import { CanvasIO } from "../../utils-ts/modules/CanvasIO.mjs";
+import { Directions } from "../../utils-ts/modules/geometry/Direction.mjs";
 import { Rectangle } from "../../utils-ts/modules/geometry/Rectangle.mjs";
 import { Vector } from "../../utils-ts/modules/geometry/Vector.mjs";
 import { LaserBlockData, WorldData } from "../constants/GameData.mjs";
@@ -208,5 +209,15 @@ export class LaserBlock {
 	endpoint(position: Vector, direction: Vector, world: World, canvasIO: CanvasIO) {
 		const distance = this.endpointDistance(position, direction, world, canvasIO);
 		return position.add(1/2, 1/2).multiply(WorldData.TILE_SIZE).add(direction.multiply(distance));
+	}
+
+	static canSpawn(position: Vector, world: World) {
+		const tile = world.tiles.get(position);
+		const neighbors = Directions.DIRECTIONS.map(d => world.tiles.get(Vector.unit(d).add(position)));
+		return (
+			tile === "solid" &&
+			neighbors.filter(n => n === "empty" || n === "platform").length >= 2 &&
+			!neighbors.some(n => n instanceof Gate)
+		);
 	}
 }
