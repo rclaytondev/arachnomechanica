@@ -2,6 +2,7 @@ import { CanvasIO } from "../../utils-ts/modules/CanvasIO.mjs";
 import { Directions } from "../../utils-ts/modules/geometry/Direction.mjs";
 import { Rectangle } from "../../utils-ts/modules/geometry/Rectangle.mjs";
 import { Vector } from "../../utils-ts/modules/geometry/Vector.mjs";
+import { MathUtils } from "../../utils-ts/modules/math/MathUtils.mjs";
 import { LaserBlockData, WorldData } from "../constants/GameData.mjs";
 import { GameUtils } from "../GameUtils.mjs";
 import { frameCount } from "../Main.js";
@@ -96,7 +97,7 @@ export class LaserBlock {
 		
 		const player = world.player.physicsObject.hitbox();
 		for(const [i, direction] of this.directions().entries()) {
-			const length = this.endpointDistance(new Vector(x, y), direction, world, canvasIO);
+			const length = this.endpointDistance(new Vector(x, y), direction, world, canvasIO.boundingBox());
 			this.lengths[i] = GameUtils.moveTowards(this.lengths[i], length, LaserBlockData.LASER_LINEAR_SPEED);
 			this.lengths[i] = Math.min(this.lengths[i], length);
 			if(this.lengths[i] === length && frameCount % LaserBlockData.FRAMES_PER_PARTICLE == 0) {
@@ -126,12 +127,12 @@ export class LaserBlock {
 	directions() {
 		return this.angles().map(a => new Vector(Math.cos(a), Math.sin(a)));
 	}
-	screenIntersectionDistance(position: Vector, direction: Vector, world: World, canvasIO: CanvasIO) {
+	screenIntersectionDistance(position: Vector, direction: Vector, world: World, screenSize: Rectangle) {
 		const onscreenPosition = position.add(1/2, 1/2).multiply(WorldData.TILE_SIZE);
-		const left = world.camera.x - canvasIO.canvas.width / 2 - LaserBlockData.LASER_OFFSCREEN_DISTANCE;
-		const right = world.camera.x + canvasIO.canvas.width / 2 + LaserBlockData.LASER_OFFSCREEN_DISTANCE;
-		const top = world.camera.y - canvasIO.canvas.height / 2 - LaserBlockData.LASER_OFFSCREEN_DISTANCE;
-		const bottom = world.camera.y + canvasIO.canvas.height / 2 + LaserBlockData.LASER_OFFSCREEN_DISTANCE;
+		const left = world.camera.x - screenSize.width / 2 - LaserBlockData.LASER_OFFSCREEN_DISTANCE;
+		const right = world.camera.x + screenSize.width / 2 + LaserBlockData.LASER_OFFSCREEN_DISTANCE;
+		const top = world.camera.y - screenSize.height / 2 - LaserBlockData.LASER_OFFSCREEN_DISTANCE;
+		const bottom = world.camera.y + screenSize.height / 2 + LaserBlockData.LASER_OFFSCREEN_DISTANCE;
 		return Math.min(
 			GameUtils.rayIntersectsVSegment(onscreenPosition, direction, direction.x >= 0 ? right : left, top, bottom),
 			GameUtils.rayIntersectsHSegment(onscreenPosition, direction, direction.y >= 0 ? bottom : top, left, right)
@@ -197,27 +198,43 @@ export class LaserBlock {
 		return GameUtils.rayIntersectsRectangle(
 			onscreenPosition, direction,
 			box
-		) <= length;
+		) < length;
 	}
-	endpointDistance(position: Vector, direction: Vector, world: World, canvasIO: CanvasIO) {
-		let distance = this.screenIntersectionDistance(position, direction, world, canvasIO);
+	endpointDistance(position: Vector, direction: Vector, world: World, screenSize: Rectangle) {
+		let distance = this.screenIntersectionDistance(position, direction, world, screenSize);
 		if(distance === Infinity) { return 0; }
 		distance = Math.min(distance, this.tileIntersectionDistance(position, direction, world, distance));
 		distance = Math.min(distance, this.entityIntersectionDistance(position, direction, world));
 		return distance;
 	}
-	endpoint(position: Vector, direction: Vector, world: World, canvasIO: CanvasIO) {
-		const distance = this.endpointDistance(position, direction, world, canvasIO);
+	endpoint(position: Vector, direction: Vector, world: World, screenSize: Rectangle) {
+		const distance = this.endpointDistance(position, direction, world, screenSize);
 		return position.add(1/2, 1/2).multiply(WorldData.TILE_SIZE).add(direction.multiply(distance));
 	}
 
 	static canSpawn(position: Vector, world: World) {
 		const tile = world.tiles.get(position);
 		const neighbors = Directions.DIRECTIONS.map(d => world.tiles.get(Vector.unit(d).add(position)));
-		return (
+		if(!(
 			tile === "solid" &&
 			neighbors.filter(n => n === "empty" || n === "platform").length >= 2 &&
 			!neighbors.some(n => n instanceof Gate)
+		)) { return false; }
+
+		
+		const player = world.player.physicsObject.hitbox().center();
+		const center = position.add(1/2, 1/2).multiply(WorldData.TILE_SIZE);
+		const laser = new LaserBlock(1, 0, 0);
+		const previousTile = world.tiles.get(position);
+		world.tiles.set(position, laser);
+		const distance = laser.endpointDistance(position, player.subtract(center), world, new Rectangle(0, 0, 100, 100));
+		const result = !laser.intersectsBox(
+			position,
+			player.subtract(center),
+			world.player.physicsObject.hitbox(),
+			distance
 		);
+		world.tiles.set(position, previousTile);
+		return result;
 	}
 }

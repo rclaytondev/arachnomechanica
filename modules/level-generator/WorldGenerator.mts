@@ -214,7 +214,7 @@ export class WorldGenerator {
 		const totalLasers = Math.ceil(LevelGeneratorData.WIDTH * LevelGeneratorData.HEIGHT * LaserBlockData.LASERS_PER_ROOM);
 		const positionsSpawned: Vector[] = [];
 		let amountSpawned = 0;
-		while(amountSpawned < totalLasers) {
+		while(amountSpawned < totalLasers && possiblePositions.length > 0) {
 			const next = GameUtils.randomEvenlySpaced(
 				new Rectangle(0, 0, 0, 0),
 				positionsSpawned,
@@ -223,7 +223,7 @@ export class WorldGenerator {
 				() => Utils.randomItem(possiblePositions)
 			);
 			this.world.tiles.set(next, new LaserBlock(
-				3,
+				2,
 				GameUtils.random(-LaserBlockData.MIN_SPEED, -LaserBlockData.MAX_SPEED),
 				GameUtils.random(0, 2 * Math.PI)
 			));

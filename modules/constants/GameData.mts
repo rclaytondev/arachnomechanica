@@ -151,8 +151,8 @@ export class LaserBlockData {
 
 	static LASERS_PER_ROOM = 0.4;
 	static SPAWN_EVENNESS = 9;
-	static MIN_SPEED = 0.005;
-	static MAX_SPEED = 0.005;
+	static MIN_SPEED = 0.01;
+	static MAX_SPEED = 0.01;
 }
 
 export class LizardData {
