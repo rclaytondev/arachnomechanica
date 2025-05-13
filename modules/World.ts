@@ -70,6 +70,9 @@ export class World {
 		if(DEBUG_SETTINGS.DISPLAY_WHOLE_LEVEL) {
 			debugger;
 		}
+		if(DEBUG_SETTINGS.SHOW_MOUSE_COORDINATES) {
+			this.displayMouseCoordinates(canvasIO);
+		}
 	}
 	applyScreenShake(canvasIO: CanvasIO) {
 		if(this.screenShakeTimer > 0) {
@@ -260,6 +263,14 @@ export class World {
 		for(const particle of this.particles) {
 			particle.display(canvasIO);
 		}
+	}
+	displayMouseCoordinates(canvasIO: CanvasIO) {
+		canvasIO.ctx.fillStyle = "rgb(200, 200, 200)";
+		const coordinates = canvasIO.mouse.position.subtract(this.translationToCamera(canvasIO)).divide(WorldData.TILE_SIZE).floor();
+		canvasIO.ctx.font = "20px monospace";
+		canvasIO.ctx.textAlign = "left";
+		canvasIO.ctx.textBaseline = "top";
+		canvasIO.ctx.fillText(coordinates.toString(), canvasIO.mouse.position.x, canvasIO.mouse.position.y);
 	}
 
 	update(canvasIO: CanvasIO) {
