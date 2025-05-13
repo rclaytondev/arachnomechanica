@@ -273,7 +273,12 @@ export class SpikeballData {
 		blue: 0
 	};
 	static ACCENT_THICKNESS = 2;
-	static ACCENT_RADIUS_MULTIPLIER = 0.8;
+	static ACCENT_RADIUS_MULTIPLIER = 0.7;
 	static GLOW_SIZE = 100;
 	static GLOW_INTENSITY = 0.6;
+	static NUM_SPIKES = 9;
+	static SPIKE_WIDTH = 0.3 * SpikeballData.RADIUS;
+	static SPIKE_BASE = 0.9 * SpikeballData.RADIUS;
+	static SPIKE_HEIGHT = 1.4 * SpikeballData.RADIUS;
+	static ROTATION_SPEED = 0.07;
 }

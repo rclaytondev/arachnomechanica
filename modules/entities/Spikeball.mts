@@ -13,6 +13,7 @@ export class Spikeball {
 		SpikeballData.ACCENT_COLOR.red, SpikeballData.ACCENT_COLOR.green, SpikeballData.ACCENT_COLOR.blue
 	);
 	physicsObject: PhysicsObject;
+	angle: number = 0;
 	
 	constructor(position: Vector, velocity: Vector) {
 		this.physicsObject = new PhysicsObject(
@@ -31,6 +32,23 @@ export class Spikeball {
 		canvasIO.ctx.strokeStyle = `rgb(${SpikeballData.ACCENT_COLOR.red}, ${SpikeballData.ACCENT_COLOR.green}, ${SpikeballData.ACCENT_COLOR.blue}`;
 		canvasIO.ctx.lineWidth = SpikeballData.ACCENT_THICKNESS;
 		canvasIO.strokeCircle(center.x, center.y, SpikeballData.RADIUS * SpikeballData.ACCENT_RADIUS_MULTIPLIER);
+
+		this.displaySpikes(canvasIO);
+	}
+	displaySpikes(canvasIO: CanvasIO) {
+		const center = this.physicsObject.hitbox().center();
+		for(let i = 0; i < SpikeballData.NUM_SPIKES; i ++) {
+			const angle = this.angle + i * (2 * Math.PI / SpikeballData.NUM_SPIKES);
+			canvasIO.ctx.save();
+			canvasIO.ctx.translate(center.x, center.y);
+			canvasIO.ctx.rotate(angle);
+			canvasIO.fillPoly(
+				-SpikeballData.SPIKE_WIDTH, -SpikeballData.SPIKE_BASE,
+				0, -SpikeballData.SPIKE_HEIGHT,
+				SpikeballData.SPIKE_WIDTH, -SpikeballData.SPIKE_BASE,
+			);
+			canvasIO.ctx.restore();
+		}
 	}
 	displayGlowEffect(canvasIO: CanvasIO) {
 		const center = this.physicsObject.hitbox().center();
@@ -54,6 +72,7 @@ export class Spikeball {
 			},
 			world
 		);
+		this.angle += SpikeballData.ROTATION_SPEED;
 	}
 
 	hitboxes() {
