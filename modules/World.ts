@@ -16,9 +16,10 @@ import { SkyBackground } from "./backgrounds/SkyBackground.mjs";
 import { GameUtils } from "./game-utilities/GameUtils.mjs";
 import { LaserBlock } from "./tiles/LaserBlock.mjs";
 import { Lizard } from "./entities/Lizard.js";
+import { Spikeball } from "./entities/Spikeball.mjs";
 
 export type Tile = (typeof WorldData.STRING_TILE_TYPES)[number] | Gate | LaserBlock;
-export type Entity = Lizard;
+export type Entity = Lizard | Spikeball;
 
 export class World {
 	tiles: Grid<Tile> = new Grid("empty");

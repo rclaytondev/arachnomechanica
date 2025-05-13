@@ -3,6 +3,7 @@ import { Direction, Directions } from "../../utils-ts/modules/geometry/Direction
 import { Rectangle } from "../../utils-ts/modules/geometry/Rectangle.mjs";
 import { Vector } from "../../utils-ts/modules/geometry/Vector.mjs";
 import { GateData, WorldData } from "../constants/GameData.mjs";
+import { Lizard } from "../entities/Lizard.js";
 import { GameUtils } from "../game-utilities/GameUtils.mjs";
 import { Player } from "../Player.mjs";
 import { World } from "../World.js";
@@ -128,7 +129,9 @@ export class Gate {
 	destroyOverlapping(world: World, x: number, y: number) {
 		const box = this.getPhysicsBox(x, y);
 		for(const entity of world.entities) {
-			entity.damage(box);
+			if(entity instanceof Lizard) {
+				entity.damage(box);
+			}
 		}
 	}
 

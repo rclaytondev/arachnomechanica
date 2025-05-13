@@ -264,3 +264,7 @@ export class BackgroundData {
 		}
 	];
 }
+export class SpikeballData {
+	static WIDTH = WorldData.TILE_SIZE * 0.8;
+	static HEIGHT = WorldData.TILE_SIZE * 0.8;
+}
