@@ -61,11 +61,28 @@ export class Player {
 			this.physicsObject.velocity.y = -PlayerData.JUMP_VELOCITY;
 			this.hasDoubleJump = onGround;
 		}
+
+		if(canvasIO.keys.KeyC && !GameUtils.pastKeys.KeyC) {
+			const directionX = canvasIO.keys.ArrowLeft ? -1 : (canvasIO.keys.ArrowRight ? 1 : 0);
+			const directionY = canvasIO.keys.ArrowUp ? -1 : (canvasIO.keys.ArrowDown ? 1 : 0);
+			if(directionX !== 0 || directionY !== 0) {
+				this.teleport(new Vector(directionX, directionY), world, canvasIO);
+			}
+		}
 	}
 	onGround(world: World) {
 		return !this.physicsObject.canMove("down", world);
 	}
 	damage() {
 		this.dead = true;
+	}
+
+	teleport(direction: Vector, world: World, canvasIO: CanvasIO) {
+		let box = this.physicsObject.hitbox();
+		while(!world.isInSolid(box)) {
+			box = box.translate(direction);
+		}
+		box = box.translate(direction.multiply(-1));
+		this.physicsObject.positionInt = box.center().subtract(box.width / 2, box.height / 2);
 	}
 }
