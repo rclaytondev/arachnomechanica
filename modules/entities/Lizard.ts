@@ -332,7 +332,7 @@ export class Lizard {
 		if(world.player.physicsObject.hitbox().intersects(hurtbox)) {
 			world.player.damage();
 		}
-		for(const lizard of world.creatures) {
+		for(const lizard of world.entities) {
 			lizard.damage(this.hurtbox());
 		}
 	}
@@ -458,7 +458,7 @@ export class Lizard {
 			(tile === "platform" && direction === "down") ||
 			(tile instanceof Gate && tile.openness !== 1)
 		))) { return true; }
-		if(world.creatures.some(lizard => lizard.hitboxes().some(b => b.intersects(lookaheadRectangle)))) {
+		if(world.entities.some(lizard => lizard.hitboxes().some(b => b.intersects(lookaheadRectangle)))) {
 			return true;
 		}
 		return false;

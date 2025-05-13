@@ -186,8 +186,8 @@ export class LaserBlock {
 	entityIntersectionDistance(position: Vector, direction: Vector, world: World) {
 		let result = Infinity;
 		const center = new Vector(position.x + 1/2, position.y + 1/2).multiply(WorldData.TILE_SIZE);
-		for(const creature of world.creatures) {
-			for(const hitbox of creature.hitboxes()) {
+		for(const entity of world.entities) {
+			for(const hitbox of entity.hitboxes()) {
 				result = Math.min(result, GameUtils.rayIntersectsRectangle(center, direction, hitbox));
 			}
 		}

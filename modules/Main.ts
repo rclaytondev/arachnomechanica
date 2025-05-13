@@ -2,7 +2,7 @@ import { CanvasIO, canvasIO } from "../utils-ts/modules/CanvasIO.mjs";
 import { Vector } from "../utils-ts/modules/geometry/Vector.mjs";
 import { DEBUG_SETTINGS } from "./constants/DebugSettings.mjs";
 import { LizardData, PlayerData, RoomData } from "./constants/GameData.mjs";
-import { Lizard } from "./creatures/Lizard.js";
+import { Lizard } from "./entities/Lizard.js";
 import { GameUtils } from "./game-utilities/GameUtils.mjs";
 import { LevelGenerator } from "./level-generator/LevelGenerator.mjs";
 import { Room } from "./level-generator/Room.mjs";
@@ -54,7 +54,7 @@ world.tiles.set(4, 1, "solid")
 world.tiles.set(5, -1, "solid");
 world.tiles.set(0, -1, "solid");
 world.tiles.set(4, -1, new LaserBlock(1, -0.03, 0));
-world.creatures.push(new Lizard(new Vector(275, -125), "left", 500, 3));
+world.entities.push(new Lizard(new Vector(275, -125), "left", 500, 3));
 
 LevelGenerator.initializeRooms();
 

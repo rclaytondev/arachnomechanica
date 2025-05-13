@@ -4,7 +4,7 @@ import { Vector } from "../../utils-ts/modules/geometry/Vector.mjs";
 import { Grid } from "../../utils-ts/modules/Grid.mjs";
 import { Utils } from "../../utils-ts/modules/Utils.mjs";
 import { LaserBlockData, LevelGeneratorData, LizardData, RoomData, WorldData } from "../constants/GameData.mjs";
-import { Lizard } from "../creatures/Lizard.js";
+import { Lizard } from "../entities/Lizard.js";
 import { GameUtils } from "../game-utilities/GameUtils.mjs";
 import { LevelGenerator } from "./LevelGenerator.mjs";
 import { Room } from "./Room.mjs";
@@ -194,12 +194,12 @@ export class WorldGenerator {
 				direction, (length + 1/2) * WorldData.TILE_SIZE, LizardData.SPEED
 			);
 			if(lizard.canSpawn(this.world)) {
-				this.world.creatures.push(lizard);
+				this.world.entities.push(lizard);
 				positions.push(position);
 				amountSpawned ++;
 			}
 		}
-		console.log(this.world.creatures.length);
+		console.log(this.world.entities.length);
 	}
 	spawnLasers() {
 		let possiblePositions: Vector[] = [];

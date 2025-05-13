@@ -3,7 +3,6 @@ import { Directions } from "../utils-ts/modules/geometry/Direction.mjs";
 import { Rectangle } from "../utils-ts/modules/geometry/Rectangle.mjs";
 import { Vector } from "../utils-ts/modules/geometry/Vector.mjs";
 import { Grid } from "../utils-ts/modules/Grid.mjs";
-import { Creature } from "./creatures/Creature.js";
 import { BackgroundData, LevelGeneratorData, RoomData, WorldData } from "./constants/GameData.mjs";
 import { LevelGenerator } from "./level-generator/LevelGenerator.mjs";
 import { Main } from "./Main.js";
@@ -16,12 +15,14 @@ import { GearsBackground } from "./backgrounds/GearsBackground.mjs";
 import { SkyBackground } from "./backgrounds/SkyBackground.mjs";
 import { GameUtils } from "./game-utilities/GameUtils.mjs";
 import { LaserBlock } from "./tiles/LaserBlock.mjs";
+import { Lizard } from "./entities/Lizard.js";
 
 export type Tile = (typeof WorldData.STRING_TILE_TYPES)[number] | Gate | LaserBlock;
+export type Entity = Lizard;
 
 export class World {
 	tiles: Grid<Tile> = new Grid("empty");
-	creatures: Creature[] = [];
+	entities: Entity[] = [];
 	particles: Particle[] = [];
 	gearsBackground: GearsBackground = GearsBackground.generate();
 	skyBackground: SkyBackground = new SkyBackground();
@@ -62,7 +63,7 @@ export class World {
 			this.player.display(canvasIO);
 		}
 		this.displayParticles(canvasIO);
-		this.displayCreatures(canvasIO);
+		this.displayEntities(canvasIO);
 		this.displayTiles(canvasIO, visibleRegion);
 		canvasIO.ctx.restore();
 		this.player.displayEnergyBar(canvasIO);
@@ -125,8 +126,8 @@ export class World {
 		return this.diagonalGlowGradient;
 	}
 	displayGlowEffects(canvasIO: CanvasIO, visibleRegion: Rectangle) {
-		for(const creature of this.creatures) {
-			creature.displayGlowEffect(canvasIO);
+		for(const entity of this.entities) {
+			entity.displayGlowEffect(canvasIO);
 		}
 		for(let x = visibleRegion.left(); x < visibleRegion.right(); x ++) {
 			for(let y = visibleRegion.top(); y < visibleRegion.bottom(); y ++) {
@@ -254,9 +255,9 @@ export class World {
 			}
 		}
 	}
-	displayCreatures(canvasIO: CanvasIO) {
-		for(const creature of this.creatures) {
-			creature.display(canvasIO);
+	displayEntities(canvasIO: CanvasIO) {
+		for(const entity of this.entities) {
+			entity.display(canvasIO);
 		}
 	}
 	displayParticles(canvasIO: CanvasIO) {
@@ -274,18 +275,18 @@ export class World {
 	}
 
 	update(canvasIO: CanvasIO) {
-		this.updateCreatures();
+		this.updateEntities();
 		this.player.update(this, canvasIO);
 		this.updateTiles(canvasIO);
 		this.updateParticles();
 		this.screenShakeTimer --;
 		this.updateCamera();
 	}
-	updateCreatures() {
-		for(const creature of this.creatures) {
-			creature.update(this);
+	updateEntities() {
+		for(const entity of this.entities) {
+			entity.update(this);
 		}
-		this.creatures = this.creatures.filter(c => !c.dead);
+		this.entities = this.entities.filter(c => !c.dead);
 	}
 	updateTiles(canvasIO: CanvasIO) {
 		for(const [tile, position] of this.tiles.entries()) {
@@ -342,7 +343,7 @@ export class World {
 				tile instanceof LaserBlock
 			) { return true; }
 		}
-		for(const lizard of this.creatures) {
+		for(const lizard of this.entities) {
 			if(lizard.hitboxes().some(b => rectangle.intersects(b))) {
 				return true;
 			}

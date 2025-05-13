@@ -127,8 +127,8 @@ export class Gate {
 	}
 	destroyOverlapping(world: World, x: number, y: number) {
 		const box = this.getPhysicsBox(x, y);
-		for(const creature of world.creatures) {
-			creature.damage(box);
+		for(const entity of world.entities) {
+			entity.damage(box);
 		}
 	}
 
