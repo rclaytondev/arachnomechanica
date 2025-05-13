@@ -1,5 +1,5 @@
-import { CanvasIO } from "../utils-ts/modules/CanvasIO.mjs";
-import { Vector } from "../utils-ts/modules/geometry/Vector.mjs";
+import { CanvasIO } from "../../utils-ts/modules/CanvasIO.mjs";
+import { Vector } from "../../utils-ts/modules/geometry/Vector.mjs";
 import { GameUtils } from "./GameUtils.mjs";
 
 export type ParticleSettings = {

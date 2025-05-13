@@ -9,7 +9,7 @@ import { Tile, World } from "./World.js";
 import { WorldData } from "./constants/GameData.mjs";
 import { Rectangle } from "../utils-ts/modules/geometry/Rectangle.mjs";
 import { ROOMS } from "./level-generator/Rooms.mjs";
-import { GameUtils } from "./GameUtils.mjs";
+import { GameUtils } from "./game-utilities/GameUtils.mjs";
 
 export class RoomEditor {
 	room: Room;

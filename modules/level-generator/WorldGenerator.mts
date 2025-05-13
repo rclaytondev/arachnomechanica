@@ -5,7 +5,7 @@ import { Grid } from "../../utils-ts/modules/Grid.mjs";
 import { Utils } from "../../utils-ts/modules/Utils.mjs";
 import { LaserBlockData, LevelGeneratorData, LizardData, RoomData, WorldData } from "../constants/GameData.mjs";
 import { Lizard } from "../creatures/Lizard.js";
-import { GameUtils } from "../GameUtils.mjs";
+import { GameUtils } from "../game-utilities/GameUtils.mjs";
 import { LevelGenerator } from "./LevelGenerator.mjs";
 import { Room } from "./Room.mjs";
 import { ROOMS } from "./Rooms.mjs";

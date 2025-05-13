@@ -1,8 +1,8 @@
-import { Direction } from "../utils-ts/modules/geometry/Direction.mjs";
-import { Rectangle } from "../utils-ts/modules/geometry/Rectangle.mjs";
-import { Vector } from "../utils-ts/modules/geometry/Vector.mjs";
-import { WorldData } from "./constants/GameData.mjs";
-import { World } from "./World.js";
+import { Direction } from "../../utils-ts/modules/geometry/Direction.mjs";
+import { Rectangle } from "../../utils-ts/modules/geometry/Rectangle.mjs";
+import { Vector } from "../../utils-ts/modules/geometry/Vector.mjs";
+import { WorldData } from "../constants/GameData.mjs";
+import { World } from "../World.js";
 
 export class PhysicsObject {
 	positionInt: Vector;

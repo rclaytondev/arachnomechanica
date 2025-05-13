@@ -1,9 +1,9 @@
-import { CanvasIO } from "../utils-ts/modules/CanvasIO.mjs";
-import { Direction, Directions } from "../utils-ts/modules/geometry/Direction.mjs";
-import { Rectangle } from "../utils-ts/modules/geometry/Rectangle.mjs";
-import { Vector } from "../utils-ts/modules/geometry/Vector.mjs";
-import { MathUtils } from "../utils-ts/modules/math/MathUtils.mjs";
-import { Utils } from "../utils-ts/modules/Utils.mjs";
+import { CanvasIO } from "../../utils-ts/modules/CanvasIO.mjs";
+import { Direction, Directions } from "../../utils-ts/modules/geometry/Direction.mjs";
+import { Rectangle } from "../../utils-ts/modules/geometry/Rectangle.mjs";
+import { Vector } from "../../utils-ts/modules/geometry/Vector.mjs";
+import { MathUtils } from "../../utils-ts/modules/math/MathUtils.mjs";
+import { Utils } from "../../utils-ts/modules/Utils.mjs";
 
 export class GameUtils {
 	static moveTowards(value: number, target: number, speed: number) {

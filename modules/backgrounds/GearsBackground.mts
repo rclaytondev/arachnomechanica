@@ -3,7 +3,7 @@ import { Rectangle } from "../../utils-ts/modules/geometry/Rectangle.mjs";
 import { Vector } from "../../utils-ts/modules/geometry/Vector.mjs";
 import { MathUtils } from "../../utils-ts/modules/math/MathUtils.mjs";
 import { BackgroundData, BackgroundGearLayerData, LevelGeneratorData, RoomData, WorldData } from "../constants/GameData.mjs";
-import { GameUtils } from "../GameUtils.mjs";
+import { GameUtils } from "../game-utilities/GameUtils.mjs";
 import { frameCount } from "../Main.js";
 
 class BackgroundGear {

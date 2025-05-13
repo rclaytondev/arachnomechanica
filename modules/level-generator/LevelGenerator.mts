@@ -1,7 +1,7 @@
 import { Direction, Directions } from "../../utils-ts/modules/geometry/Direction.mjs";
 import { Vector } from "../../utils-ts/modules/geometry/Vector.mjs";
 import { Utils } from "../../utils-ts/modules/Utils.mjs";
-import { GameUtils } from "../GameUtils.mjs";
+import { GameUtils } from "../game-utilities/GameUtils.mjs";
 import { Traversability } from "./Room.mjs";
 import { GateState } from "./GateState.mjs";
 import { ROOMS } from "./Rooms.mjs";

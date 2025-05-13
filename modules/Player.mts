@@ -3,8 +3,8 @@ import { Rectangle } from "../utils-ts/modules/geometry/Rectangle.mjs";
 import { Vector } from "../utils-ts/modules/geometry/Vector.mjs";
 import { MathUtils } from "../utils-ts/modules/math/MathUtils.mjs";
 import { PlayerData, WorldData } from "./constants/GameData.mjs";
-import { GameUtils } from "./GameUtils.mjs";
-import { PhysicsObject } from "./PhysicsObject.mjs";
+import { GameUtils } from "./game-utilities/GameUtils.mjs";
+import { PhysicsObject } from "./game-utilities/PhysicsObject.mjs";
 import { World } from "./World.js";
 
 export class Player {

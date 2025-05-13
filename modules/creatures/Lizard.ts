@@ -3,13 +3,13 @@ import { Direction, Directions } from "../../utils-ts/modules/geometry/Direction
 import { Vector } from "../../utils-ts/modules/geometry/Vector.mjs";
 import { MathUtils } from "../../utils-ts/modules/math/MathUtils.mjs";
 import { Utils } from "../../utils-ts/modules/Utils.mjs";
-import { GameUtils } from "../GameUtils.mjs";
+import { GameUtils } from "../game-utilities/GameUtils.mjs";
 import { DEBUG_SETTINGS } from "../constants/DebugSettings.mjs";
 import { Tile, World } from "../World.js";
 import { frameCount } from "../Main.js";
 import { Rectangle } from "../../utils-ts/modules/geometry/Rectangle.mjs";
 import { Gate } from "../tiles/Gate.mjs";
-import { Particle, ParticleSettings } from "../Particle.mjs";
+import { Particle, ParticleSettings } from "../game-utilities/Particle.mjs";
 import { LizardData, WorldData } from "../constants/GameData.mjs";
 
 type Joint = { position: Vector, direction: Direction };

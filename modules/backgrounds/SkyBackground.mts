@@ -2,7 +2,7 @@ import { CanvasIO } from "../../utils-ts/modules/CanvasIO.mjs";
 import { Rectangle } from "../../utils-ts/modules/geometry/Rectangle.mjs";
 import { Vector } from "../../utils-ts/modules/geometry/Vector.mjs";
 import { BackgroundData } from "../constants/GameData.mjs";
-import { GameUtils } from "../GameUtils.mjs";
+import { GameUtils } from "../game-utilities/GameUtils.mjs";
 
 export class SkyBackground {
 	stars: Vector[] = [];

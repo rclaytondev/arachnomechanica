@@ -4,9 +4,9 @@ import { Rectangle } from "../../utils-ts/modules/geometry/Rectangle.mjs";
 import { Vector } from "../../utils-ts/modules/geometry/Vector.mjs";
 import { MathUtils } from "../../utils-ts/modules/math/MathUtils.mjs";
 import { LaserBlockData, WorldData } from "../constants/GameData.mjs";
-import { GameUtils } from "../GameUtils.mjs";
+import { GameUtils } from "../game-utilities/GameUtils.mjs";
 import { frameCount } from "../Main.js";
-import { Particle } from "../Particle.mjs";
+import { Particle } from "../game-utilities/Particle.mjs";
 import { World } from "../World";
 import { Gate } from "./Gate.mjs";
 

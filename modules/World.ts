@@ -8,13 +8,13 @@ import { BackgroundData, LevelGeneratorData, RoomData, WorldData } from "./const
 import { LevelGenerator } from "./level-generator/LevelGenerator.mjs";
 import { Main } from "./Main.js";
 import { DEBUG_SETTINGS } from "./constants/DebugSettings.mjs";
-import { Particle } from "./Particle.mjs";
+import { Particle } from "./game-utilities/Particle.mjs";
 import { Player } from "./Player.mjs";
 import { Room } from "./level-generator/Room.mjs";
 import { Gate } from "./tiles/Gate.mjs";
 import { GearsBackground } from "./backgrounds/GearsBackground.mjs";
 import { SkyBackground } from "./backgrounds/SkyBackground.mjs";
-import { GameUtils } from "./GameUtils.mjs";
+import { GameUtils } from "./game-utilities/GameUtils.mjs";
 import { LaserBlock } from "./tiles/LaserBlock.mjs";
 
 export type Tile = (typeof WorldData.STRING_TILE_TYPES)[number] | Gate | LaserBlock;
