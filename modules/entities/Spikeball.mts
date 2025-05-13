@@ -73,6 +73,9 @@ export class Spikeball {
 			world
 		);
 		this.angle += SpikeballData.ROTATION_SPEED;
+		if(this.physicsObject.hitbox().intersects(world.player.physicsObject.hitbox())) {
+			world.player.damage();
+		}
 	}
 
 	hitboxes() {

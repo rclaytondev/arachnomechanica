@@ -3,9 +3,10 @@ import { Rectangle } from "../utils-ts/modules/geometry/Rectangle.mjs";
 import { Vector } from "../utils-ts/modules/geometry/Vector.mjs";
 import { MathUtils } from "../utils-ts/modules/math/MathUtils.mjs";
 import { PlayerData, WorldData } from "./constants/GameData.mjs";
+import { Spikeball } from "./entities/Spikeball.mjs";
 import { GameUtils } from "./game-utilities/GameUtils.mjs";
 import { PhysicsObject } from "./game-utilities/PhysicsObject.mjs";
-import { World } from "./World.js";
+import { Entity, Tile, World } from "./World.js";
 
 export class Player {
 	physicsObject: PhysicsObject = new PhysicsObject(
@@ -18,7 +19,7 @@ export class Player {
 	energy: number = PlayerData.MAX_ENERGY;
 
 	constructor() {
-		
+		this.physicsObject.collides = (object: Entity | { x: number, y: number, tile: Tile }) => !(object instanceof Spikeball);
 	}
 
 	display(canvasIO: CanvasIO) {
