@@ -15,6 +15,7 @@ export class Player {
 	hasDoubleJump: boolean = false;
 	dead: boolean = false;
 	timeSinceDeath: number = 0;
+	energy: number = PlayerData.MAX_ENERGY;
 
 	constructor() {
 		
@@ -25,6 +26,16 @@ export class Player {
 		canvasIO.fillRect(this.physicsObject.hitbox());
 		const center = this.physicsObject.hitbox().center();
 		GameUtils.glowCircle(center.x, center.y, PlayerData.GLOW_SIZE, PlayerData.GLOW_INTENSITY, canvasIO);
+	}
+	displayEnergyBar(canvasIO: CanvasIO) {
+		canvasIO.ctx.fillStyle = PlayerData.ENERGY_BAR_COLOR;
+		canvasIO.fillRect(PlayerData.ENERGY_BAR);
+		canvasIO.ctx.fillStyle = PlayerData.ENERGY_COLOR;
+		canvasIO.ctx.fillRect(
+			PlayerData.ENERGY_BAR.x, PlayerData.ENERGY_BAR.y,
+			this.energy / PlayerData.MAX_ENERGY * PlayerData.ENERGY_BAR.width,
+			PlayerData.ENERGY_BAR.height
+		);
 	}
 
 	update(world: World, canvasIO: CanvasIO) {

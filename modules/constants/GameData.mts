@@ -3,6 +3,7 @@ import { ParticleSettings } from "../Particle.mjs";
 import { Room, Traversability } from "../level-generator/Room.mjs";
 import { GateState } from "../level-generator/GateState.mjs";
 import { World } from "../World";
+import { Rectangle } from "../../utils-ts/modules/geometry/Rectangle.mjs";
 
 export class WorldData {
 	static TILE_SIZE = 50;
@@ -58,6 +59,11 @@ export class PlayerData {
 	static DEATH_RESET_DELAY = 90;
 	static FADE_SPEED = 0.03;
 	static FADE_DELAY = 30;
+
+	static MAX_ENERGY = 100;
+	static ENERGY_BAR = new Rectangle(10, 10, 200, 20);
+	static ENERGY_BAR_COLOR = "rgb(160, 160, 160)";
+	static ENERGY_COLOR = "rgb(0, 128, 255)";
 }
 
 export class RoomData {

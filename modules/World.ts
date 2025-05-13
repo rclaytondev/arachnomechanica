@@ -64,6 +64,7 @@ export class World {
 		this.displayCreatures(canvasIO);
 		this.displayTiles(canvasIO, visibleRegion);
 		canvasIO.ctx.restore();
+		this.player.displayEnergyBar(canvasIO);
 
 		if(DEBUG_SETTINGS.DISPLAY_WHOLE_LEVEL) {
 			debugger;
