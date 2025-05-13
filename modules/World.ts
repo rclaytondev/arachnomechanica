@@ -29,6 +29,7 @@ export class World {
 	diagonalGlowGradient: CanvasGradient | null = null;
 	screenShakeTimer: number = 0;
 	screenShakeIntensity: number = 0;
+	camera: Vector = new Vector(0, 0);
 
 	player: Player = new Player();
 
@@ -39,7 +40,7 @@ export class World {
 		canvasIO.ctx.save();
 		this.applyScreenShake(canvasIO);
 		if(Main.screen instanceof World && !DEBUG_SETTINGS.DISPLAY_WHOLE_LEVEL) {
-			const translation = this.translationToPlayer(canvasIO);
+			const translation = this.translationToCamera(canvasIO);
 			canvasIO.ctx.translate(translation.x, translation.y);
 		}
 		if(Main.screen instanceof World && DEBUG_SETTINGS.DISPLAY_WHOLE_LEVEL) {
@@ -84,18 +85,17 @@ export class World {
 			-LevelGeneratorData.BORDER_X, -LevelGeneratorData.BORDER_Y,
 			LevelGeneratorData.WIDTH * (RoomData.SIZE + LevelGeneratorData.MARGIN_X) * WorldData.TILE_SIZE + 2 * LevelGeneratorData.BORDER_X,
 			LevelGeneratorData.HEIGHT * (RoomData.SIZE + LevelGeneratorData.MARGIN_X) * WorldData.TILE_SIZE + 2 * LevelGeneratorData.BORDER_Y,
-		).translate(this.translationToPlayer(canvasIO));
+		).translate(this.translationToCamera(canvasIO));
 		canvasIO.clipRect(rectangle.x, rectangle.y, rectangle.width, rectangle.height);
 		canvasIO.fillCanvas(BackgroundData.BACKGROUND_COLOR);
-		this.gearsBackground.display(canvasIO, this.player.physicsObject.hitbox().center());
+		this.gearsBackground.display(canvasIO, this.camera);
 		canvasIO.ctx.restore();
 	}
-	translationToPlayer(canvasIO: CanvasIO) {
-		const playerPosition = this.player.physicsObject.hitbox().center();
-		return new Vector(canvasIO.canvas.width / 2 - playerPosition.x, canvasIO.canvas.height / 2 - playerPosition.y);
+	translationToCamera(canvasIO: CanvasIO) {
+		return new Vector(canvasIO.canvas.width / 2 - this.camera.x, canvasIO.canvas.height / 2 - this.camera.y);
 	}
 	visibleRegion(canvasIO: CanvasIO) {
-		const center = this.player.physicsObject.hitbox().center().divide(WorldData.TILE_SIZE);
+		const center = this.camera.divide(WorldData.TILE_SIZE);
 		return Rectangle.fromBounds(
 			Math.floor(center.x - (canvasIO.canvas.width / 2 / WorldData.TILE_SIZE)),
 			Math.ceil(center.x + (canvasIO.canvas.width / 2 / WorldData.TILE_SIZE)),
@@ -268,6 +268,7 @@ export class World {
 		this.updateTiles(canvasIO);
 		this.updateParticles();
 		this.screenShakeTimer --;
+		this.updateCamera();
 	}
 	updateCreatures() {
 		for(const creature of this.creatures) {
@@ -288,6 +289,9 @@ export class World {
 			particle.update();
 		}
 		this.particles = this.particles.filter(p => !p.isDead());
+	}
+	updateCamera() {
+		this.camera = GameUtils.moveVectorTowards(this.camera, this.player.physicsObject.hitbox().center(), WorldData.CAMERA_SPEED);
 	}
 
 	getTileX(onscreenX: number) {

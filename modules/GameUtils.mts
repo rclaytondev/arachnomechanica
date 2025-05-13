@@ -14,6 +14,14 @@ export class GameUtils {
 			return Math.max(value - speed, target);
 		}
 	}
+	static moveVectorTowards(value: Vector, target: Vector, speed: number) {
+		const distance = Vector.dist(value, target);
+		if(distance <= speed) {
+			return target;
+		}
+		const direction = target.subtract(value).normalize();
+		return value.add(direction.multiply(speed));
+	}
 	static lerp(value: number, min1: number, max1: number, min2: number, max2: number) {
 		return (value - min1) / (max1 - min1) * (max2 - min2) + min2;
 	}

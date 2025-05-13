@@ -168,6 +168,7 @@ export class WorldGenerator {
 		}
 		const tile = Utils.randomItem(emptyTiles);
 		this.world.player.physicsObject.positionInt = tile.multiply(WorldData.TILE_SIZE)
+		this.world.camera = this.world.player.physicsObject.hitbox().center();
 	}
 	
 	spawnLizards() {

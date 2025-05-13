@@ -127,11 +127,10 @@ export class LaserBlock {
 	}
 	screenIntersectionDistance(position: Vector, direction: Vector, world: World, canvasIO: CanvasIO) {
 		const onscreenPosition = position.add(1/2, 1/2).multiply(WorldData.TILE_SIZE);
-		const player = world.player.physicsObject.hitbox().center();
-		const left = player.x - canvasIO.canvas.width / 2 - LaserBlockData.LASER_OFFSCREEN_DISTANCE;
-		const right = player.x + canvasIO.canvas.width / 2 + LaserBlockData.LASER_OFFSCREEN_DISTANCE;
-		const top = player.y - canvasIO.canvas.height / 2 - LaserBlockData.LASER_OFFSCREEN_DISTANCE;
-		const bottom = player.y + canvasIO.canvas.height / 2 + LaserBlockData.LASER_OFFSCREEN_DISTANCE;
+		const left = world.camera.x - canvasIO.canvas.width / 2 - LaserBlockData.LASER_OFFSCREEN_DISTANCE;
+		const right = world.camera.x + canvasIO.canvas.width / 2 + LaserBlockData.LASER_OFFSCREEN_DISTANCE;
+		const top = world.camera.y - canvasIO.canvas.height / 2 - LaserBlockData.LASER_OFFSCREEN_DISTANCE;
+		const bottom = world.camera.y + canvasIO.canvas.height / 2 + LaserBlockData.LASER_OFFSCREEN_DISTANCE;
 		return Math.min(
 			GameUtils.rayIntersectsVSegment(onscreenPosition, direction, direction.x >= 0 ? right : left, top, bottom),
 			GameUtils.rayIntersectsHSegment(onscreenPosition, direction, direction.y >= 0 ? bottom : top, left, right)

@@ -84,10 +84,10 @@ class GearLayer {
 		this.gears = gears;
 	}
 
-	display(playerPosition: Vector, canvasIO: CanvasIO) {
+	display(cameraPosition: Vector, canvasIO: CanvasIO) {
 		canvasIO.ctx.save();
 		for(const gear of this.gears) {
-			const position = gear.position.subtract(playerPosition).multiply(this.parallax).add(canvasIO.canvas.width / 2, canvasIO.canvas.height / 2);
+			const position = gear.position.subtract(cameraPosition).multiply(this.parallax).add(canvasIO.canvas.width / 2, canvasIO.canvas.height / 2);
 			if(BackgroundGear.isVisible(position, gear.size, canvasIO)) {
 				gear.display(position, this.blur, canvasIO);
 			}
@@ -137,9 +137,9 @@ export class GearsBackground {
 		this.layers = layers;
 	}
 
-	display(canvasIO: CanvasIO, playerPosition: Vector) {
+	display(canvasIO: CanvasIO, cameraPosition: Vector) {
 		for(let i = this.layers.length - 1; i >= 0; i --) {
-			this.layers[i].display(playerPosition, canvasIO);
+			this.layers[i].display(cameraPosition, canvasIO);
 		}
 	}
 
