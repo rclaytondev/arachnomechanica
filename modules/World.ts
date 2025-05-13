@@ -287,7 +287,7 @@ export class World {
 		for(const entity of this.entities) {
 			entity.update(this);
 		}
-		this.entities = this.entities.filter(c => !c.dead);
+		this.entities = this.entities.filter(c => !(c instanceof Lizard) || !c.dead);
 	}
 	updateTiles(canvasIO: CanvasIO) {
 		for(const [tile, position] of this.tiles.entries()) {
@@ -335,17 +335,17 @@ export class World {
 		}
 		return tiles;
 	}
-	isInSolid(rectangle: Rectangle) {
+	isInSolid(rectangle: Rectangle, collides: (object: { x: number, y: number, tile: Tile } | Entity) => boolean = () => true) {
 		for(const { position, tile } of this.getTilesAt(rectangle)) {
 			const { x, y } = position;
-			if(
+			if(collides({ x, y, tile }) && (
 				tile === "solid" ||
 				(tile instanceof Gate && tile.openness !== 1 && rectangle.intersects(tile.getPhysicsBox(x, y))) ||
 				tile instanceof LaserBlock
-			) { return true; }
+			)) { return true; }
 		}
-		for(const lizard of this.entities) {
-			if(lizard.hitboxes().some(b => rectangle.intersects(b))) {
+		for(const entity of this.entities) {
+			if(collides(entity) && entity.hitboxes().some(b => rectangle.intersects(b))) {
 				return true;
 			}
 		}

@@ -2,13 +2,14 @@ import { Direction } from "../../utils-ts/modules/geometry/Direction.mjs";
 import { Rectangle } from "../../utils-ts/modules/geometry/Rectangle.mjs";
 import { Vector } from "../../utils-ts/modules/geometry/Vector.mjs";
 import { WorldData } from "../constants/GameData.mjs";
-import { World } from "../World.js";
+import { Entity, Tile, World } from "../World.js";
 
 export class PhysicsObject {
 	positionInt: Vector;
 	remainder: Vector;
 	dimensions: Rectangle;
 	velocity: Vector = new Vector(0, 0);
+	collides: (object: { x: number, y: number, tile: Tile } | Entity) => boolean = () => true;
 
 	constructor(positionInt: Vector, dimensions: Rectangle) {
 		this.positionInt = positionInt;
@@ -23,31 +24,49 @@ export class PhysicsObject {
 	moveX(amount: number, onCollision: () => void, world: World) {
 		this.remainder.x += amount;
 		while(this.remainder.x >= 1) {
-			this.moveUnit("right", onCollision, world);
+			const moved = this.moveUnit("right", onCollision, world);
 			this.remainder.x --;
+			if(!moved) {
+				this.remainder.x = 0;
+				break;
+			}
 		}
 		while(this.remainder.x < 0) {
-			this.moveUnit("left", onCollision, world);
+			const moved = this.moveUnit("left", onCollision, world);
 			this.remainder.x ++;
+			if(!moved) {
+				this.remainder.x = 0;
+				break;
+			}
 		}
 	}
 	moveY(amount: number, onCollision: () => void, world: World) {
 		this.remainder.y += amount;
 		while(this.remainder.y >= 1) {
-			this.moveUnit("down", onCollision, world);
+			const moved = this.moveUnit("down", onCollision, world);
 			this.remainder.y --;
+			if(!moved) {
+				this.remainder.y = 0;
+				break;
+			}
 		}
 		while(this.remainder.y < 0) {
-			this.moveUnit("up", onCollision, world);
+			const moved = this.moveUnit("up", onCollision, world);
 			this.remainder.y ++;
+			if(!moved) {
+				this.remainder.y = 0;
+				break;
+			}
 		}
 	}
 	moveUnit(direction: Direction, onCollision: () => void, world: World) {
 		if(!this.canMove(direction, world)) {
 			onCollision();
+			return false;
 		}
 		else {
 			this.positionInt = this.positionInt.add(Vector.unit(direction));
+			return true;
 		}
 	}
 	canMove(direction: Direction, world: World) {
@@ -56,7 +75,7 @@ export class PhysicsObject {
 		}
 
 		const newHitbox = this.hitbox().translate(Vector.unit(direction));
-		return !world.isInSolid(newHitbox);
+		return !world.isInSolid(newHitbox, this.collides);
 	}
 	isOnPlatform(world: World) {
 		const hitbox = this.hitbox();
@@ -75,10 +94,5 @@ export class PhysicsObject {
 
 	hitbox() {
 		return this.dimensions.translate(this.positionInt);
-	}
-
-	update(world: World) {
-		this.moveX(this.velocity.x, () => { this.velocity.x = 0; }, world);
-		this.moveY(this.velocity.y, () => { this.velocity.y = 0; }, world);
 	}
 }
