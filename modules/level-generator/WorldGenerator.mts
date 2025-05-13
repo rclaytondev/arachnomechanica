@@ -11,6 +11,7 @@ import { Room } from "./Room.mjs";
 import { ROOMS } from "./Rooms.mjs";
 import { World } from "../World.js";
 import { LaserBlock } from "../tiles/LaserBlock.mjs";
+import { Gate } from "../tiles/Gate.mjs";
 
 export class WorldGenerator {
 	levelGenerator: LevelGenerator = new LevelGenerator();
@@ -201,30 +202,42 @@ export class WorldGenerator {
 		console.log(this.world.creatures.length);
 	}
 	spawnLasers() {
-		const positions: Vector[] = [];
+		let possiblePositions: Vector[] = [];
+		for(let x = -1; x < LevelGeneratorData.WIDTH * (RoomData.SIZE + LevelGeneratorData.MARGIN_X) + 1; x ++) {
+			for(let y = -1; y < LevelGeneratorData.HEIGHT * (RoomData.SIZE + LevelGeneratorData.MARGIN_Y) + 1; y ++) {
+				const tile = this.world.tiles.get(x, y);
+				const neighbors = Directions.DIRECTIONS.map(d => this.world.tiles.get(Vector.unit(d).add(x, y)));
+				const valid = (
+					tile === "solid" &&
+					neighbors.filter(n => n === "empty" || n === "platform").length >= 2 &&
+					!neighbors.some(n => n instanceof Gate)
+				);
+				if(valid) {
+					possiblePositions.push(new Vector(x, y));
+				}
+			}
+		}
 		const totalLasers = Math.ceil(LevelGeneratorData.WIDTH * LevelGeneratorData.HEIGHT * LaserBlockData.LASERS_PER_ROOM);
+		const positionsSpawned: Vector[] = [];
 		let amountSpawned = 0;
 		while(amountSpawned < totalLasers) {
-			const position = GameUtils.randomEvenlySpaced(
-				new Rectangle(
-					0, 0,
-					LevelGeneratorData.WIDTH * (RoomData.SIZE + LevelGeneratorData.MARGIN_X) - LevelGeneratorData.MARGIN_X - 1,
-					LevelGeneratorData.HEIGHT * (RoomData.SIZE + LevelGeneratorData.MARGIN_Y) - LevelGeneratorData.MARGIN_Y - 1
-				),
-				positions,
+			const next = GameUtils.randomEvenlySpaced(
+				new Rectangle(0, 0, 0, 0),
+				positionsSpawned,
 				LaserBlockData.SPAWN_EVENNESS,
-				"int"
+				"int",
+				() => Utils.randomItem(possiblePositions)
 			);
-			const neighbors = Directions.DIRECTIONS.map(d => position.add(Vector.unit(d)));
-			const numEmpty = neighbors.filter(n => this.world.tiles.get(n) === "empty").length;
-			if(this.world.tiles.get(position) === "solid" && numEmpty >= 1) {
-				this.world.tiles.set(position, new LaserBlock(
-					3,
-					GameUtils.random(LaserBlockData.MIN_SPEED, LaserBlockData.MAX_SPEED),
-					GameUtils.random(0, 2 * Math.PI)
-				));
-				amountSpawned ++;
+			this.world.tiles.set(next, new LaserBlock(
+				3,
+				GameUtils.random(-LaserBlockData.MIN_SPEED, -LaserBlockData.MAX_SPEED),
+				GameUtils.random(0, 2 * Math.PI)
+			));
+			positionsSpawned.push(next);
+			for(const neighbor of [next, ...Directions.DIRECTIONS.map(d => next.add(Vector.unit(d)))]) {
+				possiblePositions = possiblePositions.filter(p => !p.equals(neighbor));
 			}
+			amountSpawned ++;
 		}
 	}
 
