@@ -64,6 +64,8 @@ export class PlayerData {
 	static ENERGY_BAR = new Rectangle(10, 10, 200, 20);
 	static ENERGY_BAR_COLOR = "rgb(160, 160, 160)";
 	static ENERGY_COLOR = "rgb(0, 128, 255)";
+
+	static TELEPORT_COST = 20;
 }
 
 export class RoomData {

@@ -73,11 +73,12 @@ export class Player {
 			this.hasDoubleJump = onGround;
 		}
 
-		if(canvasIO.keys.KeyC && !GameUtils.pastKeys.KeyC) {
+		if(canvasIO.keys.KeyC && !GameUtils.pastKeys.KeyC && this.energy >= PlayerData.TELEPORT_COST) {
 			const directionX = canvasIO.keys.ArrowLeft ? -1 : (canvasIO.keys.ArrowRight ? 1 : 0);
 			const directionY = canvasIO.keys.ArrowUp ? -1 : (canvasIO.keys.ArrowDown ? 1 : 0);
 			if(directionX !== 0 || directionY !== 0) {
 				this.teleport(new Vector(directionX, directionY), world, canvasIO);
+				this.energy -= PlayerData.TELEPORT_COST;
 			}
 		}
 	}
