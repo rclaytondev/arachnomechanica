@@ -234,7 +234,11 @@ export class WorldGenerator {
 	spawnSpikeballBlocks(trapPositions: Vector[] = []) {
 		return this.spawnTraps(
 			SpikeballBlockData.SPIKEBALLS_PER_ROOM,
-			[SpikeballBlock.canSpawn],
+			[
+				WorldGenerator.spawnRequirements.replaceSolid,
+				WorldGenerator.spawnRequirements.noAdjacentGates,
+				SpikeballBlock.canSpawn,
+			],
 			(x: number, y: number, world: World) => {
 				world.tiles.set(x, y, new SpikeballBlock());
 			},
@@ -255,9 +259,9 @@ export class WorldGenerator {
 				}
 			}
 		}
-		const totalLasers = Math.ceil(LevelGeneratorData.WIDTH * LevelGeneratorData.HEIGHT * density);
+		const totalTraps = Math.ceil(LevelGeneratorData.WIDTH * LevelGeneratorData.HEIGHT * density);
 		let amountSpawned = 0;
-		while(amountSpawned < totalLasers && possiblePositions.length > 0) {
+		while(amountSpawned < totalTraps && possiblePositions.length > 0) {
 			const next = GameUtils.randomEvenlySpaced(
 				new Rectangle(0, 0, 0, 0),
 				positionsSpawned,
