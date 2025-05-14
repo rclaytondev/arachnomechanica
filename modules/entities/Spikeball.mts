@@ -1,10 +1,10 @@
 import { CanvasIO } from "../../utils-ts/modules/CanvasIO.mjs";
 import { Rectangle } from "../../utils-ts/modules/geometry/Rectangle.mjs";
 import { Vector } from "../../utils-ts/modules/geometry/Vector.mjs";
-import { SpikeballData } from "../constants/GameData.mjs";
+import { SpikeballData, WorldData } from "../constants/GameData.mjs";
 import { GameUtils } from "../game-utilities/GameUtils.mjs";
 import { PhysicsObject } from "../game-utilities/PhysicsObject.mjs";
-import { World } from "../World";
+import { Entity, Tile, World } from "../World";
 
 export class Spikeball {
 	static glowGradient = GameUtils.glowCircleGradient(
@@ -14,6 +14,8 @@ export class Spikeball {
 	);
 	physicsObject: PhysicsObject;
 	angle: number = 0;
+	ignoredTiles: Vector[] = [];
+	age: number = 0;
 	
 	constructor(position: Vector, velocity: Vector) {
 		this.physicsObject = new PhysicsObject(
@@ -21,7 +23,20 @@ export class Spikeball {
 			new Rectangle(0, 0, 2 * SpikeballData.RADIUS, 2 * SpikeballData.RADIUS)
 		);
 		this.physicsObject.velocity = velocity;
-		this.physicsObject.collides = (entity) => entity !== this;
+		this.physicsObject.collides = (object) => this.collides(object);
+	}
+
+	collides(object: { x: number, y: number, tile: Tile } | Entity) {
+		if(object instanceof Spikeball) {
+			return (
+				Math.sign(object.physicsObject.velocity.x - this.physicsObject.velocity.x) !== Math.sign(object.physicsObject.velocity.x - this.physicsObject.velocity.x)
+				|| Math.sign(object.physicsObject.velocity.y - this.physicsObject.velocity.y) !== Math.sign(object.physicsObject.velocity.y - this.physicsObject.velocity.y)
+			);
+		}
+		else if("tile" in object && this.age < WorldData.TILE_SIZE / 2 / SpikeballData.SPEED) {
+			return !this.ignoredTiles.some(t => t.equals(object.x, object.y));
+		}
+		return true;
 	}
 
 	display(canvasIO: CanvasIO) {

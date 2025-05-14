@@ -13,6 +13,7 @@ import { World } from "./World.js";
 import { WorldGenerator } from "./level-generator/WorldGenerator.mjs";
 import { LaserBlock } from "./tiles/LaserBlock.mjs";
 import { Spikeball } from "./entities/Spikeball.mjs";
+import { SpikeballBlock } from "./tiles/SpikeballBlock.mjs";
 
 const recordedRNG: number[] = [];
 let rngOverrideIndex = 0;
@@ -53,8 +54,8 @@ world.tiles.set(2, 1, "solid")
 world.tiles.set(3, 1, "solid")
 world.tiles.set(4, 1, "solid")
 world.tiles.set(5, -1, "solid");
-world.tiles.set(4, -1, new LaserBlock(1, -0.03, 0));
-world.entities.push(new Spikeball(new Vector(50, -20), new Vector(2, 2)));
+world.tiles.set(4, -1, new SpikeballBlock());
+// world.entities.push(new Spikeball(new Vector(50, -20), new Vector(2, 2)));
 
 LevelGenerator.initializeRooms();
 

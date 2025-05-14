@@ -17,8 +17,9 @@ import { GameUtils } from "./game-utilities/GameUtils.mjs";
 import { LaserBlock } from "./tiles/LaserBlock.mjs";
 import { Lizard } from "./entities/Lizard.js";
 import { Spikeball } from "./entities/Spikeball.mjs";
+import { SpikeballBlock } from "./tiles/SpikeballBlock.mjs";
 
-export type Tile = (typeof WorldData.STRING_TILE_TYPES)[number] | Gate | LaserBlock;
+export type Tile = (typeof WorldData.STRING_TILE_TYPES)[number] | Gate | LaserBlock | SpikeballBlock;
 export type Entity = Lizard | Spikeball;
 
 export class World {

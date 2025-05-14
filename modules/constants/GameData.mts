@@ -265,7 +265,7 @@ export class BackgroundData {
 	];
 }
 export class SpikeballData {
-	static RADIUS = WorldData.TILE_SIZE * 0.4;
+	static RADIUS = WorldData.TILE_SIZE * 0.35;
 	static COLOR = "rgb(0, 0, 0)";
 	static ACCENT_COLOR = {
 		red: 255,
@@ -281,4 +281,11 @@ export class SpikeballData {
 	static SPIKE_BASE = 0.9 * SpikeballData.RADIUS;
 	static SPIKE_HEIGHT = 1.4 * SpikeballData.RADIUS;
 	static ROTATION_SPEED = 0.07;
+
+	static SPEED = 4;
+}
+
+export class SpikeballBlockData {
+	static COLOR = "rgb(30, 30, 30)";
+	static SPAWN_FREQUENCY = 120;
 }
