@@ -288,7 +288,7 @@ export class World {
 		for(const entity of this.entities) {
 			entity.update(this);
 		}
-		this.entities = this.entities.filter(c => !(c instanceof Lizard) || !c.dead);
+		this.entities = this.entities.filter(c => !("dead" in c) || !c.dead);
 	}
 	updateTiles(canvasIO: CanvasIO) {
 		for(const [tile, position] of this.tiles.entries()) {

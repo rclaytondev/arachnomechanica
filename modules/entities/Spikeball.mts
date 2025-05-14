@@ -16,6 +16,8 @@ export class Spikeball {
 	angle: number = 0;
 	ignoredTiles: Vector[] = [];
 	age: number = 0;
+	bounces: number = 3;
+	dead: boolean = false;
 	
 	constructor(position: Vector, velocity: Vector) {
 		this.physicsObject = new PhysicsObject(
@@ -77,16 +79,23 @@ export class Spikeball {
 	update(world: World) {
 		this.physicsObject.moveX(
 			this.physicsObject.velocity.x,
-			() => { this.physicsObject.velocity.x = -this.physicsObject.velocity.x; },
+			() => {
+				this.bounces --;
+				this.physicsObject.velocity.x = -this.physicsObject.velocity.x;
+			},
 			world
 		);
 		this.physicsObject.moveY(
 			this.physicsObject.velocity.y,
 			() => {
+				this.bounces --;
 				this.physicsObject.velocity.y = -this.physicsObject.velocity.y;
 			},
 			world
 		);
+		if(this.bounces < 0) {
+			this.dead = true;
+		}
 		this.angle += SpikeballData.ROTATION_SPEED;
 		if(this.physicsObject.hitbox().intersects(world.player.physicsObject.hitbox())) {
 			world.player.damage();
