@@ -9,6 +9,7 @@ export class SpikeballBlock {
 	timeUntilSpawn: number = 0;
 	pattern: SpikeballPattern;
 	patternStep: number = 0;
+	spikeballs: Spikeball[] = [];
 
 	constructor(pattern: SpikeballPattern) {
 		this.pattern = pattern;
@@ -20,11 +21,14 @@ export class SpikeballBlock {
 	}
 
 	update(world: World, x: number, y: number) {
-		this.timeUntilSpawn --;
+		if(this.spikeballs.length === 0) {
+			this.timeUntilSpawn --;
+		}
 		if(this.timeUntilSpawn < 0) {
 			this.spawnSpikeballs(world, x, y);
 			this.timeUntilSpawn = SpikeballBlockData.SPAWN_FREQUENCY;
 		}
+		this.spikeballs = this.spikeballs.filter(s => !s.dead);
 	}
 
 	spawnSpikeballs(world: World, x: number, y: number) {
@@ -56,6 +60,7 @@ export class SpikeballBlock {
 			new Vector(x, y).add(Vector.unit(xDirection)),
 			new Vector(x, y).add(Vector.unit(yDirection)),
 		);
+		this.spikeballs.push(spikeball);
 		world.entities.push(spikeball);
 	}
 

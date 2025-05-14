@@ -290,7 +290,7 @@ export type SpikeballPattern = [Direction, Direction][][];
 
 export class SpikeballBlockData {
 	static COLOR = "rgb(30, 30, 30)";
-	static SPAWN_FREQUENCY = 100;
+	static SPAWN_FREQUENCY = 20;
 	static SPIKEBALLS_PER_ROOM = 0.4;
 	static PATTERNS: SpikeballPattern[] = [
 		[
