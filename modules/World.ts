@@ -142,6 +142,9 @@ export class World {
 			if(tile instanceof LaserBlock) {
 				tile.displayLaserGlow(canvasIO, position.x, position.y, this);
 			}
+			else if(tile instanceof SpikeballBlock) {
+				tile.displayGlow(canvasIO, position.x, position.y);
+			}
 		}
 
 		for(const particle of this.particles) {

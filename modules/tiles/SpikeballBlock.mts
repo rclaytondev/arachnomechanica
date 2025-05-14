@@ -7,6 +7,12 @@ import { GameUtils } from "../game-utilities/GameUtils.mjs";
 import { World } from "../World";
 
 export class SpikeballBlock {
+	static glowGradient = GameUtils.glowCircleGradient(
+		0, 0, SpikeballBlockData.GLOW_SIZE,
+		SpikeballBlockData.GLOW_INTENSITY,
+		SpikeballData.ACCENT_COLOR.red, SpikeballData.ACCENT_COLOR.green, SpikeballData.ACCENT_COLOR.blue
+	);
+
 	timeUntilSpawn: number = 0;
 	timeSinceSpawn: number = 0;
 	pattern: SpikeballPattern;
@@ -27,8 +33,28 @@ export class SpikeballBlock {
 		this.pattern = pattern;
 	}
 
+	displayGlow(canvasIO: CanvasIO, x: number, y: number) {
+		canvasIO.ctx.save();
+		canvasIO.ctx.translate((x + 1/2) * WorldData.TILE_SIZE, (y + 1/2) * WorldData.TILE_SIZE);
+		canvasIO.ctx.fillStyle = SpikeballBlock.glowGradient;
+		canvasIO.fillCircle(0, 0, SpikeballBlockData.GLOW_SIZE);
+		canvasIO.ctx.restore();
+	}
 	display(canvasIO: CanvasIO, x: number, y:  number) {
 		const center = new Vector(x + 1/2, y + 1/2).multiply(WorldData.TILE_SIZE);
+		
+		for(const direction of Directions.DIAGONALS) {
+			canvasIO.ctx.save();
+			canvasIO.ctx.translate(center.x, center.y);
+			canvasIO.rotateTo("up", direction);
+			canvasIO.ctx.fillStyle = SpikeballBlockData.BARREL_COLOR;
+			canvasIO.ctx.fillRect(
+				-WorldData.TILE_SIZE / 2, -WorldData.TILE_SIZE / 2 - SpikeballBlockData.BARREL_LENGTH,
+				WorldData.TILE_SIZE, WorldData.TILE_SIZE / 2 + SpikeballBlockData.BARREL_LENGTH
+			);
+			canvasIO.ctx.restore();
+		}
+
 		for(const direction of Directions.DIAGONALS) {
 			canvasIO.ctx.save();
 			canvasIO.ctx.translate(center.x, center.y);
@@ -37,11 +63,12 @@ export class SpikeballBlock {
 
 			
 			const openness = this.doors[direction];
-			canvasIO.ctx.fillStyle = SpikeballBlockData.BARREL_COLOR;
-			canvasIO.ctx.fillRect(
-				-WorldData.TILE_SIZE / 2, -WorldData.TILE_SIZE / 2 - SpikeballBlockData.BARREL_LENGTH,
-				WorldData.TILE_SIZE, WorldData.TILE_SIZE
-			);
+			canvasIO.ctx.strokeStyle = `rgb(${SpikeballData.ACCENT_COLOR.red}, ${SpikeballData.ACCENT_COLOR.green}, ${SpikeballData.ACCENT_COLOR.blue})`;
+			canvasIO.ctx.fillStyle = `rgb(${SpikeballData.ACCENT_COLOR.red}, ${SpikeballData.ACCENT_COLOR.green}, ${SpikeballData.ACCENT_COLOR.blue})`;
+			canvasIO.strokeLine(0, 0, 0, -WorldData.TILE_SIZE / 2 - SpikeballBlockData.BARREL_DOOR_LENGTH + SpikeballBlockData.DOOR_HEIGHT);
+			canvasIO.ctx.fillRect(-5, -5, 10, 10);
+
+
 			canvasIO.ctx.fillStyle = SpikeballBlockData.DOOR_COLOR;
 			canvasIO.ctx.fillRect(
 				-WorldData.TILE_SIZE / 2, -WorldData.TILE_SIZE / 2 - SpikeballBlockData.BARREL_DOOR_LENGTH,

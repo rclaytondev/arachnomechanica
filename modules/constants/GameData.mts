@@ -269,9 +269,9 @@ export class SpikeballData {
 	static RADIUS = WorldData.TILE_SIZE * 0.35;
 	static COLOR = "rgb(0, 0, 0)";
 	static ACCENT_COLOR = {
-		red: 255,
-		green: 255,
-		blue: 0
+		red: 0,
+		green: 128,
+		blue: 128
 	};
 	static ACCENT_THICKNESS = 2;
 	static ACCENT_RADIUS_MULTIPLIER = 0.7;
@@ -306,14 +306,17 @@ export class SpikeballBlockData {
 		]
 	]
 
-	static DOOR_COLOR = "rgb(15, 15, 15)";
+	static DOOR_COLOR = "rgb(50, 50, 50)";
 	static DOOR_OPENING_SPEED = 2;
 	static DOOR_OPENING_TIME = 30;
 	static DOOR_OPENNESS = 0.35 * WorldData.TILE_SIZE;
 	static DOOR_HEIGHT = 0.2 * WorldData.TILE_SIZE;
 	static DOOR_CLOSE_DELAY = 30;
 
-	static BARREL_COLOR = "rgb(30, 30, 30)";
-	static BARREL_LENGTH = 0.3 * WorldData.TILE_SIZE;
-	static BARREL_DOOR_LENGTH = 0.4 * WorldData.TILE_SIZE;
+	static GLOW_SIZE = 150;
+	static GLOW_INTENSITY = 0.75;
+
+	static BARREL_COLOR = "rgb(15, 15, 15)";
+	static BARREL_LENGTH = 0.2 * WorldData.TILE_SIZE;
+	static BARREL_DOOR_LENGTH = 0.3 * WorldData.TILE_SIZE;
 }
