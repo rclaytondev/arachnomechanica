@@ -1,15 +1,17 @@
 import { CanvasIO } from "../../utils-ts/modules/CanvasIO.mjs";
 import { Direction } from "../../utils-ts/modules/geometry/Direction.mjs";
 import { Vector } from "../../utils-ts/modules/geometry/Vector.mjs";
-import { SpikeballBlockData, SpikeballData, WorldData } from "../constants/GameData.mjs";
+import { SpikeballBlockData, SpikeballData, SpikeballPattern, WorldData } from "../constants/GameData.mjs";
 import { Spikeball } from "../entities/Spikeball.mjs";
 import { World } from "../World";
 
 export class SpikeballBlock {
 	timeUntilSpawn: number = 0;
+	pattern: SpikeballPattern;
+	patternStep: number = 0;
 
-	constructor() {
-
+	constructor(pattern: SpikeballPattern) {
+		this.pattern = pattern;
 	}
 
 	display(canvasIO: CanvasIO, x: number, y:  number) {
@@ -26,12 +28,16 @@ export class SpikeballBlock {
 	}
 
 	spawnSpikeballs(world: World, x: number, y: number) {
-		for(const xDirection of ["left", "right"] as const) {
-			for(const yDirection of ["up", "down"] as const) {
+		let spawned = false;
+		while(!spawned) {
+			for(const [xDirection, yDirection] of this.pattern[this.patternStep]) {
 				if(this.canSpawnSpikeball(x, y, xDirection, yDirection, world)) {
 					this.spawnSpikeball(x, y, xDirection, yDirection, world);
+					spawned = true;
 				}
 			}
+			this.patternStep ++;
+			this.patternStep %= this.pattern.length;
 		}
 	}
 	canSpawnSpikeball(x: number, y: number, xDirection: Direction, yDirection: Direction, world: World) {
@@ -54,16 +60,16 @@ export class SpikeballBlock {
 	}
 
 	copy() {
-		const copy = new SpikeballBlock();
+		const copy = new SpikeballBlock([]);
 		copy.timeUntilSpawn = this.timeUntilSpawn;
-		return new SpikeballBlock();
+		return copy;
 	}
 
 	static canSpawn(position: Vector, world: World) {
 		if(world.tiles.get(position) !== "solid") {
 			return false;
 		}
-		const block = new SpikeballBlock();
+		const block = new SpikeballBlock([]);
 		return (
 			block.canSpawnSpikeball(position.x, position.y, "left", "up", world)
 			|| block.canSpawnSpikeball(position.x, position.y, "left", "down", world)

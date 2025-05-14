@@ -1,7 +1,7 @@
 import { CanvasIO, canvasIO } from "../utils-ts/modules/CanvasIO.mjs";
 import { Vector } from "../utils-ts/modules/geometry/Vector.mjs";
 import { DEBUG_SETTINGS } from "./constants/DebugSettings.mjs";
-import { LizardData, PlayerData, RoomData } from "./constants/GameData.mjs";
+import { LizardData, PlayerData, RoomData, SpikeballBlockData } from "./constants/GameData.mjs";
 import { Lizard } from "./entities/Lizard.js";
 import { GameUtils } from "./game-utilities/GameUtils.mjs";
 import { LevelGenerator } from "./level-generator/LevelGenerator.mjs";
@@ -54,7 +54,9 @@ world.tiles.set(2, 1, "solid")
 world.tiles.set(3, 1, "solid")
 world.tiles.set(4, 1, "solid")
 world.tiles.set(5, -1, "solid");
-world.tiles.set(4, -1, new SpikeballBlock());
+world.tiles.set(5, -2, "solid");
+world.tiles.set(3, 0, "solid");
+world.tiles.set(4, -1, new SpikeballBlock(SpikeballBlockData.PATTERNS[0]));
 // world.entities.push(new Spikeball(new Vector(50, -20), new Vector(2, 2)));
 
 LevelGenerator.initializeRooms();

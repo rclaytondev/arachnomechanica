@@ -240,7 +240,7 @@ export class WorldGenerator {
 				SpikeballBlock.canSpawn,
 			],
 			(x: number, y: number, world: World) => {
-				world.tiles.set(x, y, new SpikeballBlock());
+				world.tiles.set(x, y, new SpikeballBlock(Utils.randomItem(SpikeballBlockData.PATTERNS)));
 			},
 			trapPositions
 		);

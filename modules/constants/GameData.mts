@@ -4,6 +4,7 @@ import { Room, Traversability } from "../level-generator/Room.mjs";
 import { GateState } from "../level-generator/GateState.mjs";
 import { World } from "../World";
 import { Rectangle } from "../../utils-ts/modules/geometry/Rectangle.mjs";
+import { Direction } from "../../utils-ts/modules/geometry/Direction.mjs";
 
 export class WorldData {
 	static TILE_SIZE = 50;
@@ -285,8 +286,23 @@ export class SpikeballData {
 	static SPEED = 3.5;
 }
 
+export type SpikeballPattern = [Direction, Direction][][];
+
 export class SpikeballBlockData {
 	static COLOR = "rgb(30, 30, 30)";
 	static SPAWN_FREQUENCY = 100;
 	static SPIKEBALLS_PER_ROOM = 0.4;
+	static PATTERNS: SpikeballPattern[] = [
+		[
+			// pattern 1:
+			[
+				["left", "up"],
+				["right", "down"],
+			],
+			[
+				["left", "down"],
+				["right", "up"]
+			]
+		]
+	]
 }
