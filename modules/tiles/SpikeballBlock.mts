@@ -8,6 +8,7 @@ import { World } from "../World";
 
 export class SpikeballBlock {
 	timeUntilSpawn: number = 0;
+	timeSinceSpawn: number = 0;
 	pattern: SpikeballPattern;
 	patternStep: number = 0;
 	spikeballs: Spikeball[] = [];
@@ -59,9 +60,11 @@ export class SpikeballBlock {
 		if(this.spikeballs.length === 0) {
 			this.timeUntilSpawn --;
 		}
+		this.timeSinceSpawn ++;
 		if(this.timeUntilSpawn < 0) {
 			this.spawnSpikeballs(world, x, y);
 			this.timeUntilSpawn = SpikeballBlockData.SPAWN_FREQUENCY;
+			this.timeSinceSpawn = 0;
 		}
 		this.spikeballs = this.spikeballs.filter(s => !s.dead);
 
@@ -69,12 +72,15 @@ export class SpikeballBlock {
 		for(const xDirection of ["left", "right"] as const) {
 			for(const yDirection of ["up", "down"] as const) {
 				const patternStep = this.pattern[this.patternStep];
+				const direction = yDirection + "-" + xDirection as "up-left" | "up-right" | "down-left" | "down-right";
 				const open = (
 					this.timeUntilSpawn < SpikeballBlockData.DOOR_OPENING_TIME
 					&& patternStep.some(p => p[0] === xDirection && p[1] === yDirection)
+				) || (
+					this.doors[direction] === SpikeballBlockData.DOOR_OPENNESS
+					&& this.timeSinceSpawn < SpikeballBlockData.DOOR_CLOSE_DELAY
 				);
 				const target = open ? SpikeballBlockData.DOOR_OPENNESS : 0;
-				const direction = yDirection + "-" + xDirection as "up-left" | "up-right" | "down-left" | "down-right";
 				this.doors[direction] = GameUtils.moveTowards(this.doors[direction], target, SpikeballBlockData.DOOR_OPENING_SPEED);
 			}
 		}

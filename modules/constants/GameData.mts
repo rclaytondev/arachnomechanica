@@ -311,6 +311,7 @@ export class SpikeballBlockData {
 	static DOOR_OPENING_TIME = 30;
 	static DOOR_OPENNESS = 0.35 * WorldData.TILE_SIZE;
 	static DOOR_HEIGHT = 0.2 * WorldData.TILE_SIZE;
+	static DOOR_CLOSE_DELAY = 30;
 
 	static BARREL_COLOR = "rgb(30, 30, 30)";
 	static BARREL_LENGTH = 0.3 * WorldData.TILE_SIZE;
