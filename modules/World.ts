@@ -342,7 +342,8 @@ export class World {
 			if(collides({ x, y, tile }) && (
 				tile === "solid" ||
 				(tile instanceof Gate && tile.openness !== 1 && rectangle.intersects(tile.getPhysicsBox(x, y))) ||
-				tile instanceof LaserBlock
+				tile instanceof LaserBlock ||
+				tile instanceof SpikeballBlock
 			)) { return true; }
 		}
 		for(const entity of this.entities) {

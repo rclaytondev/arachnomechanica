@@ -11,6 +11,8 @@ import { Rectangle } from "../../utils-ts/modules/geometry/Rectangle.mjs";
 import { Gate } from "../tiles/Gate.mjs";
 import { Particle, ParticleSettings } from "../game-utilities/Particle.mjs";
 import { LizardData, WorldData } from "../constants/GameData.mjs";
+import { LaserBlock } from "../tiles/LaserBlock.mjs";
+import { SpikeballBlock } from "../tiles/SpikeballBlock.mjs";
 
 type Joint = { position: Vector, direction: Direction };
 
@@ -458,7 +460,8 @@ export class Lizard {
 		if(tiles.some(({ tile }) => (
 			tile === "solid" ||
 			(tile === "platform" && direction === "down") ||
-			(tile instanceof Gate && tile.openness !== 1)
+			(tile instanceof Gate && tile.openness !== 1) ||
+			(tile instanceof LaserBlock || tile instanceof SpikeballBlock)
 		))) { return true; }
 		if(world.entities.some(entity => entity.hitboxes().some(b => b.intersects(lookaheadRectangle)))) {
 			return true;

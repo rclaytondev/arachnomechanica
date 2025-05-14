@@ -35,7 +35,7 @@ export class Spikeball {
 				|| Math.sign(object.physicsObject.velocity.y - this.physicsObject.velocity.y) !== Math.sign(object.physicsObject.velocity.y - this.physicsObject.velocity.y)
 			);
 		}
-		else if("tile" in object && this.age < WorldData.TILE_SIZE / 2 / SpikeballData.SPEED) {
+		else if("tile" in object && this.age < Math.sqrt(2) * WorldData.TILE_SIZE / 2 / SpikeballData.SPEED + 1) {
 			return !this.ignoredTiles.some(t => t.equals(object.x, object.y));
 		}
 		return true;
