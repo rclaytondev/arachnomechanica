@@ -14,6 +14,7 @@ import { WorldGenerator } from "./level-generator/WorldGenerator.mjs";
 import { LaserBlock } from "./tiles/LaserBlock.mjs";
 import { Spikeball } from "./entities/Spikeball.mjs";
 import { SpikeballBlock } from "./tiles/SpikeballBlock.mjs";
+import { Rectangle } from "../utils-ts/modules/geometry/Rectangle.mjs";
 
 const recordedRNG: number[] = [];
 let rngOverrideIndex = 0;
@@ -45,19 +46,9 @@ for(let i = 0; i < CORNER_SIZE; i ++) {
 let frameCount = 0;
 const FRAMERATE = 60;
 const world = new World();
-world.tiles.set(-1, 1, "solid");
-world.tiles.set(-2, 1, "solid");
-world.tiles.set(-3, 1, "solid");
-world.tiles.set(0, 1, "solid")
-world.tiles.set(1, 1, "solid")
-world.tiles.set(2, 1, "solid")
-world.tiles.set(3, 1, "solid")
-world.tiles.set(4, 1, "solid")
-world.tiles.set(5, -1, "solid");
-world.tiles.set(5, -2, "solid");
-world.tiles.set(3, 0, "solid");
-world.tiles.set(4, -1, new SpikeballBlock(SpikeballBlockData.PATTERNS[0]));
-// world.entities.push(new Spikeball(new Vector(50, -20), new Vector(2, 2)));
+world.tiles.fillRect(new Rectangle(-1, -1, 8, 8), "solid");
+world.tiles.fillRect(new Rectangle(0, 0, 6, 6), "empty");
+world.tiles.set(3, 3, new SpikeballBlock(SpikeballBlockData.PATTERNS[0]));
 
 LevelGenerator.initializeRooms();
 

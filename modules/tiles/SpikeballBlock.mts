@@ -3,6 +3,7 @@ import { Direction } from "../../utils-ts/modules/geometry/Direction.mjs";
 import { Vector } from "../../utils-ts/modules/geometry/Vector.mjs";
 import { SpikeballBlockData, SpikeballData, SpikeballPattern, WorldData } from "../constants/GameData.mjs";
 import { Spikeball } from "../entities/Spikeball.mjs";
+import { GameUtils } from "../game-utilities/GameUtils.mjs";
 import { World } from "../World";
 
 export class SpikeballBlock {
@@ -10,6 +11,16 @@ export class SpikeballBlock {
 	pattern: SpikeballPattern;
 	patternStep: number = 0;
 	spikeballs: Spikeball[] = [];
+	doorUpLeft: number = 0;
+	doorUpRight: number = 0;
+	doorDownLeft: number = 0;
+	doorDownRight: number = 0;
+	doors: { "up-left": number, "up-right": number, "down-left": number, "down-right": number } = {
+		"up-left": 0,
+		"up-right": 0,
+		"down-left": 0,
+		"down-right": 0
+	};
 
 	constructor(pattern: SpikeballPattern) {
 		this.pattern = pattern;
@@ -18,6 +29,29 @@ export class SpikeballBlock {
 	display(canvasIO: CanvasIO, x: number, y:  number) {
 		canvasIO.ctx.fillStyle = SpikeballBlockData.COLOR;
 		canvasIO.ctx.fillRect(x * WorldData.TILE_SIZE, y * WorldData.TILE_SIZE, WorldData.TILE_SIZE, WorldData.TILE_SIZE);
+
+		this.displayDoors(canvasIO, x, y);
+	}
+	displayDoors(canvasIO: CanvasIO, x: number, y:  number) {
+		canvasIO.ctx.fillStyle = SpikeballBlockData.DOOR_COLOR;
+
+		canvasIO.ctx.save();
+		canvasIO.ctx.translate(x * WorldData.TILE_SIZE, y * WorldData.TILE_SIZE);
+		canvasIO.ctx.fillRect(this.doors["up-left"], 0, SpikeballBlockData.DOOR_WIDTH, SpikeballBlockData.DOOR_HEIGHT);
+		canvasIO.ctx.fillRect(0, this.doors["up-left"], SpikeballBlockData.DOOR_HEIGHT, SpikeballBlockData.DOOR_WIDTH);
+
+		canvasIO.ctx.fillRect(this.doors["down-left"], WorldData.TILE_SIZE - SpikeballBlockData.DOOR_HEIGHT, SpikeballBlockData.DOOR_WIDTH, SpikeballBlockData.DOOR_HEIGHT);
+		canvasIO.ctx.fillRect(0, WorldData.TILE_SIZE - SpikeballBlockData.DOOR_WIDTH - this.doors["down-left"], SpikeballBlockData.DOOR_HEIGHT, SpikeballBlockData.DOOR_WIDTH);
+
+		
+		canvasIO.ctx.fillRect(WorldData.TILE_SIZE - SpikeballBlockData.DOOR_WIDTH - this.doors["up-right"], 0, SpikeballBlockData.DOOR_WIDTH, SpikeballBlockData.DOOR_HEIGHT);
+		canvasIO.ctx.fillRect(WorldData.TILE_SIZE - SpikeballBlockData.DOOR_HEIGHT, this.doors["up-right"], SpikeballBlockData.DOOR_HEIGHT, SpikeballBlockData.DOOR_WIDTH);
+
+		
+		canvasIO.ctx.fillRect(WorldData.TILE_SIZE - SpikeballBlockData.DOOR_WIDTH - this.doors["down-right"], WorldData.TILE_SIZE - SpikeballBlockData.DOOR_HEIGHT, SpikeballBlockData.DOOR_WIDTH, SpikeballBlockData.DOOR_HEIGHT);
+		canvasIO.ctx.fillRect(WorldData.TILE_SIZE - SpikeballBlockData.DOOR_HEIGHT, WorldData.TILE_SIZE - SpikeballBlockData.DOOR_WIDTH - this.doors["down-right"], SpikeballBlockData.DOOR_HEIGHT, SpikeballBlockData.DOOR_WIDTH);
+
+		canvasIO.ctx.restore();
 	}
 
 	update(world: World, x: number, y: number) {
@@ -29,15 +63,32 @@ export class SpikeballBlock {
 			this.timeUntilSpawn = SpikeballBlockData.SPAWN_FREQUENCY;
 		}
 		this.spikeballs = this.spikeballs.filter(s => !s.dead);
+
+
+		for(const xDirection of ["left", "right"] as const) {
+			for(const yDirection of ["up", "down"] as const) {
+				const patternStep = this.pattern[this.patternStep];
+				const open = (
+					this.timeUntilSpawn < SpikeballBlockData.DOOR_OPENING_TIME
+					&& patternStep.some(p => p[0] === xDirection && p[1] === yDirection)
+				);
+				const target = open ? SpikeballBlockData.DOOR_OPENNESS : 0;
+				const direction = yDirection + "-" + xDirection as "up-left" | "up-right" | "down-left" | "down-right";
+				this.doors[direction] = GameUtils.moveTowards(this.doors[direction], target, SpikeballBlockData.DOOR_OPENING_SPEED);
+			}
+		}
 	}
 
 	spawnSpikeballs(world: World, x: number, y: number) {
-		let spawned = false;
-		while(!spawned) {
+		for(const [xDirection, yDirection] of this.pattern[this.patternStep]) {
+			this.spawnSpikeball(x, y, xDirection, yDirection, world);
+		}
+
+		let foundSpawnable = false;
+		while(!foundSpawnable) {
 			for(const [xDirection, yDirection] of this.pattern[this.patternStep]) {
 				if(this.canSpawnSpikeball(x, y, xDirection, yDirection, world)) {
-					this.spawnSpikeball(x, y, xDirection, yDirection, world);
-					spawned = true;
+					foundSpawnable = true;
 				}
 			}
 			this.patternStep ++;
