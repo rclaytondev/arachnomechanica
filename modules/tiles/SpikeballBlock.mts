@@ -37,19 +37,19 @@ export class SpikeballBlock {
 
 		canvasIO.ctx.save();
 		canvasIO.ctx.translate(x * WorldData.TILE_SIZE, y * WorldData.TILE_SIZE);
-		canvasIO.ctx.fillRect(this.doors["up-left"], 0, SpikeballBlockData.DOOR_WIDTH, SpikeballBlockData.DOOR_HEIGHT);
-		canvasIO.ctx.fillRect(0, this.doors["up-left"], SpikeballBlockData.DOOR_HEIGHT, SpikeballBlockData.DOOR_WIDTH);
+		canvasIO.ctx.fillRect(this.doors["up-left"] - SpikeballBlockData.DOOR_OFFSET, -SpikeballBlockData.DOOR_OFFSET, SpikeballBlockData.DOOR_WIDTH, SpikeballBlockData.DOOR_HEIGHT);
+		canvasIO.ctx.fillRect(-SpikeballBlockData.DOOR_OFFSET, this.doors["up-left"] - SpikeballBlockData.DOOR_OFFSET, SpikeballBlockData.DOOR_HEIGHT, SpikeballBlockData.DOOR_WIDTH);
 
-		canvasIO.ctx.fillRect(this.doors["down-left"], WorldData.TILE_SIZE - SpikeballBlockData.DOOR_HEIGHT, SpikeballBlockData.DOOR_WIDTH, SpikeballBlockData.DOOR_HEIGHT);
-		canvasIO.ctx.fillRect(0, WorldData.TILE_SIZE - SpikeballBlockData.DOOR_WIDTH - this.doors["down-left"], SpikeballBlockData.DOOR_HEIGHT, SpikeballBlockData.DOOR_WIDTH);
-
-		
-		canvasIO.ctx.fillRect(WorldData.TILE_SIZE - SpikeballBlockData.DOOR_WIDTH - this.doors["up-right"], 0, SpikeballBlockData.DOOR_WIDTH, SpikeballBlockData.DOOR_HEIGHT);
-		canvasIO.ctx.fillRect(WorldData.TILE_SIZE - SpikeballBlockData.DOOR_HEIGHT, this.doors["up-right"], SpikeballBlockData.DOOR_HEIGHT, SpikeballBlockData.DOOR_WIDTH);
+		canvasIO.ctx.fillRect(this.doors["down-left"] - SpikeballBlockData.DOOR_OFFSET, WorldData.TILE_SIZE - SpikeballBlockData.DOOR_HEIGHT + SpikeballBlockData.DOOR_OFFSET, SpikeballBlockData.DOOR_WIDTH, SpikeballBlockData.DOOR_HEIGHT);
+		canvasIO.ctx.fillRect(-SpikeballBlockData.DOOR_OFFSET, WorldData.TILE_SIZE - SpikeballBlockData.DOOR_WIDTH - this.doors["down-left"] + SpikeballBlockData.DOOR_OFFSET, SpikeballBlockData.DOOR_HEIGHT, SpikeballBlockData.DOOR_WIDTH);
 
 		
-		canvasIO.ctx.fillRect(WorldData.TILE_SIZE - SpikeballBlockData.DOOR_WIDTH - this.doors["down-right"], WorldData.TILE_SIZE - SpikeballBlockData.DOOR_HEIGHT, SpikeballBlockData.DOOR_WIDTH, SpikeballBlockData.DOOR_HEIGHT);
-		canvasIO.ctx.fillRect(WorldData.TILE_SIZE - SpikeballBlockData.DOOR_HEIGHT, WorldData.TILE_SIZE - SpikeballBlockData.DOOR_WIDTH - this.doors["down-right"], SpikeballBlockData.DOOR_HEIGHT, SpikeballBlockData.DOOR_WIDTH);
+		canvasIO.ctx.fillRect(WorldData.TILE_SIZE - SpikeballBlockData.DOOR_WIDTH - this.doors["up-right"] + SpikeballBlockData.DOOR_OFFSET, -SpikeballBlockData.DOOR_OFFSET, SpikeballBlockData.DOOR_WIDTH, SpikeballBlockData.DOOR_HEIGHT);
+		canvasIO.ctx.fillRect(WorldData.TILE_SIZE - SpikeballBlockData.DOOR_HEIGHT + SpikeballBlockData.DOOR_OFFSET, this.doors["up-right"] - SpikeballBlockData.DOOR_OFFSET, SpikeballBlockData.DOOR_HEIGHT, SpikeballBlockData.DOOR_WIDTH);
+
+		
+		canvasIO.ctx.fillRect(WorldData.TILE_SIZE - SpikeballBlockData.DOOR_WIDTH - this.doors["down-right"] + SpikeballBlockData.DOOR_OFFSET, WorldData.TILE_SIZE - SpikeballBlockData.DOOR_HEIGHT + SpikeballBlockData.DOOR_OFFSET, SpikeballBlockData.DOOR_WIDTH, SpikeballBlockData.DOOR_HEIGHT);
+		canvasIO.ctx.fillRect(WorldData.TILE_SIZE - SpikeballBlockData.DOOR_HEIGHT + SpikeballBlockData.DOOR_OFFSET, WorldData.TILE_SIZE - SpikeballBlockData.DOOR_WIDTH - this.doors["down-right"] + SpikeballBlockData.DOOR_OFFSET, SpikeballBlockData.DOOR_HEIGHT, SpikeballBlockData.DOOR_WIDTH);
 
 		canvasIO.ctx.restore();
 	}

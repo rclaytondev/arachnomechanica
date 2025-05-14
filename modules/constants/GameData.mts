@@ -313,4 +313,5 @@ export class SpikeballBlockData {
 	static DOOR_OPENNESS = 0.2 * WorldData.TILE_SIZE;
 	static DOOR_WIDTH = 0.4 * WorldData.TILE_SIZE;
 	static DOOR_HEIGHT = 0.2 * WorldData.TILE_SIZE;
+	static DOOR_OFFSET = 0.1 * WorldData.TILE_SIZE;
 }
