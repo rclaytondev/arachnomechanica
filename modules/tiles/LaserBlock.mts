@@ -213,15 +213,6 @@ export class LaserBlock {
 	}
 
 	static canSpawn(position: Vector, world: World) {
-		const tile = world.tiles.get(position);
-		const neighbors = Directions.DIRECTIONS.map(d => world.tiles.get(Vector.unit(d).add(position)));
-		if(!(
-			tile === "solid" &&
-			neighbors.filter(n => n === "empty" || n === "platform").length >= 2 &&
-			!neighbors.some(n => n instanceof Gate)
-		)) { return false; }
-
-		
 		const player = world.player.physicsObject.hitbox().center();
 		const center = position.add(1/2, 1/2).multiply(WorldData.TILE_SIZE);
 		const laser = new LaserBlock(1, 0, 0);

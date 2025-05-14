@@ -172,6 +172,16 @@ export class WorldGenerator {
 		this.world.player.physicsObject.positionInt = tile.multiply(WorldData.TILE_SIZE)
 		this.world.camera = this.world.player.physicsObject.hitbox().center();
 	}
+
+	static spawnRequirements = {
+		replaceSolid: (position: Vector, world: World) => world.tiles.get(position) === "solid",
+		atLeast2Empty: (position: Vector, world: World) => (
+			Directions.DIRECTIONS.filter(d => world.tiles.get(position.add(Vector.unit(d))) === "empty").length >= 2
+		),
+		noAdjacentGates: (position: Vector, world: World) => (
+			!Directions.DIRECTIONS.some(d => world.tiles.get(position.add(Vector.unit(d))) instanceof Gate)
+		)
+	};
 	
 	spawnLizards() {
 		const positions = [];
@@ -205,7 +215,12 @@ export class WorldGenerator {
 	spawnLasers(trapPositions: Vector[] = []) {
 		return this.spawnTraps(
 			LaserBlockData.LASERS_PER_ROOM,
-			LaserBlock.canSpawn,
+			[
+				WorldGenerator.spawnRequirements.replaceSolid,
+				WorldGenerator.spawnRequirements.atLeast2Empty,
+				WorldGenerator.spawnRequirements.noAdjacentGates,
+				LaserBlock.canSpawn
+			],
 			(x, y, world) => {
 				world.tiles.set(x, y, new LaserBlock(
 					2,
@@ -219,7 +234,7 @@ export class WorldGenerator {
 	spawnSpikeballBlocks(trapPositions: Vector[] = []) {
 		return this.spawnTraps(
 			SpikeballBlockData.SPIKEBALLS_PER_ROOM,
-			SpikeballBlock.canSpawn,
+			[SpikeballBlock.canSpawn],
 			(x: number, y: number, world: World) => {
 				world.tiles.set(x, y, new SpikeballBlock());
 			},
@@ -230,12 +245,12 @@ export class WorldGenerator {
 		const positions = this.spawnLasers();
 		this.spawnSpikeballBlocks(positions);
 	}
-	spawnTraps(density: number, canSpawn: (position: Vector, world: World) => boolean, spawn: (x: number, y: number, world: World) => void, positionsSpawned: Vector[] = []) {
+	spawnTraps(density: number, requirements: ((position: Vector, world: World) => boolean)[], spawn: (x: number, y: number, world: World) => void, positionsSpawned: Vector[] = []) {
 		let possiblePositions: Vector[] = [];
 		for(let x = -1; x < LevelGeneratorData.WIDTH * (RoomData.SIZE + LevelGeneratorData.MARGIN_X) + 1; x ++) {
 			for(let y = -1; y < LevelGeneratorData.HEIGHT * (RoomData.SIZE + LevelGeneratorData.MARGIN_Y) + 1; y ++) {
 				const position = new Vector(x, y);
-				if(canSpawn(position, this.world)) {
+				if(requirements.every(r => r(position, this.world))) {
 					possiblePositions.push(position);
 				}
 			}
