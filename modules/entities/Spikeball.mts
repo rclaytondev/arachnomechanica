@@ -16,7 +16,7 @@ export class Spikeball {
 	angle: number = 0;
 	ignoredTiles: Vector[] = [];
 	age: number = 0;
-	bounces: number = 3;
+	bounces: number = 2;
 	dead: boolean = false;
 	
 	constructor(position: Vector, velocity: Vector) {
