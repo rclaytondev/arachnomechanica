@@ -202,17 +202,29 @@ export class WorldGenerator {
 		console.log(this.world.entities.length);
 	}
 	spawnLasers() {
+		this.spawnTraps(
+			LaserBlockData.LASERS_PER_ROOM,
+			LaserBlock.canSpawn,
+			(x, y, world) => {
+				world.tiles.set(x, y, new LaserBlock(
+					2,
+					GameUtils.random(-LaserBlockData.MIN_SPEED, -LaserBlockData.MAX_SPEED),
+					GameUtils.random(0, 2 * Math.PI)
+				));
+			}
+		);
+	}
+	spawnTraps(density: number, canSpawn: (position: Vector, world: World) => boolean, spawn: (x: number, y: number, world: World) => void, positionsSpawned: Vector[] = []) {
 		let possiblePositions: Vector[] = [];
 		for(let x = -1; x < LevelGeneratorData.WIDTH * (RoomData.SIZE + LevelGeneratorData.MARGIN_X) + 1; x ++) {
 			for(let y = -1; y < LevelGeneratorData.HEIGHT * (RoomData.SIZE + LevelGeneratorData.MARGIN_Y) + 1; y ++) {
 				const position = new Vector(x, y);
-				if(LaserBlock.canSpawn(position, this.world)) {
+				if(canSpawn(position, this.world)) {
 					possiblePositions.push(position);
 				}
 			}
 		}
-		const totalLasers = Math.ceil(LevelGeneratorData.WIDTH * LevelGeneratorData.HEIGHT * LaserBlockData.LASERS_PER_ROOM);
-		const positionsSpawned: Vector[] = [];
+		const totalLasers = Math.ceil(LevelGeneratorData.WIDTH * LevelGeneratorData.HEIGHT * density);
 		let amountSpawned = 0;
 		while(amountSpawned < totalLasers && possiblePositions.length > 0) {
 			const next = GameUtils.randomEvenlySpaced(
@@ -222,17 +234,14 @@ export class WorldGenerator {
 				"int",
 				() => Utils.randomItem(possiblePositions)
 			);
-			this.world.tiles.set(next, new LaserBlock(
-				2,
-				GameUtils.random(-LaserBlockData.MIN_SPEED, -LaserBlockData.MAX_SPEED),
-				GameUtils.random(0, 2 * Math.PI)
-			));
+			spawn(next.x, next.y, this.world);
 			positionsSpawned.push(next);
 			for(const neighbor of [next, ...Directions.DIRECTIONS.map(d => next.add(Vector.unit(d)))]) {
 				possiblePositions = possiblePositions.filter(p => !p.equals(neighbor));
 			}
 			amountSpawned ++;
 		}
+		return positionsSpawned;
 	}
 
 	generate() {
