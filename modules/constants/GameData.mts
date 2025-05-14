@@ -288,4 +288,5 @@ export class SpikeballData {
 export class SpikeballBlockData {
 	static COLOR = "rgb(30, 30, 30)";
 	static SPAWN_FREQUENCY = 100;
+	static SPIKEBALLS_PER_ROOM = 0.4;
 }

@@ -3,7 +3,7 @@ import { Rectangle } from "../../utils-ts/modules/geometry/Rectangle.mjs";
 import { Vector } from "../../utils-ts/modules/geometry/Vector.mjs";
 import { Grid } from "../../utils-ts/modules/Grid.mjs";
 import { Utils } from "../../utils-ts/modules/Utils.mjs";
-import { LaserBlockData, LevelGeneratorData, LizardData, RoomData, WorldData } from "../constants/GameData.mjs";
+import { LaserBlockData, LevelGeneratorData, LizardData, RoomData, SpikeballBlockData, WorldData } from "../constants/GameData.mjs";
 import { Lizard } from "../entities/Lizard.js";
 import { GameUtils } from "../game-utilities/GameUtils.mjs";
 import { LevelGenerator } from "./LevelGenerator.mjs";
@@ -12,6 +12,7 @@ import { ROOMS } from "./Rooms.mjs";
 import { World } from "../World.js";
 import { LaserBlock } from "../tiles/LaserBlock.mjs";
 import { Gate } from "../tiles/Gate.mjs";
+import { SpikeballBlock } from "../tiles/SpikeballBlock.mjs";
 
 export class WorldGenerator {
 	levelGenerator: LevelGenerator = new LevelGenerator();
@@ -201,8 +202,8 @@ export class WorldGenerator {
 		}
 		console.log(this.world.entities.length);
 	}
-	spawnLasers() {
-		this.spawnTraps(
+	spawnLasers(trapPositions: Vector[] = []) {
+		return this.spawnTraps(
 			LaserBlockData.LASERS_PER_ROOM,
 			LaserBlock.canSpawn,
 			(x, y, world) => {
@@ -211,8 +212,23 @@ export class WorldGenerator {
 					GameUtils.random(-LaserBlockData.MIN_SPEED, -LaserBlockData.MAX_SPEED),
 					GameUtils.random(0, 2 * Math.PI)
 				));
-			}
+			},
+			trapPositions
 		);
+	}
+	spawnSpikeballBlocks(trapPositions: Vector[] = []) {
+		return this.spawnTraps(
+			SpikeballBlockData.SPIKEBALLS_PER_ROOM,
+			SpikeballBlock.canSpawn,
+			(x: number, y: number, world: World) => {
+				world.tiles.set(x, y, new SpikeballBlock());
+			},
+			trapPositions
+		);
+	}
+	spawnAllTraps() {
+		const positions = this.spawnLasers();
+		this.spawnSpikeballBlocks(positions);
 	}
 	spawnTraps(density: number, canSpawn: (position: Vector, world: World) => boolean, spawn: (x: number, y: number, world: World) => void, positionsSpawned: Vector[] = []) {
 		let possiblePositions: Vector[] = [];
@@ -252,7 +268,7 @@ export class WorldGenerator {
 		this.fillBoundaries();
 		this.spawnPlayer();
 		this.spawnLizards();
-		this.spawnLasers();
+		this.spawnAllTraps();
 		return this.world;
 	}
 }

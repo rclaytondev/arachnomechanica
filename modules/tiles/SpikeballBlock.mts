@@ -58,4 +58,17 @@ export class SpikeballBlock {
 		copy.timeUntilSpawn = this.timeUntilSpawn;
 		return new SpikeballBlock();
 	}
+
+	static canSpawn(position: Vector, world: World) {
+		if(world.tiles.get(position) !== "solid") {
+			return false;
+		}
+		const block = new SpikeballBlock();
+		return (
+			block.canSpawnSpikeball(position.x, position.y, "left", "up", world)
+			|| block.canSpawnSpikeball(position.x, position.y, "left", "down", world)
+			|| block.canSpawnSpikeball(position.x, position.y, "right", "up", world)
+			|| block.canSpawnSpikeball(position.x, position.y, "right", "down", world)
+		);
+	}
 }
