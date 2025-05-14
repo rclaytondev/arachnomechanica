@@ -290,7 +290,6 @@ export class SpikeballData {
 export type SpikeballPattern = [Direction, Direction][][];
 
 export class SpikeballBlockData {
-	static COLOR = "rgb(60, 60, 60)";
 	static SPAWN_FREQUENCY = 40;
 	static SPIKEBALLS_PER_ROOM = 0.4;
 	static PATTERNS: SpikeballPattern[] = [
@@ -310,8 +309,10 @@ export class SpikeballBlockData {
 	static DOOR_COLOR = "rgb(15, 15, 15)";
 	static DOOR_OPENING_SPEED = 2;
 	static DOOR_OPENING_TIME = 30;
-	static DOOR_OPENNESS = 0.2 * WorldData.TILE_SIZE;
-	static DOOR_WIDTH = 0.4 * WorldData.TILE_SIZE;
+	static DOOR_OPENNESS = 0.35 * WorldData.TILE_SIZE;
 	static DOOR_HEIGHT = 0.2 * WorldData.TILE_SIZE;
-	static DOOR_OFFSET = 0.1 * WorldData.TILE_SIZE;
+
+	static BARREL_COLOR = "rgb(30, 30, 30)";
+	static BARREL_LENGTH = 0.3 * WorldData.TILE_SIZE;
+	static BARREL_DOOR_LENGTH = 0.4 * WorldData.TILE_SIZE;
 }

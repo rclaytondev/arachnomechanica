@@ -1,5 +1,5 @@
 import { CanvasIO } from "../../utils-ts/modules/CanvasIO.mjs";
-import { Direction } from "../../utils-ts/modules/geometry/Direction.mjs";
+import { Direction, Directions } from "../../utils-ts/modules/geometry/Direction.mjs";
 import { Vector } from "../../utils-ts/modules/geometry/Vector.mjs";
 import { SpikeballBlockData, SpikeballData, SpikeballPattern, WorldData } from "../constants/GameData.mjs";
 import { Spikeball } from "../entities/Spikeball.mjs";
@@ -27,31 +27,32 @@ export class SpikeballBlock {
 	}
 
 	display(canvasIO: CanvasIO, x: number, y:  number) {
-		canvasIO.ctx.fillStyle = SpikeballBlockData.COLOR;
-		canvasIO.ctx.fillRect(x * WorldData.TILE_SIZE, y * WorldData.TILE_SIZE, WorldData.TILE_SIZE, WorldData.TILE_SIZE);
+		const center = new Vector(x + 1/2, y + 1/2).multiply(WorldData.TILE_SIZE);
+		for(const direction of Directions.DIAGONALS) {
+			canvasIO.ctx.save();
+			canvasIO.ctx.translate(center.x, center.y);
+			canvasIO.rotateTo("up", direction);
 
-		this.displayDoors(canvasIO, x, y);
-	}
-	displayDoors(canvasIO: CanvasIO, x: number, y:  number) {
-		canvasIO.ctx.fillStyle = SpikeballBlockData.DOOR_COLOR;
 
-		canvasIO.ctx.save();
-		canvasIO.ctx.translate(x * WorldData.TILE_SIZE, y * WorldData.TILE_SIZE);
-		canvasIO.ctx.fillRect(this.doors["up-left"] - SpikeballBlockData.DOOR_OFFSET, -SpikeballBlockData.DOOR_OFFSET, SpikeballBlockData.DOOR_WIDTH, SpikeballBlockData.DOOR_HEIGHT);
-		canvasIO.ctx.fillRect(-SpikeballBlockData.DOOR_OFFSET, this.doors["up-left"] - SpikeballBlockData.DOOR_OFFSET, SpikeballBlockData.DOOR_HEIGHT, SpikeballBlockData.DOOR_WIDTH);
-
-		canvasIO.ctx.fillRect(this.doors["down-left"] - SpikeballBlockData.DOOR_OFFSET, WorldData.TILE_SIZE - SpikeballBlockData.DOOR_HEIGHT + SpikeballBlockData.DOOR_OFFSET, SpikeballBlockData.DOOR_WIDTH, SpikeballBlockData.DOOR_HEIGHT);
-		canvasIO.ctx.fillRect(-SpikeballBlockData.DOOR_OFFSET, WorldData.TILE_SIZE - SpikeballBlockData.DOOR_WIDTH - this.doors["down-left"] + SpikeballBlockData.DOOR_OFFSET, SpikeballBlockData.DOOR_HEIGHT, SpikeballBlockData.DOOR_WIDTH);
-
-		
-		canvasIO.ctx.fillRect(WorldData.TILE_SIZE - SpikeballBlockData.DOOR_WIDTH - this.doors["up-right"] + SpikeballBlockData.DOOR_OFFSET, -SpikeballBlockData.DOOR_OFFSET, SpikeballBlockData.DOOR_WIDTH, SpikeballBlockData.DOOR_HEIGHT);
-		canvasIO.ctx.fillRect(WorldData.TILE_SIZE - SpikeballBlockData.DOOR_HEIGHT + SpikeballBlockData.DOOR_OFFSET, this.doors["up-right"] - SpikeballBlockData.DOOR_OFFSET, SpikeballBlockData.DOOR_HEIGHT, SpikeballBlockData.DOOR_WIDTH);
-
-		
-		canvasIO.ctx.fillRect(WorldData.TILE_SIZE - SpikeballBlockData.DOOR_WIDTH - this.doors["down-right"] + SpikeballBlockData.DOOR_OFFSET, WorldData.TILE_SIZE - SpikeballBlockData.DOOR_HEIGHT + SpikeballBlockData.DOOR_OFFSET, SpikeballBlockData.DOOR_WIDTH, SpikeballBlockData.DOOR_HEIGHT);
-		canvasIO.ctx.fillRect(WorldData.TILE_SIZE - SpikeballBlockData.DOOR_HEIGHT + SpikeballBlockData.DOOR_OFFSET, WorldData.TILE_SIZE - SpikeballBlockData.DOOR_WIDTH - this.doors["down-right"] + SpikeballBlockData.DOOR_OFFSET, SpikeballBlockData.DOOR_HEIGHT, SpikeballBlockData.DOOR_WIDTH);
-
-		canvasIO.ctx.restore();
+			
+			const openness = this.doors[direction];
+			canvasIO.ctx.fillStyle = SpikeballBlockData.BARREL_COLOR;
+			canvasIO.ctx.fillRect(
+				-WorldData.TILE_SIZE / 2, -WorldData.TILE_SIZE / 2 - SpikeballBlockData.BARREL_LENGTH,
+				WorldData.TILE_SIZE, WorldData.TILE_SIZE
+			);
+			canvasIO.ctx.fillStyle = SpikeballBlockData.DOOR_COLOR;
+			canvasIO.ctx.fillRect(
+				-WorldData.TILE_SIZE / 2, -WorldData.TILE_SIZE / 2 - SpikeballBlockData.BARREL_DOOR_LENGTH,
+				WorldData.TILE_SIZE / 2 - openness, SpikeballBlockData.DOOR_HEIGHT
+			);
+			canvasIO.ctx.fillRect(
+				openness, -WorldData.TILE_SIZE / 2 - SpikeballBlockData.BARREL_DOOR_LENGTH,
+				WorldData.TILE_SIZE / 2 - openness, SpikeballBlockData.DOOR_HEIGHT
+			);
+			canvasIO.ctx.restore();
+			// debugger;
+		}
 	}
 
 	update(world: World, x: number, y: number) {
