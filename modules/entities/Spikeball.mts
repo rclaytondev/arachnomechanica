@@ -72,6 +72,7 @@ export class Spikeball {
 		canvasIO.ctx.fillStyle = Spikeball.glowGradient;
 		canvasIO.ctx.save();
 		canvasIO.ctx.translate(center.x, center.y);
+		canvasIO.ctx.globalAlpha = this.age / SpikeballData.GLOW_FADE_TIME;
 		canvasIO.fillCircle(0, 0, SpikeballData.GLOW_SIZE);
 		canvasIO.ctx.restore();
 	}
@@ -100,6 +101,7 @@ export class Spikeball {
 		if(this.physicsObject.hitbox().intersects(world.player.physicsObject.hitbox())) {
 			world.player.damage();
 		}
+		this.age ++;
 	}
 
 	hitboxes() {

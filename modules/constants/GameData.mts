@@ -282,6 +282,7 @@ export class SpikeballData {
 	static SPIKE_BASE = 0.9 * SpikeballData.RADIUS;
 	static SPIKE_HEIGHT = 1.6 * SpikeballData.RADIUS;
 	static ROTATION_SPEED = 0.07;
+	static GLOW_FADE_TIME = 20;
 
 	static SPEED = 3.5;
 }
