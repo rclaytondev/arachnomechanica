@@ -179,7 +179,7 @@ export class WorldGenerator {
 			Directions.DIRECTIONS.filter(d => world.tiles.get(position.add(Vector.unit(d))) === "empty").length >= 2
 		),
 		noAdjacentGates: (position: Vector, world: World) => (
-			!Directions.DIRECTIONS.some(d => world.tiles.get(position.add(Vector.unit(d))) instanceof Gate)
+			!position.adjacentVectors().some(v => world.tiles.get(v) instanceof Gate)
 		)
 	};
 	
