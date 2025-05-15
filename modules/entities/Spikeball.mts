@@ -77,7 +77,7 @@ export class Spikeball {
 		canvasIO.ctx.restore();
 	}
 
-	update(world: World) {
+	update(world: World, canvasIO: CanvasIO) {
 		this.physicsObject.moveX(
 			this.physicsObject.velocity.x,
 			() => {
@@ -96,12 +96,26 @@ export class Spikeball {
 		);
 		if(this.bounces < 0) {
 			this.dead = true;
+			this.die(world, canvasIO);
 		}
 		this.angle += SpikeballData.ROTATION_SPEED;
 		if(this.physicsObject.hitbox().intersects(world.player.physicsObject.hitbox())) {
 			world.player.damage();
 		}
 		this.age ++;
+	}
+
+	die(world: World, canvasIO: CanvasIO) {
+		GameUtils.shatterParticles(
+			(canvasIO: CanvasIO) => this.display(canvasIO),
+			world,
+			this.physicsObject.hitbox().center(),
+			SpikeballData.SHATTER_PIECES,
+			SpikeballData.SHATTER_PARTICLE_SPEED,
+			canvasIO,
+			SpikeballData.SHATTER_ANGLE_EVENNESS,
+			SpikeballData.SHATTER_PARTICLE_SETTINGS
+		);
 	}
 
 	hitboxes() {

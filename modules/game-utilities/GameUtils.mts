@@ -4,6 +4,8 @@ import { Rectangle } from "../../utils-ts/modules/geometry/Rectangle.mjs";
 import { Vector } from "../../utils-ts/modules/geometry/Vector.mjs";
 import { MathUtils } from "../../utils-ts/modules/math/MathUtils.mjs";
 import { Utils } from "../../utils-ts/modules/Utils.mjs";
+import { World } from "../World";
+import { Particle, ParticleSettings } from "./Particle.mjs";
 
 export class GameUtils {
 	static moveTowards(value: number, target: number, speed: number) {
@@ -93,6 +95,20 @@ export class GameUtils {
 		const points = new Array(numTrials).fill(0).map(randomPoint);
 		return Utils.maxValue(points, point => Utils.minOutput(previousPoints, p => Vector.dist(point, p)));
 	}
+	static randomEvenlySpacedNumbers(min: number, max: number, numTrials: number, previousValues: number[]) {
+		if(previousValues.length === 0) {
+			return GameUtils.random(min, max);
+		}
+		const values = new Array(numTrials).fill(0).map(_ => GameUtils.random(min, max));
+		return Utils.maxValue(values, value => Utils.minOutput(previousValues, v => MathUtils.dist(value, v)));
+	}
+	static allRandomlyEvenlySpacedNumbers(min: number, max: number, amount: number, evenness: number) {
+		const result: number[] = [];
+		while(result.length < amount) {
+			result.push(GameUtils.randomEvenlySpacedNumbers(min, max, evenness, result));
+		}
+		return result;
+	}
 	
 	static hexColor(red: number, green: number, blue: number, alpha: number) {
 		return "#" + red.toString(16).padStart(2, "0") + green.toString(16).padStart(2, "0") + blue.toString(16).padStart(2, "0") + alpha.toString(16).padStart(2, "0");
@@ -124,6 +140,23 @@ export class GameUtils {
 			gradient.addColorStop(i, color);
 		}
 		return gradient;
+	}
+	static shatterParticles(display: (canvasIO: CanvasIO) => void, world: World, position: Vector, pieces: number, maxVelocity: number, canvasIO: CanvasIO, angleEvenness: number, settings: ParticleSettings) {
+		const angles = GameUtils.allRandomlyEvenlySpacedNumbers(0, 2 * Math.PI, pieces - 1, angleEvenness).sort((a, b) => a - b);
+
+		for(const [i, angle] of [0, ...angles, 2 * Math.PI].entries()) {
+			const next = angles[i + 1];
+			if(typeof next !== "number") { break; }
+			const velocity = new Vector(Math.cos(-(angle + next) / 2), -Math.sin(-(angle + next) / 2)).multiply(maxVelocity);
+			const displaySector = () => {
+				canvasIO.ctx.save();
+				canvasIO.clipArc(0, 0, 100, angle, next);
+				canvasIO.ctx.translate(-position.x, -position.y);
+				display(canvasIO);
+				canvasIO.ctx.restore();
+			};
+			world.particles.push(new Particle(position, velocity, { ...settings, shape: displaySector, rotation: 0 }));
+		}
 	}
 
 	static rayIntersectsVertical(rayStart: Vector, rayDirection: Vector, verticalLineX: number) {

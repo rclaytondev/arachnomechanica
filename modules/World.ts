@@ -280,16 +280,16 @@ export class World {
 	}
 
 	update(canvasIO: CanvasIO) {
-		this.updateEntities();
+		this.updateEntities(canvasIO);
 		this.player.update(this, canvasIO);
 		this.updateTiles(canvasIO);
 		this.updateParticles();
 		this.screenShakeTimer --;
 		this.updateCamera();
 	}
-	updateEntities() {
+	updateEntities(canvasIO: CanvasIO) {
 		for(const entity of this.entities) {
-			entity.update(this);
+			entity.update(this, canvasIO);
 		}
 		this.entities = this.entities.filter(c => !("dead" in c) || !c.dead);
 	}

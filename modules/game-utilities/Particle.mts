@@ -8,7 +8,7 @@ export type ParticleSettings = {
 	
 	opacity?: number;
 	opacityDecay?: number;
-	shape?: "circle" | number;
+	shape?: "circle" | number | ((canvasIO: CanvasIO) => void);
 	gravity?: number;
 	sizeDecay?: number;
 	maxRotationalVelocity?: number;
@@ -30,7 +30,7 @@ export class Particle {
 
 	opacity: number;
 	opacityDecay: number;
-	shape: "circle" | number;
+	shape: "circle" | number | ((canvasIO: CanvasIO) => void);
 	gravity: number;
 	sizeDecay: number;
 	rotationalVelocity: number;
@@ -87,17 +87,19 @@ export class Particle {
 			if(this.shape === "circle") {
 				canvasIO.fillCircle(0, 0, this.size);
 			}
-			else {
+			else if(typeof this.shape === "number") {
 				canvasIO.fillRegularPoly(new Vector(0, 0), this.size, this.shape);
 			}
+			else { this.shape(canvasIO); }
 		}
 		else {
 			if(this.shape === "circle") {
 				canvasIO.strokeCircle(0, 0, this.size);
 			}
-			else {
+			else if(typeof this.shape === "number") {
 				canvasIO.strokeRegularPoly(new Vector(0, 0), this.size, this.shape);
 			}
+			else { this.shape(canvasIO); }
 		}
 		canvasIO.ctx.restore();
 	}

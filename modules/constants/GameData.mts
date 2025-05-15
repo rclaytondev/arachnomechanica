@@ -285,6 +285,18 @@ export class SpikeballData {
 	static GLOW_FADE_TIME = 20;
 
 	static SPEED = 3.5;
+
+	static SHATTER_PIECES = 10;
+	static SHATTER_PARTICLE_SPEED = 3;
+	static SHATTER_ANGLE_EVENNESS = 10;
+	static SHATTER_PARTICLE_SETTINGS: ParticleSettings = {
+		color: { red: 0, green: 0, blue: 0 },
+		size: 1,
+		opacityDecay: 1/15,
+		minRotationalVelocity: -0.1,
+		maxRotationalVelocity: 0.1,
+		gravity: 0.2
+	};
 }
 
 export type SpikeballPattern = [Direction, Direction][][];
