@@ -223,7 +223,7 @@ export class WorldGenerator {
 			],
 			(x, y, world) => {
 				world.tiles.set(x, y, new LaserBlock(
-					2,
+					3,
 					GameUtils.random(-LaserBlockData.MIN_SPEED, -LaserBlockData.MAX_SPEED),
 					GameUtils.random(0, 2 * Math.PI)
 				));

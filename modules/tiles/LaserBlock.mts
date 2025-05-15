@@ -115,6 +115,10 @@ export class LaserBlock {
 				world.player.damage();
 			}
 		}
+
+		if(canvasIO.keys.KeyZ && !GameUtils.pastKeys.KeyZ) {
+			this.speed = -this.speed;
+		}
 	}
 
 	angles() {
@@ -205,6 +209,7 @@ export class LaserBlock {
 		if(distance === Infinity) { return 0; }
 		distance = Math.min(distance, this.tileIntersectionDistance(position, direction, world, distance));
 		distance = Math.min(distance, this.entityIntersectionDistance(position, direction, world));
+		distance = Math.min(distance, LaserBlockData.MAX_LENGTH);
 		return distance;
 	}
 	endpoint(position: Vector, direction: Vector, world: World, screenSize: Rectangle) {
