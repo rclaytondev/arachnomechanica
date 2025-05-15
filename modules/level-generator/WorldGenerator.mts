@@ -239,7 +239,7 @@ export class WorldGenerator {
 				LaserBlock.canSpawn
 			],
 			(x, y, world) => {
-				world.tiles.set(x, y, new LaserBlock(
+				world.addTile(new Vector(x, y), new LaserBlock(
 					LaserBlockData.BEAMS_PER_BLOCK,
 					GameUtils.random(-LaserBlockData.MIN_SPEED, -LaserBlockData.MAX_SPEED) * (Math.random() ? -1 : 1),
 					GameUtils.random(0, 2 * Math.PI)
@@ -258,7 +258,7 @@ export class WorldGenerator {
 				SpikeballBlock.canSpawn,
 			],
 			(x: number, y: number, world: World) => {
-				world.tiles.set(x, y, new SpikeballBlock(Utils.randomItem(SpikeballBlockData.PATTERNS)));
+				world.addTile(new Vector(x, y), new SpikeballBlock(Utils.randomItem(SpikeballBlockData.PATTERNS)));
 			},
 			trapPositions
 		);

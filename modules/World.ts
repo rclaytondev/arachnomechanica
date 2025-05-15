@@ -19,12 +19,14 @@ import { Lizard } from "./entities/Lizard.js";
 import { Spikeball } from "./entities/Spikeball.mjs";
 import { SpikeballBlock } from "./tiles/SpikeballBlock.mjs";
 
-export type Tile = (typeof WorldData.STRING_TILE_TYPES)[number] | Gate | LaserBlock | SpikeballBlock;
+export type TileEntity = Gate | LaserBlock | SpikeballBlock;
+export type Tile = (typeof WorldData.STRING_TILE_TYPES)[number] | TileEntity;
 export type Entity = Lizard | Spikeball;
 
 export class World {
 	tiles: Grid<Tile> = new Grid("empty");
 	entities: Entity[] = [];
+	tileEntities: { position: Vector, tile: TileEntity }[] = [];
 	particles: Particle[] = [];
 	gearsBackground: GearsBackground = GearsBackground.generate();
 	skyBackground: SkyBackground = new SkyBackground();
@@ -138,7 +140,7 @@ export class World {
 				}
 			}
 		}
-		for(const [tile, position] of this.tiles.entries()) {
+		for(const { tile, position } of this.tileEntities) {
 			if(tile instanceof LaserBlock) {
 				tile.displayLaserGlow(canvasIO, position.x, position.y, this);
 			}
@@ -162,7 +164,7 @@ export class World {
 		}
 	}
 	displayLasers(canvasIO: CanvasIO) {
-		for(const [tile, position] of this.tiles.entries()) {
+		for(const { tile, position } of this.tileEntities) {
 			if(tile instanceof LaserBlock) {
 				tile.displayLasers(canvasIO, position.x, position.y, this);
 			}
@@ -294,7 +296,7 @@ export class World {
 		this.entities = this.entities.filter(c => !("dead" in c) || !c.dead);
 	}
 	updateTiles(canvasIO: CanvasIO) {
-		for(const [tile, position] of this.tiles.entries()) {
+		for(const { tile, position } of this.tileEntities) {
 			if(typeof tile !== "string") {
 				tile.update(this, position.x, position.y, canvasIO);
 			}
@@ -369,11 +371,23 @@ export class World {
 				this.destroyTile(adjacentPosition);
 			}
 		}
+		if(World.isTileEntity(tile)) {
+			this.tileEntities = this.tileEntities.filter(t => t.tile !== tile);
+		}
+	}
+	addTile(position: Vector, tile: Tile) {
+		this.tiles.set(position, tile);
+		if(World.isTileEntity(tile)) {
+			this.tileEntities.push({ position, tile });
+		}
 	}
 
 	static isTile(value: unknown): value is Tile {
 		return (typeof value === "string" && (WorldData.STRING_TILE_TYPES as readonly string[]).includes(value))
-			|| value instanceof Gate;
+			|| World.isTileEntity(value);
+	}
+	static isTileEntity(value: unknown): value is TileEntity {
+		return value instanceof Gate || value instanceof LaserBlock || value instanceof SpikeballBlock;
 	}
 	static reflectTile(tile: Tile) {
 		if(tile === "solid" || tile === "empty" || tile === "platform") {

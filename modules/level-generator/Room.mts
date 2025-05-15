@@ -56,11 +56,11 @@ export class Room {
 				const tile = this.tiles.get(x, y);
 				const tileCopy = (typeof tile === "string") ? tile : tile.copy();
 				const worldPosition = position.add(x, y);
-				world.tiles.set(worldPosition, tileCopy);
+				world.addTile(worldPosition, tileCopy);
 
 				const direction = this.exitTiles.get(x, y);
 				if(direction !== "none" && !exits.includes(direction)) {
-					world.tiles.set(worldPosition, "solid");
+					world.addTile(worldPosition, "solid");
 				}
 			}
 		}
