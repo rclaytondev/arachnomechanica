@@ -180,7 +180,22 @@ export class WorldGenerator {
 		),
 		noAdjacentGates: (position: Vector, world: World) => (
 			!position.adjacentVectors().some(v => world.tiles.get(v) instanceof Gate)
-		)
+		),
+		atLeastLine3Empty: (position: Vector, world: World) => {
+			for(const direction of Directions.DIRECTIONS) {
+				const firstTile = world.tiles.get(position.add(Vector.unit(direction)));
+				if(firstTile === "solid") { continue; }
+				for(let i = 2; i <= 3; i ++) {
+					if(world.tiles.get(position.add(Vector.unit(direction).multiply(3))) !== "empty") {
+						return false;
+					}
+				}
+			}
+			return true;
+		},
+		notOnFloor: (position: Vector, world: World) => {
+			return world.tiles.get(position.add(0, -1)) !== "empty";
+		}
 	};
 	
 	spawnLizards() {
@@ -219,12 +234,14 @@ export class WorldGenerator {
 				WorldGenerator.spawnRequirements.replaceSolid,
 				WorldGenerator.spawnRequirements.atLeast2Empty,
 				WorldGenerator.spawnRequirements.noAdjacentGates,
+				WorldGenerator.spawnRequirements.atLeastLine3Empty,
+				WorldGenerator.spawnRequirements.notOnFloor,
 				LaserBlock.canSpawn
 			],
 			(x, y, world) => {
 				world.tiles.set(x, y, new LaserBlock(
-					3,
-					GameUtils.random(-LaserBlockData.MIN_SPEED, -LaserBlockData.MAX_SPEED),
+					LaserBlockData.BEAMS_PER_BLOCK,
+					GameUtils.random(-LaserBlockData.MIN_SPEED, -LaserBlockData.MAX_SPEED) * (Math.random() ? -1 : 1),
 					GameUtils.random(0, 2 * Math.PI)
 				));
 			},
@@ -237,6 +254,7 @@ export class WorldGenerator {
 			[
 				WorldGenerator.spawnRequirements.replaceSolid,
 				WorldGenerator.spawnRequirements.noAdjacentGates,
+				WorldGenerator.spawnRequirements.atLeastLine3Empty,
 				SpikeballBlock.canSpawn,
 			],
 			(x: number, y: number, world: World) => {

@@ -155,6 +155,7 @@ export class LaserBlockData {
 	static MIN_SPEED = 0.01;
 	static MAX_SPEED = 0.01;
 	static MAX_LENGTH = 500;
+	static BEAMS_PER_BLOCK = 2;
 }
 
 export class LizardData {
@@ -286,6 +287,7 @@ export class SpikeballData {
 	static GLOW_FADE_TIME = 20;
 
 	static SPEED = 3.5;
+	static BOUNCES = 3;
 
 	static SHATTER_PIECES = 10;
 	static SHATTER_PARTICLE_SPEED = 3;
