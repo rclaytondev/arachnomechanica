@@ -115,7 +115,9 @@ export class SpikeballBlock {
 
 	spawnSpikeballs(world: World, x: number, y: number) {
 		for(const [xDirection, yDirection] of this.pattern[this.patternStep]) {
-			this.spawnSpikeball(x, y, xDirection, yDirection, world);
+			if(this.canSpawnSpikeball(x, y, xDirection, yDirection, world)) {
+				this.spawnSpikeball(x, y, xDirection, yDirection, world);
+			}
 		}
 
 		let foundSpawnable = false;
