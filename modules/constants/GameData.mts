@@ -20,7 +20,6 @@ export class WorldData {
 		green: 180,
 		blue: 255
 	};
-	static TILE_DIAGONAL_GLOW_SCALE = 1.2;
 
 	static PLATFORM_THICKNESS = WorldData.TILE_SIZE * 0.1;
 
