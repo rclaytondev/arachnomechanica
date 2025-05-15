@@ -84,7 +84,7 @@ export class SpikeballBlock {
 	}
 
 	update(world: World, x: number, y: number) {
-		if(this.spikeballs.length === 0) {
+		if(this.spikeballs.every(s => s.bounces <= SpikeballBlockData.BOUNCES_LEFT_BEFORE_SPAWN)) {
 			this.timeUntilSpawn --;
 		}
 		this.timeSinceSpawn ++;

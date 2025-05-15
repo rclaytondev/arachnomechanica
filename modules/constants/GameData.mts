@@ -320,6 +320,7 @@ export class SpikeballBlockData {
 			]
 		]
 	]
+	static BOUNCES_LEFT_BEFORE_SPAWN = 1;
 
 	static DOOR_COLOR = "rgb(50, 50, 50)";
 	static DOOR_OPENING_SPEED = 2;
