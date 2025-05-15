@@ -120,15 +120,18 @@ export class SpikeballBlock {
 			}
 		}
 
+		this.nextPatternStep(world, x, y);
+	}
+	nextPatternStep(world: World, x: number, y: number) {
 		let foundSpawnable = false;
 		while(!foundSpawnable) {
+			this.patternStep ++;
+			this.patternStep %= this.pattern.length;
 			for(const [xDirection, yDirection] of this.pattern[this.patternStep]) {
 				if(this.canSpawnSpikeball(x, y, xDirection, yDirection, world)) {
 					foundSpawnable = true;
 				}
 			}
-			this.patternStep ++;
-			this.patternStep %= this.pattern.length;
 		}
 	}
 	canSpawnSpikeball(x: number, y: number, xDirection: Direction, yDirection: Direction, world: World) {
