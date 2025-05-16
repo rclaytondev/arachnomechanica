@@ -99,7 +99,7 @@ export class Spikeball {
 			this.die(world, canvasIO);
 		}
 		this.angle += SpikeballData.ROTATION_SPEED;
-		if(this.physicsObject.hitbox().intersects(world.player.physicsObject.hitbox())) {
+		if(this.hurtbox().intersects(world.player.physicsObject.hitbox())) {
 			world.player.damage();
 		}
 		this.age ++;
@@ -118,6 +118,13 @@ export class Spikeball {
 		);
 	}
 
+	hurtbox() {
+		const center = this.physicsObject.hitbox().center();
+		return new Rectangle(
+			center.x - SpikeballData.HURTBOX_SIZE / 2, center.y - SpikeballData.HURTBOX_SIZE /  2,
+			SpikeballData.HURTBOX_SIZE, SpikeballData.HURTBOX_SIZE
+		);
+	}
 	hitboxes() {
 		return [this.physicsObject.hitbox()];
 	}

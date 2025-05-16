@@ -287,6 +287,7 @@ export class SpikeballData {
 
 	static SPEED = 3.5;
 	static BOUNCES = 3;
+	static HURTBOX_SIZE = WorldData.TILE_SIZE * 0.3;
 
 	static SHATTER_PIECES = 10;
 	static SHATTER_PARTICLE_SPEED = 3;
