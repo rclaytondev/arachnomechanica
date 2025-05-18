@@ -284,7 +284,7 @@ export class WorldGenerator {
 	}
 	spawnAllTraps() {
 		const positions = this.spawnLasers();
-		this.spawnSpikeballBlocks(positions);
+		// this.spawnSpikeballBlocks(positions);
 	}
 	spawnTraps(density: number, requirements: ((position: Vector, world: World) => boolean)[], spawn: (x: number, y: number, world: World) => void, positionsSpawned: Vector[] = []) {
 		let possiblePositions: Vector[] = [];
