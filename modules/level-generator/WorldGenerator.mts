@@ -186,7 +186,26 @@ export class WorldGenerator {
 				const firstTile = world.tiles.get(position.add(Vector.unit(direction)));
 				if(firstTile === "solid") { continue; }
 				for(let i = 2; i <= 3; i ++) {
-					if(world.tiles.get(position.add(Vector.unit(direction).multiply(3))) !== "empty") {
+					if(world.tiles.get(position.add(Vector.unit(direction).multiply(i))) !== "empty") {
+						return false;
+					}
+				}
+			}
+			return true;
+		},
+		atLeast3RectEmpty: (position: Vector, world: World) => {
+			for(const direction of Directions.DIRECTIONS) {
+				const directionVector = Vector.unit(direction);
+				const perpendicular1 = Vector.unit(Directions.rotateClockwise(direction));
+				const perpendicular2 = Vector.unit(Directions.rotateCounterclockwise(direction));
+				const firstTile = world.tiles.get(position.add(directionVector));
+				if(firstTile === "solid") { continue; }
+				for(let i = 2; i <= 3; i ++) {
+					if(
+						world.tiles.get(position.add(directionVector.multiply(i))) !== "empty" ||
+						world.tiles.get(position.add(directionVector.multiply(i)).add(perpendicular1)) !== "empty" ||
+						world.tiles.get(position.add(directionVector.multiply(i)).add(perpendicular2)) !== "empty"
+					) {
 						return false;
 					}
 				}
@@ -254,7 +273,7 @@ export class WorldGenerator {
 			[
 				WorldGenerator.spawnRequirements.replaceSolid,
 				WorldGenerator.spawnRequirements.noAdjacentGates,
-				WorldGenerator.spawnRequirements.atLeastLine3Empty,
+				WorldGenerator.spawnRequirements.atLeast3RectEmpty,
 				SpikeballBlock.canSpawn,
 			],
 			(x: number, y: number, world: World) => {
