@@ -46,9 +46,9 @@ for(let i = 0; i < CORNER_SIZE; i ++) {
 let frameCount = 0;
 const FRAMERATE = 60;
 const world = new World();
-world.tiles.fillRect(new Rectangle(-1, -1, 8, 8), "solid");
-world.tiles.fillRect(new Rectangle(0, 0, 6, 6), "empty");
-world.tiles.set(3, 3, new SpikeballBlock(SpikeballBlockData.PATTERNS[0]));
+world.tiles.fillRect(new Rectangle(-1, -1, 200, 4), "solid");
+world.tiles.fillRect(new Rectangle(0, 0, 200, 2), "empty");
+world.entities.push(new Lizard(new Vector(500, 75), "left", 200, 3));
 
 LevelGenerator.initializeRooms();
 

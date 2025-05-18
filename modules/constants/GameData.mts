@@ -168,6 +168,7 @@ export class LizardData {
 	static HURTBOX_OFFSET = WorldData.TILE_SIZE * 0.4;
 	static MAX_HURTBOX_SIZE = 100;
 	static PLAYER_DETECTION_WIDTH = WorldData.TILE_SIZE * 0.5;
+	static TURN_DELAY = 7;
 
 	static FIRE_PARTICLES: ParticleSettings = {
 		color: { red: 255, green: 128, blue: 0 },

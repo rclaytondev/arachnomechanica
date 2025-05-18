@@ -33,6 +33,7 @@ export class Lizard {
 	dead: boolean = false;
 	mouthAngle: number = 0;
 	mouthDestination: number = LizardData.MAX_MOUTH_ANGLE;
+	waitingTimer: number = -1;
 
 	constructor(position: Vector, direction: Direction, length: number, speed: number) {
 		this.position = position;
@@ -170,7 +171,10 @@ export class Lizard {
 	}
 
 	update(world: World) {
-		this.position = this.position.add(Vector.unit(this.direction).multiply(this.speed));
+		if(this.waitingTimer < 0) {
+			this.position = this.position.add(Vector.unit(this.direction).multiply(this.speed));
+		}
+		this.waitingTimer --;
 
 		this.updateLegs();
 		this.updateMouth();
@@ -182,7 +186,9 @@ export class Lizard {
 		this.checkForPlayer(world);
 	}
 	updateLegs() {
-		this.legPosition = GameUtils.moveTowards(this.legPosition, this.legDestination, this.speed * LizardData.LEG_SPEED_MULTIPLIER);
+		if(this.waitingTimer < 0) {
+			this.legPosition = GameUtils.moveTowards(this.legPosition, this.legDestination, this.speed * LizardData.LEG_SPEED_MULTIPLIER);
+		}
 		if(this.legPosition >= LizardData.LEG_MAX) {
 			this.legDestination = LizardData.LEG_MIN;
 		}
@@ -191,10 +197,12 @@ export class Lizard {
 		}
 	}
 	updateMouth() {
-		this.mouthAngle = GameUtils.moveTowards(
-			this.mouthAngle, this.mouthDestination, 
-			(this.mouthAngle < this.mouthDestination) ? LizardData.MOUTH_SPEED_OPENING : LizardData.MOUTH_SPEED_CLOSING
-		);
+		if(this.waitingTimer < 0) {
+			this.mouthAngle = GameUtils.moveTowards(
+				this.mouthAngle, this.mouthDestination, 
+				(this.mouthAngle < this.mouthDestination) ? LizardData.MOUTH_SPEED_OPENING : LizardData.MOUTH_SPEED_CLOSING
+			);
+		}
 		if(this.mouthAngle <= 0) { this.mouthDestination = LizardData.MAX_MOUTH_ANGLE; }
 		if(this.mouthAngle >= LizardData.MAX_MOUTH_ANGLE) { this.mouthDestination = 0; }
 		if(this.fireTimer > 0) {
@@ -203,7 +211,7 @@ export class Lizard {
 	}
 	checkForCollisions(world: World) {
 		const lookaheadPoint = this.position.add(Vector.unit(this.direction).multiply(LizardData.LOOKAHEAD_DISTANCE));
-		if(this.isObstructed(world, this.direction)) {
+		if(this.isObstructed(world, this.direction) && this.waitingTimer < 0) {
 			const clockwise = Directions.rotateClockwise(this.direction);
 			const counterclockwise = Directions.rotateCounterclockwise(this.direction);
 			const obstructedCounterclockwise = this.isObstructed(world, counterclockwise, WorldData.TILE_SIZE);
@@ -225,6 +233,8 @@ export class Lizard {
 	}
 	turn(direction: Direction) {
 		if(direction !== this.direction) {
+			this.nextTurn = null;
+			this.waitingTimer = -1;
 			this.joints.unshift({ position: this.position.clone(), direction: this.direction });
 			this.direction = direction;
 			this.targetHeadAngle = Vector.unit(this.direction).angle();
@@ -383,7 +393,10 @@ export class Lizard {
 			? MathUtils.dist(MathUtils.generalizedModulo(this.position.x, WorldData.TILE_SIZE), WorldData.TILE_SIZE / 2) < this.speed
 			: MathUtils.dist(MathUtils.generalizedModulo(this.position.y, WorldData.TILE_SIZE), WorldData.TILE_SIZE / 2) < this.speed
 		);
-		if(this.nextTurn !== null && canTurn) {
+		if(this.nextTurn !== null && canTurn && this.waitingTimer < 0 && this.nextTurn !== this.direction) {
+			this.waitingTimer = LizardData.TURN_DELAY;
+		}
+		if(this.waitingTimer === 0 && this.nextTurn) {
 			this.attemptTurn(this.nextTurn, world);
 			this.nextTurn = null;
 		}
