@@ -190,7 +190,7 @@ export class World {
 					tile.display(canvasIO, x, y);
 				}
 				else if(tile instanceof LaserBlock) {
-					tile.displayBarrels(canvasIO, x, y);
+					// tile.displayBarrels(canvasIO, x, y);
 				}
 			}
 		}
