@@ -338,14 +338,19 @@ export class SpikeballBlockData {
 export class PortalData {
 	// static COLOR = "rgb(30, 30, 30)";
 	static COLOR = "rgb(15, 15, 15)";
-	static LINE_COLOR = "rgb(50, 200, 255)";
 	static WIDTH = 2 * WorldData.TILE_SIZE;
 	static BASE_HEIGHT = 0.2 * WorldData.TILE_SIZE;
-	static LINE_WIDTH = 2;
 
-	static MIN_LINE_LENGTH = 0.5 * WorldData.TILE_SIZE;
-	static MAX_LINE_LENGTH = 0.75 * WorldData.TILE_SIZE;
-	static LINE_SPAWN_WIDTH = PortalData.WIDTH / 2;
+	static LINE_SPAWN_WIDTH = PortalData.WIDTH * 0.6;
 	static LINE_SPEED = 2;
-	static LINES_PER_FRAME = 1;
+	static FRAMES_PER_LINE = 2;
+
+	static PARTICLE_SETTINGS: ParticleSettings = {
+		color: { red: 50, green: 200, blue: 255 },
+		size: { min: 0.4 * WorldData.TILE_SIZE, max: 0.6 * WorldData.TILE_SIZE },
+		shape: 2,
+		solid: false,
+		rotation: Math.PI / 2,
+		opacityDecay: { min: 1/60, max: 1/40 }
+	};
 }
