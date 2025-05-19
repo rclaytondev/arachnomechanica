@@ -1,5 +1,5 @@
 import { CanvasIO } from "../utils-ts/modules/CanvasIO.mjs";
-import { Directions } from "../utils-ts/modules/geometry/Direction.mjs";
+import { Direction, Directions } from "../utils-ts/modules/geometry/Direction.mjs";
 import { Rectangle } from "../utils-ts/modules/geometry/Rectangle.mjs";
 import { Vector } from "../utils-ts/modules/geometry/Vector.mjs";
 import { Grid } from "../utils-ts/modules/Grid.mjs";
@@ -358,6 +358,26 @@ export class World {
 		}
 		return false;
 	}
+	isBoundarySolid(worldPosition: Vector, direction: Direction, ignoredTiles: Tile[] = []) {
+		const tilePosition = (
+			(direction === "up") ? new Vector(Math.floor(worldPosition.x / WorldData.TILE_SIZE), Math.round(worldPosition.y / WorldData.TILE_SIZE))
+			: (direction === "down") ? new Vector(Math.floor(worldPosition.x / WorldData.TILE_SIZE), Math.round(worldPosition.y / WorldData.TILE_SIZE) - 1)
+			: (direction === "left") ? new Vector(Math.round(worldPosition.x / WorldData.TILE_SIZE), Math.floor(worldPosition.y / WorldData.TILE_SIZE))
+			: new Vector(Math.round(worldPosition.x / WorldData.TILE_SIZE) - 1, Math.floor(worldPosition.y / WorldData.TILE_SIZE))
+		);
+		const adjacentPosition = tilePosition.add(Vector.unit(direction));
+		if(direction === "down" && this.tiles.get(adjacentPosition) === "platform") {
+			return true;
+		}
+		for(const position of [tilePosition, adjacentPosition]) {
+			const tile = this.tiles.get(position);
+			if(!ignoredTiles.includes(tile) && (
+				World.isSolidTile(tile) ||
+				tile instanceof Gate && tile.getPhysicsBox(position.x, position.y).contains(worldPosition)
+			)) { return true; }
+		}
+		return false;
+	}
 	destroyTile(position: Vector) {
 		const tile = this.tiles.get(position);
 		this.tiles.set(position, "empty");
@@ -388,6 +408,13 @@ export class World {
 	}
 	static isTileEntity(value: unknown): value is TileEntity {
 		return value instanceof Gate || value instanceof LaserBlock || value instanceof SpikeballBlock;
+	}
+	static isSolidTile(tile: Tile) {
+		return (
+			tile === "solid"
+			|| (tile instanceof Gate && tile.openness === 0)
+			|| tile instanceof LaserBlock
+		);
 	}
 	static reflectTile(tile: Tile) {
 		if(tile === "solid" || tile === "empty" || tile === "platform") {

@@ -1,7 +1,7 @@
 import { CanvasIO, canvasIO } from "../utils-ts/modules/CanvasIO.mjs";
 import { Vector } from "../utils-ts/modules/geometry/Vector.mjs";
 import { DEBUG_SETTINGS } from "./constants/DebugSettings.mjs";
-import { LizardData, PlayerData, RoomData, SpikeballBlockData } from "./constants/GameData.mjs";
+import { LaserBlockData, LizardData, PlayerData, RoomData, SpikeballBlockData } from "./constants/GameData.mjs";
 import { Lizard } from "./entities/Lizard.js";
 import { GameUtils } from "./game-utilities/GameUtils.mjs";
 import { LevelGenerator } from "./level-generator/LevelGenerator.mjs";
@@ -46,9 +46,14 @@ for(let i = 0; i < CORNER_SIZE; i ++) {
 let frameCount = 0;
 const FRAMERATE = 60;
 const world = new World();
-world.tiles.fillRect(new Rectangle(-1, -1, 200, 4), "solid");
-world.tiles.fillRect(new Rectangle(0, 0, 200, 2), "empty");
-world.entities.push(new Lizard(new Vector(500, 75), "left", 200, 3));
+// world.tiles.fillRect(new Rectangle(-1, -1, 200, 4), "solid");
+// world.tiles.fillRect(new Rectangle(0, 0, 200, 2), "empty");
+world.tiles.fillRect(new Rectangle(0, 2, 200, 1), "platform");
+world.tiles.set(1, -1, "empty");
+world.tiles.set(0, -1,"solid");
+world.tiles.set(3, -4, "solid");
+world.tiles.set(6, -1, "solid");
+world.addTile(new Vector(3, -1), new LaserBlock(1, LaserBlockData.MAX_SPEED, Math.PI));
 
 LevelGenerator.initializeRooms();
 
