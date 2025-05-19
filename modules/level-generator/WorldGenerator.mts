@@ -16,8 +16,14 @@ import { SpikeballBlock } from "../tiles/SpikeballBlock.mjs";
 
 export class WorldGenerator {
 	levelGenerator: LevelGenerator = new LevelGenerator();
-	world: World = new World();
+	position: Vector;
+	world: World;
 	rooms: Grid<Room | null> = new Grid(null);
+
+	constructor(position: Vector = new Vector(0, 0), world: World = new World()) {
+		this.position = position;
+		this.world = world;
+	}
 
 	generateRooms() {
 		for(let x = 0; x < LevelGeneratorData.WIDTH; x ++) {
@@ -27,8 +33,8 @@ export class WorldGenerator {
 				const possibleRooms = ROOMS.filter(room => room.canAdd(roomPlaceholder));
 				const room = GameUtils.weightedRandom(possibleRooms, possibleRooms.map(r => r.weight));
 				room.add(new Vector(
-					x * (RoomData.SIZE + LevelGeneratorData.MARGIN_X),
-					y * (RoomData.SIZE + LevelGeneratorData.MARGIN_Y)
+					this.position.x + x * (RoomData.SIZE + LevelGeneratorData.MARGIN_X),
+					this.position.y + y * (RoomData.SIZE + LevelGeneratorData.MARGIN_Y)
 				), this.world, roomPlaceholder.exits);
 				this.rooms.set(x, y, room);
 			}
@@ -36,8 +42,8 @@ export class WorldGenerator {
 	}
 	fillRoom(x: number, y: number) {
 		this.world.tiles.fillRect(new Rectangle(
-			x * (RoomData.SIZE + LevelGeneratorData.MARGIN_X),
-			y * (RoomData.SIZE + LevelGeneratorData.MARGIN_Y),
+			this.position.x + x * (RoomData.SIZE + LevelGeneratorData.MARGIN_X),
+			this.position.y + y * (RoomData.SIZE + LevelGeneratorData.MARGIN_Y),
 			RoomData.SIZE,
 			RoomData.SIZE,
 		), "solid");
@@ -100,8 +106,8 @@ export class WorldGenerator {
 			for(let y = 0; y < LevelGeneratorData.HEIGHT; y ++) {
 				const room = this.rooms.get(x, y);
 				const position = new Vector(
-					x * (RoomData.SIZE + LevelGeneratorData.MARGIN_X),
-					y * (RoomData.SIZE + LevelGeneratorData.MARGIN_Y)
+					this.position.x + x * (RoomData.SIZE + LevelGeneratorData.MARGIN_X),
+					this.position.y + y * (RoomData.SIZE + LevelGeneratorData.MARGIN_Y)
 				);
 				for(const direction of ["right", "down"] as const) {
 					if(
@@ -123,7 +129,7 @@ export class WorldGenerator {
 
 				if(x < LevelGeneratorData.WIDTH - 1 && y < LevelGeneratorData.HEIGHT - 1) {
 					this.world.tiles.fillRect(new Rectangle(
-						position.x + RoomData.SIZE, position.y + RoomData.SIZE, 
+						this.position.x + position.x + RoomData.SIZE, this.position.y + position.y + RoomData.SIZE, 
 						LevelGeneratorData.MARGIN_X, LevelGeneratorData.MARGIN_Y
 					), "solid");
 				}
@@ -132,22 +138,22 @@ export class WorldGenerator {
 	}
 	fillBoundaries() {
 		this.world.tiles.fillRect(new Rectangle(
-			-LevelGeneratorData.BORDER_X, -LevelGeneratorData.BORDER_Y,
+			this.position.x - LevelGeneratorData.BORDER_X, this.position.y - LevelGeneratorData.BORDER_Y,
 			LevelGeneratorData.WIDTH * (RoomData.SIZE + LevelGeneratorData.MARGIN_X) + LevelGeneratorData.BORDER_X - LevelGeneratorData.MARGIN_X,
 			LevelGeneratorData.BORDER_Y
 		), "solid");
 		this.world.tiles.fillRect(new Rectangle(
-			-LevelGeneratorData.BORDER_X, 0,
+			this.position.x - LevelGeneratorData.BORDER_X, this.position.y,
 			LevelGeneratorData.BORDER_X,
 			LevelGeneratorData.HEIGHT * (RoomData.SIZE + LevelGeneratorData.MARGIN_Y)
 		), "solid");
 		this.world.tiles.fillRect(new Rectangle(
-			LevelGeneratorData.WIDTH * (RoomData.SIZE + LevelGeneratorData.MARGIN_X) - LevelGeneratorData.MARGIN_X, -LevelGeneratorData.BORDER_Y,
+			this.position.x + LevelGeneratorData.WIDTH * (RoomData.SIZE + LevelGeneratorData.MARGIN_X) - LevelGeneratorData.MARGIN_X, this.position.y - LevelGeneratorData.BORDER_Y,
 			LevelGeneratorData.BORDER_X,
 			LevelGeneratorData.HEIGHT * (RoomData.SIZE + LevelGeneratorData.MARGIN_Y) + LevelGeneratorData.BORDER_Y
 		), "solid");
 		this.world.tiles.fillRect(new Rectangle(
-			-LevelGeneratorData.BORDER_X, LevelGeneratorData.HEIGHT * (RoomData.SIZE + LevelGeneratorData.MARGIN_Y) - LevelGeneratorData.MARGIN_Y, 
+			this.position.x - LevelGeneratorData.BORDER_X, this.position.y + LevelGeneratorData.HEIGHT * (RoomData.SIZE + LevelGeneratorData.MARGIN_Y) - LevelGeneratorData.MARGIN_Y, 
 			LevelGeneratorData.WIDTH * (RoomData.SIZE + LevelGeneratorData.MARGIN_X) + 2 * LevelGeneratorData.BORDER_X - LevelGeneratorData.MARGIN_X,
 			LevelGeneratorData.BORDER_Y,
 		), "solid");
@@ -160,8 +166,8 @@ export class WorldGenerator {
 		for(let x = 0; x < RoomData.SIZE; x ++) {
 			for(let y = 0; y < RoomData.SIZE; y ++) {
 				const position = new Vector(
-					lastRoom.x * (RoomData.SIZE + LevelGeneratorData.MARGIN_X) + x,
-					lastRoom.y * (RoomData.SIZE + LevelGeneratorData.MARGIN_Y) + y
+					this.position.x + lastRoom.x * (RoomData.SIZE + LevelGeneratorData.MARGIN_X) + x,
+					this.position.y + lastRoom.y * (RoomData.SIZE + LevelGeneratorData.MARGIN_Y) + y
 				);
 				if(this.world.tiles.get(position) === "empty" && this.world.tiles.get(position.x, position.y + 1) === "solid") {
 					emptyTiles.push(position);
@@ -224,7 +230,7 @@ export class WorldGenerator {
 		while(amountSpawned < totalLizards) {
 			const position = GameUtils.randomEvenlySpaced(
 				new Rectangle(
-					0, 0,
+					this.position.x, this.position.y,
 					LevelGeneratorData.WIDTH * (RoomData.SIZE + LevelGeneratorData.MARGIN_X) - LevelGeneratorData.MARGIN_X - 1,
 					LevelGeneratorData.HEIGHT * (RoomData.SIZE + LevelGeneratorData.MARGIN_Y) - LevelGeneratorData.MARGIN_Y - 1
 				),
@@ -289,7 +295,7 @@ export class WorldGenerator {
 		let possiblePositions: Vector[] = [];
 		for(let x = -1; x < LevelGeneratorData.WIDTH * (RoomData.SIZE + LevelGeneratorData.MARGIN_X) + 1; x ++) {
 			for(let y = -1; y < LevelGeneratorData.HEIGHT * (RoomData.SIZE + LevelGeneratorData.MARGIN_Y) + 1; y ++) {
-				const position = new Vector(x, y);
+				const position = new Vector(this.position.x + x, this.position.y + y);
 				if(requirements.every(r => r(position, this.world))) {
 					possiblePositions.push(position);
 				}
