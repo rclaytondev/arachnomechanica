@@ -174,8 +174,6 @@ export class LizardData {
 		color: { red: 255, green: 128, blue: 0 },
 		size: WorldData.TILE_SIZE * 0.2,
 		shape: 3,
-		minRotationalVelocity: 0,
-		maxRotationalVelocity: 1,
 		glowSize: 30,
 		glowIntensity: 1/8
 	};
@@ -297,8 +295,7 @@ export class SpikeballData {
 		color: { red: 0, green: 0, blue: 0 },
 		size: 1,
 		opacityDecay: 1/15,
-		minRotationalVelocity: -0.1,
-		maxRotationalVelocity: 0.1,
+		rotationalVelocity: { min: -0.1, max: 0.1 },
 		gravity: 0.2
 	};
 }

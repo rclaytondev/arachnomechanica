@@ -2,22 +2,22 @@ import { CanvasIO } from "../../utils-ts/modules/CanvasIO.mjs";
 import { Vector } from "../../utils-ts/modules/geometry/Vector.mjs";
 import { GameUtils } from "./GameUtils.mjs";
 
+type Range = { min: number, max: number };
 export type ParticleSettings = {
 	color: { red: number, green: number, blue: number };
-	size: number;
+	size: number | Range;
 	
-	opacity?: number;
-	opacityDecay?: number;
+	opacity?: number | Range;
+	opacityDecay?: number | Range;
 	shape?: "circle" | number | ((canvasIO: CanvasIO) => void);
-	gravity?: number;
-	sizeDecay?: number;
-	maxRotationalVelocity?: number;
-	minRotationalVelocity?: number;
-	rotation?: number;
+	gravity?: number | Range;
+	sizeDecay?: number | Range;
+	rotationalVelocity?: number | Range;
+	rotation?: number | Range;
 	colorVariance?: number;
 	solid?: boolean;
-	glowSize?: number;
-	glowIntensity?: number;
+	glowSize?: number | Range;
+	glowIntensity?: number | Range;
 	grayscaleColorVariance?: number;
 };
 
@@ -40,11 +40,18 @@ export class Particle {
 	glowIntensity: number;
 	glowGradient: CanvasGradient | null;
 
+	static randomize(info: number | Range) {
+		if(typeof info === "number") {
+			return info;
+		}
+		return GameUtils.random(info.min, info.max);
+	}
+
 	constructor(position: Vector, velocity: Vector, settings: ParticleSettings) {
 		this.position = position;
 		this.velocity = velocity;
 
-		this.size = settings.size;
+		this.size = Particle.randomize(settings.size);
 
 		if(settings.colorVariance) {
 			const red = settings.color.red + GameUtils.random(-settings.colorVariance, settings.colorVariance);
@@ -60,19 +67,16 @@ export class Particle {
 			this.color = `rgb(${settings.color.red}, ${settings.color.green}, ${settings.color.blue})`;
 		}
 
-		this.opacity = settings.opacity ?? 1;
-		this.opacityDecay = settings.opacityDecay ?? 1/20;
+		this.opacity = Particle.randomize(settings.opacity ?? 1);
+		this.opacityDecay = Particle.randomize(settings.opacityDecay ?? 1/20);
 		this.shape = settings.shape ?? "circle";
-		this.gravity = settings.gravity ?? 0;
-		this.sizeDecay = settings.sizeDecay ?? 0;
-		this.rotationalVelocity = GameUtils.random(
-			settings.minRotationalVelocity ?? 0,
-			settings.maxRotationalVelocity ?? settings.minRotationalVelocity ?? 0
-		);
-		this.rotation = settings.rotation ?? GameUtils.random(0, 2 * Math.PI);
+		this.gravity = Particle.randomize(settings.gravity ?? 0);
+		this.sizeDecay = Particle.randomize(settings.sizeDecay ?? 0);
+		this.rotationalVelocity = Particle.randomize(settings.rotationalVelocity ?? 0);
+		this.rotation = Particle.randomize(settings.rotation ?? { min: 0, max: 2 * Math.PI });
 		this.solid = settings.solid ?? true;
-		this.glowSize = settings.glowSize ?? 0;
-		this.glowIntensity = settings.glowIntensity ?? 1;
+		this.glowSize = Particle.randomize(settings.glowSize ?? 0);
+		this.glowIntensity = Particle.randomize(settings.glowIntensity ?? 1);
 		this.glowGradient = GameUtils.glowCircleGradient(0, 0, this.glowSize, this.glowIntensity);
 	}
 
