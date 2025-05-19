@@ -476,7 +476,7 @@ export class Lizard {
 			(tile instanceof Gate && tile.openness !== 1) ||
 			(tile instanceof LaserBlock || tile instanceof SpikeballBlock)
 		))) { return true; }
-		if(world.entities.some(entity => entity.hitboxes().some(b => b.intersects(lookaheadRectangle)))) {
+		if(world.entities.some(entity => "hitboxes" in entity && entity.hitboxes().some(b => b.intersects(lookaheadRectangle)))) {
 			return true;
 		}
 		return false;

@@ -179,7 +179,7 @@ export class LaserBlock {
 		let result = Infinity;
 		const center = new Vector(position.x + 1/2, position.y + 1/2).multiply(WorldData.TILE_SIZE);
 		for(const entity of world.entities) {
-			for(const hitbox of entity.hitboxes()) {
+			for(const hitbox of ("hitboxes" in entity) ? entity.hitboxes() : []) {
 				result = Math.min(result, GameUtils.rayIntersectsRectangle(center, direction, hitbox));
 			}
 		}

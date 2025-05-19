@@ -15,6 +15,7 @@ import { LaserBlock } from "./tiles/LaserBlock.mjs";
 import { Spikeball } from "./entities/Spikeball.mjs";
 import { SpikeballBlock } from "./tiles/SpikeballBlock.mjs";
 import { Rectangle } from "../utils-ts/modules/geometry/Rectangle.mjs";
+import { Portal } from "./entities/Portal.mjs";
 
 const recordedRNG: number[] = [];
 let rngOverrideIndex = 0;
@@ -46,21 +47,16 @@ for(let i = 0; i < CORNER_SIZE; i ++) {
 let frameCount = 0;
 const FRAMERATE = 60;
 const world = new World();
-// world.tiles.fillRect(new Rectangle(-1, -1, 200, 4), "solid");
-// world.tiles.fillRect(new Rectangle(0, 0, 200, 2), "empty");
-world.tiles.fillRect(new Rectangle(0, 2, 200, 1), "platform");
-world.tiles.set(1, -1, "empty");
-world.tiles.set(0, -1,"solid");
-world.tiles.set(3, -4, "solid");
-world.tiles.set(6, -1, "solid");
-world.addTile(new Vector(3, -1), new LaserBlock(1, LaserBlockData.MAX_SPEED, Math.PI));
+world.tiles.fillRect(new Rectangle(-1, -1, 12, 12), "solid");
+world.tiles.fillRect(new Rectangle(0, 0, 10, 10), "empty");
+world.entities.push(new Portal(new Vector(50, 500)));
 
 LevelGenerator.initializeRooms();
 
 export class Main {
-	static screen: World | RoomEditor = new WorldGenerator().generate();
+	// static screen: World | RoomEditor = new WorldGenerator().generate();
 	// static screen: World | RoomEditor = new RoomEditor();
-	// static screen: World | RoomEditor = world;
+	static screen: World | RoomEditor = world;
 
 	static fadingOpacity: number = 0;
 	static fadingDestination: number = 0;

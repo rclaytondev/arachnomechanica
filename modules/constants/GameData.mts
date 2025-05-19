@@ -337,3 +337,18 @@ export class SpikeballBlockData {
 	static BARREL_LENGTH = 0.2 * WorldData.TILE_SIZE;
 	static BARREL_DOOR_LENGTH = 0.3 * WorldData.TILE_SIZE;
 }
+
+export class PortalData {
+	// static COLOR = "rgb(30, 30, 30)";
+	static COLOR = "rgb(15, 15, 15)";
+	static LINE_COLOR = "rgb(50, 200, 255)";
+	static WIDTH = 2 * WorldData.TILE_SIZE;
+	static BASE_HEIGHT = 0.2 * WorldData.TILE_SIZE;
+	static LINE_WIDTH = 2;
+
+	static MIN_LINE_LENGTH = 0.5 * WorldData.TILE_SIZE;
+	static MAX_LINE_LENGTH = 0.75 * WorldData.TILE_SIZE;
+	static LINE_SPAWN_WIDTH = PortalData.WIDTH / 2;
+	static LINE_SPEED = 2;
+	static LINES_PER_FRAME = 1;
+}

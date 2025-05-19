@@ -18,10 +18,11 @@ import { LaserBlock } from "./tiles/LaserBlock.mjs";
 import { Lizard } from "./entities/Lizard.js";
 import { Spikeball } from "./entities/Spikeball.mjs";
 import { SpikeballBlock } from "./tiles/SpikeballBlock.mjs";
+import { Portal } from "./entities/Portal.mjs";
 
 export type TileEntity = Gate | LaserBlock | SpikeballBlock;
 export type Tile = (typeof WorldData.STRING_TILE_TYPES)[number] | TileEntity;
-export type Entity = Lizard | Spikeball;
+export type Entity = Lizard | Spikeball | Portal;
 
 export class World {
 	tiles: Grid<Tile> = new Grid("empty");
@@ -131,7 +132,9 @@ export class World {
 	}
 	displayGlowEffects(canvasIO: CanvasIO, visibleRegion: Rectangle) {
 		for(const entity of this.entities) {
-			entity.displayGlowEffect(canvasIO);
+			if("displayGlowEffect" in entity) {
+				entity.displayGlowEffect(canvasIO);
+			}
 		}
 		for(let x = visibleRegion.left(); x < visibleRegion.right(); x ++) {
 			for(let y = visibleRegion.top(); y < visibleRegion.bottom(); y ++) {
@@ -352,7 +355,7 @@ export class World {
 			)) { return true; }
 		}
 		for(const entity of this.entities) {
-			if(collides(entity) && entity.hitboxes().some(b => rectangle.intersects(b))) {
+			if(collides(entity) && "hitboxes" in entity && entity.hitboxes().some(b => rectangle.intersects(b))) {
 				return true;
 			}
 		}
