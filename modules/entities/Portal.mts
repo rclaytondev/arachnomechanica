@@ -1,7 +1,7 @@
 import { CanvasIO } from "../../utils-ts/modules/CanvasIO.mjs";
 import { Rectangle } from "../../utils-ts/modules/geometry/Rectangle.mjs";
 import { Vector } from "../../utils-ts/modules/geometry/Vector.mjs";
-import { PortalData } from "../constants/GameData.mjs";
+import { PortalData, RoomData, WorldData } from "../constants/GameData.mjs";
 import { GameUtils } from "../game-utilities/GameUtils.mjs";
 import { Particle } from "../game-utilities/Particle.mjs";
 import { frameCount } from "../Main.js";
@@ -46,5 +46,12 @@ export class Portal {
 			this.position.x - PortalData.WIDTH / 2, this.position.y - PortalData.BASE_HEIGHT,
 			PortalData.WIDTH, PortalData.BASE_HEIGHT
 		);
+	}
+
+	reflect() {
+		return new Portal(new Vector(RoomData.SIZE * WorldData.TILE_SIZE - this.position.x, this.position.y));
+	}
+	copy() {
+		return new Portal(this.position.clone());
 	}
 }

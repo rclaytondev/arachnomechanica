@@ -73,6 +73,7 @@ export const ROOMS: Room[] = [
 			{ x: 0, y: 4, direction: "left" },
 			{ x: 0, y: 3, direction: "left" },
 		],
+		[],
 		() => true
 	),
 	new Room(
@@ -147,6 +148,7 @@ export const ROOMS: Room[] = [
 			{ x: 0, y: 7, direction: "left" },
 			{ x: 0, y: 8, direction: "left" },
 		],
+		[],
 		(exits: Direction[]) => !exits.includes("up") && !exits.includes("down")
 	),
 	new Room(
@@ -251,6 +253,7 @@ export const ROOMS: Room[] = [
 			{ x: 7, y: 3, direction: "up" },
 			{ x: 8, y: 3, direction: "up" },
 		],
+		[],
 		(exits: Direction[]) => exits.includes("down") && !exits.includes("up")
 	),
 	new Room(
@@ -354,6 +357,7 @@ export const ROOMS: Room[] = [
 			{ x: 2, y: 5, direction: "left" },
 			{ x: 5, y: 11, direction: "down" },
 		],
+		[],
 		(exits: Direction[]) => exits.includes("up") && exits.includes("down") && !exits.includes("right")
 	),
 	new Room(
@@ -459,6 +463,7 @@ export const ROOMS: Room[] = [
 			{ x: 0, y: 3, direction: "left" },
 			{ x: 11, y: 3, direction: "right" },
 		],
+		[],
 		(exits: Direction[]) => exits.includes("left") && exits.includes("right") && !exits.includes("up") && !exits.includes("down"),
 		[
 			...Room.gatePath("left", "right", true),
@@ -531,6 +536,7 @@ export const ROOMS: Room[] = [
 			{ x: 6, y: 0, direction: "up" },
 			{ x: 7, y: 0, direction: "up" },
 		],
+		[],
 		(exits: Direction[]) => !exits.includes("up") && !exits.includes("down")
 	),
 	new Room(
@@ -607,6 +613,7 @@ export const ROOMS: Room[] = [
 			{ x: 3, y: 11, direction: "down" },
 			{ x: 8, y: 11, direction: "down" },
 		],
+		[],
 		() => true
 	),
 	new Room(
@@ -683,6 +690,7 @@ export const ROOMS: Room[] = [
 			{ x: 0, y: 4, direction: "left" },
 			{ x: 0, y: 3, direction: "left" },
 		],
+		[],
 		(exits: Direction[]) => !exits.includes("up") && !exits.includes("down"),
 		Room.getTraversability([
 			...Room.gatePath("left", "right", true),
@@ -770,6 +778,7 @@ export const ROOMS: Room[] = [
 			{ x: 11, y: 7, direction: "right" },
 			{ x: 11, y: 8, direction: "right" },
 		],
+		[],
 		(exits: Direction[]) => exits.includes("up") && exits.includes("down") && !exits.includes("left"),
 		Room.getTraversability([
 			...Room.gatelessPath("down", "right"),
@@ -870,6 +879,7 @@ export const ROOMS: Room[] = [
 			{ x: 0, y: 7, direction: "left" },
 			{ x: 0, y: 8, direction: "left" },
 		],
+		[],
 		(exits: Direction[]) => exits.includes("up") && exits.includes("right") && !exits.includes("left")
 	),
 	new Room(
@@ -972,6 +982,7 @@ export const ROOMS: Room[] = [
 			{ x: 1, y: 6, direction: "left" },
 			{ x: 2, y: 6, direction: "left" },
 		],
+		[],
 		(exits: Direction[]) => exits.includes("left") && !exits.includes("up"),
 		Room.getTraversability([
 			...Room.gatelessPath("down", "right"),
@@ -1065,6 +1076,7 @@ export const ROOMS: Room[] = [
 			{ x: 5, y: 11, direction: "down" },
 			{ x: 4, y: 11, direction: "down" },
 		],
+		[],
 		(exits: Direction[]) => exits.includes("up") && (exits.includes("left") || exits.includes("right")),
 		Room.getTraversability([
 			...Room.gatelessPath("left", "right"),
@@ -1164,6 +1176,7 @@ export const ROOMS: Room[] = [
 			{ x: 5, y: 11, direction: "down" },
 			{ x: 4, y: 11, direction: "down" },
 		],
+		[],
 		() => true,
 		RoomData.ALL_TRAVERSABILITY
 	),
@@ -1289,6 +1302,7 @@ export const ROOMS: Room[] = [
 			{ x: 0, y: 7, direction: "left" },
 			{ x: 0, y: 8, direction: "left" },
 		],
+		[],
 		(exits: Direction[]) => exits.includes("left") && exits.includes("right") && !exits.includes("up") && !exits.includes("down"),
 		Room.gatePath("left", "right", true)
 	),
@@ -1392,6 +1406,7 @@ export const ROOMS: Room[] = [
 			{ x: 5, y: 0, direction: "up" },
 			{ x: 4, y: 0, direction: "up" },
 		],
+		[],
 		() => true,
 		Room.getTraversability([
 			...Room.onewayGatelessPath("up", "left"),
@@ -1526,6 +1541,7 @@ export const ROOMS: Room[] = [
 			{ x: 6, y: 10, direction: "down" },
 			{ x: 5, y: 10, direction: "down" },
 		],
+		[],
 		(exits: Direction[]) => (exits.includes("left") || exits.includes("right")) && exits.includes("down"),
 		[
 			{ start: new GateState(null, "left", true), end: new GateState(null, "down", true) },
@@ -1650,6 +1666,7 @@ export const ROOMS: Room[] = [
 			{ x: 1, y: 7, direction: "left" },
 			{ x: 1, y: 8, direction: "left" },
 		],
+		[],
 		(exits: Direction[]) => exits.includes("up") && exits.includes("down") && !exits.includes("right"),
 		Room.getTraversability([
 			...Room.gatelessPath("left", "down"),
@@ -1757,6 +1774,7 @@ export const ROOMS: Room[] = [
 			{ x: 6, y: 11, direction: "down" },
 			{ x: 7, y: 11, direction: "down" },
 		],
+		[],
 		(exits: Direction[]) => exits.length === 4,
 		[
 			...Room.gatelessPath("left", "up"),
@@ -1913,6 +1931,7 @@ export const ROOMS: Room[] = [
 			{ x: 5, y: 4, direction: "up" },
 			{ x: 6, y: 4, direction: "up" },
 		],
+		[],
 		(exits: Direction[]) => (exits.includes("up") || exits.includes("down")) && (exits.includes("left") && exits.includes("right")),
 		Room.getTraversability([
 			...Room.gatelessPath("up", "down"),
@@ -2034,6 +2053,7 @@ export const ROOMS: Room[] = [
 			{ x: 6, y: 9, direction: "down" },
 			{ x: 5, y: 9, direction: "down" },
 		],
+		[],
 		(exits: Direction[])  => exits.includes("left") && exits.includes("right") && exits.includes("up"),
 		Room.getTraversability([
 			...Room.onewayGatelessPath("down", "up"),
@@ -2183,6 +2203,7 @@ export const ROOMS: Room[] = [
 			{ x: 5, y: 10, direction: "down" },
 			{ x: 6, y: 10, direction: "down" },
 		],
+		[],
 		(exits: Direction[]) => (exits.includes("left") || exits.includes("right")) && (exits.includes("up") || exits.includes("down")),
 		[
 			{ start: new GateState(null, "left", true), end: new GateState(null, "down", true) },
@@ -2290,6 +2311,7 @@ export const ROOMS: Room[] = [
 			{ x: 7, y: 10, direction: "down" },
 			{ x: 6, y: 10, direction: "down" },
 		],
+		[],
 		() => true,
 		RoomData.ALL_TRAVERSABILITY
 	),
@@ -2395,6 +2417,7 @@ export const ROOMS: Room[] = [
 			{ x: 11, y: 7, direction: "right" },
 			{ x: 11, y: 8, direction: "right" },
 		],
+		[],
 		(exits: Direction[]) => !exits.includes("down") && exits.includes("up") && exits.includes("left") && exits.includes("right"),
 		Room.getTraversability([
 			...Room.doubleGatePath("left", "right"),
@@ -2536,6 +2559,7 @@ export const ROOMS: Room[] = [
 			{ x: 11, y: 7, direction: "right" },
 			{ x: 11, y: 8, direction: "right" },
 		],
+		[],
 		(exits: Direction[]) => exits.includes("left") && exits.includes("right") && !exits.includes("up") && !exits.includes("down"),
 		Room.doubleGatePath("left", "right")
 	),
@@ -2675,6 +2699,7 @@ export const ROOMS: Room[] = [
 			{ x: 0, y: 7, direction: "left" },
 			{ x: 2, y: 8, direction: "left" },
 		],
+		[],
 		(exits: Direction[]) => exits.includes("up") && exits.includes("down"),
 		Room.getTraversability([
 			...Room.gatelessPath("left", "right"),
@@ -2818,6 +2843,7 @@ export const ROOMS: Room[] = [
 			{ x: 4, y: 8, direction: "left" },
 			{ x: 4, y: 7, direction: "left" },
 		],
+		[],
 		(exits: Direction[]) => exits.includes("up") && exits.includes("down"),
 		Room.getTraversability([
 			...Room.gatePath("left", "down", true),
@@ -2949,6 +2975,7 @@ export const ROOMS: Room[] = [
 			{ x: 6, y: 9, direction: "down" },
 			{ x: 4, y: 6, direction: "down" },
 		],
+		[],
 		(exits: Direction[]) => exits.includes("right") && exits.includes("left"),
 		Room.getTraversability([
 			...Room.onewayGatelessPath("right", "up"),
@@ -3023,6 +3050,7 @@ export const ROOMS: Room[] = [
 			{ x: 0, y: 6, direction: "left" },
 			{ x: 0, y: 5, direction: "left" },
 		],
+		[],
 		(exits: Direction[]) => exits.includes("up"),
 		RoomData.NO_GATE_TRAVERSABILITY
 	),
@@ -3090,6 +3118,7 @@ export const ROOMS: Room[] = [
 			{ x: 0, y: 6, direction: "left" },
 			{ x: 0, y: 5, direction: "left" },
 		],
+		[],
 		(exits: Direction[]) => exits.includes("up"),
 		RoomData.NO_GATE_TRAVERSABILITY
 	),
@@ -3169,6 +3198,7 @@ export const ROOMS: Room[] = [
 			{ x: 11, y: 6, direction: "right" },
 			{ x: 11, y: 5, direction: "right" },
 		],
+		[],
 		(exits: Direction[]) => true,
 		RoomData.ALL_TRAVERSABILITY
 	),
@@ -3270,6 +3300,7 @@ export const ROOMS: Room[] = [
 			{ x: 0, y: 6, direction: "left" },
 			{ x: 11, y: 6, direction: "right" },
 		],
+		[],
 		(exits: Direction[]) => !exits.includes("up") && exits.length >= 2,
 		RoomData.ALL_TRAVERSABILITY,
 		3
@@ -3348,6 +3379,7 @@ export const ROOMS: Room[] = [
 			{ x: 6, y: 0, direction: "up" },
 			{ x: 7, y: 0, direction: "up" },
 		],
+		[],
 		(exits: Direction[]) => true,
 		RoomData.NO_GATE_TRAVERSABILITY
 	),
@@ -3463,6 +3495,7 @@ export const ROOMS: Room[] = [
 			{ x: 6, y: 0, direction: "up" },
 			{ x: 5, y: 0, direction: "up" },
 		],
+		[],
 		(exits: Direction[]) => exits.includes("up") && exits.includes("down") && !exits.includes("left") && !exits.includes("right"),
 		[
 			{ start: new GateState(null, "up", false), end: new GateState(null, "up", true) },
@@ -3551,6 +3584,7 @@ export const ROOMS: Room[] = [
 			{ x: 1, y: 7, direction: "left" },
 			{ x: 1, y: 8, direction: "left" },
 		],
+		[],
 		(exits: Direction[]) => exits.includes("up") && exits.includes("down")
 	),
 	new Room(
@@ -3637,6 +3671,7 @@ export const ROOMS: Room[] = [
 			{ x: 11, y: 6, direction: "right" },
 			{ x: 11, y: 5, direction: "right" },
 		],
+		[],
 		(exits: Direction[]) => exits.length >= 2 && exits.includes("up")
 	),
 	new Room(
@@ -3705,6 +3740,7 @@ export const ROOMS: Room[] = [
 			{ x: 4, y: 11, direction: "down" },
 			{ x: 7, y: 11, direction: "down" },
 		],
+		[],
 		(exits: Direction[]) => !exits.includes("up")
 	),
 	new Room(
@@ -3789,6 +3825,7 @@ export const ROOMS: Room[] = [
 			{ x: 10, y: 7, direction: "right" },
 			{ x: 10, y: 6, direction: "right" },
 		],
+		[],
 		(exits: Direction[]) => !exits.includes("left")
 	),
 	new Room(
@@ -3893,6 +3930,7 @@ export const ROOMS: Room[] = [
 			{ x: 0, y: 8, direction: "left" },
 			{ x: 9, y: 7, direction: "right" },
 		],
+		[],
 		(exits: Direction[]) => exits.includes("up") && exits.includes("left") && !exits.includes("down"),
 		Room.getTraversability([
 			...Room.gatelessPath("left", "up"),

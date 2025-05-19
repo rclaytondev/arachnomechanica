@@ -19,7 +19,7 @@ export class Room {
 	weight: number;
 	entities: Portal[];
 
-	constructor(name: string, tiles: { x: number, y: number, type: Tile }[] | Grid<Tile>, exitTiles: { x: number, y: number, direction: Direction }[] | Grid<Direction | "none">, canSpawnWithExits: (exits: Direction[]) => boolean, traversability?: Traversability, weight: number = 1, entitities: Portal[] = []) {
+	constructor(name: string, tiles: { x: number, y: number, type: Tile }[] | Grid<Tile>, exitTiles: { x: number, y: number, direction: Direction }[] | Grid<Direction | "none">, entities: Portal[] = [], canSpawnWithExits: (exits: Direction[]) => boolean, traversability?: Traversability, weight: number = 1) {
 		this.name = name;
 		if(tiles instanceof Grid) {
 			this.tiles = tiles;
@@ -42,7 +42,7 @@ export class Room {
 		this.canSpawnWithExits = canSpawnWithExits;
 		this.traversability = GateState.deduplicateTraversability((traversability ?? RoomData.NO_GATE_TRAVERSABILITY));
 		this.weight = weight;
-		this.entities = entitities;
+		this.entities = entities;
 	}
 
 	canAdd(roomPlaceholder: RoomPlaceholder, matchTraversability: boolean = true) {
@@ -78,6 +78,7 @@ export class Room {
 			`${this.name}-reflected`,
 			[],
 			[],
+			this.entities.map(e => e.reflect()),
 			(exits) => this.canSpawnWithExits(exits.map(Directions.reflectX)),
 			this.traversability.map(({ start, end }) => ({ 
 				start: new GateState(null, Directions.reflectX(start.exit), start.toggled),
@@ -103,6 +104,7 @@ export class Room {
 			this.name,
 			this.tiles.map(tile => typeof tile === "string" ? tile : tile.copy()),
 			this.exitTiles.map(v => v),
+			this.entities.map(v => v.copy()),
 			this.canSpawnWithExits,
 			this.traversability.map(({ start, end }) => ({ start: start.copy(), end: end.copy() }))
 		);
