@@ -19,6 +19,7 @@ import { Lizard } from "./entities/Lizard.js";
 import { Spikeball } from "./entities/Spikeball.mjs";
 import { SpikeballBlock } from "./tiles/SpikeballBlock.mjs";
 import { Portal } from "./entities/Portal.mjs";
+import { WorldGenerator } from "./level-generator/WorldGenerator.mjs";
 
 export type TileEntity = Gate | LaserBlock | SpikeballBlock;
 export type Tile = (typeof WorldData.STRING_TILE_TYPES)[number] | TileEntity;
@@ -36,6 +37,7 @@ export class World {
 	screenShakeTimer: number = 0;
 	screenShakeIntensity: number = 0;
 	camera: Vector = new Vector(0, 0);
+	levels: number = 0;
 
 	player: Player = new Player();
 
@@ -403,6 +405,14 @@ export class World {
 		if(World.isTileEntity(tile)) {
 			this.tileEntities.push({ position, tile });
 		}
+	}
+
+	generateNextLevel() {
+		const generator = new WorldGenerator(new Vector(
+			0,
+			-(LevelGeneratorData.HEIGHT * (RoomData.SIZE + LevelGeneratorData.MARGIN_Y)) * this.levels
+		), this);
+		generator.generate();
 	}
 
 	static isTile(value: unknown): value is Tile {

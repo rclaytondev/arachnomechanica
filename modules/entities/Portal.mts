@@ -1,4 +1,5 @@
 import { CanvasIO } from "../../utils-ts/modules/CanvasIO.mjs";
+import { Rectangle } from "../../utils-ts/modules/geometry/Rectangle.mjs";
 import { Vector } from "../../utils-ts/modules/geometry/Vector.mjs";
 import { PortalData } from "../constants/GameData.mjs";
 import { GameUtils } from "../game-utilities/GameUtils.mjs";
@@ -17,6 +18,16 @@ export class Portal {
 		if(frameCount % PortalData.FRAMES_PER_LINE === 0) {
 			this.addLine(world);
 		}
+
+		if(world.player.physicsObject.hitbox().intersects(this.teleportHitbox())) {
+			world.generateNextLevel();
+		}
+	}
+	teleportHitbox() {
+		return new Rectangle(
+			this.position.x - PortalData.HITBOX_WIDTH / 2, this.position.y - PortalData.HITBOX_HEIGHT,
+			PortalData.HITBOX_WIDTH, PortalData.HITBOX_HEIGHT
+		);
 	}
 	addLine(world: World) {
 		world.particles.push(new Particle(

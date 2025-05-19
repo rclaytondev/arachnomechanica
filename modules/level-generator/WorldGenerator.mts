@@ -330,6 +330,7 @@ export class WorldGenerator {
 		this.spawnPlayer();
 		this.spawnLizards();
 		this.spawnAllTraps();
+		this.world.levels ++;
 		return this.world;
 	}
 }

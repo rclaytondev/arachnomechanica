@@ -340,6 +340,8 @@ export class PortalData {
 	static COLOR = "rgb(15, 15, 15)";
 	static WIDTH = 2 * WorldData.TILE_SIZE;
 	static BASE_HEIGHT = 0.2 * WorldData.TILE_SIZE;
+	static HITBOX_WIDTH = WorldData.TILE_SIZE;
+	static HITBOX_HEIGHT = WorldData.TILE_SIZE * 2;
 
 	static LINE_SPAWN_WIDTH = PortalData.WIDTH * 0.6;
 	static LINE_SPEED = 2;
