@@ -6,17 +6,18 @@ import { Room } from "./level-generator/Room.mjs";
 import { DEBUG_SETTINGS } from "./constants/DebugSettings.mjs";
 import { Gate } from "./tiles/Gate.mjs";
 import { Tile, World } from "./World.js";
-import { WorldData } from "./constants/GameData.mjs";
+import { PortalData, WorldData } from "./constants/GameData.mjs";
 import { Rectangle } from "../utils-ts/modules/geometry/Rectangle.mjs";
 import { ROOMS } from "./level-generator/Rooms.mjs";
 import { GameUtils } from "./game-utilities/GameUtils.mjs";
+import { Portal } from "./entities/Portal.mjs";
 
 export class RoomEditor {
 	room: Room;
 	world: World = new World();
-	mode: "solid" | "platform" | "exit" | "gate-open" | "gate-closed" = "solid";
+	mode: "solid" | "platform" | "exit" | "gate-open" | "gate-closed" | "portal" = "solid";
 	direction: Direction = "right";
-	static readonly MODES = ["solid", "platform", "exit", "gate-open", "gate-closed"] as const;
+	static readonly MODES = ["solid", "platform", "exit", "gate-open", "gate-closed", "portal"] as const;
 
 	constructor(room: Room = new Room("editor room", [], [], () => false, [])) {
 		this.room = room;
@@ -26,6 +27,7 @@ export class RoomEditor {
 				this.world.tiles.set(position, tile);
 			}
 		}
+		this.world.entities = [...this.world.entities, ...this.room.entities];
 	}
 
 
@@ -58,15 +60,31 @@ export class RoomEditor {
 			else if(this.mode === "gate-closed") {
 				this.setTile(position, new Gate(this.direction, false));
 			}
+			else if(this.mode === "portal") {
+				const portalPosition = this.getPortalPosition(position);
+				if(!this.room.entities.some(p => p.position.equals(portalPosition))) {
+					this.room.entities.push(new Portal(portalPosition));
+					this.world.entities.push(new Portal(portalPosition));
+				}
+			}
 		}
 		else {
 			if(this.mode === "exit") {
 				this.room.exitTiles.set(position, "none");
 			}
-			else {
+			else if(this.mode !== "portal") {
 				this.setTile(position, "empty");
 			}
+			else {
+				const portalPosition = this.getPortalPosition(position);
+				this.room.entities = this.room.entities.filter(e => !e.position.equals(portalPosition));
+				this.world.entities = this.world.entities.filter(e => !(e instanceof Portal) || !e.position.equals(portalPosition));
+			}
 		}
+	}
+	getPortalPosition(tilePosition: Vector) {
+		return this.world.getTileCoordinates(tilePosition.multiply(WorldData.TILE_SIZE).add(PortalData.WIDTH / 2, 0))
+			.add(0, 1).multiply(WorldData.TILE_SIZE);
 	}
 	setTile(position: Vector, tile: Tile) {
 		this.world.tiles.set(position, tile);
