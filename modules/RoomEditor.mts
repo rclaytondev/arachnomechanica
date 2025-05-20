@@ -191,6 +191,12 @@ export class RoomEditor {
 		for(const [direction, position] of this.room.exitTiles.entries()) {
 			result += `\t{ x: ${position.x}, y: ${position.y}, direction: "${direction}" },\n`;
 		}
+		result += "],\n[\n";
+		for(const entity of this.room.entities) {
+			if(entity instanceof Portal) {
+				result += `\tnew Portal(new Vector${entity.position}),\n`;
+			}
+		}
 		result += "],";
 		console.log(result);
 	}
