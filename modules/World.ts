@@ -293,6 +293,7 @@ export class World {
 		this.updateParticles();
 		this.screenShakeTimer --;
 		this.updateCamera();
+		this.checkDebugInputs(canvasIO);
 	}
 	updateEntities(canvasIO: CanvasIO) {
 		for(const entity of this.entities) {
@@ -316,6 +317,11 @@ export class World {
 	}
 	updateCamera() {
 		this.camera = GameUtils.moveVectorTowards(this.camera, this.player.physicsObject.hitbox().center(), WorldData.CAMERA_SPEED);
+	}
+	checkDebugInputs(canvasIO: CanvasIO) {
+		if(canvasIO.keys[DEBUG_SETTINGS.SKIP_LEVEL_KEY]) {
+			this.player.physicsObject.positionInt = [...this.entities].reverse().find(e => e instanceof Portal)!.position;
+		}
 	}
 
 	getTileX(onscreenX: number) {

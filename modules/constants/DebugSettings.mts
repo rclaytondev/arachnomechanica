@@ -13,5 +13,6 @@ export const DEBUG_SETTINGS = {
 	DISPLAY_WHOLE_LEVEL: false,
 	PRINT_RNG_KEY: "KeyR" as string | null,
 	SHOW_MOUSE_COORDINATES: true,
-	RNG_OVERRIDE_VALUES: []
+	RNG_OVERRIDE_VALUES: [],
+	SKIP_LEVEL_KEY: "KeyP"
 };
