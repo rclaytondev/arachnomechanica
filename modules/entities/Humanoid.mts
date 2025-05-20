@@ -2,8 +2,9 @@ import { CanvasIO } from "../../utils-ts/modules/CanvasIO.mjs";
 import { Rectangle } from "../../utils-ts/modules/geometry/Rectangle.mjs";
 import { Vector } from "../../utils-ts/modules/geometry/Vector.mjs";
 import { DEBUG_SETTINGS } from "../constants/DebugSettings.mjs";
-import { HumanoidData } from "../constants/GameData.mjs";
+import { HumanoidData, PlayerData } from "../constants/GameData.mjs";
 import { PhysicsObject } from "../game-utilities/PhysicsObject.mjs";
+import { World } from "../World";
 
 export class HumanoidPart {
 	offset: Vector;
@@ -63,8 +64,9 @@ export class Humanoid {
 		this.physicsObject = new PhysicsObject(position, new Rectangle(0, 0, HumanoidData.HITBOX_WIDTH, HumanoidData.HITBOX_HEIGHT));
 	}
 
-	update() {
-
+	update(world: World) {
+		this.physicsObject.applyGravity(PlayerData.GRAVITY);
+		this.physicsObject.moveY(this.physicsObject.velocity.y, () => { this.physicsObject.velocity.y = 0; }, world);
 	}
 
 	get parts() {

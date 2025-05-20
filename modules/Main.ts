@@ -50,7 +50,7 @@ const FRAMERATE = 60;
 const world = new World();
 world.tiles.fillRect(new Rectangle(-1, -1, 12, 12), "solid");
 world.tiles.fillRect(new Rectangle(0, 0, 10, 10), "empty");
-world.entities.push(new Humanoid(new Vector(100, 400)));
+world.entities.push(new Humanoid(new Vector(100, 200)));
 
 LevelGenerator.initializeRooms();
 
