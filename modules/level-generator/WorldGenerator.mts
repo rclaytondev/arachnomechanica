@@ -30,7 +30,10 @@ export class WorldGenerator {
 			for(let y = 0; y < LevelGeneratorData.HEIGHT; y ++) {
 				const roomPlaceholder = this.levelGenerator.rooms.get(x, y);
 				if(!roomPlaceholder) { continue; }
-				const possibleRooms = ROOMS.filter(room => room.canAdd(roomPlaceholder));
+				const possibleRooms = ROOMS.filter(
+					room => room.canAdd(roomPlaceholder)
+					&& room.hasPortal() === this.levelGenerator.path[0].equals(x, y)
+				);
 				const room = GameUtils.weightedRandom(possibleRooms, possibleRooms.map(r => r.weight));
 				room.add(new Vector(
 					this.position.x + x * (RoomData.SIZE + LevelGeneratorData.MARGIN_X),

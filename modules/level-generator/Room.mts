@@ -1,7 +1,7 @@
 import { Direction, Directions } from "../../utils-ts/modules/geometry/Direction.mjs";
 import { Vector } from "../../utils-ts/modules/geometry/Vector.mjs";
 import { Grid } from "../../utils-ts/modules/Grid.mjs";
-import { RoomData } from "../constants/GameData.mjs";
+import { RoomData, WorldData } from "../constants/GameData.mjs";
 import { GateState } from "./GateState.mjs";
 import { RoomPlaceholder } from "./LevelGenerator.mjs";
 import { Gate } from "../tiles/Gate.mjs";
@@ -52,6 +52,9 @@ export class Room {
 		);
 		return this.canSpawnWithExits(roomPlaceholder.exits) && (traversabilityMatches || !matchTraversability);
 	}
+	hasPortal() {
+		return this.entities.some(e => e instanceof Portal);
+	}
 
 	add(position: Vector, world: World, exits: Direction[]) {
 		for(let x = 0; x < RoomData.SIZE; x ++) {
@@ -66,6 +69,9 @@ export class Room {
 					world.addTile(worldPosition, "solid");
 				}
 			}
+		}
+		for(const entity of this.entities) {
+			world.entities.push(entity.translate(position.multiply(WorldData.TILE_SIZE)));
 		}
 	}
 
