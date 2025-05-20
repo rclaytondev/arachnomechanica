@@ -369,6 +369,11 @@ export class HumanoidData {
 
 	static COLOR = "black";
 
+	static WALKING_SPEED = 2;
+	static WALKING_LEG_ANGLE_MIN = MathUtils.toRadians(-20);
+	static WALKING_LEG_ANGLE_MAX = MathUtils.toRadians(10);
+	static WALKING_LEG_SPEED = MathUtils.toRadians(2);
+
 	static HEAD = new HumanoidPart(
 		new Vector(0, -20),
 		MathUtils.toRadians(180),
