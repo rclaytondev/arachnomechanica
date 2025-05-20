@@ -17,6 +17,10 @@ export class PhysicsObject {
 		this.dimensions = dimensions;
 	}
 
+	applyGravity(amount: number) {
+		this.velocity.y += amount;
+	}
+
 	move(amount: Vector, world: World) {
 		this.moveX(amount.x, () => {}, world);
 		this.moveY(amount.y, () => {}, world);
