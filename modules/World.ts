@@ -442,6 +442,18 @@ export class World {
 		}
 		return result;
 	}
+	lineIntersectionDistance(position: Vector, direction: Vector, maxDistance: number, ignoredTiles: Tile[] = []) {
+		return Math.min(
+			this.tileIntersectionDistance(position, direction, maxDistance, ignoredTiles),
+			this.entityIntersectionDistance(position, direction)
+		);
+	}
+	hasLineOfSight(position: Vector, rectangle: Rectangle) {
+		const center = rectangle.center();
+		const direction = center.subtract(position);
+		const distance = GameUtils.rayIntersectsRectangle(position, direction, rectangle);
+		return distance <= this.lineIntersectionDistance(position, direction, distance);
+	}
 
 
 	destroyTile(position: Vector) {

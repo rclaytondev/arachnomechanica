@@ -140,16 +140,8 @@ export class LaserBlock {
 	}
 	endpointDistance(position: Vector, direction: Vector, world: World, screenSize: Rectangle) {
 		const center = position.add(1/2, 1/2).multiply(WorldData.TILE_SIZE);
-		let distance = world.screenIntersectionDistance(center, direction, new Rectangle(
-			screenSize.x - LaserBlockData.LASER_OFFSCREEN_DISTANCE,
-			screenSize.y - LaserBlockData.LASER_OFFSCREEN_DISTANCE,
-			screenSize.width + 2 * LaserBlockData.LASER_OFFSCREEN_DISTANCE, screenSize.height + 2 * LaserBlockData.LASER_OFFSCREEN_DISTANCE
-		));
-		if(distance === Infinity) { return 0; }
-		distance = Math.min(distance, world.tileIntersectionDistance(center, direction, distance, [this]));
-		distance = Math.min(distance, world.entityIntersectionDistance(center, direction));
-		distance = Math.min(distance, LaserBlockData.MAX_LENGTH);
-		return distance;
+		const screenDistance = world.screenIntersectionDistance(center, direction, screenSize);
+		return world.lineIntersectionDistance(center, direction, Math.min(screenDistance, LaserBlockData.MAX_LENGTH));
 	}
 	endpoint(position: Vector, direction: Vector, world: World, screenSize: Rectangle) {
 		const distance = this.endpointDistance(position, direction, world, screenSize);

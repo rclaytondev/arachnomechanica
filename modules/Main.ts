@@ -48,9 +48,10 @@ for(let i = 0; i < CORNER_SIZE; i ++) {
 let frameCount = 0;
 const FRAMERATE = 60;
 const world = new World();
-world.tiles.fillRect(new Rectangle(-1, -1, 12, 12), "solid");
-world.tiles.fillRect(new Rectangle(0, 0, 10, 10), "empty");
-world.entities.push(new Humanoid(new Vector(100, 200)));
+world.tiles.fillRect(new Rectangle(-1, -10, 12, 12), "solid");
+world.tiles.fillRect(new Rectangle(0, -9, 10, 10), "empty");
+world.tiles.fillRect(new Rectangle(4, -1, 1, 2), "solid");
+world.entities.push(new Humanoid(new Vector(300, -100)));
 
 LevelGenerator.initializeRooms();
 

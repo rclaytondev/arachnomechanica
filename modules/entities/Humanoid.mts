@@ -98,6 +98,10 @@ export class Humanoid {
 		else if(this.leftLeg.angle <= HumanoidData.WALKING_LEG_ANGLE_MIN) {
 			this.legDirection = "out";
 		}
+
+		if(world.hasLineOfSight(this.physicsObject.hitbox().center(), world.player.physicsObject.hitbox())) {
+			this.mode = "arming";
+		}
 	}
 
 	get parts() {
