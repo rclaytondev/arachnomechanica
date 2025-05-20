@@ -3,7 +3,7 @@ import { Direction, Directions } from "../utils-ts/modules/geometry/Direction.mj
 import { Rectangle } from "../utils-ts/modules/geometry/Rectangle.mjs";
 import { Vector } from "../utils-ts/modules/geometry/Vector.mjs";
 import { Grid } from "../utils-ts/modules/Grid.mjs";
-import { BackgroundData, LevelGeneratorData, RoomData, WorldData } from "./constants/GameData.mjs";
+import { BackgroundData, LevelGeneratorData, PlayerData, RoomData, WorldData } from "./constants/GameData.mjs";
 import { LevelGenerator } from "./level-generator/LevelGenerator.mjs";
 import { Main } from "./Main.js";
 import { DEBUG_SETTINGS } from "./constants/DebugSettings.mjs";
@@ -20,6 +20,7 @@ import { Spikeball } from "./entities/Spikeball.mjs";
 import { SpikeballBlock } from "./tiles/SpikeballBlock.mjs";
 import { Portal } from "./entities/Portal.mjs";
 import { WorldGenerator } from "./level-generator/WorldGenerator.mjs";
+import { MathUtils } from "../utils-ts/modules/math/MathUtils.mjs";
 
 export type TileEntity = Gate | LaserBlock | SpikeballBlock;
 export type Tile = (typeof WorldData.STRING_TILE_TYPES)[number] | TileEntity;
@@ -410,6 +411,17 @@ export class World {
 		this.tiles.set(position, tile);
 		if(World.isTileEntity(tile)) {
 			this.tileEntities.push({ position, tile });
+		}
+	}
+	addParticle(particle: Particle, canvasIO: CanvasIO) {
+		const player = this.player.physicsObject.hitbox().center();
+		const distanceX = MathUtils.dist(particle.position.x, player.x);
+		const distanceY = MathUtils.dist(particle.position.y, player.y);
+		if(
+			distanceX < canvasIO.canvas.width / 2 + PlayerData.MAX_X_VELOCITY * particle.lifetime()
+			&& distanceY < canvasIO.canvas.height / 2 + WorldData.PARTICLE_RENDER_DISTANCE_Y * particle.lifetime()
+		) {
+			this.particles.push(particle);
 		}
 	}
 

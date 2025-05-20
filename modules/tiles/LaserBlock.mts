@@ -102,14 +102,14 @@ export class LaserBlock {
 			this.lengths[i] = Math.min(this.lengths[i], length);
 			if(this.lengths[i] === length && frameCount % LaserBlockData.FRAMES_PER_PARTICLE == 0) {
 				const position = new Vector(x + 1/2, y + 1/2).multiply(WorldData.TILE_SIZE).add(direction.multiply(length));
-				world.particles.push(new Particle(
+				world.addParticle(new Particle(
 					position,
 					new Vector(
 						GameUtils.random(-LaserBlockData.PARTICLE_SPEED, LaserBlockData.PARTICLE_SPEED),
 						GameUtils.random(-LaserBlockData.PARTICLE_SPEED, LaserBlockData.PARTICLE_SPEED),
 					),
 					LaserBlockData.PARTICLE_INFO
-				));
+				), canvasIO);
 			}
 			if(this.intersectsBox(new Vector(x, y), direction, player, length)) {
 				world.player.damage();

@@ -126,6 +126,9 @@ export class Particle {
 		this.opacity = Math.max(0, this.opacity - this.opacityDecay);
 	}
 
+	lifetime() {
+		return Math.min(this.size / this.sizeDecay, this.opacity / this.opacityDecay);
+	}
 	isDead() {
 		return this.size <= 0 || this.opacity <= 0;
 	}

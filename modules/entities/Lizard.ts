@@ -170,7 +170,7 @@ export class Lizard {
 		canvasIO.strokeRect(rectangle);
 	}
 
-	update(world: World) {
+	update(world: World, canvasIO: CanvasIO) {
 		if(this.waitingTimer < 0) {
 			this.position = this.position.add(Vector.unit(this.direction).multiply(this.speed));
 		}
@@ -181,7 +181,7 @@ export class Lizard {
 		this.checkForCollisions(world);
 		this.updateJoints();
 		this.updateHeadAngle();
-		this.updateFire(world);
+		this.updateFire(world, canvasIO);
 		this.updateHurtbox(world);
 		this.checkForPlayer(world);
 	}
@@ -289,11 +289,11 @@ export class Lizard {
 	generateFireParticle() {
 		return new Particle(this.position, this.generateFireParticleVelocity(), LizardData.FIRE_PARTICLES);
 	}
-	updateFire(world: World) {
+	updateFire(world: World, canvasIO: CanvasIO) {
 		this.fireTimer --;
 		if(this.fireTimer > 0) {
 			for(let i = 0; i < LizardData.PARTICLES_PER_FRAME; i ++) {
-				world.particles.push(this.generateFireParticle());
+				world.addParticle(this.generateFireParticle(), canvasIO);
 			}
 			this.hurtboxSize = Math.min(this.hurtboxSize + LizardData.HURTBOX_SPEED, LizardData.MAX_HURTBOX_SIZE);
 		}

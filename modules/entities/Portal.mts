@@ -16,7 +16,7 @@ export class Portal {
 
 	update(world: World, canvasIO: CanvasIO) {
 		if(frameCount % PortalData.FRAMES_PER_LINE === 0) {
-			this.addLine(world);
+			this.addLine(world, canvasIO);
 		}
 
 		if(world.player.physicsObject.hitbox().intersects(this.teleportHitbox())) {
@@ -29,15 +29,15 @@ export class Portal {
 			PortalData.HITBOX_WIDTH, PortalData.HITBOX_HEIGHT
 		);
 	}
-	addLine(world: World) {
-		world.particles.push(new Particle(
+	addLine(world: World, canvasIO: CanvasIO) {
+		world.addParticle(new Particle(
 			new Vector(
 				this.position.x + GameUtils.random(-PortalData.LINE_SPAWN_WIDTH / 2, PortalData.LINE_SPAWN_WIDTH / 2),
 				this.position.y
 			),
 			new Vector(0, -PortalData.LINE_SPEED),
 			PortalData.PARTICLE_SETTINGS
-		));
+		), canvasIO);
 	}
 
 	display(canvasIO: CanvasIO) {

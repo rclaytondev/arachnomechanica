@@ -155,7 +155,7 @@ export class GameUtils {
 				display(canvasIO);
 				canvasIO.ctx.restore();
 			};
-			world.particles.push(new Particle(position, velocity, { ...settings, shape: displaySector, rotation: 0 }));
+			world.addParticle(new Particle(position, velocity, { ...settings, shape: displaySector, rotation: 0 }), canvasIO);
 		}
 	}
 

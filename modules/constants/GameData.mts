@@ -26,6 +26,8 @@ export class WorldData {
 	static STRING_TILE_TYPES = ["solid", "empty", "platform"] as const;
 
 	static CAMERA_SPEED = 100;
+
+	static PARTICLE_RENDER_DISTANCE_Y = 15;
 }
 
 export class LevelGeneratorData {
