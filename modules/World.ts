@@ -340,7 +340,7 @@ export class World {
 	getTileAt(onscreenPosition: Vector) {
 		return this.tiles.get(this.getTileCoordinates(onscreenPosition));
 	}
-	getTilesAt(rectangle: Rectangle) {
+	*getTilesAt(rectangle: Rectangle) {
 		const tiles = [];
 		const left = this.getTileX(rectangle.left());
 		const right = this.getTileX(rectangle.right() - 1);
@@ -348,10 +348,9 @@ export class World {
 		const bottom = this.getTileY(rectangle.bottom() - 1);
 		for(let x = left; x <= right; x ++) {
 			for(let y = top; y <= bottom; y ++) {
-				tiles.push({ position: new Vector(x, y), tile: this.tiles.get(x, y) });
+				yield { position: new Vector(x, y), tile: this.tiles.get(x, y) };
 			}
 		}
-		return tiles;
 	}
 	isInSolid(rectangle: Rectangle, collides: (object: { x: number, y: number, tile: Tile } | Entity) => boolean = () => true) {
 		for(const { position, tile } of this.getTilesAt(rectangle)) {

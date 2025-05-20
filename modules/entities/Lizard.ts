@@ -366,24 +366,22 @@ export class Lizard {
 		const xDirection = player.center().x < this.position.x ? "left" : "right";
 		const yDirection = player.center().y < this.position.y ? "up" : "down";
 		const lookaheadPoint = this.lookaheadPoint();
-		const obstructedX = this.isObstructed(
-			world, xDirection, LizardData.LOOKAHEAD_DISTANCE, 
-			Math.min(MathUtils.dist(lookaheadPoint.x, player.left()), MathUtils.dist(lookaheadPoint.x, player.right()))
-		);
-		const obstructedY = this.isObstructed(
-			world, yDirection, LizardData.LOOKAHEAD_DISTANCE,
-			Math.min(MathUtils.dist(lookaheadPoint.y, player.top()), MathUtils.dist(lookaheadPoint.y, player.bottom()))
-		);
 		let nextTurn: Direction | null = null;
 		if(
 			player.bottom() > this.position.y - LizardData.PLAYER_DETECTION_WIDTH / 2 &&
 			player.top() < this.position.y + LizardData.PLAYER_DETECTION_WIDTH / 2 &&
-			!obstructedX
+			!this.isObstructed(
+				world, xDirection, LizardData.LOOKAHEAD_DISTANCE, 
+				Math.min(MathUtils.dist(lookaheadPoint.x, player.left()), MathUtils.dist(lookaheadPoint.x, player.right()))
+			)
 		) { nextTurn = xDirection; }
 		else if(
 			player.right() > this.position.x - LizardData.PLAYER_DETECTION_WIDTH / 2 && 
 			player.left() < this.position.x + LizardData.PLAYER_DETECTION_WIDTH / 2 &&
-			!obstructedY
+			!this.isObstructed(
+				world, yDirection, LizardData.LOOKAHEAD_DISTANCE,
+				Math.min(MathUtils.dist(lookaheadPoint.y, player.top()), MathUtils.dist(lookaheadPoint.y, player.bottom()))
+			)
 		) { nextTurn = yDirection; }
 		if(nextTurn !== null && nextTurn !== Directions.opposite(this.direction)) {
 			this.nextTurn = nextTurn;
@@ -469,13 +467,14 @@ export class Lizard {
 	}
 	isObstructed(world: World, direction: Direction = this.direction, distance: number = LizardData.LOOKAHEAD_DISTANCE, length: number = 1) {
 		const lookaheadRectangle = this.lookaheadRectangle(direction, distance, length);
-		const tiles = world.getTilesAt(lookaheadRectangle);
-		if(tiles.some(({ tile }) => (
-			tile === "solid" ||
-			(tile === "platform" && direction === "down") ||
-			(tile instanceof Gate && tile.openness !== 1) ||
-			(tile instanceof LaserBlock || tile instanceof SpikeballBlock)
-		))) { return true; }
+		for(const { tile } of world.getTilesAt(lookaheadRectangle)) {
+			if(
+				tile === "solid" ||
+				(tile === "platform" && direction === "down") ||
+				(tile instanceof Gate && tile.openness !== 1) ||
+				(tile instanceof LaserBlock || tile instanceof SpikeballBlock)
+			) { return true; }
+		}
 		if(world.entities.some(entity => "hitboxes" in entity && entity.hitboxes().some(b => b.intersects(lookaheadRectangle)))) {
 			return true;
 		}
