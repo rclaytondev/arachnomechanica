@@ -14,5 +14,6 @@ export const DEBUG_SETTINGS = {
 	PRINT_RNG_KEY: "KeyR" as string | null,
 	SHOW_MOUSE_COORDINATES: true,
 	RNG_OVERRIDE_VALUES: [],
-	SKIP_LEVEL_KEY: "KeyP"
+	SKIP_LEVEL_KEY: "KeyP",
+	HUMANOID_HITBOX_COLOR: "rgb(0, 255, 255)"
 };

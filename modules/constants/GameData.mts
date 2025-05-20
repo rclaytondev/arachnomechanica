@@ -5,6 +5,8 @@ import { GateState } from "../level-generator/GateState.mjs";
 import { World } from "../World";
 import { Rectangle } from "../../utils-ts/modules/geometry/Rectangle.mjs";
 import { Direction } from "../../utils-ts/modules/geometry/Direction.mjs";
+import { HumanoidPart } from "../entities/Humanoid.mjs";
+import { MathUtils } from "../../utils-ts/modules/math/MathUtils.mjs";
 
 export class WorldData {
 	static TILE_SIZE = 50;
@@ -359,4 +361,40 @@ export class PortalData {
 		opacityDecay: { min: 1/60, max: 1/40 },
 		thickness: 2
 	};
+}
+
+export class HumanoidData {
+	static HITBOX_WIDTH = 1.3 * WorldData.TILE_SIZE;
+	static HITBOX_HEIGHT = 1.8 * WorldData.TILE_SIZE;
+
+	static COLOR = "black";
+
+	static HEAD = new HumanoidPart(
+		new Vector(0, -20),
+		MathUtils.toRadians(180),
+		20,
+		50,
+		"center"
+	);
+	static BODY = new HumanoidPart(
+		new Vector(0, 10),
+		MathUtils.toRadians(180),
+		30,
+		50,
+		"center"
+	);
+	static LEFT_ARM = new HumanoidPart(
+		new Vector(-20, -15),
+		MathUtils.toRadians(200),
+		10,
+		30,
+		"base"
+	);
+	static LEFT_LEG = new HumanoidPart(
+		new Vector(-10, 10),
+		MathUtils.toRadians(0),
+		10,
+		30,
+		"point"
+	)
 }

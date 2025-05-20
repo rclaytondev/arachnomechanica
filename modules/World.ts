@@ -21,10 +21,11 @@ import { SpikeballBlock } from "./tiles/SpikeballBlock.mjs";
 import { Portal } from "./entities/Portal.mjs";
 import { WorldGenerator } from "./level-generator/WorldGenerator.mjs";
 import { MathUtils } from "../utils-ts/modules/math/MathUtils.mjs";
+import { Humanoid } from "./entities/Humanoid.mjs";
 
 export type TileEntity = Gate | LaserBlock | SpikeballBlock;
 export type Tile = (typeof WorldData.STRING_TILE_TYPES)[number] | TileEntity;
-export type Entity = Lizard | Spikeball | Portal;
+export type Entity = Lizard | Spikeball | Portal | Humanoid;
 
 export class World {
 	tiles: Grid<Tile> = new Grid("empty");
