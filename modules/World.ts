@@ -390,6 +390,60 @@ export class World {
 		}
 		return false;
 	}
+	screenIntersectionDistance(position: Vector, direction: Vector, screenSize: Rectangle) {
+		const left = this.camera.x - screenSize.width / 2;
+		const right = this.camera.x + screenSize.width / 2;
+		const top = this.camera.y - screenSize.height / 2;
+		const bottom = this.camera.y + screenSize.height / 2;
+		return Math.min(
+			GameUtils.rayIntersectsVSegment(position, direction, direction.x >= 0 ? right : left, top, bottom),
+			GameUtils.rayIntersectsHSegment(position, direction, direction.y >= 0 ? bottom : top, left, right)
+		);
+	}
+	tileIntersectionDistance(position: Vector, direction: Vector, maxDistance: number, ignoredTiles: Tile[] = []) {
+		const tilePosition = this.getTileCoordinates(position);
+		let result = Infinity;
+		for(let x = (direction.x >= 0) ? tilePosition.x + 1 : tilePosition.x; true; x += (direction.x >= 0) ? 1 : -1) {
+			if(direction.x === 0) { break; }
+			const distance = GameUtils.rayIntersectsVertical(
+				position,
+				direction,
+				x * WorldData.TILE_SIZE
+			);
+			const intersection = position.add(direction.multiply(distance));
+			if(this.isBoundarySolid(intersection, direction.x >= 0 ? "right" : "left", ignoredTiles)) {
+				result = Math.min(result, distance);
+				break;
+			}
+			if(distance > maxDistance) { break; }
+		}
+		for(let y = (direction.y >= 0) ? tilePosition.y + 1 : tilePosition.y; true; y += (direction.y >= 0) ? 1 : -1) {
+			if(direction.y === 0) { break; }
+			const distance = GameUtils.rayIntersectsHorizontal(
+				position,
+				direction,
+				y * WorldData.TILE_SIZE
+			);
+			const intersection = position.add(direction.multiply(distance));
+			if(this.isBoundarySolid(intersection, direction.y >= 0 ? "down" : "up", ignoredTiles)) {
+				result = Math.min(result, distance);
+				break;
+			}
+			if(distance > maxDistance) { break; }
+		}
+		return result;
+	}
+	entityIntersectionDistance(position: Vector, direction: Vector) {
+		let result = Infinity;
+		for(const entity of this.entities) {
+			for(const hitbox of ("hitboxes" in entity) ? entity.hitboxes() : []) {
+				result = Math.min(result, GameUtils.rayIntersectsRectangle(position, direction, hitbox));
+			}
+		}
+		return result;
+	}
+
+
 	destroyTile(position: Vector) {
 		const tile = this.tiles.get(position);
 		this.tiles.set(position, "empty");

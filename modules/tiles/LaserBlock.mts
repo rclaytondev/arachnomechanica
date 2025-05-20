@@ -131,60 +131,6 @@ export class LaserBlock {
 	directions() {
 		return this.angles().map(a => new Vector(Math.cos(a), Math.sin(a)));
 	}
-	screenIntersectionDistance(position: Vector, direction: Vector, world: World, screenSize: Rectangle) {
-		const onscreenPosition = position.add(1/2, 1/2).multiply(WorldData.TILE_SIZE);
-		const left = world.camera.x - screenSize.width / 2 - LaserBlockData.LASER_OFFSCREEN_DISTANCE;
-		const right = world.camera.x + screenSize.width / 2 + LaserBlockData.LASER_OFFSCREEN_DISTANCE;
-		const top = world.camera.y - screenSize.height / 2 - LaserBlockData.LASER_OFFSCREEN_DISTANCE;
-		const bottom = world.camera.y + screenSize.height / 2 + LaserBlockData.LASER_OFFSCREEN_DISTANCE;
-		return Math.min(
-			GameUtils.rayIntersectsVSegment(onscreenPosition, direction, direction.x >= 0 ? right : left, top, bottom),
-			GameUtils.rayIntersectsHSegment(onscreenPosition, direction, direction.y >= 0 ? bottom : top, left, right)
-		);
-	}
-	tileIntersectionDistance(position: Vector, direction: Vector, world: World, maxDistance: number) {
-		const center = position.add(1/2, 1/2).multiply(WorldData.TILE_SIZE);
-		let result = Infinity;
-		for(let x = (direction.x >= 0) ? position.x + 1 : position.x; true; x += (direction.x >= 0) ? 1 : -1) {
-			if(direction.x === 0) { break; }
-			const distance = GameUtils.rayIntersectsVertical(
-				center,
-				direction,
-				x * WorldData.TILE_SIZE
-			);
-			const intersection = center.add(direction.multiply(distance));
-			if(world.isBoundarySolid(intersection, direction.x >= 0 ? "right" : "left", [this])) {
-				result = Math.min(result, distance);
-				break;
-			}
-			if(distance > maxDistance) { break; }
-		}
-		for(let y = (direction.y >= 0) ? position.y + 1 : position.y; true; y += (direction.y >= 0) ? 1 : -1) {
-			if(direction.y === 0) { break; }
-			const distance = GameUtils.rayIntersectsHorizontal(
-				center,
-				direction,
-				y * WorldData.TILE_SIZE
-			);
-			const intersection = center.add(direction.multiply(distance));
-			if(world.isBoundarySolid(intersection, direction.y >= 0 ? "down" : "up", [this])) {
-				result = Math.min(result, distance);
-				break;
-			}
-			if(distance > maxDistance) { break; }
-		}
-		return result;
-	}
-	entityIntersectionDistance(position: Vector, direction: Vector, world: World) {
-		let result = Infinity;
-		const center = new Vector(position.x + 1/2, position.y + 1/2).multiply(WorldData.TILE_SIZE);
-		for(const entity of world.entities) {
-			for(const hitbox of ("hitboxes" in entity) ? entity.hitboxes() : []) {
-				result = Math.min(result, GameUtils.rayIntersectsRectangle(center, direction, hitbox));
-			}
-		}
-		return result;
-	}
 	intersectsBox(position: Vector, direction: Vector, box: Rectangle, length: number) {
 		const onscreenPosition = position.add(1/2, 1/2).multiply(WorldData.TILE_SIZE);
 		return GameUtils.rayIntersectsRectangle(
@@ -193,10 +139,15 @@ export class LaserBlock {
 		) < length;
 	}
 	endpointDistance(position: Vector, direction: Vector, world: World, screenSize: Rectangle) {
-		let distance = this.screenIntersectionDistance(position, direction, world, screenSize);
+		const center = position.add(1/2, 1/2).multiply(WorldData.TILE_SIZE);
+		let distance = world.screenIntersectionDistance(center, direction, new Rectangle(
+			screenSize.x - LaserBlockData.LASER_OFFSCREEN_DISTANCE,
+			screenSize.y - LaserBlockData.LASER_OFFSCREEN_DISTANCE,
+			screenSize.width + 2 * LaserBlockData.LASER_OFFSCREEN_DISTANCE, screenSize.height + 2 * LaserBlockData.LASER_OFFSCREEN_DISTANCE
+		));
 		if(distance === Infinity) { return 0; }
-		distance = Math.min(distance, this.tileIntersectionDistance(position, direction, world, distance));
-		distance = Math.min(distance, this.entityIntersectionDistance(position, direction, world));
+		distance = Math.min(distance, world.tileIntersectionDistance(center, direction, distance, [this]));
+		distance = Math.min(distance, world.entityIntersectionDistance(center, direction));
 		distance = Math.min(distance, LaserBlockData.MAX_LENGTH);
 		return distance;
 	}
