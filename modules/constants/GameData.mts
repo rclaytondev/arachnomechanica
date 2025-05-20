@@ -141,7 +141,8 @@ export class LaserBlockData {
 		},
 		grayscaleColorVariance: 5,
 		size: 7,
-		opacityDecay: 1/240,
+		opacityDecay: 1/120,
+		sizeDecay: 1/20,
 		glowIntensity: 1/8,
 		glowSize: 30
 	};
