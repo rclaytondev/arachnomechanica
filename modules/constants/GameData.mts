@@ -353,6 +353,7 @@ export class PortalData {
 		shape: 2,
 		solid: false,
 		rotation: Math.PI / 2,
-		opacityDecay: { min: 1/60, max: 1/40 }
+		opacityDecay: { min: 1/60, max: 1/40 },
+		thickness: 2
 	};
 }

@@ -16,6 +16,7 @@ export type ParticleSettings = {
 	rotation?: number | Range;
 	colorVariance?: number;
 	solid?: boolean;
+	thickness?: number | Range;
 	glowSize?: number | Range;
 	glowIntensity?: number | Range;
 	grayscaleColorVariance?: number;
@@ -39,6 +40,7 @@ export class Particle {
 	glowSize: number;
 	glowIntensity: number;
 	glowGradient: CanvasGradient | null;
+	thickness: number;
 
 	static randomize(info: number | Range) {
 		if(typeof info === "number") {
@@ -78,6 +80,7 @@ export class Particle {
 		this.glowSize = Particle.randomize(settings.glowSize ?? 0);
 		this.glowIntensity = Particle.randomize(settings.glowIntensity ?? 1);
 		this.glowGradient = GameUtils.glowCircleGradient(0, 0, this.glowSize, this.glowIntensity);
+		this.thickness = Particle.randomize(settings.thickness ?? 1);
 	}
 
 	display(canvasIO: CanvasIO) {
@@ -86,6 +89,7 @@ export class Particle {
 		canvasIO.ctx.rotate(this.rotation);
 		canvasIO.ctx.fillStyle = this.color;
 		canvasIO.ctx.strokeStyle = this.color;
+		canvasIO.ctx.lineWidth = this.thickness;
 		canvasIO.ctx.globalAlpha = this.opacity;
 		if(this.solid) {
 			if(this.shape === "circle") {
