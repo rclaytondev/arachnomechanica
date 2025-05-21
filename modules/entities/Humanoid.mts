@@ -10,92 +10,67 @@ import { GameUtils } from "../game-utilities/GameUtils.mjs";
 import { PhysicsObject } from "../game-utilities/PhysicsObject.mjs";
 import { World } from "../World";
 
+class RotationalMotion {
+	center: () => Vector;
+	angularVelocity: number;
+	parts: HumanoidPart[];
+	timeLeft: number;
+
+	constructor(center: () => Vector, angularVelocity: number, parts: HumanoidPart[], duration: number) {
+		this.center = center;
+		this.angularVelocity = angularVelocity;
+		this.parts = parts;
+		this.timeLeft = duration;
+	}
+}
+
 export class HumanoidPart {
-	offset: Vector;
+	physicsObject: PhysicsObject;
 	angle: number;
 	width: number;
 	length: number;
-	rotationPoint: "center" | "base" | "point";
-	shot: boolean = false;
-	
-	destination: Vector;
-	speed: number = 0;
-	angleDestination: number;
-	angleSpeed: number = 0;
-	armingOffset: Vector;
 
-	constructor(offset: Vector, angle: number, width: number, length: number, rotationPoint: "center" | "base" | "point", armingOffset: Vector) {
-		this.offset = offset;
-		this.destination = offset.clone();
+	constructor(position: Vector, angle: number, width: number, length: number) {
+		this.physicsObject = new PhysicsObject(
+			position.subtract(1, 1),
+			new Rectangle(0, 0, 2, 2)
+		);
 		this.angle = angle;
 		this.width = width;
 		this.length = length;
-		this.rotationPoint = rotationPoint;
-		this.armingOffset = armingOffset;
-		this.angleDestination = this.angle;
 	}
 
 	display(humanoid: Humanoid, canvasIO: CanvasIO) {
-		const position = humanoid.physicsObject.hitbox().center();
-		const offsetY = {
-			"center": 0,
-			"point": this.length / 2,
-			"base": -this.length / 2
-		}[this.rotationPoint];
-
+		const position = this.physicsObject.hitbox().center();
 		canvasIO.ctx.save();
-		canvasIO.ctx.translate(position.x + this.offset.x, position.y + this.offset.y);
+		canvasIO.ctx.translate(position.x, position.y);
 		canvasIO.ctx.rotate(this.angle);
 		canvasIO.ctx.fillStyle = HumanoidData.COLOR;
 		canvasIO.fillPoly(
-			-this.width / 2, this.length / 2 + offsetY,
-			0, -this.length / 2 + offsetY,
-			this.width / 2, this.length / 2 + offsetY
+			-this.width / 2, this.length,
+			0, 0,
+			this.width / 2, this.length
 		);
 		canvasIO.ctx.restore();
 	}
 
-	update() {
-		this.offset = GameUtils.moveVectorTowards(this.offset, this.destination, this.speed);
-		this.angle = GameUtils.moveAngleTowards(this.angle, this.angleDestination, this.angleSpeed);
-	}
-
 	copy() {
-		return new HumanoidPart(this.offset.clone(), this.angle, this.width, this.length, this.rotationPoint, this.armingOffset.clone());
+		return new HumanoidPart(
+			this.physicsObject.hitbox().center(),
+			this.angle, this.width, this.length
+		);
 	}
 	reflect() {
-		return new HumanoidPart(this.offset.reflectX(), -this.angle, this.width, this.length, this.rotationPoint, this.armingOffset.reflectX());
+		return new HumanoidPart(
+			this.physicsObject.hitbox().center().reflectX(),
+			-this.angle, this.width, this.length
+		);
 	}
-
-	changeRotationPoint(newPoint: "center" | "base" | "point") {
-		const offsets = {
-			"center": 0,
-			"point": this.length / 2,
-			"base": -this.length / 2
-		};
-		const currentOffsetY = offsets[this.rotationPoint];
-		const newOffsetY = offsets[newPoint];
-		this.offset = this.offset.add(new Vector(0, currentOffsetY - newOffsetY).rotate(MathUtils.toDegrees(this.angle)));
-		this.rotationPoint = newPoint;
-	}
-	getTip() {
-		const offset = {
-			"point": 0,
-			"center": -this.length / 2,
-			"base": -this.length
-		}[this.rotationPoint];
-		return this.offset.add(new Vector(0, offset).rotate(MathUtils.toDegrees(this.angle)));
-	}
-
-	beginMoving(newOffset: Vector, newAngle: number, time: number) {
-		this.destination = newOffset;
-		this.speed = Vector.dist(this.offset, this.destination) / time;
-		this.angleDestination = newAngle;
-		this.angleSpeed = GameUtils.angleDistance(this.angle, this.angleDestination) / time;
-	}
-	beginArming(targetAngle: number) {
-		this.changeRotationPoint("center");
-		this.beginMoving(this.armingOffset, targetAngle, HumanoidData.ARMING_TIME);
+	translate(amount: Vector) {
+		return new HumanoidPart(
+			this.physicsObject.hitbox().center().add(amount),
+			this.angle, this.width, this.length
+		);
 	}
 }
 
@@ -106,15 +81,23 @@ export class Humanoid {
 	legDirection: "out" | "in" = "out";
 	timer: number = 0;
 	
-	head: HumanoidPart = HumanoidData.HEAD.copy();
-	body: HumanoidPart = HumanoidData.BODY.copy();
-	leftArm: HumanoidPart = HumanoidData.LEFT_ARM.copy();
-	rightArm: HumanoidPart = HumanoidData.LEFT_ARM.reflect();
-	leftLeg: HumanoidPart = HumanoidData.LEFT_LEG.copy();
-	rightLeg: HumanoidPart = HumanoidData.LEFT_LEG.reflect();
+	head: HumanoidPart;
+	body: HumanoidPart;
+	leftArm: HumanoidPart;
+	rightArm: HumanoidPart;
+	leftLeg: HumanoidPart;
+	rightLeg: HumanoidPart;
 
 	constructor(position: Vector) {
 		this.physicsObject = new PhysicsObject(position, new Rectangle(0, 0, HumanoidData.HITBOX_WIDTH, HumanoidData.HITBOX_HEIGHT));
+
+		const center = this.physicsObject.hitbox().center();
+		this.head = HumanoidData.HEAD.translate(center);
+		this.body = HumanoidData.BODY.translate(center);
+		this.leftArm = HumanoidData.LEFT_ARM.translate(center);
+		this.rightArm = HumanoidData.LEFT_ARM.reflect().translate(center);
+		this.leftLeg = HumanoidData.LEFT_LEG.translate(center);
+		this.rightLeg = HumanoidData.LEFT_LEG.reflect().translate(center);
 	}
 
 	update(world: World) {
@@ -122,66 +105,9 @@ export class Humanoid {
 		this.physicsObject.moveY(this.physicsObject.velocity.y, () => { this.physicsObject.velocity.y = 0; }, world);
 		this.timer ++;
 
-		if(this.mode === "arming" || this.mode === "shooting" || this.mode === "reforming") {
-			for(const part of this.parts) {
-				part.update();
-			}
-		}
-
-		if(this.mode === "walking") {
-			this.walk(world);
-		}
-		else if(this.mode === "arming" && this.timer > HumanoidData.ARMING_TIME + HumanoidData.DELAY_AFTER_ARMING) {
+		if(this.mode === "arming" && this.timer > HumanoidData.ARMING_TIME + HumanoidData.DELAY_AFTER_ARMING) {
 			this.enterMode("shooting");
 		}
-		else if(this.mode === "shooting" && this.timer > HumanoidData.DELAY_AFTER_SHOT) {
-			this.shoot();
-		}
-	}
-	walk(world: World) {
-		if(!this.physicsObject.canMove("down", world)) {
-			this.physicsObject.moveX(
-				HumanoidData.WALKING_SPEED * (this.direction === "left" ? -1 : 1),
-				() => { this.direction = (this.direction === "left") ? "right" : "left"; },
-				world
-			);
-		}
-
-		this.leftLeg.angle = GameUtils.moveTowards(
-			this.leftLeg.angle,
-			(this.legDirection === "out") ? HumanoidData.WALKING_LEG_ANGLE_MAX : HumanoidData.WALKING_LEG_ANGLE_MIN,
-			HumanoidData.WALKING_LEG_SPEED
-		);
-		this.rightLeg.angle = -this.leftLeg.angle;
-
-		if(this.leftLeg.angle >= HumanoidData.WALKING_LEG_ANGLE_MAX) {
-			this.legDirection = "in";
-		}
-		else if(this.leftLeg.angle <= HumanoidData.WALKING_LEG_ANGLE_MIN) {
-			this.legDirection = "out";
-		}
-
-		if(world.hasLineOfSight(this.physicsObject.hitbox().center(), world.player.physicsObject.hitbox())) {
-			this.beginArming(world);
-		}
-	}
-	beginArming(world: World) {
-		const angle = Math.PI / 2 + world.player.physicsObject.hitbox().center().subtract(this.physicsObject.hitbox().center()).angle();
-		for(const part of this.parts) {
-			part.beginArming(angle);
-		}
-		this.enterMode("arming");
-	}
-	shoot() {
-		const remaining = this.parts.filter(p => !p.shot);
-		if(remaining.length === 0) {
-			return;
-		}
-		const part = Utils.randomItem(remaining);
-		part.shot = true;
-		part.destination = part.destination.add(new Vector(HumanoidData.MAX_SHOT_DISTANCE, 0).rotate(-90 + MathUtils.toDegrees(part.angle)));
-		part.speed = HumanoidData.PROJECTILE_SPEED;
-		this.timer = 0;
 	}
 
 	get parts() {

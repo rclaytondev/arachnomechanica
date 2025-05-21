@@ -381,35 +381,27 @@ export class HumanoidData {
 	static PROJECTILE_SPEED = 20;
 
 	static HEAD = new HumanoidPart(
-		new Vector(0, -20),
+		new Vector(0, 15),
 		MathUtils.toRadians(180),
 		20,
 		50,
-		"center",
-		new Vector(0, -50)
 	);
 	static BODY = new HumanoidPart(
-		new Vector(0, 10),
+		new Vector(0, 45),
 		MathUtils.toRadians(180),
 		30,
 		50,
-		"center",
-		new Vector(0, 10)
 	);
 	static LEFT_ARM = new HumanoidPart(
-		new Vector(-20, -15),
+		new Vector(-25, 25),
 		MathUtils.toRadians(200),
 		10,
 		30,
-		"base",
-		new Vector(-40, -15)
 	);
 	static LEFT_LEG = new HumanoidPart(
-		new Vector(-10, 10),
+		new Vector(-7, 25),
 		MathUtils.toRadians(0),
 		10,
-		30,
-		"point",
-		new Vector(-20, 50)
+		30
 	)
 }
