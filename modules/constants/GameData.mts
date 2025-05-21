@@ -374,7 +374,11 @@ export class HumanoidData {
 	static WALKING_LEG_ANGLE_MAX = MathUtils.toRadians(10);
 	static WALKING_LEG_SPEED = MathUtils.toRadians(2);
 
-	static ARMING_TIME = 30;
+	static ARMING_TIME = 10;
+	static DELAY_AFTER_ARMING = 20;
+	static DELAY_AFTER_SHOT = 10;
+	static MAX_SHOT_DISTANCE = 800;
+	static PROJECTILE_SPEED = 20;
 
 	static HEAD = new HumanoidPart(
 		new Vector(0, -20),

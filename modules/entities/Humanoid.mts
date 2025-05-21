@@ -3,6 +3,7 @@ import { Directions } from "../../utils-ts/modules/geometry/Direction.mjs";
 import { Rectangle } from "../../utils-ts/modules/geometry/Rectangle.mjs";
 import { Vector } from "../../utils-ts/modules/geometry/Vector.mjs";
 import { MathUtils } from "../../utils-ts/modules/math/MathUtils.mjs";
+import { Utils } from "../../utils-ts/modules/Utils.mjs";
 import { DEBUG_SETTINGS } from "../constants/DebugSettings.mjs";
 import { HumanoidData, PlayerData } from "../constants/GameData.mjs";
 import { GameUtils } from "../game-utilities/GameUtils.mjs";
@@ -15,6 +16,7 @@ export class HumanoidPart {
 	width: number;
 	length: number;
 	rotationPoint: "center" | "base" | "point";
+	shot: boolean = false;
 	
 	destination: Vector;
 	speed: number = 0;
@@ -94,6 +96,7 @@ export class Humanoid {
 	direction: "left" | "right" = "left";
 	physicsObject: PhysicsObject;
 	legDirection: "out" | "in" = "out";
+	timer: number = 0;
 	
 	head: HumanoidPart = HumanoidData.HEAD.copy();
 	body: HumanoidPart = HumanoidData.BODY.copy();
@@ -109,6 +112,7 @@ export class Humanoid {
 	update(world: World) {
 		this.physicsObject.applyGravity(PlayerData.GRAVITY);
 		this.physicsObject.moveY(this.physicsObject.velocity.y, () => { this.physicsObject.velocity.y = 0; }, world);
+		this.timer ++;
 
 		if(this.mode === "arming" || this.mode === "shooting" || this.mode === "reforming") {
 			for(const part of this.parts) {
@@ -118,6 +122,12 @@ export class Humanoid {
 
 		if(this.mode === "walking") {
 			this.walk(world);
+		}
+		else if(this.mode === "arming" && this.timer > HumanoidData.ARMING_TIME + HumanoidData.DELAY_AFTER_ARMING) {
+			this.enterMode("shooting");
+		}
+		else if(this.mode === "shooting" && this.timer > HumanoidData.DELAY_AFTER_SHOT) {
+			this.shoot();
 		}
 	}
 	walk(world: World) {
@@ -152,11 +162,26 @@ export class Humanoid {
 		for(const part of this.parts) {
 			part.beginArming(angle);
 		}
-		this.mode = "arming";
+		this.enterMode("arming");
+	}
+	shoot() {
+		const remaining = this.parts.filter(p => !p.shot);
+		if(remaining.length === 0) {
+			return;
+		}
+		const part = Utils.randomItem(remaining);
+		part.shot = true;
+		part.destination = part.destination.add(new Vector(HumanoidData.MAX_SHOT_DISTANCE, 0).rotate(-90 + MathUtils.toDegrees(part.angle)));
+		part.speed = HumanoidData.PROJECTILE_SPEED;
+		this.timer = 0;
 	}
 
 	get parts() {
 		return [this.head, this.body, this.leftArm, this.rightArm, this.leftLeg, this.rightLeg];
+	}
+	enterMode(mode: "walking" | "waiting" | "arming" | "shooting" | "reforming") {
+		this.mode = mode;
+		this.timer = 0;
 	}
 
 	display(canvasIO: CanvasIO) {
