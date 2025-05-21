@@ -369,10 +369,10 @@ export class HumanoidData {
 
 	static COLOR = "black";
 
-	static LEG_LIFT_AMOUNT = MathUtils.toRadians(50);
-	static WALK_PHASE_1_DURATION = 100;
-	static WALK_PHASE_2_DURATION = 100;
-	static WALK_PHASE_3_DURATION = 100;
+	static LEG_LIFT_AMOUNT = MathUtils.toRadians(30);
+	static WALK_PHASE_1_DURATION = 15;
+	static WALK_PHASE_2_DURATION = 15;
+	static WALK_PHASE_3_DURATION = 15;
 
 	static ARMING_TIME = 10;
 	static DELAY_AFTER_ARMING = 20;
@@ -389,17 +389,17 @@ export class HumanoidData {
 	static BODY = new HumanoidPart(
 		new Vector(0, 45),
 		MathUtils.toRadians(180),
-		30,
+		20,
 		50,
 	);
 	static LEFT_ARM = new HumanoidPart(
-		new Vector(-25, 25),
-		MathUtils.toRadians(200),
+		new Vector(-20, 35),
+		MathUtils.toRadians(190),
 		10,
-		30,
+		40,
 	);
 	static LEFT_LEG = new HumanoidPart(
-		new Vector(-7, 25),
+		new Vector(-4, 25),
 		MathUtils.toRadians(0),
 		10,
 		30
