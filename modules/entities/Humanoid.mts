@@ -78,6 +78,14 @@ export class HumanoidPart {
 		this.offset = this.offset.add(new Vector(0, currentOffsetY - newOffsetY).rotate(MathUtils.toDegrees(this.angle)));
 		this.rotationPoint = newPoint;
 	}
+	getTip() {
+		const offset = {
+			"point": 0,
+			"center": -this.length / 2,
+			"base": -this.length
+		}[this.rotationPoint];
+		return this.offset.add(new Vector(0, offset).rotate(MathUtils.toDegrees(this.angle)));
+	}
 
 	beginMoving(newOffset: Vector, newAngle: number, time: number) {
 		this.destination = newOffset;
