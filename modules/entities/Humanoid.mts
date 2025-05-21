@@ -105,7 +105,7 @@ export class Humanoid {
 	mode: "walking" | "waiting" | "arming" | "shooting" | "reforming" = "walking";
 	direction: "left" | "right" = "right";
 	physicsObject: PhysicsObject;
-	walkingMode: "apart" | "step" | "together" = "apart";
+	walkingMode: "lift" | "step-down" | "step-together" = "lift";
 	timer: number = 0;
 	
 	head: HumanoidPart;
@@ -128,7 +128,7 @@ export class Humanoid {
 		this.leftLeg = HumanoidData.LEFT_LEG.translate(center);
 		this.rightLeg = HumanoidData.LEFT_LEG.reflect().translate(center);
 
-		this.motions = this.walkMotionsApart("right");
+		this.motions = this.liftLegForStep("right");
 	}
 
 	update(world: World) {
@@ -149,17 +149,17 @@ export class Humanoid {
 	}
 	walk() {
 		if(this.motions.every(m => m.timeLeft <= 0)) {
-			if(this.walkingMode === "apart") {
-				this.motions = this.walkMotionsStep(this.direction);
-				this.walkingMode = "step";
+			if(this.walkingMode === "lift") {
+				this.motions = this.stepDown(this.direction);
+				this.walkingMode = "step-down";
 			}
-			else if(this.walkingMode ===  "step") {
-				this.motions = this.walkMotionsTogether(this.direction);
-				this.walkingMode = "together";
+			else if(this.walkingMode ===  "step-down") {
+				this.motions = this.stepTogether(this.direction);
+				this.walkingMode = "step-together";
 			}
 			else {
-				this.motions = this.walkMotionsApart(this.direction);
-				this.walkingMode = "apart";
+				this.motions = this.liftLegForStep(this.direction);
+				this.walkingMode = "lift";
 			}
 		}
 	}
@@ -187,11 +187,12 @@ export class Humanoid {
 		canvasIO.strokeRect(this.physicsObject.hitbox());
 	}
 
-	walkMotionsApart(direction: "left" | "right") {
+	liftLegForStep(direction: "left" | "right") {
 		const opposite = (direction === "left") ? "right" : "left";
 		const angleMultiplier = (direction === "right") ? 1 : -1;
 		return [
 			new RotationalMotion(
+				/* lift leg to take a step */
 				() => this.getLeg(direction).tip(),
 				-HumanoidData.LEG_LIFT_AMOUNT  / HumanoidData.WALK_PHASE_1_DURATION,
 				[this.getLeg(direction)],
@@ -199,17 +200,19 @@ export class Humanoid {
 			),
 		];
 	}
-	walkMotionsStep(direction: "left" | "right") {
+	stepDown(direction: "left" | "right") {
 		const opposite = (direction === "left") ? "right" : "left";
 		const angleMultiplier = (direction === "right") ? 1 : -1;
 		return [
 			new RotationalMotion(
+				/* rotate about back foot to step onto the ground */
 				() => this.getLeg(opposite).base(),
 				HumanoidData.LEG_LIFT_AMOUNT / HumanoidData.WALK_PHASE_2_DURATION * angleMultiplier,
 				this.parts,
 				HumanoidData.WALK_PHASE_2_DURATION
 			),
 			new RotationalMotion(
+				/* keep upper body vertical */
 				() => this.getLeg(opposite).tip(),
 				-HumanoidData.LEG_LIFT_AMOUNT / HumanoidData.WALK_PHASE_2_DURATION * angleMultiplier,
 				[this.getLeg(direction), this.body, this.leftArm, this.rightArm, this.head],
@@ -217,23 +220,26 @@ export class Humanoid {
 			)
 		]
 	}
-	walkMotionsTogether(direction: "left" | "right") {
+	stepTogether(direction: "left" | "right") {
 		const opposite = (direction === "left") ? "right" : "left";
 		const angleMultiplier = (direction === "right") ? 1 : -1;
 		return [
 			new RotationalMotion(
+				/* rotate about the front foot to bring the body forward */
 				() => this.getLeg(direction).base(),
 				HumanoidData.LEG_LIFT_AMOUNT / HumanoidData.WALK_PHASE_3_DURATION * angleMultiplier,
 				this.parts,
 				HumanoidData.WALK_PHASE_3_DURATION
 			),
 			new RotationalMotion(
+				/* keep the body vertical while moving */
 				() => this.getLeg(direction).tip(),
 				-HumanoidData.LEG_LIFT_AMOUNT / HumanoidData.WALK_PHASE_3_DURATION * angleMultiplier,
 				[this.body, this.getLeg(opposite), this.leftArm, this.rightArm, this.head],
 				HumanoidData.WALK_PHASE_3_DURATION
 			),
 			new RotationalMotion(
+				/* bring the back leg forward */
 				() => this.getLeg(opposite).tip(),
 				-HumanoidData.LEG_LIFT_AMOUNT / HumanoidData.WALK_PHASE_3_DURATION * angleMultiplier,
 				[this.getLeg(opposite)],
