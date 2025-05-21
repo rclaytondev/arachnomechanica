@@ -35,6 +35,24 @@ export class GameUtils {
 		);
 		return GameUtils.lerp(value, min1, max1, min2, closest);
 	}
+	static moveAngleTowards(angle: number, target: number, speed: number) {
+		angle = MathUtils.generalizedModulo(angle, 2 * Math.PI);
+		target = MathUtils.generalizedModulo(target, 2 * Math.PI);
+		const closest = Utils.minValue(
+			[target, target + 2 * Math.PI, target - 2 * Math.PI],
+			n => MathUtils.dist(angle, n)
+		);
+		return GameUtils.moveTowards(angle, closest, speed);
+	}
+	static angleDistance(angle1: number, angle2: number) {
+		angle1 = MathUtils.generalizedModulo(angle1, 2 * Math.PI);
+		angle2 = MathUtils.generalizedModulo(angle2, 2 * Math.PI);
+		return Math.min(
+			MathUtils.dist(angle1, angle2),	
+			MathUtils.dist(angle1, angle2 + 2 * Math.PI),	
+			MathUtils.dist(angle1, angle2 - 2 * Math.PI)
+		);
+	}
 	static diagonalAngle(direction1: Direction, direction2: Direction) {
 		if((direction1 === "right" && direction2 === "up") || (direction1 === "up" && direction2 === "right")) {
 			return Math.PI / 4;

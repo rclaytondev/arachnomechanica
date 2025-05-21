@@ -2,6 +2,7 @@ import { CanvasIO } from "../../utils-ts/modules/CanvasIO.mjs";
 import { Directions } from "../../utils-ts/modules/geometry/Direction.mjs";
 import { Rectangle } from "../../utils-ts/modules/geometry/Rectangle.mjs";
 import { Vector } from "../../utils-ts/modules/geometry/Vector.mjs";
+import { MathUtils } from "../../utils-ts/modules/math/MathUtils.mjs";
 import { DEBUG_SETTINGS } from "../constants/DebugSettings.mjs";
 import { HumanoidData, PlayerData } from "../constants/GameData.mjs";
 import { GameUtils } from "../game-utilities/GameUtils.mjs";
@@ -14,13 +15,22 @@ export class HumanoidPart {
 	width: number;
 	length: number;
 	rotationPoint: "center" | "base" | "point";
+	
+	destination: Vector;
+	speed: number = 0;
+	angleDestination: number;
+	angleSpeed: number = 0;
+	armingOffset: Vector;
 
-	constructor(offset: Vector, angle: number, width: number, length: number, rotationPoint: "center" | "base" | "point") {
+	constructor(offset: Vector, angle: number, width: number, length: number, rotationPoint: "center" | "base" | "point", armingOffset: Vector) {
 		this.offset = offset;
+		this.destination = offset.clone();
 		this.angle = angle;
 		this.width = width;
 		this.length = length;
 		this.rotationPoint = rotationPoint;
+		this.armingOffset = armingOffset;
+		this.angleDestination = this.angle;
 	}
 
 	display(humanoid: Humanoid, canvasIO: CanvasIO) {
@@ -43,11 +53,39 @@ export class HumanoidPart {
 		canvasIO.ctx.restore();
 	}
 
+	update() {
+		this.offset = GameUtils.moveVectorTowards(this.offset, this.destination, this.speed);
+		this.angle = GameUtils.moveAngleTowards(this.angle, this.angleDestination, this.angleSpeed);
+	}
+
 	copy() {
-		return new HumanoidPart(this.offset.clone(), this.angle, this.width, this.length, this.rotationPoint);
+		return new HumanoidPart(this.offset.clone(), this.angle, this.width, this.length, this.rotationPoint, this.armingOffset.clone());
 	}
 	reflect() {
-		return new HumanoidPart(new Vector(-this.offset.x, this.offset.y), -this.angle, this.width, this.length, this.rotationPoint);
+		return new HumanoidPart(this.offset.reflectX(), -this.angle, this.width, this.length, this.rotationPoint, this.armingOffset.reflectX());
+	}
+
+	changeRotationPoint(newPoint: "center" | "base" | "point") {
+		const offsets = {
+			"center": 0,
+			"point": this.length / 2,
+			"base": -this.length / 2
+		};
+		const currentOffsetY = offsets[this.rotationPoint];
+		const newOffsetY = offsets[newPoint];
+		this.offset = this.offset.add(new Vector(0, currentOffsetY - newOffsetY).rotate(MathUtils.toDegrees(this.angle)));
+		this.rotationPoint = newPoint;
+	}
+
+	beginMoving(newOffset: Vector, newAngle: number, time: number) {
+		this.destination = newOffset;
+		this.speed = Vector.dist(this.offset, this.destination) / time;
+		this.angleDestination = newAngle;
+		this.angleSpeed = GameUtils.angleDistance(this.angle, this.angleDestination) / time;
+	}
+	beginArming(targetAngle: number) {
+		this.changeRotationPoint("center");
+		this.beginMoving(this.armingOffset, targetAngle, HumanoidData.ARMING_TIME);
 	}
 }
 
@@ -71,6 +109,12 @@ export class Humanoid {
 	update(world: World) {
 		this.physicsObject.applyGravity(PlayerData.GRAVITY);
 		this.physicsObject.moveY(this.physicsObject.velocity.y, () => { this.physicsObject.velocity.y = 0; }, world);
+
+		if(this.mode === "arming" || this.mode === "shooting" || this.mode === "reforming") {
+			for(const part of this.parts) {
+				part.update();
+			}
+		}
 
 		if(this.mode === "walking") {
 			this.walk(world);
@@ -100,8 +144,15 @@ export class Humanoid {
 		}
 
 		if(world.hasLineOfSight(this.physicsObject.hitbox().center(), world.player.physicsObject.hitbox())) {
-			this.mode = "arming";
+			this.beginArming(world);
 		}
+	}
+	beginArming(world: World) {
+		const angle = Math.PI / 2 + world.player.physicsObject.hitbox().center().subtract(this.physicsObject.hitbox().center()).angle();
+		for(const part of this.parts) {
+			part.beginArming(angle);
+		}
+		this.mode = "arming";
 	}
 
 	get parts() {

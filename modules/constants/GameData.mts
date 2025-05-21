@@ -374,32 +374,38 @@ export class HumanoidData {
 	static WALKING_LEG_ANGLE_MAX = MathUtils.toRadians(10);
 	static WALKING_LEG_SPEED = MathUtils.toRadians(2);
 
+	static ARMING_TIME = 30;
+
 	static HEAD = new HumanoidPart(
 		new Vector(0, -20),
 		MathUtils.toRadians(180),
 		20,
 		50,
-		"center"
+		"center",
+		new Vector(0, -50)
 	);
 	static BODY = new HumanoidPart(
 		new Vector(0, 10),
 		MathUtils.toRadians(180),
 		30,
 		50,
-		"center"
+		"center",
+		new Vector(0, 10)
 	);
 	static LEFT_ARM = new HumanoidPart(
 		new Vector(-20, -15),
 		MathUtils.toRadians(200),
 		10,
 		30,
-		"base"
+		"base",
+		new Vector(-40, -15)
 	);
 	static LEFT_LEG = new HumanoidPart(
 		new Vector(-10, 10),
 		MathUtils.toRadians(0),
 		10,
 		30,
-		"point"
+		"point",
+		new Vector(-20, 50)
 	)
 }
