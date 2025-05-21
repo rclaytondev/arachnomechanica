@@ -22,6 +22,22 @@ class RotationalMotion {
 		this.parts = parts;
 		this.timeLeft = duration;
 	}
+
+	apply(part: HumanoidPart, center: Vector) {
+		const position = part.physicsObject.centerFloat();
+		const newPosition = position.subtract(center).rotate(MathUtils.toDegrees(this.angularVelocity)).add(center);
+		part.physicsObject.setCenter(newPosition);
+		part.angle += this.angularVelocity;
+	}
+	update() {
+		this.timeLeft --;
+		if(this.timeLeft > 0) {
+			const center = this.center();
+			for(const part of this.parts) {
+				this.apply(part, center);
+			}
+		}
+	}
 }
 
 export class HumanoidPart {
@@ -54,6 +70,17 @@ export class HumanoidPart {
 		canvasIO.ctx.restore();
 	}
 
+	tangentVector() {
+		/* Returns the vector pointing in the direction the pointy end is facing. */
+		return new Vector(1, 0).rotate(-90 + MathUtils.toDegrees(this.angle));
+	}
+	base() {
+		return this.physicsObject.centerFloat().subtract(this.tangentVector().multiply(this.length));
+	}
+	tip() {
+		return this.physicsObject.centerFloat();
+	}
+
 	copy() {
 		return new HumanoidPart(
 			this.physicsObject.hitbox().center(),
@@ -76,9 +103,9 @@ export class HumanoidPart {
 
 export class Humanoid {
 	mode: "walking" | "waiting" | "arming" | "shooting" | "reforming" = "walking";
-	direction: "left" | "right" = "left";
+	direction: "left" | "right" = "right";
 	physicsObject: PhysicsObject;
-	legDirection: "out" | "in" = "out";
+	legDirection: "apart" | "together" = "apart";
 	timer: number = 0;
 	
 	head: HumanoidPart;
@@ -87,6 +114,8 @@ export class Humanoid {
 	rightArm: HumanoidPart;
 	leftLeg: HumanoidPart;
 	rightLeg: HumanoidPart;
+
+	motions: RotationalMotion[] = [];
 
 	constructor(position: Vector) {
 		this.physicsObject = new PhysicsObject(position, new Rectangle(0, 0, HumanoidData.HITBOX_WIDTH, HumanoidData.HITBOX_HEIGHT));
@@ -98,6 +127,8 @@ export class Humanoid {
 		this.rightArm = HumanoidData.LEFT_ARM.reflect().translate(center);
 		this.leftLeg = HumanoidData.LEFT_LEG.translate(center);
 		this.rightLeg = HumanoidData.LEFT_LEG.reflect().translate(center);
+
+		this.motions = this.walkMotionsApart("right");
 	}
 
 	update(world: World) {
@@ -105,8 +136,27 @@ export class Humanoid {
 		this.physicsObject.moveY(this.physicsObject.velocity.y, () => { this.physicsObject.velocity.y = 0; }, world);
 		this.timer ++;
 
-		if(this.mode === "arming" && this.timer > HumanoidData.ARMING_TIME + HumanoidData.DELAY_AFTER_ARMING) {
+		for(const motion of this.motions) {
+			motion.update();
+		}
+
+		if(this.mode === "walking") {
+			this.walk();
+		}
+		else if(this.mode === "arming" && this.timer > HumanoidData.ARMING_TIME + HumanoidData.DELAY_AFTER_ARMING) {
 			this.enterMode("shooting");
+		}
+	}
+	walk() {
+		if(this.motions.every(m => m.timeLeft <= 0)) {
+			if(this.legDirection === "apart") {
+				this.motions = this.walkMotionsTogether(this.direction);
+				this.legDirection = "together";
+			}
+			else {
+				this.motions = this.walkMotionsApart(this.direction);
+				this.legDirection = "apart";
+			}
 		}
 	}
 
@@ -116,6 +166,9 @@ export class Humanoid {
 	enterMode(mode: "walking" | "waiting" | "arming" | "shooting" | "reforming") {
 		this.mode = mode;
 		this.timer = 0;
+	}
+	getLeg(direction: "left" | "right") {
+		return (direction === "left") ? this.leftLeg : this.rightLeg;
 	}
 
 	display(canvasIO: CanvasIO) {
@@ -128,5 +181,54 @@ export class Humanoid {
 	displayHitbox(canvasIO: CanvasIO) {
 		canvasIO.ctx.strokeStyle = DEBUG_SETTINGS.HUMANOID_HITBOX_COLOR;
 		canvasIO.strokeRect(this.physicsObject.hitbox());
+	}
+
+	walkMotionsApart(direction: "left" | "right") {
+		const opposite = (direction === "left") ? "right" : "left";
+		const angleMultiplier = (direction === "right") ? 1 : -1;
+		return [
+			new RotationalMotion(
+				() => this.getLeg(opposite).base(),
+				HumanoidData.WALK_PHASE_1_ANGLE / HumanoidData.WALK_PHASE_1_DURATION * angleMultiplier,
+				this.parts,
+				HumanoidData.WALK_PHASE_1_DURATION
+			),
+			new RotationalMotion(
+				() => this.getLeg(opposite).tip(),
+				-HumanoidData.WALK_PHASE_1_ANGLE  / HumanoidData.WALK_PHASE_1_DURATION * angleMultiplier,
+				[this.body, this.getLeg(direction), this.leftArm, this.rightArm, this.head],
+				HumanoidData.WALK_PHASE_1_DURATION
+			),
+			new RotationalMotion(
+				() => this.rightLeg.tip(),
+				-HumanoidData.WALK_PHASE_1_ANGLE  / HumanoidData.WALK_PHASE_1_DURATION,
+				[this.getLeg(direction)],
+				HumanoidData.WALK_PHASE_1_DURATION
+			),
+		];
+	}
+	walkMotionsTogether(direction: "left" | "right") {
+		const opposite = (direction === "left") ? "right" : "left";
+		const angleMultiplier = (direction === "right") ? 1 : -1;
+		return [
+			new RotationalMotion(
+				() => this.getLeg(direction).base(),
+				HumanoidData.WALK_PHASE_2_ANGLE / HumanoidData.WALK_PHASE_2_DURATION * angleMultiplier,
+				this.parts,
+				HumanoidData.WALK_PHASE_2_DURATION
+			),
+			new RotationalMotion(
+				() => this.getLeg(direction).tip(),
+				-HumanoidData.WALK_PHASE_2_ANGLE / HumanoidData.WALK_PHASE_2_DURATION * angleMultiplier,
+				[this.body, this.getLeg(opposite), this.leftArm, this.rightArm, this.head],
+				HumanoidData.WALK_PHASE_2_DURATION
+			),
+			new RotationalMotion(
+				() => this.getLeg(opposite).tip(),
+				-HumanoidData.WALK_PHASE_2_ANGLE / HumanoidData.WALK_PHASE_2_DURATION * angleMultiplier,
+				[this.getLeg(opposite)],
+				HumanoidData.WALK_PHASE_2_DURATION
+			),
+		];
 	}
 }

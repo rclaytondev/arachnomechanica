@@ -99,4 +99,18 @@ export class PhysicsObject {
 	hitbox() {
 		return this.dimensions.translate(this.positionInt);
 	}
+
+	positionFloat() {
+		return this.positionInt.add(this.remainder);
+	}
+	centerFloat() {
+		return this.positionFloat().add(this.dimensions.width / 2, this.dimensions.height / 2);
+	}
+	setPosition(position: Vector) {
+		this.positionInt = position.floor();
+		this.remainder = position.subtract(this.positionInt);
+	}
+	setCenter(position: Vector) {
+		this.setPosition(position.subtract(this.dimensions.width / 2, this.dimensions.height / 2));
+	}
 }

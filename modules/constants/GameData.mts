@@ -369,10 +369,10 @@ export class HumanoidData {
 
 	static COLOR = "black";
 
-	static WALKING_SPEED = 2;
-	static WALKING_LEG_ANGLE_MIN = MathUtils.toRadians(-20);
-	static WALKING_LEG_ANGLE_MAX = MathUtils.toRadians(10);
-	static WALKING_LEG_SPEED = MathUtils.toRadians(2);
+	static WALK_PHASE_1_DURATION = 20;
+	static WALK_PHASE_1_ANGLE = MathUtils.toRadians(30);
+	static WALK_PHASE_2_DURATION = 20;
+	static WALK_PHASE_2_ANGLE = MathUtils.toRadians(30);
 
 	static ARMING_TIME = 10;
 	static DELAY_AFTER_ARMING = 20;
