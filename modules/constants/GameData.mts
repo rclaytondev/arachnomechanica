@@ -364,7 +364,7 @@ export class PortalData {
 }
 
 export class HumanoidData {
-	static HITBOX_WIDTH = 1.3 * WorldData.TILE_SIZE;
+	static HITBOX_WIDTH = 1 * WorldData.TILE_SIZE;
 	static HITBOX_HEIGHT = 1.8 * WorldData.TILE_SIZE;
 
 	static COLOR = "black";
@@ -381,25 +381,25 @@ export class HumanoidData {
 	static PROJECTILE_SPEED = 20;
 
 	static HEAD = new HumanoidPart(
-		new Vector(0, 15),
+		new Vector(0, 5),
 		MathUtils.toRadians(180),
 		20,
 		50,
 	);
 	static BODY = new HumanoidPart(
-		new Vector(0, 45),
+		new Vector(0, 35),
 		MathUtils.toRadians(180),
 		20,
 		50,
 	);
 	static LEFT_ARM = new HumanoidPart(
-		new Vector(-20, 35),
+		new Vector(-20, 25),
 		MathUtils.toRadians(190),
 		10,
 		40,
 	);
 	static LEFT_LEG = new HumanoidPart(
-		new Vector(-4, 25),
+		new Vector(-4, 15),
 		MathUtils.toRadians(0),
 		10,
 		30

@@ -1,5 +1,5 @@
 import { CanvasIO } from "../../utils-ts/modules/CanvasIO.mjs";
-import { Directions } from "../../utils-ts/modules/geometry/Direction.mjs";
+import { Direction, Directions } from "../../utils-ts/modules/geometry/Direction.mjs";
 import { Rectangle } from "../../utils-ts/modules/geometry/Rectangle.mjs";
 import { Vector } from "../../utils-ts/modules/geometry/Vector.mjs";
 import { MathUtils } from "../../utils-ts/modules/math/MathUtils.mjs";
@@ -15,12 +15,14 @@ class RotationalMotion {
 	angularVelocity: number;
 	parts: HumanoidPart[];
 	timeLeft: number;
+	age: number;
 
 	constructor(center: () => Vector, angularVelocity: number, parts: HumanoidPart[], duration: number) {
 		this.center = center;
 		this.angularVelocity = angularVelocity;
 		this.parts = parts;
 		this.timeLeft = duration;
+		this.age = 0;
 	}
 
 	apply(part: HumanoidPart, center: Vector) {
@@ -31,12 +33,22 @@ class RotationalMotion {
 	}
 	update() {
 		this.timeLeft --;
+		this.age ++;
 		if(this.timeLeft > 0) {
 			const center = this.center();
 			for(const part of this.parts) {
 				this.apply(part, center);
 			}
 		}
+	}
+
+	reverse() {
+		return new RotationalMotion(
+			() => this.center(),
+			-this.angularVelocity,
+			this.parts,
+			this.age
+		);
 	}
 }
 
@@ -77,6 +89,9 @@ export class HumanoidPart {
 	base() {
 		return this.physicsObject.centerFloat().subtract(this.tangentVector().multiply(this.length));
 	}
+	center() {
+		return this.physicsObject.centerFloat().subtract(this.tangentVector().multiply(this.length / 2));
+	}
 	tip() {
 		return this.physicsObject.centerFloat();
 	}
@@ -107,6 +122,7 @@ export class Humanoid {
 	physicsObject: PhysicsObject;
 	walkingMode: "lift" | "step-down" | "step-together" = "lift";
 	timer: number = 0;
+	backwards: boolean = false;
 	
 	head: HumanoidPart;
 	body: HumanoidPart;
@@ -119,7 +135,7 @@ export class Humanoid {
 
 	constructor(position: Vector) {
 		this.physicsObject = new PhysicsObject(position, new Rectangle(0, 0, HumanoidData.HITBOX_WIDTH, HumanoidData.HITBOX_HEIGHT));
-
+		
 		const center = this.physicsObject.hitbox().center();
 		this.head = HumanoidData.HEAD.translate(center);
 		this.body = HumanoidData.BODY.translate(center);
@@ -128,7 +144,7 @@ export class Humanoid {
 		this.leftLeg = HumanoidData.LEFT_LEG.translate(center);
 		this.rightLeg = HumanoidData.LEFT_LEG.reflect().translate(center);
 
-		this.motions = this.liftLegForStep("right");
+		this.motions = this.liftLegForStep(this.direction);
 	}
 
 	update(world: World) {
@@ -139,16 +155,26 @@ export class Humanoid {
 		for(const motion of this.motions) {
 			motion.update();
 		}
+		for(const part of this.parts) {
+			part.physicsObject.moveY(this.physicsObject.velocity.y, () => {}, world);
+		}
 
 		if(this.mode === "walking") {
-			this.walk();
+			this.walk(world);
 		}
 		else if(this.mode === "arming" && this.timer > HumanoidData.ARMING_TIME + HumanoidData.DELAY_AFTER_ARMING) {
 			this.enterMode("shooting");
 		}
 	}
-	walk() {
-		if(this.motions.every(m => m.timeLeft <= 0)) {
+	walk(world: World) {
+		this.physicsObject.moveX(
+			this.body.center().x - this.physicsObject.hitbox().center().x,
+			(direction: Direction) => {
+				this.turnAround();
+			},
+			world
+		);
+		if(!this.backwards && this.motions.every(m => m.timeLeft <= 0)) {
 			if(this.walkingMode === "lift") {
 				this.motions = this.stepDown(this.direction);
 				this.walkingMode = "step-down";
@@ -158,9 +184,35 @@ export class Humanoid {
 				this.walkingMode = "step-together";
 			}
 			else {
-				this.motions = this.liftLegForStep(this.direction);
-				this.walkingMode = "lift";
+				this.reset();
 			}
+		}
+		else if(this.backwards && this.motions.every(m => m.timeLeft <= 0)) {
+			if(this.walkingMode === "lift") {
+				this.backwards = false;
+				this.reset();
+			}
+			else if(this.walkingMode === "step-down") {
+				/* finished doing a backwards step-down --> foot is in the air --> do a backwards lift */
+				const [motion] = this.liftLegForStep(this.direction).map(m => m.reverse());
+				motion.timeLeft = HumanoidData.WALK_PHASE_1_DURATION;
+				this.motions = [motion];
+				this.direction = (this.direction === "left") ? "right" : "left";
+				this.walkingMode = "step-together";
+				this.backwards = false;
+			}
+			else if(this.walkingMode === "step-together") {
+				this.direction = (this.direction === "left") ? "right" : "left";
+				this.motions = this.stepTogether(this.direction);
+				this.walkingMode = "step-together";
+				this.backwards = false;
+			}
+		}
+	}
+	turnAround() {
+		if(!this.backwards) {
+			this.backwards = true;
+			this.motions = this.motions.map(m => m.reverse());
 		}
 	}
 
@@ -173,6 +225,18 @@ export class Humanoid {
 	}
 	getLeg(direction: "left" | "right") {
 		return (direction === "left") ? this.leftLeg : this.rightLeg;
+	}
+
+	reset() {
+		const humanoid = new Humanoid(this.physicsObject.positionInt);
+		this.head = humanoid.head;
+		this.body = humanoid.body;
+		this.leftArm = humanoid.leftArm;
+		this.rightArm = humanoid.rightArm;
+		this.leftLeg = humanoid.leftLeg;
+		this.rightLeg = humanoid.rightLeg;
+		this.motions = this.liftLegForStep(this.direction);
+		this.walkingMode = "lift";
 	}
 
 	display(canvasIO: CanvasIO) {
@@ -193,7 +257,7 @@ export class Humanoid {
 			new RotationalMotion(
 				/* lift leg to take a step */
 				() => this.getLeg(direction).tip(),
-				-HumanoidData.LEG_LIFT_AMOUNT  / HumanoidData.WALK_PHASE_1_DURATION,
+				-HumanoidData.LEG_LIFT_AMOUNT  / HumanoidData.WALK_PHASE_1_DURATION * angleMultiplier,
 				[this.getLeg(direction)],
 				HumanoidData.WALK_PHASE_1_DURATION
 			),

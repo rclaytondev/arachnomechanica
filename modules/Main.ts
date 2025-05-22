@@ -49,11 +49,11 @@ let frameCount = 0;
 const FRAMERATE = 60;
 const world = new World();
 world.tiles.fillRect(new Rectangle(-1, -10, 12, 12), "solid");
-world.tiles.fillRect(new Rectangle(0, -9, 10, 10), "empty");
-world.tiles.fillRect(new Rectangle(3, -2, 5, 1), "platform");
-world.tiles.set(2, -3,"solid");
+world.tiles.fillRect(new Rectangle(0, -9, 4, 10), "empty");
+// world.tiles.fillRect(new Rectangle(3, -2, 5, 1), "platform");
+// world.tiles.set(2, -3,"solid");
 // world.tiles.set(8, -3,"solid");
-world.entities.push(new Humanoid(new Vector(300, -200)));
+world.entities.push(new Humanoid(new Vector(100, -50)));
 
 LevelGenerator.initializeRooms();
 

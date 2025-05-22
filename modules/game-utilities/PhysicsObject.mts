@@ -21,11 +21,11 @@ export class PhysicsObject {
 		this.velocity.y += amount;
 	}
 
-	move(amount: Vector, world: World) {
-		this.moveX(amount.x, () => {}, world);
-		this.moveY(amount.y, () => {}, world);
+	move(amount: Vector, world: World, oncollision: (direction: Direction) => void = () => {}) {
+		this.moveX(amount.x, oncollision, world);
+		this.moveY(amount.y, oncollision, world);
 	}
-	moveX(amount: number, onCollision: () => void, world: World) {
+	moveX(amount: number, onCollision: (direction: Direction) => void, world: World) {
 		this.remainder.x += amount;
 		while(this.remainder.x >= 1) {
 			const moved = this.moveUnit("right", onCollision, world);
@@ -44,7 +44,7 @@ export class PhysicsObject {
 			}
 		}
 	}
-	moveY(amount: number, onCollision: () => void, world: World) {
+	moveY(amount: number, onCollision: (direction: Direction) => void, world: World) {
 		this.remainder.y += amount;
 		while(this.remainder.y >= 1) {
 			const moved = this.moveUnit("down", onCollision, world);
@@ -63,9 +63,9 @@ export class PhysicsObject {
 			}
 		}
 	}
-	moveUnit(direction: Direction, onCollision: () => void, world: World) {
+	moveUnit(direction: Direction, onCollision: (direction: Direction) => void, world: World) {
 		if(!this.canMove(direction, world)) {
-			onCollision();
+			onCollision(direction);
 			return false;
 		}
 		else {
