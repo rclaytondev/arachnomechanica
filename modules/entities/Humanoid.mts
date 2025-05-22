@@ -179,7 +179,6 @@ export class Humanoid {
 		for(const part of this.parts) {
 			part.display(this, canvasIO);
 		}
-		this.displayHitbox(canvasIO);
 	}
 
 	displayHitbox(canvasIO: CanvasIO) {

@@ -74,6 +74,7 @@ export class World {
 		this.displayParticles(canvasIO);
 		this.displayEntities(canvasIO);
 		this.displayTiles(canvasIO, visibleRegion);
+		this.displayDebugInfo(canvasIO);
 		canvasIO.ctx.restore();
 		this.player.displayEnergyBar(canvasIO);
 
@@ -286,6 +287,16 @@ export class World {
 		canvasIO.ctx.textAlign = "left";
 		canvasIO.ctx.textBaseline = "top";
 		canvasIO.ctx.fillText(coordinates.toString(), canvasIO.mouse.position.x, canvasIO.mouse.position.y);
+	}
+	displayDebugInfo(canvasIO: CanvasIO) {
+		for(const entity of this.entities) {
+			if("displayHitbox" in entity) {
+				entity.displayHitbox(canvasIO);
+			}
+			else if("displayHitboxes" in entity) {
+				entity.displayHitboxes(canvasIO);
+			}
+		}
 	}
 
 	update(canvasIO: CanvasIO) {

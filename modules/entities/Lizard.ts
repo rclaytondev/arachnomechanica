@@ -49,7 +49,6 @@ export class Lizard {
 		this.displayBody(canvasIO);
 		this.displayLegs(canvasIO);
 		this.displayHead(canvasIO);
-		this.displayHitboxes(canvasIO);
 		this.displayLookaheadRectangle(canvasIO);
 	}
 	displayBody(canvasIO: CanvasIO) {
