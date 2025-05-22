@@ -34,7 +34,7 @@ class RotationalMotion {
 	update() {
 		this.timeLeft --;
 		this.age ++;
-		if(this.timeLeft > 0) {
+		if(this.timeLeft >= 0) {
 			const center = this.center();
 			for(const part of this.parts) {
 				this.apply(part, center);
@@ -73,21 +73,21 @@ class LinearMotion {
 		this.timeLeft = duration;
 	}
 	apply(part: HumanoidPart, world: World) {
-		part.physicsObject.move(this.velocity, world, () => { this.timeLeft = 0; });
+		part.physicsObject.move(this.velocity, world, () => { this.timeLeft = -1; });
 	}
 	update(world: World) {
 		this.timeLeft --;
 		this.age ++;
-		if(this.timeLeft > 0) {
+		if(this.timeLeft >= 0) {
 			for(const part of this.parts) {
 				this.apply(part, world);
 			}
 		}
 	}
 
-	static translateToPosition(part: HumanoidPart, destination: Vector, duration: number) {
+	static translateToPosition(part: HumanoidPart, destination: Vector, duration: number, mode: "center" | "tip" | "base" = "center") {
 		return new LinearMotion(
-			destination.subtract(part.center()).divide(duration),
+			destination.subtract(part[mode]()).divide(duration),
 			[part],
 			duration
 		);
@@ -166,6 +166,7 @@ export class Humanoid {
 	walkingMode: "lift" | "step-down" | "step-together" = "lift";
 	timer: number = 0;
 	backwards: boolean = false;
+	reformPosition: Vector | null = null;
 	
 	head: HumanoidPart;
 	body: HumanoidPart;
@@ -188,6 +189,9 @@ export class Humanoid {
 		this.rightLeg = HumanoidData.LEFT_LEG.reflect().translate(center);
 
 		this.motions = this.liftLegForStep(this.direction);
+		// this.body.physicsObject.collides = () => false;
+		// this.motions = [LinearMotion.translateToPosition(this.body, new Vector(-1000, 0), 50, "tip")];
+		// this.body.physicsObject.setPosition(new Vector(-1000, 0));
 	}
 
 	update(world: World) {
@@ -211,6 +215,15 @@ export class Humanoid {
 		else if(this.mode === "shooting" && this.timer > HumanoidData.DELAY_AFTER_SHOT) {
 			this.shoot();
 		}
+		else if(this.mode === "shooting" && this.doneShooting()) {
+			this.beginReforming();
+			this.enterMode("reforming");
+		}
+		else if(this.mode === "reforming" && this.motions.every(m => m.timeLeft < 0)) {
+			this.reset();
+			this.motions = this.liftLegForStep(this.direction);
+			this.enterMode("walking");
+		}
 	}
 	walk(world: World) {
 		this.physicsObject.moveX(
@@ -220,7 +233,7 @@ export class Humanoid {
 			},
 			world
 		);
-		if(!this.backwards && this.motions.every(m => m.timeLeft <= 0)) {
+		if(!this.backwards && this.motions.every(m => m.timeLeft < 0)) {
 			if(this.walkingMode === "lift") {
 				this.motions = this.stepDown(this.direction);
 				this.walkingMode = "step-down";
@@ -233,7 +246,7 @@ export class Humanoid {
 				this.reset();
 			}
 		}
-		else if(this.backwards && this.motions.every(m => m.timeLeft <= 0)) {
+		else if(this.backwards && this.motions.every(m => m.timeLeft < 0)) {
 			if(this.walkingMode === "lift") {
 				this.backwards = false;
 				this.reset();
@@ -267,6 +280,7 @@ export class Humanoid {
 	}
 	beginArming(world: World) {
 		this.enterMode("arming");
+		this.motions = [];
 		const center = this.physicsObject.hitbox().center();
 		const angle = Math.PI / 2 + world.player.physicsObject.hitbox().center().subtract(center).angle();
 		for(const partID of ["head", "body", "leftArm", "rightArm", "leftLeg", "rightLeg"] as const) {
@@ -274,6 +288,7 @@ export class Humanoid {
 			this.motions.push(RotationalMotion.rotateToAngle(part, angle, HumanoidData.ARMING_TIME));
 			this.motions.push(LinearMotion.translateToPosition(part, HumanoidData.ARMING_POSITIONS[partID].add(center), HumanoidData.ARMING_TIME));
 		}
+		this.reformPosition = this.getReformPosition(world);
 	}
 	shoot() {
 		const remaining = this.parts.filter(p => !p.shot);
@@ -287,7 +302,45 @@ export class Humanoid {
 			HumanoidData.MAX_SHOT_DISTANCE / HumanoidData.PROJECTILE_SPEED
 		));
 		part.shot = true;
+		part.physicsObject.collides = () => true;
 		this.timer = 0;
+	}
+	doneShooting() {
+		return this.parts.every(p => p.shot) && this.motions.every(m => m.timeLeft < 0);
+	}
+	beginReforming() {
+		if(this.reformPosition === null) { return; }
+		this.motions = [];
+		const defaultHumanoid = new Humanoid(new Vector(0, 0));
+		for(const partID of ["head", "body", "leftArm", "rightArm", "leftLeg", "rightLeg"] as const) {
+			const part = this[partID];
+			part.physicsObject.collides = () => false;
+			// part.physicsObject.setPosition(defaultHumanoid[partID].physicsObject.hitbox().center().subtract(1, 1).add(this.physicsObject.positionFloat()));
+			// part.angle = defaultHumanoid[partID].angle;
+			this.motions.push(RotationalMotion.rotateToAngle(part, defaultHumanoid[partID].angle, HumanoidData.REFORM_TIME));
+			// debugger;
+			this.motions.push(LinearMotion.translateToPosition(
+				part,
+				defaultHumanoid[partID].center().add(this.physicsObject.positionFloat()),
+				HumanoidData.REFORM_TIME,
+				"center"
+			));
+		}
+	}
+	getReformPosition(world: World) {
+		const box = this.physicsObject.hitbox();
+		const direction = world.player.physicsObject.hitbox().center().subtract(box.center()).normalize();
+		let position: Vector | null = null;
+		for(let i = 0; i < HumanoidData.MAX_SHOT_DISTANCE; i ++) {
+			const translated = box.translate(direction.multiply(i));
+			if(world.isInSolid(box)) {
+				break;
+			}
+			else {
+				position = translated.getCorner("top-left");
+			}
+		}
+		return position;
 	}
 
 	get parts() {

@@ -380,6 +380,8 @@ export class HumanoidData {
 	static MAX_SHOT_DISTANCE = 800;
 	static PROJECTILE_SPEED = 20;
 
+	static REFORM_TIME = 30;
+
 	static HEAD = new HumanoidPart(
 		new Vector(0, 5),
 		MathUtils.toRadians(180),
