@@ -404,4 +404,27 @@ export class HumanoidData {
 		10,
 		30
 	)
+
+	static ARMING_CIRCLE_RADIUS = 50;
+	static ARMING_CIRCLE_Y = 0;
+	static ARMING_POSITIONS = {
+		head: new Vector(0, HumanoidData.ARMING_CIRCLE_Y - HumanoidData.ARMING_CIRCLE_RADIUS),
+		body: new Vector(0, HumanoidData.ARMING_CIRCLE_Y),
+		leftArm: new Vector(
+			HumanoidData.ARMING_CIRCLE_RADIUS * Math.cos(MathUtils.toRadians(90 + 360/5)),
+			HumanoidData.ARMING_CIRCLE_RADIUS * -Math.sin(MathUtils.toRadians(90 + 360/5)) + HumanoidData.ARMING_CIRCLE_Y
+		),
+		rightArm: new Vector(
+			HumanoidData.ARMING_CIRCLE_RADIUS * Math.cos(MathUtils.toRadians(90 - 360/5)),
+			HumanoidData.ARMING_CIRCLE_RADIUS * -Math.sin(MathUtils.toRadians(90 - 360/5)) + HumanoidData.ARMING_CIRCLE_Y
+		),
+		leftLeg: new Vector(
+			HumanoidData.ARMING_CIRCLE_RADIUS * Math.cos(MathUtils.toRadians(90 + 2 * 360/5)),
+			HumanoidData.ARMING_CIRCLE_RADIUS * -Math.sin(MathUtils.toRadians(90 + 2 * 360/5)) + HumanoidData.ARMING_CIRCLE_Y
+		),
+		rightLeg: new Vector(
+			HumanoidData.ARMING_CIRCLE_RADIUS * Math.cos(MathUtils.toRadians(90 - 2 * 360/5)),
+			HumanoidData.ARMING_CIRCLE_RADIUS * -Math.sin(MathUtils.toRadians(90 - 2 * 360/5)) + HumanoidData.ARMING_CIRCLE_Y
+		)
+	};
 }

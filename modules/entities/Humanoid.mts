@@ -50,6 +50,48 @@ class RotationalMotion {
 			this.age
 		);
 	}
+
+	static rotateToAngle(part: HumanoidPart, angle: number, duration: number) {
+		const distance = GameUtils.signedAngleDistance(part.angle, angle);
+		return new RotationalMotion(
+			() => part.center(),
+			distance /  duration,
+			[part],
+			duration
+		);
+	}
+}
+class LinearMotion {
+	velocity: Vector;
+	parts: HumanoidPart[];
+	timeLeft: number;
+	age: number = 0;
+
+	constructor(velocity: Vector, parts: HumanoidPart[], duration: number) {
+		this.velocity = velocity;
+		this.parts = parts;
+		this.timeLeft = duration;
+	}
+	apply(part: HumanoidPart, world: World) {
+		part.physicsObject.move(this.velocity, world, () => { this.timeLeft = 0; });
+	}
+	update(world: World) {
+		this.timeLeft --;
+		this.age ++;
+		if(this.timeLeft > 0) {
+			for(const part of this.parts) {
+				this.apply(part, world);
+			}
+		}
+	}
+
+	static translateToPosition(part: HumanoidPart, destination: Vector, duration: number) {
+		return new LinearMotion(
+			destination.subtract(part.center()).divide(duration),
+			[part],
+			duration
+		);
+	}
 }
 
 export class HumanoidPart {
@@ -131,7 +173,7 @@ export class Humanoid {
 	leftLeg: HumanoidPart;
 	rightLeg: HumanoidPart;
 
-	motions: RotationalMotion[] = [];
+	motions: (RotationalMotion | LinearMotion)[] = [];
 
 	constructor(position: Vector) {
 		this.physicsObject = new PhysicsObject(position, new Rectangle(0, 0, HumanoidData.HITBOX_WIDTH, HumanoidData.HITBOX_HEIGHT));
@@ -153,7 +195,7 @@ export class Humanoid {
 		this.timer ++;
 
 		for(const motion of this.motions) {
-			motion.update();
+			motion.update(world);
 		}
 		for(const part of this.parts) {
 			part.physicsObject.moveY(this.physicsObject.velocity.y, () => {}, world);
@@ -208,11 +250,25 @@ export class Humanoid {
 				this.backwards = false;
 			}
 		}
+
+		if(world.hasLineOfSight(this.physicsObject.hitbox().center(), world.player.physicsObject.hitbox())) {
+			this.beginArming(world);
+		}
 	}
 	turnAround() {
 		if(!this.backwards) {
 			this.backwards = true;
-			this.motions = this.motions.map(m => m.reverse());
+			this.motions = this.motions.map(m => (m as RotationalMotion).reverse());
+		}
+	}
+	beginArming(world: World) {
+		this.enterMode("arming");
+		const center = this.physicsObject.hitbox().center();
+		const angle = Math.PI / 2 + world.player.physicsObject.hitbox().center().subtract(center).angle();
+		for(const partID of ["head", "body", "leftArm", "rightArm", "leftLeg", "rightLeg"] as const) {
+			const part = this[partID];
+			this.motions.push(RotationalMotion.rotateToAngle(part, angle, HumanoidData.ARMING_TIME));
+			this.motions.push(LinearMotion.translateToPosition(part, HumanoidData.ARMING_POSITIONS[partID].add(center), HumanoidData.ARMING_TIME));
 		}
 	}
 
