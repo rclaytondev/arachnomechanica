@@ -99,6 +99,7 @@ export class HumanoidPart {
 	angle: number;
 	width: number;
 	length: number;
+	shot: boolean = false;
 
 	constructor(position: Vector, angle: number, width: number, length: number) {
 		this.physicsObject = new PhysicsObject(
@@ -207,6 +208,9 @@ export class Humanoid {
 		else if(this.mode === "arming" && this.timer > HumanoidData.ARMING_TIME + HumanoidData.DELAY_AFTER_ARMING) {
 			this.enterMode("shooting");
 		}
+		else if(this.mode === "shooting" && this.timer > HumanoidData.DELAY_AFTER_SHOT) {
+			this.shoot();
+		}
 	}
 	walk(world: World) {
 		this.physicsObject.moveX(
@@ -270,6 +274,20 @@ export class Humanoid {
 			this.motions.push(RotationalMotion.rotateToAngle(part, angle, HumanoidData.ARMING_TIME));
 			this.motions.push(LinearMotion.translateToPosition(part, HumanoidData.ARMING_POSITIONS[partID].add(center), HumanoidData.ARMING_TIME));
 		}
+	}
+	shoot() {
+		const remaining = this.parts.filter(p => !p.shot);
+		if(remaining.length === 0) {
+			return;
+		}
+		const part = Utils.randomItem(remaining);
+		this.motions.push(LinearMotion.translateToPosition(
+			part,
+			part.center().add(new Vector(HumanoidData.MAX_SHOT_DISTANCE, 0).rotate(-90 + MathUtils.toDegrees(part.angle))),
+			HumanoidData.MAX_SHOT_DISTANCE / HumanoidData.PROJECTILE_SPEED
+		));
+		part.shot = true;
+		this.timer = 0;
 	}
 
 	get parts() {
