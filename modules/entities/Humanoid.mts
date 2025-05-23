@@ -189,13 +189,15 @@ export class Humanoid {
 		this.rightLeg = HumanoidData.LEFT_LEG.reflect().translate(center);
 
 		this.motions = this.liftLegForStep(this.direction);
-		// this.body.physicsObject.collides = () => false;
-		// this.motions = [LinearMotion.translateToPosition(this.body, new Vector(-1000, 0), 50, "tip")];
-		// this.body.physicsObject.setPosition(new Vector(-1000, 0));
 	}
 
 	update(world: World) {
-		this.physicsObject.applyGravity(PlayerData.GRAVITY);
+		if(this.mode === "walking" || this.mode === "waiting") {
+			this.physicsObject.applyGravity(PlayerData.GRAVITY);
+		}
+		else {
+			this.physicsObject.velocity.y = 0;
+		}
 		this.physicsObject.moveY(this.physicsObject.velocity.y, () => { this.physicsObject.velocity.y = 0; }, world);
 		this.timer ++;
 
@@ -213,11 +215,13 @@ export class Humanoid {
 			this.enterMode("shooting");
 		}
 		else if(this.mode === "shooting" && this.timer > HumanoidData.DELAY_AFTER_SHOT) {
-			this.shoot();
-		}
-		else if(this.mode === "shooting" && this.doneShooting()) {
-			this.beginReforming();
-			this.enterMode("reforming");
+			if(this.timer > HumanoidData.DELAY_AFTER_SHOT) {
+				this.shoot();
+			}
+			if(this.doneShooting()) {
+				this.beginReforming();
+				this.enterMode("reforming");
+			}
 		}
 		else if(this.mode === "reforming" && this.motions.every(m => m.timeLeft < 0)) {
 			this.reset();
@@ -310,18 +314,16 @@ export class Humanoid {
 	}
 	beginReforming() {
 		if(this.reformPosition === null) { return; }
+		this.physicsObject.setPosition(this.reformPosition);
 		this.motions = [];
 		const defaultHumanoid = new Humanoid(new Vector(0, 0));
 		for(const partID of ["head", "body", "leftArm", "rightArm", "leftLeg", "rightLeg"] as const) {
 			const part = this[partID];
 			part.physicsObject.collides = () => false;
-			// part.physicsObject.setPosition(defaultHumanoid[partID].physicsObject.hitbox().center().subtract(1, 1).add(this.physicsObject.positionFloat()));
-			// part.angle = defaultHumanoid[partID].angle;
 			this.motions.push(RotationalMotion.rotateToAngle(part, defaultHumanoid[partID].angle, HumanoidData.REFORM_TIME));
-			// debugger;
 			this.motions.push(LinearMotion.translateToPosition(
 				part,
-				defaultHumanoid[partID].center().add(this.physicsObject.positionFloat()),
+				defaultHumanoid[partID].center().add(this.reformPosition),
 				HumanoidData.REFORM_TIME,
 				"center"
 			));
@@ -333,7 +335,7 @@ export class Humanoid {
 		let position: Vector | null = null;
 		for(let i = 0; i < HumanoidData.MAX_SHOT_DISTANCE; i ++) {
 			const translated = box.translate(direction.multiply(i));
-			if(world.isInSolid(box)) {
+			if(world.isInSolid(translated)) {
 				break;
 			}
 			else {
