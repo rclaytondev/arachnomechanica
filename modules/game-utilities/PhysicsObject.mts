@@ -1,4 +1,4 @@
-import { Direction } from "../../utils-ts/modules/geometry/Direction.mjs";
+import { Direction, Directions } from "../../utils-ts/modules/geometry/Direction.mjs";
 import { Rectangle } from "../../utils-ts/modules/geometry/Rectangle.mjs";
 import { Vector } from "../../utils-ts/modules/geometry/Vector.mjs";
 import { WorldData } from "../constants/GameData.mjs";
@@ -25,10 +25,10 @@ export class PhysicsObject {
 		this.moveX(amount.x, oncollision, world);
 		this.moveY(amount.y, oncollision, world);
 	}
-	moveX(amount: number, onCollision: (direction: Direction) => void, world: World) {
+	moveX(amount: number, onCollision: (direction: Direction) => void, world: World, slopeMode: "stop" | "push" | "slide" = "stop") {
 		this.remainder.x += amount;
 		while(this.remainder.x >= 1) {
-			const moved = this.moveUnit("right", onCollision, world);
+			const moved = this.moveUnit("right", onCollision, world, slopeMode);
 			this.remainder.x --;
 			if(!moved) {
 				this.remainder.x = 0;
@@ -36,7 +36,7 @@ export class PhysicsObject {
 			}
 		}
 		while(this.remainder.x < 0) {
-			const moved = this.moveUnit("left", onCollision, world);
+			const moved = this.moveUnit("left", onCollision, world, slopeMode);
 			this.remainder.x ++;
 			if(!moved) {
 				this.remainder.x = 0;
@@ -63,22 +63,52 @@ export class PhysicsObject {
 			}
 		}
 	}
-	moveUnit(direction: Direction, onCollision: (direction: Direction) => void, world: World) {
-		if(!this.canMove(direction, world)) {
-			onCollision(direction);
-			return false;
+	moveUnit(direction: Direction, onCollision: (direction: Direction) => void, world: World, slopeMode: "stop" | "push" | "slide" = "stop") {
+		const offset = this.slopeOffset(direction, world, slopeMode);
+		if(this.canMove(offset, world)) {
+			this.positionInt = this.positionInt.add(offset);
+			return true;
 		}
-		else {
+		else if(this.canMove(Vector.unit(direction), world)) {
 			this.positionInt = this.positionInt.add(Vector.unit(direction));
 			return true;
 		}
+		else {
+			onCollision(direction);
+			return false;
+		}
 	}
-	canMove(direction: Direction, world: World) {
-		if(direction === "down" && this.isOnPlatform(world)) {
+	slopeOffset(direction: Direction, world: World, slopeMode: "stop" | "push" | "slide") {
+		const offset = Vector.unit(direction);
+		if(slopeMode === "stop") { return offset; }
+
+		if(
+			Directions.isHorizontal(direction)
+			&& (slopeMode  ===  "push" || slopeMode === "slide")
+			&& world.onSlope(this.hitbox(), `slope-floor-${direction}`)
+		) {
+			return offset.add(0, -1);
+		}
+
+		const opposite = Directions.opposite(direction);
+		if(
+			Directions.isHorizontal(opposite)
+			&& slopeMode === "slide"
+			&& world.onSlope(this.hitbox(), `slope-floor-${opposite}`)
+		) {
+			return offset.add(0, 1);
+		}
+		return offset;
+	}
+	canMove(direction: Direction | Vector, world: World) {
+		if(!(direction instanceof Vector)) {
+			direction = Vector.unit(direction);
+		}
+		if(direction.y > 0 && this.isOnPlatform(world)) {
 			return false;
 		}
 
-		const newHitbox = this.hitbox().translate(Vector.unit(direction));
+		const newHitbox = this.hitbox().translate(direction);
 		return !world.isInSolid(newHitbox, this.collides);
 	}
 	isOnPlatform(world: World) {

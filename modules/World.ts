@@ -388,26 +388,42 @@ export class World {
 			}
 		}
 	}
-	intersectsSlope(rectangle: Rectangle, position: Vector, slope: Slope) {
+	slopeIntersectionDistance(rectangle: Rectangle, position: Vector, slope: Slope) {
 		const tileRectangle = Rectangle.square(position.x, position.y, 1).scale(WorldData.TILE_SIZE);
-		if(!rectangle.intersects(tileRectangle)) { return false; }
+		if(!rectangle.intersects(tileRectangle)) { return -Infinity; }
 		const center = tileRectangle.center();
 		if(slope === "slope-floor-left") {
 			const corner = rectangle.getCorner("bottom-left");
-			return corner.x <= center.x + corner.y - center.y;
+			return center.x + corner.y - center.y - corner.x;
 		}
 		else if(slope === "slope-floor-right") {
 			const corner = rectangle.getCorner("bottom-right");
-			return corner.x >= center.x + center.y - corner.y;
+			return corner.x - (center.x + center.y - corner.y);
 		}
 		else if(slope === "slope-ceiling-left") {
 			const corner = rectangle.getCorner("top-left");
-			return corner.x <= center.x + center.y - corner.y;
+			return center.x + center.y - corner.y - corner.x;
 		}
 		else {
 			const corner = rectangle.getCorner("top-right");
-			return corner.x >= center.x + corner.y - center.y;
+			return corner.x - (center.x + corner.y - center.y);
 		}
+	}
+	intersectsSlope(rectangle: Rectangle, position: Vector, slope: Slope) {
+		return this.slopeIntersectionDistance(rectangle, position, slope) > 0;
+	}
+	onSlope(rectangle: Rectangle, slope: Slope) {
+		const corner = rectangle.getCorner(({
+			"slope-floor-right": "bottom-right",
+			"slope-floor-left": "bottom-left",
+			"slope-ceiling-right": "bottom-right",
+			"slope-ceiling-left": "bottom-left"
+		} as const)[slope]);
+		const position = new Vector(
+			(slope === "slope-floor-left" || slope === "slope-ceiling-left") ? Math.ceil(corner.x / WorldData.TILE_SIZE) - 1 : Math.floor(corner.x / WorldData.TILE_SIZE),
+			Math.ceil(corner.y / WorldData.TILE_SIZE) - 1
+		);
+		return this.tiles.get(position) === slope && this.slopeIntersectionDistance(rectangle, position, slope) === 0;
 	}
 	collidingTiles(rectangle: Rectangle, collides: (object: { x: number, y: number, tile: Tile } | Entity) => boolean = () => true) {
 		const tiles = [];

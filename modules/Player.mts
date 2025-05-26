@@ -50,7 +50,7 @@ export class Player {
 		}
 		this.physicsObject.applyGravity(canvasIO.keys.KeyZ && this.physicsObject.velocity.y <= 0 ? PlayerData.GRAVITY_WHILE_JUMPING : PlayerData.GRAVITY);
 		this.physicsObject.velocity.x = MathUtils.constrain(this.physicsObject.velocity.x, -PlayerData.MAX_X_VELOCITY, PlayerData.MAX_X_VELOCITY);
-		this.physicsObject.moveX(this.physicsObject.velocity.x, () => { this.physicsObject.velocity.x = 0; }, world);
+		this.physicsObject.moveX(this.physicsObject.velocity.x, () => { this.physicsObject.velocity.x = 0; }, world, "slide");
 		this.physicsObject.moveY(this.physicsObject.velocity.y, () => { this.physicsObject.velocity.y = 0; }, world);
 	}
 	checkInputs(world: World, canvasIO: CanvasIO) {
