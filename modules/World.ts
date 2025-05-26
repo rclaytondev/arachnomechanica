@@ -387,6 +387,27 @@ export class World {
 			}
 		}
 	}
+	intersectsSlope(rectangle: Rectangle, position: Vector, slope: Slope) {
+		const tileRectangle = Rectangle.square(position.x, position.y, 1).scale(WorldData.TILE_SIZE);
+		if(!rectangle.intersects(tileRectangle)) { return false; }
+		const center = tileRectangle.center();
+		if(slope === "slope-floor-left") {
+			const corner = rectangle.getCorner("bottom-left");
+			return corner.x <= center.x + corner.y - center.y;
+		}
+		else if(slope === "slope-floor-right") {
+			const corner = rectangle.getCorner("bottom-right");
+			return corner.x >= center.x + center.y - corner.y;
+		}
+		else if(slope === "slope-ceiling-left") {
+			const corner = rectangle.getCorner("top-left");
+			return corner.x <= center.x + center.y - corner.y;
+		}
+		else {
+			const corner = rectangle.getCorner("top-right");
+			return corner.x >= center.x + corner.y - center.y;
+		}
+	}
 	isInSolid(rectangle: Rectangle, collides: (object: { x: number, y: number, tile: Tile } | Entity) => boolean = () => true) {
 		for(const { position, tile } of this.getTilesAt(rectangle)) {
 			const { x, y } = position;
@@ -394,7 +415,8 @@ export class World {
 				tile === "solid" ||
 				(tile instanceof Gate && tile.openness !== 1 && rectangle.intersects(tile.getPhysicsBox(x, y))) ||
 				tile instanceof LaserBlock ||
-				tile instanceof SpikeballBlock
+				tile instanceof SpikeballBlock ||
+				(World.isSlope(tile) && this.intersectsSlope(rectangle, position, tile))
 			)) { return true; }
 		}
 		for(const entity of this.entities) {
