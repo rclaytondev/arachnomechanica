@@ -2,7 +2,7 @@ import { Direction, Directions } from "../../utils-ts/modules/geometry/Direction
 import { Rectangle } from "../../utils-ts/modules/geometry/Rectangle.mjs";
 import { Vector } from "../../utils-ts/modules/geometry/Vector.mjs";
 import { WorldData } from "../constants/GameData.mjs";
-import { Entity, Tile, World } from "../World.js";
+import { Entity, Tile, TileWithPosition, World } from "../World.js";
 
 export class PhysicsObject {
 	positionInt: Vector;
@@ -12,8 +12,8 @@ export class PhysicsObject {
 	collides: (object: { x: number, y: number, tile: Tile } | Entity) => boolean = () => true;
 
 	constructor(positionInt: Vector, dimensions: Rectangle) {
-		this.positionInt = positionInt;
-		this.remainder = new Vector(0, 0);
+		this.positionInt = positionInt.floor();
+		this.remainder = positionInt.subtract(this.positionInt);
 		this.dimensions = dimensions;
 	}
 
@@ -25,7 +25,7 @@ export class PhysicsObject {
 		this.moveX(amount.x, oncollision, world);
 		this.moveY(amount.y, oncollision, world);
 	}
-	moveX(amount: number, onCollision: (direction: Direction) => void, world: World, slopeMode: "stop" | "push" | "slide" = "stop") {
+	moveX(amount: number, onCollision: (direction: Direction, collisions: (Entity | TileWithPosition)[]) => void, world: World, slopeMode: "stop" | "push" | "slide" = "stop") {
 		this.remainder.x += amount;
 		while(this.remainder.x >= 1) {
 			const moved = this.moveUnit("right", onCollision, world, slopeMode);
@@ -44,7 +44,7 @@ export class PhysicsObject {
 			}
 		}
 	}
-	moveY(amount: number, onCollision: (direction: Direction) => void, world: World) {
+	moveY(amount: number, onCollision: (direction: Direction, collisions: (Entity | TileWithPosition)[]) => void, world: World) {
 		this.remainder.y += amount;
 		while(this.remainder.y >= 1) {
 			const moved = this.moveUnit("down", onCollision, world);
@@ -63,9 +63,10 @@ export class PhysicsObject {
 			}
 		}
 	}
-	moveUnit(direction: Direction, onCollision: (direction: Direction) => void, world: World, slopeMode: "stop" | "push" | "slide" = "stop") {
+	moveUnit(direction: Direction, onCollision: (direction: Direction, collisions: (Entity | TileWithPosition)[]) => void, world: World, slopeMode: "stop" | "push" | "slide" = "stop") {
 		const offset = this.slopeOffset(direction, world, slopeMode);
-		if(this.canMove(offset, world)) {
+		const collidingObjects = this.collidingObjects(offset, world);
+		if(collidingObjects.length === 0) {
 			this.positionInt = this.positionInt.add(offset);
 			return true;
 		}
@@ -74,7 +75,7 @@ export class PhysicsObject {
 			return true;
 		}
 		else {
-			onCollision(direction);
+			onCollision(direction, collidingObjects);
 			return false;
 		}
 	}
@@ -100,30 +101,34 @@ export class PhysicsObject {
 		}
 		return offset;
 	}
-	canMove(direction: Direction | Vector, world: World) {
+	collidingObjects(direction: Direction | Vector, world: World) {
 		if(!(direction instanceof Vector)) {
 			direction = Vector.unit(direction);
 		}
-		if(direction.y > 0 && this.isOnPlatform(world)) {
-			return false;
+		if(direction.y > 0) {
+			const collidingPlatform = this.isOnPlatform(world);
+			if(collidingPlatform) { return [collidingPlatform]; }
 		}
 
 		const newHitbox = this.hitbox().translate(direction);
-		return !world.isInSolid(newHitbox, this.collides);
+		return [...world.collidingTiles(newHitbox, this.collides), ...world.collidingEntities(newHitbox, this.collides)];
 	}
-	isOnPlatform(world: World) {
+	canMove(direction: Direction | Vector, world: World) {
+		return this.collidingObjects(direction, world).length === 0;
+	}
+	isOnPlatform(world: World): TileWithPosition | null {
 		const hitbox = this.hitbox();
 		if(hitbox.bottom() % WorldData.TILE_SIZE !== 0) {
-			return false;
+			return null;
 		}
 		const left = world.getTileX(hitbox.left());
 		const right = world.getTileX(hitbox.right() - 1);
 		for(let x = left; x <= right; x ++) {
 			if(world.tiles.get(x, hitbox.bottom() / WorldData.TILE_SIZE) === "platform") {
-				return true;
+				return { x: x, y: hitbox.bottom() / WorldData.TILE_SIZE, tile: "platform" };
 			}
 		}
-		return false;
+		return null;
 	}
 
 	hitbox() {

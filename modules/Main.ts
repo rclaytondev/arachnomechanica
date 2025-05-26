@@ -59,7 +59,7 @@ world.tiles.set(1, 0, "slope-floor-left");
 world.tiles.set(1, -3, "slope-ceiling-left");
 world.tiles.set(3, -3, "slope-ceiling-right");
 // world.entities.push(new Lizard(new Vector(275, -275), "down", 150, 3));
-world.addTile(new Vector(3, -3), new LaserBlock(3, LaserBlockData.MIN_SPEED, 0));
+world.addTile(new Vector(3, -3), new SpikeballBlock(SpikeballBlockData.PATTERNS[0]));
 
 LevelGenerator.initializeRooms();
 
