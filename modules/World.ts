@@ -26,6 +26,7 @@ import { Humanoid } from "./entities/Humanoid.mjs";
 export type TileEntity = Gate | LaserBlock | SpikeballBlock;
 export type Tile = (typeof WorldData.STRING_TILE_TYPES)[number] | TileEntity;
 export type Slope = (typeof WorldData.SLOPES)[number];
+export type TileWithPosition = { x: number, y: number, tile: Tile };
 export type Entity = Lizard | Spikeball | Portal | Humanoid;
 
 export class World {
@@ -408,7 +409,8 @@ export class World {
 			return corner.x >= center.x + corner.y - center.y;
 		}
 	}
-	isInSolid(rectangle: Rectangle, collides: (object: { x: number, y: number, tile: Tile } | Entity) => boolean = () => true) {
+	collidingTiles(rectangle: Rectangle, collides: (object: { x: number, y: number, tile: Tile } | Entity) => boolean = () => true) {
+		const tiles = [];
 		for(const { position, tile } of this.getTilesAt(rectangle)) {
 			const { x, y } = position;
 			if(collides({ x, y, tile }) && (
@@ -417,14 +419,23 @@ export class World {
 				tile instanceof LaserBlock ||
 				tile instanceof SpikeballBlock ||
 				(World.isSlope(tile) && this.intersectsSlope(rectangle, position, tile))
-			)) { return true; }
-		}
-		for(const entity of this.entities) {
-			if(collides(entity) && "hitboxes" in entity && entity.hitboxes().some(b => rectangle.intersects(b))) {
-				return true;
+			)) {
+				tiles.push({ x, y, tile });
 			}
 		}
-		return false;
+		return tiles;
+	}
+	collidingEntities(rectangle: Rectangle, collides: (object: { x: number, y: number, tile: Tile } | Entity) => boolean = () => true) {
+		const solids = [];
+		for(const entity of this.entities) {
+			if(collides(entity) && "hitboxes" in entity && entity.hitboxes().some(b => rectangle.intersects(b))) {
+				solids.push(entity);
+			}
+		}
+		return solids;
+	}
+	isInSolid(rectangle: Rectangle, collides: (object: { x: number, y: number, tile: Tile } | Entity) => boolean = () => true) {
+		return this.collidingTiles(rectangle, collides).length !== 0 || this.collidingEntities(rectangle, collides).length !== 0;
 	}
 	isBoundarySolid(worldPosition: Vector, direction: Direction, ignoredTiles: Tile[] = []) {
 		const tilePosition = (
