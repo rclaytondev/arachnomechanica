@@ -25,7 +25,8 @@ export class WorldData {
 
 	static PLATFORM_THICKNESS = WorldData.TILE_SIZE * 0.1;
 
-	static STRING_TILE_TYPES = ["solid", "empty", "platform"] as const;
+	static SLOPES = ["slope-floor-right", "slope-floor-left", "slope-ceiling-right", "slope-ceiling-left"] as const;
+	static STRING_TILE_TYPES = ["solid", "empty", "platform", ...WorldData.SLOPES] as const;
 
 	static CAMERA_SPEED = 100;
 

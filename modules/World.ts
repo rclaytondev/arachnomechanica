@@ -25,6 +25,7 @@ import { Humanoid } from "./entities/Humanoid.mjs";
 
 export type TileEntity = Gate | LaserBlock | SpikeballBlock;
 export type Tile = (typeof WorldData.STRING_TILE_TYPES)[number] | TileEntity;
+export type Slope = (typeof WorldData.SLOPES)[number];
 export type Entity = Lizard | Spikeball | Portal | Humanoid;
 
 export class World {
@@ -194,7 +195,10 @@ export class World {
 						WorldData.TILE_SIZE, WorldData.PLATFORM_THICKNESS
 					);
 				}
-				else if(tile !== "empty" && !(tile instanceof LaserBlock)) {
+				else if(World.isSlope(tile)) {
+					this.displaySlopedTile(position, canvasIO, tile);
+				}
+				else if(typeof tile !== "string" && "display" in tile && !(tile instanceof LaserBlock)) {
 					tile.display(canvasIO, x, y);
 				}
 				else if(tile instanceof LaserBlock) {
@@ -202,6 +206,25 @@ export class World {
 				}
 			}
 		}
+	}
+	displaySlopedTile(position: Vector, canvasIO: CanvasIO, tile: Slope) {
+		const center = position.add(1/2, 1/2).multiply(WorldData.TILE_SIZE);
+		const angles = {
+			"slope-floor-right": 0,
+			"slope-floor-left": MathUtils.toRadians(90),
+			"slope-ceiling-right": MathUtils.toRadians(-90),
+			"slope-ceiling-left": MathUtils.toRadians(-180),
+		};
+		canvasIO.ctx.save();
+		canvasIO.ctx.translate(center.x, center.y);
+		canvasIO.ctx.rotate(angles[tile]);
+		canvasIO.ctx.fillStyle = WorldData.TILE_COLOR;
+		canvasIO.fillPoly(
+			WorldData.TILE_SIZE / 2, -WorldData.TILE_SIZE / 2,
+			WorldData.TILE_SIZE / 2, WorldData.TILE_SIZE / 2,
+			-WorldData.TILE_SIZE / 2, WorldData.TILE_SIZE / 2,
+		);
+		canvasIO.ctx.restore();
 	}
 	displaySolidTile(position: Vector, canvasIO: CanvasIO) {
 		canvasIO.ctx.fillStyle = WorldData.TILE_COLOR;
@@ -513,6 +536,9 @@ export class World {
 	static isTile(value: unknown): value is Tile {
 		return (typeof value === "string" && (WorldData.STRING_TILE_TYPES as readonly string[]).includes(value))
 			|| World.isTileEntity(value);
+	}
+	static isSlope(value: unknown): value is (typeof WorldData.SLOPES)[number] {
+		return WorldData.SLOPES.includes(value  as any);
 	}
 	static isTileEntity(value: unknown): value is TileEntity {
 		return value instanceof Gate || value instanceof LaserBlock || value instanceof SpikeballBlock;
