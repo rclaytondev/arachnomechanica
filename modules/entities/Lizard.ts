@@ -471,7 +471,8 @@ export class Lizard {
 				tile === "solid" ||
 				(tile === "platform" && direction === "down") ||
 				(tile instanceof Gate && tile.openness !== 1) ||
-				(tile instanceof LaserBlock || tile instanceof SpikeballBlock)
+				(tile instanceof LaserBlock || tile instanceof SpikeballBlock) ||
+				World.isSlope(tile)
 			) { return true; }
 		}
 		if(world.entities.some(entity => "hitboxes" in entity && entity.hitboxes().some(b => b.intersects(lookaheadRectangle)))) {
