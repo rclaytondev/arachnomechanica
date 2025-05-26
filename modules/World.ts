@@ -453,6 +453,15 @@ export class World {
 	isInSolid(rectangle: Rectangle, collides: (object: { x: number, y: number, tile: Tile } | Entity) => boolean = () => true) {
 		return this.collidingTiles(rectangle, collides).length !== 0 || this.collidingEntities(rectangle, collides).length !== 0;
 	}
+	static isSlopeBoundarySolid(slope: Slope, direction: Direction) {
+		const edges = ({
+			"slope-floor-left": ["left", "down"],
+			"slope-floor-right": ["right", "down"],
+			"slope-ceiling-left": ["left", "up"],
+			"slope-ceiling-right": ["right", "up"]
+		} as const)[slope];
+		return (edges as readonly Direction[]).includes(direction);
+	}
 	isBoundarySolid(worldPosition: Vector, direction: Direction, ignoredTiles: Tile[] = []) {
 		const tilePosition = (
 			(direction === "up") ? new Vector(Math.floor(worldPosition.x / WorldData.TILE_SIZE), Math.round(worldPosition.y / WorldData.TILE_SIZE))
@@ -464,6 +473,14 @@ export class World {
 		if(direction === "down" && this.tiles.get(adjacentPosition) === "platform") {
 			return true;
 		}
+
+		const tile = this.tiles.get(tilePosition);
+		const adjacent = this.tiles.get(adjacentPosition);
+		if(
+			World.isSlope(tile) && World.isSlopeBoundarySolid(tile, direction)
+			|| (World.isSlope(adjacent) && World.isSlopeBoundarySolid(adjacent, Directions.opposite(direction)))
+		) { return true; }
+
 		for(const position of [tilePosition, adjacentPosition]) {
 			const tile = this.tiles.get(position);
 			if(!ignoredTiles.includes(tile) && (
@@ -483,6 +500,20 @@ export class World {
 			GameUtils.rayIntersectsHSegment(position, direction, direction.y >= 0 ? bottom : top, left, right)
 		);
 	}
+	slopeLineIntersectionDistance(position: Vector, direction: Vector, tilePosition: Vector) {
+		const slope = this.tiles.get(tilePosition);
+		if(!World.isSlope(slope)) {
+			return Infinity;
+		}
+		const tileBox = new Rectangle(tilePosition.x, tilePosition.y, 1, 1).scale(WorldData.TILE_SIZE);
+		const endpoints = ({
+			"slope-floor-left": ["top-left", "bottom-right"],
+			"slope-floor-right": ["top-right", "bottom-left"],
+			"slope-ceiling-left": ["top-right", "bottom-left"],
+			"slope-ceiling-right": ["top-left", "bottom-right"],
+		} as const)[slope];
+		return GameUtils.rayIntersectsSegment(position, direction, tileBox.getCorner(endpoints[0]), tileBox.getCorner(endpoints[1]));
+	}
 	tileIntersectionDistance(position: Vector, direction: Vector, maxDistance: number, ignoredTiles: Tile[] = []) {
 		const tilePosition = this.getTileCoordinates(position);
 		let result = Infinity;
@@ -494,6 +525,11 @@ export class World {
 				x * WorldData.TILE_SIZE
 			);
 			const intersection = position.add(direction.multiply(distance));
+			const slopeIntersection = this.slopeLineIntersectionDistance(
+				position, direction,
+				new Vector(x + (direction.x >= 0 ? -1 : 0), Math.floor(intersection.y / WorldData.TILE_SIZE))
+			);
+			result = Math.min(result, slopeIntersection);
 			if(this.isBoundarySolid(intersection, direction.x >= 0 ? "right" : "left", ignoredTiles)) {
 				result = Math.min(result, distance);
 				break;
@@ -508,6 +544,11 @@ export class World {
 				y * WorldData.TILE_SIZE
 			);
 			const intersection = position.add(direction.multiply(distance));
+			const slopeIntersection = this.slopeLineIntersectionDistance(
+				position, direction,
+				new Vector(Math.floor(intersection.x / WorldData.TILE_SIZE), y + (direction.y >= 0 ? -1 : 0))
+			);
+			result = Math.min(result, slopeIntersection);
 			if(this.isBoundarySolid(intersection, direction.y >= 0 ? "down" : "up", ignoredTiles)) {
 				result = Math.min(result, distance);
 				break;

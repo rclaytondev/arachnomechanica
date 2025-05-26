@@ -210,4 +210,14 @@ export class GameUtils {
 			GameUtils.rayIntersectsVSegment(rayStart, rayDirection, rectangle.right(), rectangle.top(), rectangle.bottom())
 		);
 	}
+	static rayIntersectsSegment(rayStart: Vector, rayDirection: Vector, endpoint1: Vector, endpoint2: Vector) {
+		const lineDirection = endpoint2.subtract(endpoint1);
+		const distance = (endpoint1.y + (rayStart.x - endpoint1.x) / lineDirection.x * lineDirection.y - rayStart.y) / (rayDirection.y - rayDirection.x / lineDirection.x * lineDirection.y);
+		const intersection = rayStart.add(rayDirection.multiply(distance));
+		if(
+			distance >= 0
+			&& Rectangle.fromOppositeCorners(endpoint1, endpoint2).contains(intersection)
+		) { return distance; }
+		return Infinity;
+	}
 }
