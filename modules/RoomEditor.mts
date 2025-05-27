@@ -1,5 +1,5 @@
 import { canvasIO, CanvasIO } from "../utils-ts/modules/CanvasIO.mjs";
-import { Direction, Directions } from "../utils-ts/modules/geometry/Direction.mjs";
+import { Diagonal, Direction, Directions } from "../utils-ts/modules/geometry/Direction.mjs";
 import { Vector } from "../utils-ts/modules/geometry/Vector.mjs";
 import { Grid } from "../utils-ts/modules/Grid.mjs";
 import { Room } from "./level-generator/Room.mjs";
@@ -16,7 +16,7 @@ export class RoomEditor {
 	room: Room;
 	world: World = new World();
 	mode: "solid" | "platform" | "exit" | "gate-open" | "gate-closed" | "portal" = "solid";
-	direction: Direction = "right";
+	direction: Direction | Diagonal = "right";
 	static readonly MODES = ["solid", "platform", "exit", "gate-open", "gate-closed", "portal"] as const;
 
 	constructor(room: Room = new Room("editor room", [], [], [], () => false, [])) {
@@ -51,13 +51,13 @@ export class RoomEditor {
 			if(this.mode === "solid" || this.mode === "platform") {
 				this.setTile(position, canvasIO.mouse.button === "left" ? this.mode : "empty");
 			}
-			else if(this.mode === "exit") {
+			else if(this.mode === "exit" && Directions.isDirection(this.direction)) {
 				this.room.exitTiles.set(position, this.direction);
 			}
-			else if(this.mode === "gate-open") {
+			else if(this.mode === "gate-open" && Directions.isDirection(this.direction)) {
 				this.setTile(position, new Gate(this.direction, true));
 			}
-			else if(this.mode === "gate-closed") {
+			else if(this.mode === "gate-closed" && Directions.isDirection(this.direction)) {
 				this.setTile(position, new Gate(this.direction, false));
 			}
 			else if(this.mode === "portal") {
@@ -94,14 +94,18 @@ export class RoomEditor {
 		if(canvasIO.keys[DEBUG_SETTINGS.LOG_BLOCKS_KEY]) {
 			this.logBlocks();
 		}
-
-		this.direction = (canvasIO.keyDirection() ?? this.direction);
-
+		this.updateDirection(canvasIO);
 		if(canvasIO.keys.Equal && !GameUtils.pastKeys.Equal) {
 			this.loadNextRoom();
 		}
 		else if(canvasIO.keys.Minus && !GameUtils.pastKeys.Minus) {
 			this.loadPreviousRoom();
+		}
+	}
+	updateDirection(canvasIO: CanvasIO) {
+		const KEYS = ["ArrowLeft", "ArrowRight", "ArrowUp", "ArrowDown"];
+		if(KEYS.some(k => canvasIO.keys[k] && !GameUtils.pastKeys[k])) {
+			this.direction = canvasIO.keyDirection(true) ?? this.direction;
 		}
 	}
 	loadRoom(room: Room) {
