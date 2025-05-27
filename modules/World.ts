@@ -644,6 +644,15 @@ export class World {
 		if(tile === "solid" || tile === "empty" || tile === "platform") {
 			return tile;
 		}
+		else if(World.isSlope(tile)) {
+			const reflections: { [key: string]: Slope } = {
+				"slope-floor-left": "slope-floor-right",
+				"slope-floor-right": "slope-floor-left",
+				"slope-ceiling-left": "slope-ceiling-right",
+				"slope-ceiling-right": "slope-ceiling-left"
+			};
+			return reflections[tile];
+		}
 		else if(tile instanceof Gate) {
 			const result = tile.copy();
 			result.direction = Directions.reflectX(result.direction);
