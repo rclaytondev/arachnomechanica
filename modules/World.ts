@@ -235,6 +235,9 @@ export class World {
 			WorldData.TILE_SIZE + 2, WorldData.TILE_SIZE + 2
 		);
 
+		this.displayTileAccent(position, canvasIO);
+	}
+	displayTileAccent(position: Vector, canvasIO: CanvasIO) {
 		canvasIO.ctx.strokeStyle = WorldData.TILE_ACCENT_COLOR;
 		canvasIO.ctx.lineWidth = WorldData.TILE_ACCENT_THICKNESS;
 		canvasIO.ctx.lineCap = "round";
