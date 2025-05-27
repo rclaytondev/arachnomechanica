@@ -3,7 +3,7 @@ export const DEBUG_SETTINGS = {
 	LOG_BLOCKS_KEY: "Enter",
 	HOVERED_TILE_COLOR: "rgb(0, 0, 0)", // set to transparent to disable
 	EXIT_TILE_COLOR: "rgb(0, 200, 0)",
-	EDITOR_ROOM: "empty-room" as string | number,
+	EDITOR_ROOM: "slopes-debug" as string | number,
 	SHOW_FRAMERATE: true,
 	EDITOR_UI_COLOR: "rgb(255, 150, 0)",
 	GATE_VISUALIZATION_COLOR: "rgb(255, 150, 0)",
