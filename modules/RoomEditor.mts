@@ -15,9 +15,9 @@ import { Portal } from "./entities/Portal.mjs";
 export class RoomEditor {
 	room: Room;
 	world: World = new World();
-	mode: "solid" | "platform" | "exit" | "gate-open" | "gate-closed" | "portal" = "solid";
+	mode: "solid" | "platform" | "exit" | "gate-open" | "gate-closed" | "portal" | "slope" = "solid";
 	direction: Direction | Diagonal = "right";
-	static readonly MODES = ["solid", "platform", "exit", "gate-open", "gate-closed", "portal"] as const;
+	static readonly MODES = ["solid", "platform", "exit", "gate-open", "gate-closed", "portal", "slope"] as const;
 
 	constructor(room: Room = new Room("editor room", [], [], [], () => false, [])) {
 		this.room = room;
@@ -66,6 +66,15 @@ export class RoomEditor {
 					this.room.entities.push(new Portal(portalPosition));
 					this.world.entities.push(new Portal(portalPosition));
 				}
+			}
+			else if(this.mode === "slope" && Directions.isDiagonal(this.direction)) {
+				const tile = ({
+					"up-left": "slope-ceiling-left",
+					"up-right": "slope-ceiling-right",
+					"down-left": "slope-floor-left",
+					"down-right": "slope-floor-right",
+				} as const)[this.direction];
+				this.setTile(position, tile);
 			}
 		}
 		else {
