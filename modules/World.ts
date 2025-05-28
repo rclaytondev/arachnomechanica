@@ -129,7 +129,7 @@ export class World {
 		for(let x = visibleRegion.left(); x < visibleRegion.right(); x ++) {
 			for(let y = visibleRegion.top(); y < visibleRegion.bottom(); y ++) {
 				if(this.tiles.get(x, y) === "solid") {
-					this.displayTileGlow(new Vector(x, y), canvasIO);
+					SolidTile.displayTileGlow(new Vector(x, y), canvasIO, this);
 				}
 			}
 		}
@@ -201,36 +201,6 @@ export class World {
 				}
 				else if(World.isSlope(tile)) {
 					SolidTile.displaySlopedAccent(position, canvasIO, tile, this);
-				}
-			}
-		}
-	}
-	displayTileGlow(position: Vector, canvasIO: CanvasIO) {
-		const center = position.multiply(WorldData.TILE_SIZE).add(WorldData.TILE_SIZE / 2, WorldData.TILE_SIZE / 2);
-		for(const direction of Directions.DIRECTIONS) {
-			const adjacentTile = this.tiles.get(position.add(Vector.unit(direction))) === "solid";
-			const right = Directions.rotateClockwise(direction);
-			const tileRight = this.tiles.get(position.add(Vector.unit(right))) === "solid";
-			const tileDiagonalRight = this.tiles.get(position.add(Vector.unit(direction)).add(Vector.unit(right))) === "solid";
-			if(!adjacentTile) {
-				const tileEdgeCenter = center.add(Vector.unit(direction).multiply(WorldData.TILE_SIZE / 2));
-				canvasIO.ctx.save();
-				canvasIO.ctx.translate(tileEdgeCenter.x, tileEdgeCenter.y);
-				canvasIO.ctx.rotate(-Directions.angle(direction) + Math.PI / 2);
-				canvasIO.ctx.fillStyle = SolidTile.getTileGlowGradent();
-				canvasIO.ctx.globalCompositeOperation = "lighter";
-				canvasIO.ctx.fillRect(-WorldData.TILE_SIZE / 2, -WorldData.TILE_GLOW_SIZE, WorldData.TILE_SIZE, WorldData.TILE_GLOW_SIZE);
-				canvasIO.ctx.restore();
-
-				if(!tileRight && !tileDiagonalRight) {
-					const rightEdgeCorner = tileEdgeCenter.add(Vector.unit(right).multiply(WorldData.TILE_SIZE / 2));
-					canvasIO.ctx.save();
-					canvasIO.ctx.translate(rightEdgeCorner.x, rightEdgeCorner.y);
-					canvasIO.ctx.rotate(-Directions.angle(direction) + Math.PI / 2);
-					canvasIO.ctx.fillStyle = SolidTile.getDiagonalGlowGradient(canvasIO);
-					canvasIO.ctx.globalCompositeOperation = "lighter";
-					canvasIO.ctx.fillRect(0, -WorldData.TILE_GLOW_SIZE, WorldData.TILE_SIZE, WorldData.TILE_GLOW_SIZE);
-					canvasIO.ctx.restore();
 				}
 			}
 		}

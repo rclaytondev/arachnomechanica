@@ -180,4 +180,35 @@ export class SolidTile {
 			}
 		}
 	}
+
+	static displayTileGlow(position: Vector, canvasIO: CanvasIO, world: World) {
+		const center = position.multiply(WorldData.TILE_SIZE).add(WorldData.TILE_SIZE / 2, WorldData.TILE_SIZE / 2);
+		for(const direction of Directions.DIRECTIONS) {
+			const adjacentTile = world.tiles.get(position.add(Vector.unit(direction))) === "solid";
+			const right = Directions.rotateClockwise(direction);
+			const tileRight = world.tiles.get(position.add(Vector.unit(right))) === "solid";
+			const tileDiagonalRight = world.tiles.get(position.add(Vector.unit(direction)).add(Vector.unit(right))) === "solid";
+			if(!adjacentTile) {
+				const tileEdgeCenter = center.add(Vector.unit(direction).multiply(WorldData.TILE_SIZE / 2));
+				canvasIO.ctx.save();
+				canvasIO.ctx.translate(tileEdgeCenter.x, tileEdgeCenter.y);
+				canvasIO.ctx.rotate(-Directions.angle(direction) + Math.PI / 2);
+				canvasIO.ctx.fillStyle = SolidTile.getTileGlowGradent();
+				canvasIO.ctx.globalCompositeOperation = "lighter";
+				canvasIO.ctx.fillRect(-WorldData.TILE_SIZE / 2, -WorldData.TILE_GLOW_SIZE, WorldData.TILE_SIZE, WorldData.TILE_GLOW_SIZE);
+				canvasIO.ctx.restore();
+
+				if(!tileRight && !tileDiagonalRight) {
+					const rightEdgeCorner = tileEdgeCenter.add(Vector.unit(right).multiply(WorldData.TILE_SIZE / 2));
+					canvasIO.ctx.save();
+					canvasIO.ctx.translate(rightEdgeCorner.x, rightEdgeCorner.y);
+					canvasIO.ctx.rotate(-Directions.angle(direction) + Math.PI / 2);
+					canvasIO.ctx.fillStyle = SolidTile.getDiagonalGlowGradient(canvasIO);
+					canvasIO.ctx.globalCompositeOperation = "lighter";
+					canvasIO.ctx.fillRect(0, -WorldData.TILE_GLOW_SIZE, WorldData.TILE_SIZE, WorldData.TILE_GLOW_SIZE);
+					canvasIO.ctx.restore();
+				}
+			}
+		}
+	}
 }
