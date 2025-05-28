@@ -356,7 +356,9 @@ export class World {
 		this.particles = this.particles.filter(p => !p.isDead());
 	}
 	updateCamera() {
-		this.camera = GameUtils.moveVectorTowards(this.camera, this.player.physicsObject.hitbox().center(), WorldData.CAMERA_SPEED);
+		if(!(Main.screen instanceof RoomEditor)) {
+			this.camera = GameUtils.moveVectorTowards(this.camera, this.player.physicsObject.hitbox().center(), WorldData.CAMERA_SPEED);
+		}
 	}
 	checkDebugInputs(canvasIO: CanvasIO) {
 		if(canvasIO.keys[DEBUG_SETTINGS.SKIP_LEVEL_KEY]) {
