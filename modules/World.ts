@@ -180,7 +180,7 @@ export class World {
 					);
 				}
 				else if(World.isSlope(tile)) {
-					SolidTile.displaySlopedTile(position, canvasIO, tile, this);
+					SolidTile.displaySlopedTile(position, canvasIO, tile);
 				}
 				else if(typeof tile !== "string" && "display" in tile && !(tile instanceof LaserBlock)) {
 					tile.display(canvasIO, x, y);

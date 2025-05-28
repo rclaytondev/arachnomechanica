@@ -29,7 +29,7 @@ export class SolidTile {
 		return this.diagonalGlowGradient;
 	}
 	
-	static displaySlopedTile(position: Vector, canvasIO: CanvasIO, tile: Slope, world: World) {
+	static displaySlopedTile(position: Vector, canvasIO: CanvasIO, tile: Slope) {
 		const center = position.add(1/2, 1/2).multiply(WorldData.TILE_SIZE);
 		const angles = {
 			"slope-floor-right": 0,
