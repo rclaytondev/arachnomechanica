@@ -214,6 +214,15 @@ export class SolidTile {
 
 	
 	static isSolidOrSlope(tile: Tile, direction: Direction) {
-		return tile === "solid" || (World.isSlope(tile) && World.isSlopeBoundarySolid(tile,direction));
+		if(World.isSlope(tile)) {
+			const edges = ({
+				"slope-floor-left": ["left", "down"],
+				"slope-floor-right": ["right", "down"],
+				"slope-ceiling-left": ["left", "up"],
+				"slope-ceiling-right": ["right", "up"]
+			} as const)[tile];
+			return (edges as readonly Direction[]).includes(direction);
+		}
+		return tile === "solid";
 	}
 }

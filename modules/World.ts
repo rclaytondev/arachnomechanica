@@ -366,15 +366,6 @@ export class World {
 	isInSolid(rectangle: Rectangle, collides: (object: { x: number, y: number, tile: Tile } | Entity) => boolean = () => true) {
 		return this.collidingTiles(rectangle, collides).length !== 0 || this.collidingEntities(rectangle, collides).length !== 0;
 	}
-	static isSlopeBoundarySolid(slope: Slope, direction: Direction) {
-		const edges = ({
-			"slope-floor-left": ["left", "down"],
-			"slope-floor-right": ["right", "down"],
-			"slope-ceiling-left": ["left", "up"],
-			"slope-ceiling-right": ["right", "up"]
-		} as const)[slope];
-		return (edges as readonly Direction[]).includes(direction);
-	}
 	isBoundarySolid(worldPosition: Vector, direction: Direction, ignoredTiles: Tile[] = []) {
 		const tilePosition = (
 			(direction === "up") ? new Vector(Math.floor(worldPosition.x / WorldData.TILE_SIZE), Math.round(worldPosition.y / WorldData.TILE_SIZE))
@@ -390,8 +381,8 @@ export class World {
 		const tile = this.tiles.get(tilePosition);
 		const adjacent = this.tiles.get(adjacentPosition);
 		if(
-			World.isSlope(tile) && World.isSlopeBoundarySolid(tile, direction)
-			|| (World.isSlope(adjacent) && World.isSlopeBoundarySolid(adjacent, Directions.opposite(direction)))
+			SolidTile.isSolidOrSlope(tile, direction)
+			|| SolidTile.isSolidOrSlope(adjacent, Directions.opposite(direction))
 		) { return true; }
 
 		for(const position of [tilePosition, adjacentPosition]) {
