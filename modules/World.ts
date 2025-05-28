@@ -1,5 +1,5 @@
 import { CanvasIO } from "../utils-ts/modules/CanvasIO.mjs";
-import { Direction, Directions } from "../utils-ts/modules/geometry/Direction.mjs";
+import { Diagonal, Direction, Directions } from "../utils-ts/modules/geometry/Direction.mjs";
 import { Rectangle } from "../utils-ts/modules/geometry/Rectangle.mjs";
 import { Vector } from "../utils-ts/modules/geometry/Vector.mjs";
 import { Grid } from "../utils-ts/modules/Grid.mjs";
@@ -22,6 +22,7 @@ import { Portal } from "./entities/Portal.mjs";
 import { WorldGenerator } from "./level-generator/WorldGenerator.mjs";
 import { MathUtils } from "../utils-ts/modules/math/MathUtils.mjs";
 import { Humanoid } from "./entities/Humanoid.mjs";
+import { RoomEditor } from "./RoomEditor.mjs";
 
 export type TileEntity = Gate | LaserBlock | SpikeballBlock;
 export type Tile = (typeof WorldData.STRING_TILE_TYPES)[number] | TileEntity;
@@ -207,6 +208,19 @@ export class World {
 				}
 			}
 		}
+		
+		for(let x = region.left(); x < region.right(); x ++) {
+			for(let y = region.top(); y < region.bottom(); y ++) {
+				const position = new Vector(x, y);
+				const tile = this.tiles.get(position);
+				if(tile === "solid") {
+					this.displayTileAccent(position, canvasIO);
+				}
+				else if(World.isSlope(tile)) {
+					this.displaySlopedAccent(position, canvasIO, tile);
+				}
+			}
+		}
 	}
 	displaySlopedTile(position: Vector, canvasIO: CanvasIO, tile: Slope) {
 		const center = position.add(1/2, 1/2).multiply(WorldData.TILE_SIZE);
@@ -227,6 +241,85 @@ export class World {
 		);
 		canvasIO.ctx.restore();
 	}
+	displaySlopedAccent(position: Vector, canvasIO: CanvasIO, tile: Slope) {
+		const accentInset = (WorldData.TILE_SIZE - WorldData.TILE_ACCENT_DISTANCE) / 2;
+		const inwardNormal = {
+			"slope-floor-left": new Vector(-1, 1),
+			"slope-floor-right": new Vector(1, 1),
+			"slope-ceiling-left": new Vector(-1, -1),
+			"slope-ceiling-right": new Vector(1, -1),
+		}[tile];
+		const tangent = inwardNormal.rotate(90);
+		const center = position.add(1/2, 1/2).multiply(WorldData.TILE_SIZE);
+
+		const [adjacentDirection1, perpendicularDirection1] = ({
+			"slope-floor-left": ["left", "up"],
+			"slope-floor-right": ["down", "left"],
+			"slope-ceiling-left": ["up", "right"],
+			"slope-ceiling-right": ["right", "down"]
+		} as const)[tile];
+		const distance1 = this.getSlopeAccentLength(position, adjacentDirection1, perpendicularDirection1);
+
+		const [adjacentDirection2, perpendicularDirection2] = ({
+			"slope-floor-left": ["down", "right"],
+			"slope-floor-right": ["right", "up"],
+			"slope-ceiling-left": ["left", "down"],
+			"slope-ceiling-right": ["up", "left"]
+		} as const)[tile];
+		const distance2 = this.getSlopeAccentLength(position, adjacentDirection2, perpendicularDirection2);
+
+		
+		const endpoint1 = center.add(inwardNormal.multiply(accentInset / Math.SQRT2)).add(tangent.normalize().multiply(distance1));
+		const endpoint2 = center.add(inwardNormal.multiply(accentInset / Math.SQRT2)).subtract(tangent.normalize().multiply(distance2));
+
+		canvasIO.ctx.strokeStyle = WorldData.TILE_ACCENT_COLOR;
+		canvasIO.ctx.lineWidth = WorldData.TILE_ACCENT_THICKNESS;
+		canvasIO.ctx.lineCap = "round";
+		canvasIO.strokeLine(endpoint1.x, endpoint1.y, endpoint2.x, endpoint2.y);
+
+		const directions = ({
+			"slope-floor-left": ["left", "down"],
+			"slope-floor-right": ["right", "down"],
+			"slope-ceiling-left": ["left", "up"],
+			"slope-ceiling-right": ["right", "up"]
+		} as const)[tile];
+		for(const [edge, direction] of [directions, [...directions].reverse()]) {
+			const edgeCenter = center.add(Vector.unit(edge).multiply(WorldData.TILE_ACCENT_DISTANCE / 2));
+			if(!World.isSolidOrSlope(this.tiles.get(position.add(Vector.unit(edge))), Directions.opposite(edge))) {
+				const vertex1 = edgeCenter.add(Vector.unit(direction).multiply(-(WorldData.TILE_SIZE / 2 - accentInset * (1 + Math.SQRT2))));
+				const vertex2 = edgeCenter.add(Vector.unit(direction).multiply(this.getAccentLength(position, edge, direction)));
+				canvasIO.strokeLine(vertex1.x, vertex1.y, vertex2.x, vertex2.y);
+			}
+		}
+	}
+	getSlopeAccentLength(position: Vector, adjacentDirection: Direction, perpendicularDirection: Direction) {
+		const solid90Degrees = World.isSolidOrSlope(this.tiles.get(position.add(Vector.unit(adjacentDirection))), Directions.opposite(adjacentDirection));
+		const accentInset = (WorldData.TILE_SIZE - WorldData.TILE_ACCENT_DISTANCE) / 2;
+		if(!solid90Degrees) {
+			return WorldData.TILE_SIZE / Math.SQRT2 - accentInset * (1 + Math.SQRT2);
+		}
+		const solid135Degrees = World.isSolidOrSlope(this.tiles.get(position.add(Vector.unit(adjacentDirection))), perpendicularDirection);
+		if(!solid135Degrees) {
+			return WorldData.TILE_SIZE / Math.SQRT2 - accentInset;
+		}
+		const solid180Degrees = World.isSolidOrSlope(this.tiles.get(position.add(Vector.unit(adjacentDirection).add(Vector.unit(perpendicularDirection)))), Directions.opposite(perpendicularDirection));
+		if(!solid180Degrees) {
+			return WorldData.TILE_SIZE / Math.SQRT2 - accentInset / 2;
+		}
+		const solid225Degrees = World.isSolidOrSlope(this.tiles.get(position.add(Vector.unit(adjacentDirection).add(Vector.unit(perpendicularDirection)))), Directions.opposite(adjacentDirection));
+		if(!solid225Degrees) {
+			return WorldData.TILE_SIZE * Math.SQRT2 / 2;
+		}
+		const solid270Degrees = World.isSolidOrSlope(this.tiles.get(position.add(Vector.unit(perpendicularDirection))), adjacentDirection);
+		if(!solid270Degrees) {
+			return WorldData.TILE_SIZE / Math.SQRT2 + accentInset * (Math.SQRT2 - 1);
+		}
+		const solid315Degrees = World.isSolidOrSlope(this.tiles.get(position.add(Vector.unit(perpendicularDirection))), Directions.opposite(perpendicularDirection));
+		if(!solid315Degrees) {
+			return WorldData.TILE_SIZE / Math.SQRT2 + accentInset;
+		}
+		return WorldData.TILE_SIZE / Math.SQRT2 + accentInset * (1 + Math.SQRT2);
+	}
 	displaySolidTile(position: Vector, canvasIO: CanvasIO) {
 		canvasIO.ctx.fillStyle = WorldData.TILE_COLOR;
 		canvasIO.ctx.fillRect(
@@ -234,36 +327,49 @@ export class World {
 			position.y * WorldData.TILE_SIZE - 1, 
 			WorldData.TILE_SIZE + 2, WorldData.TILE_SIZE + 2
 		);
-
-		this.displayTileAccent(position, canvasIO);
+	}
+	getAccentLength(position: Vector, side: Direction, direction: Direction): number {
+		const accentInset = (WorldData.TILE_SIZE - WorldData.TILE_ACCENT_DISTANCE) / 2;
+		const solid135Degrees = World.isSolidOrSlope(this.tiles.get(position.add(Vector.unit(direction))), Directions.opposite(direction));
+		if(!solid135Degrees) {
+			return WorldData.TILE_ACCENT_DISTANCE / 2;
+		}
+		const solid180Degrees = World.isSolidOrSlope(this.tiles.get(position.add(Vector.unit(direction))), side);
+		if(!solid180Degrees) {
+			return WorldData.TILE_SIZE / 2 - accentInset * (Math.SQRT2 - 1);
+		}
+		const solid225Degrees = World.isSolidOrSlope(this.tiles.get(position.add(Vector.unit(direction).add(Vector.unit(side)))), Directions.opposite(side));
+		if(!solid225Degrees) {
+			return WorldData.TILE_SIZE / 2;
+		}
+		const solid270Degrees = World.isSolidOrSlope(this.tiles.get(position.add(Vector.unit(direction).add(Vector.unit(side)))), Directions.opposite(direction));
+		if(!solid270Degrees) {
+			return WorldData.TILE_SIZE / 2 + accentInset * (Math.SQRT2 - 1);
+		}
+		const solid315Degrees = World.isSolidOrSlope(this.tiles.get(position.add(Vector.unit(side))), direction);
+		if(!solid315Degrees) {
+			return WorldData.TILE_SIZE / 2 + accentInset;
+		}
+		return WorldData.TILE_SIZE / 2 + accentInset * (Math.SQRT2 + 1);
 	}
 	displayTileAccent(position: Vector, canvasIO: CanvasIO) {
 		canvasIO.ctx.strokeStyle = WorldData.TILE_ACCENT_COLOR;
 		canvasIO.ctx.lineWidth = WorldData.TILE_ACCENT_THICKNESS;
-		canvasIO.ctx.lineCap = "round";
+		canvasIO.ctx.lineCap = "butt";
 
 		const center = position.multiply(WorldData.TILE_SIZE).add(WorldData.TILE_SIZE / 2, WorldData.TILE_SIZE / 2);
-		for(const direction of Directions.DIRECTIONS) {
-			const adjacentTile = this.tiles.get(position.add(Vector.unit(direction))) === "solid";
-			const left = Directions.rotateCounterclockwise(direction);
-			const right = Directions.rotateClockwise(direction);
-			const edgeCenter = center.add(Vector.unit(direction).multiply(WorldData.TILE_ACCENT_DISTANCE / 2));
-			const leftCorner = edgeCenter.add(Vector.unit(left).multiply(WorldData.TILE_ACCENT_DISTANCE / 2));
-			const rightCorner = edgeCenter.add(Vector.unit(right).multiply(WorldData.TILE_ACCENT_DISTANCE / 2));
-			const tileLeft = this.tiles.get(position.add(Vector.unit(left))) === "solid";
-			const tileRight = this.tiles.get(position.add(Vector.unit(right))) === "solid";
-			const tileDiagonalLeft = this.tiles.get(position.add(Vector.unit(direction)).add(Vector.unit(left))) === "solid";
-			const tileDiagonalRight = this.tiles.get(position.add(Vector.unit(direction)).add(Vector.unit(right))) === "solid";
-			if(!adjacentTile) {
-				canvasIO.strokeLine(leftCorner.x, leftCorner.y, rightCorner.x, rightCorner.y);
-			}
-			if((!adjacentTile && tileLeft) || (adjacentTile && tileLeft && !tileDiagonalLeft)) {
-				const farLeftCorner = edgeCenter.add(Vector.unit(left).multiply(WorldData.TILE_SIZE / 2));
-				canvasIO.strokeLine(leftCorner.x, leftCorner.y, farLeftCorner.x, farLeftCorner.y);
-			}
-			if((!adjacentTile && tileRight) || (adjacentTile && tileRight && !tileDiagonalRight)) {
-				const farRightCorner = edgeCenter.add(Vector.unit(right).multiply(WorldData.TILE_SIZE / 2));
-				canvasIO.strokeLine(rightCorner.x, rightCorner.y, farRightCorner.x, farRightCorner.y);
+		for(const side of Directions.DIRECTIONS) {
+			const adjacentTile = this.tiles.get(position.add(Vector.unit(side)));
+			if(World.isSolidOrSlope(adjacentTile, Directions.opposite(side))) { continue; }
+			
+			const edgeCenter = center.add(Vector.unit(side).multiply(WorldData.TILE_ACCENT_DISTANCE / 2));
+			for(const direction of [Directions.rotateClockwise(side), Directions.rotateCounterclockwise(side)] as Direction[]) {
+				const length = this.getAccentLength(position, side, direction);
+				canvasIO.strokeLine(
+					edgeCenter.x, edgeCenter.y,
+					edgeCenter.x + Vector.unit(direction).x * length,
+					edgeCenter.y + Vector.unit(direction).y * length
+				);
 			}
 		}
 	}
@@ -466,6 +572,9 @@ export class World {
 			"slope-ceiling-right": ["right", "up"]
 		} as const)[slope];
 		return (edges as readonly Direction[]).includes(direction);
+	}
+	static isSolidOrSlope(tile: Tile, direction: Direction) {
+		return tile === "solid" || (World.isSlope(tile) && World.isSlopeBoundarySolid(tile,direction));
 	}
 	isBoundarySolid(worldPosition: Vector, direction: Direction, ignoredTiles: Tile[] = []) {
 		const tilePosition = (
