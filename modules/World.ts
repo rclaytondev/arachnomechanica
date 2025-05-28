@@ -375,9 +375,6 @@ export class World {
 		} as const)[slope];
 		return (edges as readonly Direction[]).includes(direction);
 	}
-	static isSolidOrSlope(tile: Tile, direction: Direction) {
-		return tile === "solid" || (World.isSlope(tile) && World.isSlopeBoundarySolid(tile,direction));
-	}
 	isBoundarySolid(worldPosition: Vector, direction: Direction, ignoredTiles: Tile[] = []) {
 		const tilePosition = (
 			(direction === "up") ? new Vector(Math.floor(worldPosition.x / WorldData.TILE_SIZE), Math.round(worldPosition.y / WorldData.TILE_SIZE))
