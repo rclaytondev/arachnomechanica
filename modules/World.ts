@@ -76,6 +76,7 @@ export class World {
 		this.displayParticles(canvasIO);
 		this.displayEntities(canvasIO);
 		this.displayTiles(canvasIO, visibleRegion);
+		this.displaytTileAccents(canvasIO, visibleRegion);
 		this.displayDebugInfo(canvasIO);
 		canvasIO.ctx.restore();
 		this.player.displayEnergyBar(canvasIO);
@@ -189,7 +190,8 @@ export class World {
 				}
 			}
 		}
-		
+	}
+	displaytTileAccents(canvasIO: CanvasIO, region: Rectangle) {
 		for(let x = region.left(); x < region.right(); x ++) {
 			for(let y = region.top(); y < region.bottom(); y ++) {
 				const position = new Vector(x, y);
