@@ -23,6 +23,7 @@ import { WorldGenerator } from "./level-generator/WorldGenerator.mjs";
 import { MathUtils } from "../utils-ts/modules/math/MathUtils.mjs";
 import { Humanoid } from "./entities/Humanoid.mjs";
 import { RoomEditor } from "./RoomEditor.mjs";
+import { SolidTile } from "./tiles/SolidTile.mjs";
 
 export type TileEntity = Gate | LaserBlock | SpikeballBlock;
 export type Tile = (typeof WorldData.STRING_TILE_TYPES)[number] | TileEntity;
@@ -37,8 +38,6 @@ export class World {
 	particles: Particle[] = [];
 	gearsBackground: GearsBackground = GearsBackground.generate();
 	skyBackground: SkyBackground = new SkyBackground();
-	tileGlowGradient: CanvasGradient | null = null;
-	diagonalGlowGradient: CanvasGradient | null = null;
 	screenShakeTimer: number = 0;
 	screenShakeIntensity: number = 0;
 	camera: Vector = new Vector(0, 0);
@@ -119,24 +118,6 @@ export class World {
 			Math.floor(center.y - (canvasIO.canvas.height / 2 / WorldData.TILE_SIZE)),
 			Math.ceil(center.y + (canvasIO.canvas.height / 2 / WorldData.TILE_SIZE))
 		);
-	}
-	getTileGlowGradent() {
-		if(this.tileGlowGradient) { return this.tileGlowGradient; }
-		this.tileGlowGradient = GameUtils.glowLineGradient(
-			0, 0, 0, -WorldData.TILE_GLOW_SIZE, 
-			WorldData.TILE_GLOW_INTENSITY,
-			WorldData.TILE_GLOW_COLOR.red, WorldData.TILE_GLOW_COLOR.green, WorldData.TILE_GLOW_COLOR.blue
-		);
-		return this.tileGlowGradient;
-	}
-	getDiagonalGlowGradient(canvasIO: CanvasIO) {
-		if(this.diagonalGlowGradient) { return this.diagonalGlowGradient; }
-		this.diagonalGlowGradient = GameUtils.glowCircleGradient(
-			0, 0, WorldData.TILE_GLOW_SIZE,
-			WorldData.TILE_GLOW_INTENSITY,
-			WorldData.TILE_GLOW_COLOR.red, WorldData.TILE_GLOW_COLOR.green, WorldData.TILE_GLOW_COLOR.blue
-		);
-		return this.diagonalGlowGradient;
 	}
 	displayGlowEffects(canvasIO: CanvasIO, visibleRegion: Rectangle) {
 		for(const entity of this.entities) {
@@ -385,7 +366,7 @@ export class World {
 				canvasIO.ctx.save();
 				canvasIO.ctx.translate(tileEdgeCenter.x, tileEdgeCenter.y);
 				canvasIO.ctx.rotate(-Directions.angle(direction) + Math.PI / 2);
-				canvasIO.ctx.fillStyle = this.getTileGlowGradent();
+				canvasIO.ctx.fillStyle = SolidTile.getTileGlowGradent();
 				canvasIO.ctx.globalCompositeOperation = "lighter";
 				canvasIO.ctx.fillRect(-WorldData.TILE_SIZE / 2, -WorldData.TILE_GLOW_SIZE, WorldData.TILE_SIZE, WorldData.TILE_GLOW_SIZE);
 				canvasIO.ctx.restore();
@@ -395,7 +376,7 @@ export class World {
 					canvasIO.ctx.save();
 					canvasIO.ctx.translate(rightEdgeCorner.x, rightEdgeCorner.y);
 					canvasIO.ctx.rotate(-Directions.angle(direction) + Math.PI / 2);
-					canvasIO.ctx.fillStyle = this.getDiagonalGlowGradient(canvasIO);
+					canvasIO.ctx.fillStyle = SolidTile.getDiagonalGlowGradient(canvasIO);
 					canvasIO.ctx.globalCompositeOperation = "lighter";
 					canvasIO.ctx.fillRect(0, -WorldData.TILE_GLOW_SIZE, WorldData.TILE_SIZE, WorldData.TILE_GLOW_SIZE);
 					canvasIO.ctx.restore();
