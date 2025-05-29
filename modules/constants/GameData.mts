@@ -160,7 +160,7 @@ export class LaserBlockData {
 	static SPAWN_EVENNESS = 9;
 	static MIN_SPEED = 0.01;
 	static MAX_SPEED = 0.01;
-	static MAX_LENGTH = 500;
+	static MAX_LENGTH = 300;
 	static BEAMS_PER_BLOCK = 2;
 }
 
