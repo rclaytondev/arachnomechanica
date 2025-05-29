@@ -100,7 +100,7 @@ export class LaserBlock {
 			const length = this.endpointDistance(new Vector(x, y), direction, world, canvasIO.boundingBox());
 			this.lengths[i] = GameUtils.moveTowards(this.lengths[i], length, LaserBlockData.LASER_LINEAR_SPEED);
 			this.lengths[i] = Math.min(this.lengths[i], length);
-			if(this.lengths[i] === length && frameCount % LaserBlockData.FRAMES_PER_PARTICLE == 0) {
+			if(this.lengths[i] === length && this.lengths[i] < LaserBlockData.MAX_LENGTH && frameCount % LaserBlockData.FRAMES_PER_PARTICLE == 0) {
 				const position = new Vector(x + 1/2, y + 1/2).multiply(WorldData.TILE_SIZE).add(direction.multiply(length));
 				world.addParticle(new Particle(
 					position,
