@@ -4761,6 +4761,6 @@ export const ROOMS: Room[] = [
 		],
 		[
 		],
-		(exits: Direction[]) => true
+		(exits: Direction[]) => !exits.includes("down")
 	)
 ];
