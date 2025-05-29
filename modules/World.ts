@@ -425,7 +425,7 @@ export class World {
 	}
 	tileIntersectionDistance(position: Vector, direction: Vector, maxDistance: number, ignoredTiles: Tile[] = []) {
 		const tilePosition = this.getTileCoordinates(position);
-		let result = Infinity;
+		let result = maxDistance;
 		for(let x = (direction.x >= 0) ? tilePosition.x + 1 : tilePosition.x; true; x += (direction.x >= 0) ? 1 : -1) {
 			if(direction.x === 0) { break; }
 			const distance = GameUtils.rayIntersectsVertical(

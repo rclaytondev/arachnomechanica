@@ -49,24 +49,20 @@ let frameCount = 0;
 const FRAMERATE = 60;
 const world = new World();
 world.tiles.fillRect(new Rectangle(-1, -10, 12, 12), "solid");
-world.tiles.fillRect(new Rectangle(0, -9, 10, 10), "empty");
-world.tiles.set(3, 0, "slope-floor-right");
-world.tiles.set(4, -1, "slope-floor-right");
-world.tiles.set(5, -2, "slope-floor-right");
-world.tiles.set(6, -3, "slope-floor-right");
-world.tiles.set(7, -4, "slope-floor-right");
-world.tiles.set(1, 0, "slope-floor-left");
-world.tiles.set(1, -3, "slope-ceiling-left");
-world.tiles.set(3, -3, "slope-ceiling-right");
+world.tiles.fillRect(new Rectangle(-1, -9, 10, 10), "empty");
+world.tiles.fillRect(new Rectangle(-5, -5, 1, 20), "solid");
 // world.entities.push(new Lizard(new Vector(275, -275), "down", 150, 3));
-world.addTile(new Vector(3, -3), new SpikeballBlock(SpikeballBlockData.PATTERNS[0]));
+world.addTile(new Vector(8, -3), new LaserBlock(1, 0.05, Math.PI));
+// world.tiles.set(3, -4, "solid");
+// world.tiles.set(4, -4, "solid");
+// world.tiles.set(4, -3, "solid");
 
 LevelGenerator.initializeRooms();
 
 export class Main {
 	// static screen: World | RoomEditor = new WorldGenerator().generate();
-	static screen: World | RoomEditor = new RoomEditor();
-	// static screen: World | RoomEditor = world;
+	// static screen: World | RoomEditor = new RoomEditor();
+	static screen: World | RoomEditor = world;
 
 	static fadingOpacity: number = 0;
 	static fadingDestination: number = 0;
