@@ -142,6 +142,14 @@ export class GameUtils {
 		canvasIO.fillCircle(x, y, size * 2);
 		canvasIO.ctx.restore();
 	}
+	static glowArc(x: number, y: number, size: number, intensity: number, canvasIO: CanvasIO, startAngle: number, endAngle: number, red: number = 255, green: number = 255, blue: number = 255) {
+		const gradient = GameUtils.glowCircleGradient(x, y, size, intensity, red, green, blue);
+		canvasIO.ctx.save();
+		canvasIO.ctx.fillStyle = gradient;
+		canvasIO.ctx.globalCompositeOperation = "lighter";
+		canvasIO.fillArc(x, y, size * 2, startAngle, endAngle);
+		canvasIO.ctx.restore();
+	}
 	static glowCircleGradient(x: number, y: number, size: number, intensity: number, red: number = 255, green: number = 255, blue: number = 255) {
 		const canvas = document.createElement("canvas");
 		const ctx = canvas.getContext("2d")!;
@@ -209,5 +217,15 @@ export class GameUtils {
 			GameUtils.rayIntersectsVSegment(rayStart, rayDirection, rectangle.left(), rectangle.top(), rectangle.bottom()),
 			GameUtils.rayIntersectsVSegment(rayStart, rayDirection, rectangle.right(), rectangle.top(), rectangle.bottom())
 		);
+	}
+	static rayIntersectsSegment(rayStart: Vector, rayDirection: Vector, endpoint1: Vector, endpoint2: Vector) {
+		const lineDirection = endpoint2.subtract(endpoint1);
+		const distance = (endpoint1.y + (rayStart.x - endpoint1.x) / lineDirection.x * lineDirection.y - rayStart.y) / (rayDirection.y - rayDirection.x / lineDirection.x * lineDirection.y);
+		const intersection = rayStart.add(rayDirection.multiply(distance));
+		if(
+			distance >= 0
+			&& Rectangle.fromOppositeCorners(endpoint1, endpoint2).contains(intersection)
+		) { return distance; }
+		return Infinity;
 	}
 }

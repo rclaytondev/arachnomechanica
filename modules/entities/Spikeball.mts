@@ -4,7 +4,7 @@ import { Vector } from "../../utils-ts/modules/geometry/Vector.mjs";
 import { SpikeballData, WorldData } from "../constants/GameData.mjs";
 import { GameUtils } from "../game-utilities/GameUtils.mjs";
 import { PhysicsObject } from "../game-utilities/PhysicsObject.mjs";
-import { Entity, Tile, World } from "../World";
+import { Entity, Tile, World } from "../World.js";
 
 export class Spikeball {
 	static glowGradient = GameUtils.glowCircleGradient(
@@ -80,16 +80,28 @@ export class Spikeball {
 	update(world: World, canvasIO: CanvasIO) {
 		this.physicsObject.moveX(
 			this.physicsObject.velocity.x,
-			() => {
+			(direction, collisions) => {
 				this.bounces --;
+				if(collisions.some(
+					t => "tile" in t && World.isSlope(t.tile)
+					&& ((t.tile === "slope-floor-left" || t.tile === "slope-ceiling-left") === (this.physicsObject.velocity.x < 0)))
+				) {
+					this.physicsObject.velocity.y = -this.physicsObject.velocity.y;
+				}
 				this.physicsObject.velocity.x = -this.physicsObject.velocity.x;
 			},
 			world
 		);
 		this.physicsObject.moveY(
 			this.physicsObject.velocity.y,
-			() => {
+			(direction, collisions) => {
 				this.bounces --;
+				if(collisions.some(
+					t => "tile" in t && World.isSlope(t.tile)
+					&& ((t.tile === "slope-ceiling-left" || t.tile === "slope-ceiling-right") === (this.physicsObject.velocity.y < 0)))
+				) {
+					this.physicsObject.velocity.x = -this.physicsObject.velocity.x;
+				}
 				this.physicsObject.velocity.y = -this.physicsObject.velocity.y;
 			},
 			world

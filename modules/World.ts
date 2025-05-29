@@ -1,5 +1,5 @@
 import { CanvasIO } from "../utils-ts/modules/CanvasIO.mjs";
-import { Direction, Directions } from "../utils-ts/modules/geometry/Direction.mjs";
+import { Diagonal, Direction, Directions } from "../utils-ts/modules/geometry/Direction.mjs";
 import { Rectangle } from "../utils-ts/modules/geometry/Rectangle.mjs";
 import { Vector } from "../utils-ts/modules/geometry/Vector.mjs";
 import { Grid } from "../utils-ts/modules/Grid.mjs";
@@ -22,9 +22,13 @@ import { Portal } from "./entities/Portal.mjs";
 import { WorldGenerator } from "./level-generator/WorldGenerator.mjs";
 import { MathUtils } from "../utils-ts/modules/math/MathUtils.mjs";
 import { Humanoid } from "./entities/Humanoid.mjs";
+import { RoomEditor } from "./RoomEditor.mjs";
+import { SolidTile } from "./tiles/SolidTile.mjs";
 
 export type TileEntity = Gate | LaserBlock | SpikeballBlock;
 export type Tile = (typeof WorldData.STRING_TILE_TYPES)[number] | TileEntity;
+export type Slope = (typeof WorldData.SLOPES)[number];
+export type TileWithPosition = { x: number, y: number, tile: Tile };
 export type Entity = Lizard | Spikeball | Portal | Humanoid;
 
 export class World {
@@ -34,8 +38,6 @@ export class World {
 	particles: Particle[] = [];
 	gearsBackground: GearsBackground = GearsBackground.generate();
 	skyBackground: SkyBackground = new SkyBackground();
-	tileGlowGradient: CanvasGradient | null = null;
-	diagonalGlowGradient: CanvasGradient | null = null;
 	screenShakeTimer: number = 0;
 	screenShakeIntensity: number = 0;
 	camera: Vector = new Vector(0, 0);
@@ -74,6 +76,7 @@ export class World {
 		this.displayParticles(canvasIO);
 		this.displayEntities(canvasIO);
 		this.displayTiles(canvasIO, visibleRegion);
+		this.displaytTileAccents(canvasIO, visibleRegion);
 		this.displayDebugInfo(canvasIO);
 		canvasIO.ctx.restore();
 		this.player.displayEnergyBar(canvasIO);
@@ -117,24 +120,6 @@ export class World {
 			Math.ceil(center.y + (canvasIO.canvas.height / 2 / WorldData.TILE_SIZE))
 		);
 	}
-	getTileGlowGradent() {
-		if(this.tileGlowGradient) { return this.tileGlowGradient; }
-		this.tileGlowGradient = GameUtils.glowLineGradient(
-			0, 0, 0, -WorldData.TILE_GLOW_SIZE, 
-			WorldData.TILE_GLOW_INTENSITY,
-			WorldData.TILE_GLOW_COLOR.red, WorldData.TILE_GLOW_COLOR.green, WorldData.TILE_GLOW_COLOR.blue
-		);
-		return this.tileGlowGradient;
-	}
-	getDiagonalGlowGradient(canvasIO: CanvasIO) {
-		if(this.diagonalGlowGradient) { return this.diagonalGlowGradient; }
-		this.diagonalGlowGradient = GameUtils.glowCircleGradient(
-			0, 0, WorldData.TILE_GLOW_SIZE,
-			WorldData.TILE_GLOW_INTENSITY,
-			WorldData.TILE_GLOW_COLOR.red, WorldData.TILE_GLOW_COLOR.green, WorldData.TILE_GLOW_COLOR.blue
-		);
-		return this.diagonalGlowGradient;
-	}
 	displayGlowEffects(canvasIO: CanvasIO, visibleRegion: Rectangle) {
 		for(const entity of this.entities) {
 			if("displayGlowEffect" in entity) {
@@ -143,8 +128,13 @@ export class World {
 		}
 		for(let x = visibleRegion.left(); x < visibleRegion.right(); x ++) {
 			for(let y = visibleRegion.top(); y < visibleRegion.bottom(); y ++) {
-				if(this.tiles.get(x, y) === "solid") {
-					this.displayTileGlow(new Vector(x, y), canvasIO);
+				const position = new Vector(x, y);
+				const tile = this.tiles.get(position);
+				if(tile === "solid") {
+					SolidTile.displayTileGlow(position, canvasIO, this);
+				}
+				else if(World.isSlope(tile)) {
+					SolidTile.displaySlopeGlow(position, canvasIO, tile, this);
 				}
 			}
 		}
@@ -184,7 +174,7 @@ export class World {
 				const position = new Vector(x, y);
 				const tile = this.tiles.get(position);
 				if(tile === "solid") {
-					this.displaySolidTile(position, canvasIO);
+					SolidTile.displaySolidTile(position, canvasIO, this);
 				}
 				else if(tile === "platform") {
 					canvasIO.ctx.fillStyle = WorldData.TILE_COLOR;
@@ -194,7 +184,10 @@ export class World {
 						WorldData.TILE_SIZE, WorldData.PLATFORM_THICKNESS
 					);
 				}
-				else if(tile !== "empty" && !(tile instanceof LaserBlock)) {
+				else if(World.isSlope(tile)) {
+					SolidTile.displaySlopedTile(position, canvasIO, tile);
+				}
+				else if(typeof tile !== "string" && "display" in tile && !(tile instanceof LaserBlock)) {
 					tile.display(canvasIO, x, y);
 				}
 				else if(tile instanceof LaserBlock) {
@@ -203,69 +196,16 @@ export class World {
 			}
 		}
 	}
-	displaySolidTile(position: Vector, canvasIO: CanvasIO) {
-		canvasIO.ctx.fillStyle = WorldData.TILE_COLOR;
-		canvasIO.ctx.fillRect(
-			position.x * WorldData.TILE_SIZE - 1, 
-			position.y * WorldData.TILE_SIZE - 1, 
-			WorldData.TILE_SIZE + 2, WorldData.TILE_SIZE + 2
-		);
-
-		canvasIO.ctx.strokeStyle = WorldData.TILE_ACCENT_COLOR;
-		canvasIO.ctx.lineWidth = WorldData.TILE_ACCENT_THICKNESS;
-		canvasIO.ctx.lineCap = "round";
-
-		const center = position.multiply(WorldData.TILE_SIZE).add(WorldData.TILE_SIZE / 2, WorldData.TILE_SIZE / 2);
-		for(const direction of Directions.DIRECTIONS) {
-			const adjacentTile = this.tiles.get(position.add(Vector.unit(direction))) === "solid";
-			const left = Directions.rotateCounterclockwise(direction);
-			const right = Directions.rotateClockwise(direction);
-			const edgeCenter = center.add(Vector.unit(direction).multiply(WorldData.TILE_ACCENT_DISTANCE / 2));
-			const leftCorner = edgeCenter.add(Vector.unit(left).multiply(WorldData.TILE_ACCENT_DISTANCE / 2));
-			const rightCorner = edgeCenter.add(Vector.unit(right).multiply(WorldData.TILE_ACCENT_DISTANCE / 2));
-			const tileLeft = this.tiles.get(position.add(Vector.unit(left))) === "solid";
-			const tileRight = this.tiles.get(position.add(Vector.unit(right))) === "solid";
-			const tileDiagonalLeft = this.tiles.get(position.add(Vector.unit(direction)).add(Vector.unit(left))) === "solid";
-			const tileDiagonalRight = this.tiles.get(position.add(Vector.unit(direction)).add(Vector.unit(right))) === "solid";
-			if(!adjacentTile) {
-				canvasIO.strokeLine(leftCorner.x, leftCorner.y, rightCorner.x, rightCorner.y);
-			}
-			if((!adjacentTile && tileLeft) || (adjacentTile && tileLeft && !tileDiagonalLeft)) {
-				const farLeftCorner = edgeCenter.add(Vector.unit(left).multiply(WorldData.TILE_SIZE / 2));
-				canvasIO.strokeLine(leftCorner.x, leftCorner.y, farLeftCorner.x, farLeftCorner.y);
-			}
-			if((!adjacentTile && tileRight) || (adjacentTile && tileRight && !tileDiagonalRight)) {
-				const farRightCorner = edgeCenter.add(Vector.unit(right).multiply(WorldData.TILE_SIZE / 2));
-				canvasIO.strokeLine(rightCorner.x, rightCorner.y, farRightCorner.x, farRightCorner.y);
-			}
-		}
-	}
-	displayTileGlow(position: Vector, canvasIO: CanvasIO) {
-		const center = position.multiply(WorldData.TILE_SIZE).add(WorldData.TILE_SIZE / 2, WorldData.TILE_SIZE / 2);
-		for(const direction of Directions.DIRECTIONS) {
-			const adjacentTile = this.tiles.get(position.add(Vector.unit(direction))) === "solid";
-			const right = Directions.rotateClockwise(direction);
-			const tileRight = this.tiles.get(position.add(Vector.unit(right))) === "solid";
-			const tileDiagonalRight = this.tiles.get(position.add(Vector.unit(direction)).add(Vector.unit(right))) === "solid";
-			if(!adjacentTile) {
-				const tileEdgeCenter = center.add(Vector.unit(direction).multiply(WorldData.TILE_SIZE / 2));
-				canvasIO.ctx.save();
-				canvasIO.ctx.translate(tileEdgeCenter.x, tileEdgeCenter.y);
-				canvasIO.ctx.rotate(-Directions.angle(direction) + Math.PI / 2);
-				canvasIO.ctx.fillStyle = this.getTileGlowGradent();
-				canvasIO.ctx.globalCompositeOperation = "lighter";
-				canvasIO.ctx.fillRect(-WorldData.TILE_SIZE / 2, -WorldData.TILE_GLOW_SIZE, WorldData.TILE_SIZE, WorldData.TILE_GLOW_SIZE);
-				canvasIO.ctx.restore();
-
-				if(!tileRight && !tileDiagonalRight) {
-					const rightEdgeCorner = tileEdgeCenter.add(Vector.unit(right).multiply(WorldData.TILE_SIZE / 2));
-					canvasIO.ctx.save();
-					canvasIO.ctx.translate(rightEdgeCorner.x, rightEdgeCorner.y);
-					canvasIO.ctx.rotate(-Directions.angle(direction) + Math.PI / 2);
-					canvasIO.ctx.fillStyle = this.getDiagonalGlowGradient(canvasIO);
-					canvasIO.ctx.globalCompositeOperation = "lighter";
-					canvasIO.ctx.fillRect(0, -WorldData.TILE_GLOW_SIZE, WorldData.TILE_SIZE, WorldData.TILE_GLOW_SIZE);
-					canvasIO.ctx.restore();
+	displaytTileAccents(canvasIO: CanvasIO, region: Rectangle) {
+		for(let x = region.left(); x < region.right(); x ++) {
+			for(let y = region.top(); y < region.bottom(); y ++) {
+				const position = new Vector(x, y);
+				const tile = this.tiles.get(position);
+				if(tile === "solid") {
+					SolidTile.displayTileAccent(position, canvasIO, this);
+				}
+				else if(World.isSlope(tile)) {
+					SolidTile.displaySlopedAccent(position, canvasIO, tile, this);
 				}
 			}
 		}
@@ -329,7 +269,9 @@ export class World {
 		this.particles = this.particles.filter(p => !p.isDead());
 	}
 	updateCamera() {
-		this.camera = GameUtils.moveVectorTowards(this.camera, this.player.physicsObject.hitbox().center(), WorldData.CAMERA_SPEED);
+		if(!(Main.screen instanceof RoomEditor)) {
+			this.camera = GameUtils.moveVectorTowards(this.camera, this.player.physicsObject.hitbox().center(), WorldData.CAMERA_SPEED);
+		}
 	}
 	checkDebugInputs(canvasIO: CanvasIO) {
 		if(canvasIO.keys[DEBUG_SETTINGS.SKIP_LEVEL_KEY]) {
@@ -364,22 +306,70 @@ export class World {
 			}
 		}
 	}
-	isInSolid(rectangle: Rectangle, collides: (object: { x: number, y: number, tile: Tile } | Entity) => boolean = () => true) {
+	slopeIntersectionDistance(rectangle: Rectangle, position: Vector, slope: Slope) {
+		const tileRectangle = Rectangle.square(position.x, position.y, 1).scale(WorldData.TILE_SIZE);
+		if(!rectangle.intersects(tileRectangle)) { return -Infinity; }
+		const center = tileRectangle.center();
+		if(slope === "slope-floor-left") {
+			const corner = rectangle.getCorner("bottom-left");
+			return center.x + corner.y - center.y - corner.x;
+		}
+		else if(slope === "slope-floor-right") {
+			const corner = rectangle.getCorner("bottom-right");
+			return corner.x - (center.x + center.y - corner.y);
+		}
+		else if(slope === "slope-ceiling-left") {
+			const corner = rectangle.getCorner("top-left");
+			return center.x + center.y - corner.y - corner.x;
+		}
+		else {
+			const corner = rectangle.getCorner("top-right");
+			return corner.x - (center.x + corner.y - center.y);
+		}
+	}
+	intersectsSlope(rectangle: Rectangle, position: Vector, slope: Slope) {
+		return this.slopeIntersectionDistance(rectangle, position, slope) > 0;
+	}
+	onSlope(rectangle: Rectangle, slope: Slope) {
+		const corner = rectangle.getCorner(({
+			"slope-floor-right": "bottom-right",
+			"slope-floor-left": "bottom-left",
+			"slope-ceiling-right": "bottom-right",
+			"slope-ceiling-left": "bottom-left"
+		} as const)[slope]);
+		const position = new Vector(
+			(slope === "slope-floor-left" || slope === "slope-ceiling-left") ? Math.ceil(corner.x / WorldData.TILE_SIZE) - 1 : Math.floor(corner.x / WorldData.TILE_SIZE),
+			Math.ceil(corner.y / WorldData.TILE_SIZE) - 1
+		);
+		return this.tiles.get(position) === slope && this.slopeIntersectionDistance(rectangle, position, slope) === 0;
+	}
+	collidingTiles(rectangle: Rectangle, collides: (object: { x: number, y: number, tile: Tile } | Entity) => boolean = () => true) {
+		const tiles = [];
 		for(const { position, tile } of this.getTilesAt(rectangle)) {
 			const { x, y } = position;
 			if(collides({ x, y, tile }) && (
 				tile === "solid" ||
 				(tile instanceof Gate && tile.openness !== 1 && rectangle.intersects(tile.getPhysicsBox(x, y))) ||
 				tile instanceof LaserBlock ||
-				tile instanceof SpikeballBlock
-			)) { return true; }
-		}
-		for(const entity of this.entities) {
-			if(collides(entity) && "hitboxes" in entity && entity.hitboxes().some(b => rectangle.intersects(b))) {
-				return true;
+				tile instanceof SpikeballBlock ||
+				(World.isSlope(tile) && this.intersectsSlope(rectangle, position, tile))
+			)) {
+				tiles.push({ x, y, tile });
 			}
 		}
-		return false;
+		return tiles;
+	}
+	collidingEntities(rectangle: Rectangle, collides: (object: { x: number, y: number, tile: Tile } | Entity) => boolean = () => true) {
+		const solids = [];
+		for(const entity of this.entities) {
+			if(collides(entity) && "hitboxes" in entity && entity.hitboxes().some(b => rectangle.intersects(b))) {
+				solids.push(entity);
+			}
+		}
+		return solids;
+	}
+	isInSolid(rectangle: Rectangle, collides: (object: { x: number, y: number, tile: Tile } | Entity) => boolean = () => true) {
+		return this.collidingTiles(rectangle, collides).length !== 0 || this.collidingEntities(rectangle, collides).length !== 0;
 	}
 	isBoundarySolid(worldPosition: Vector, direction: Direction, ignoredTiles: Tile[] = []) {
 		const tilePosition = (
@@ -392,6 +382,14 @@ export class World {
 		if(direction === "down" && this.tiles.get(adjacentPosition) === "platform") {
 			return true;
 		}
+
+		const tile = this.tiles.get(tilePosition);
+		const adjacent = this.tiles.get(adjacentPosition);
+		if(
+			SolidTile.isSolidOrSlope(tile, direction)
+			|| SolidTile.isSolidOrSlope(adjacent, Directions.opposite(direction))
+		) { return true; }
+
 		for(const position of [tilePosition, adjacentPosition]) {
 			const tile = this.tiles.get(position);
 			if(!ignoredTiles.includes(tile) && (
@@ -411,6 +409,20 @@ export class World {
 			GameUtils.rayIntersectsHSegment(position, direction, direction.y >= 0 ? bottom : top, left, right)
 		);
 	}
+	slopeLineIntersectionDistance(position: Vector, direction: Vector, tilePosition: Vector) {
+		const slope = this.tiles.get(tilePosition);
+		if(!World.isSlope(slope)) {
+			return Infinity;
+		}
+		const tileBox = new Rectangle(tilePosition.x, tilePosition.y, 1, 1).scale(WorldData.TILE_SIZE);
+		const endpoints = ({
+			"slope-floor-left": ["top-left", "bottom-right"],
+			"slope-floor-right": ["top-right", "bottom-left"],
+			"slope-ceiling-left": ["top-right", "bottom-left"],
+			"slope-ceiling-right": ["top-left", "bottom-right"],
+		} as const)[slope];
+		return GameUtils.rayIntersectsSegment(position, direction, tileBox.getCorner(endpoints[0]), tileBox.getCorner(endpoints[1]));
+	}
 	tileIntersectionDistance(position: Vector, direction: Vector, maxDistance: number, ignoredTiles: Tile[] = []) {
 		const tilePosition = this.getTileCoordinates(position);
 		let result = Infinity;
@@ -422,6 +434,11 @@ export class World {
 				x * WorldData.TILE_SIZE
 			);
 			const intersection = position.add(direction.multiply(distance));
+			const slopeIntersection = this.slopeLineIntersectionDistance(
+				position, direction,
+				new Vector(x + (direction.x >= 0 ? -1 : 0), Math.floor(intersection.y / WorldData.TILE_SIZE))
+			);
+			result = Math.min(result, slopeIntersection);
 			if(this.isBoundarySolid(intersection, direction.x >= 0 ? "right" : "left", ignoredTiles)) {
 				result = Math.min(result, distance);
 				break;
@@ -436,6 +453,11 @@ export class World {
 				y * WorldData.TILE_SIZE
 			);
 			const intersection = position.add(direction.multiply(distance));
+			const slopeIntersection = this.slopeLineIntersectionDistance(
+				position, direction,
+				new Vector(Math.floor(intersection.x / WorldData.TILE_SIZE), y + (direction.y >= 0 ? -1 : 0))
+			);
+			result = Math.min(result, slopeIntersection);
 			if(this.isBoundarySolid(intersection, direction.y >= 0 ? "down" : "up", ignoredTiles)) {
 				result = Math.min(result, distance);
 				break;
@@ -514,6 +536,9 @@ export class World {
 		return (typeof value === "string" && (WorldData.STRING_TILE_TYPES as readonly string[]).includes(value))
 			|| World.isTileEntity(value);
 	}
+	static isSlope(value: unknown): value is (typeof WorldData.SLOPES)[number] {
+		return WorldData.SLOPES.includes(value  as any);
+	}
 	static isTileEntity(value: unknown): value is TileEntity {
 		return value instanceof Gate || value instanceof LaserBlock || value instanceof SpikeballBlock;
 	}
@@ -527,6 +552,15 @@ export class World {
 	static reflectTile(tile: Tile) {
 		if(tile === "solid" || tile === "empty" || tile === "platform") {
 			return tile;
+		}
+		else if(World.isSlope(tile)) {
+			const reflections: { [key: string]: Slope } = {
+				"slope-floor-left": "slope-floor-right",
+				"slope-floor-right": "slope-floor-left",
+				"slope-ceiling-left": "slope-ceiling-right",
+				"slope-ceiling-right": "slope-ceiling-left"
+			};
+			return reflections[tile];
 		}
 		else if(tile instanceof Gate) {
 			const result = tile.copy();
