@@ -12,7 +12,8 @@ export class WorldData {
 	static TILE_SIZE = 50;
 	static TILE_COLOR = "rgb(30, 30, 30)";
 	static TILE_ACCENT_COLOR = "rgb(100, 180, 255)";
-	static TILE_ACCENT_DISTANCE = WorldData.TILE_SIZE * 0.7;
+	static TILE_ACCENT_RADIUS = WorldData.TILE_SIZE * 0.35;
+	static TILE_ACCENT_INSET = WorldData.TILE_SIZE / 2 - WorldData.TILE_ACCENT_RADIUS;
 	static TILE_ACCENT_THICKNESS = 2;
 
 	static TILE_GLOW_SIZE = 40;

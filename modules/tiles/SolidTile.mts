@@ -49,7 +49,6 @@ export class SolidTile {
 		canvasIO.ctx.restore();
 	}
 	static displaySlopedAccent(position: Vector, canvasIO: CanvasIO, tile: Slope, world: World) {
-		const accentInset = (WorldData.TILE_SIZE - WorldData.TILE_ACCENT_DISTANCE) / 2;
 		const inwardNormal = {
 			"slope-floor-left": new Vector(-1, 1),
 			"slope-floor-right": new Vector(1, 1),
@@ -76,8 +75,8 @@ export class SolidTile {
 		const distance2 = this.getSlopeAccentLength(position, adjacentDirection2, perpendicularDirection2, world);
 
 		
-		const endpoint1 = center.add(inwardNormal.multiply(accentInset / Math.SQRT2)).add(tangent.normalize().multiply(distance1));
-		const endpoint2 = center.add(inwardNormal.multiply(accentInset / Math.SQRT2)).subtract(tangent.normalize().multiply(distance2));
+		const endpoint1 = center.add(inwardNormal.multiply(WorldData.TILE_ACCENT_INSET / Math.SQRT2)).add(tangent.normalize().multiply(distance1));
+		const endpoint2 = center.add(inwardNormal.multiply(WorldData.TILE_ACCENT_INSET / Math.SQRT2)).subtract(tangent.normalize().multiply(distance2));
 
 		canvasIO.ctx.strokeStyle = WorldData.TILE_ACCENT_COLOR;
 		canvasIO.ctx.lineWidth = WorldData.TILE_ACCENT_THICKNESS;
@@ -91,9 +90,9 @@ export class SolidTile {
 			"slope-ceiling-right": ["right", "up"]
 		} as const)[tile];
 		for(const [edge, direction] of [directions, [...directions].reverse()]) {
-			const edgeCenter = center.add(Vector.unit(edge).multiply(WorldData.TILE_ACCENT_DISTANCE / 2));
+			const edgeCenter = center.add(Vector.unit(edge).multiply(WorldData.TILE_ACCENT_RADIUS));
 			if(!SolidTile.isSolidOrSlope(world.tiles.get(position.add(Vector.unit(edge))), Directions.opposite(edge))) {
-				const vertex1 = edgeCenter.add(Vector.unit(direction).multiply(-(WorldData.TILE_SIZE / 2 - accentInset * (1 + Math.SQRT2))));
+				const vertex1 = edgeCenter.add(Vector.unit(direction).multiply(-(WorldData.TILE_SIZE / 2 - WorldData.TILE_ACCENT_INSET * (1 + Math.SQRT2))));
 				const vertex2 = edgeCenter.add(Vector.unit(direction).multiply(SolidTile.getAccentLength(position, edge, direction, world)));
 				canvasIO.strokeLine(vertex1.x, vertex1.y, vertex2.x, vertex2.y);
 			}
@@ -101,17 +100,16 @@ export class SolidTile {
 	}
 	static getSlopeAccentLength(position: Vector, adjacentDirection: Direction, perpendicularDirection: Direction, world: World) {
 		const solid90Degrees = SolidTile.isSolidOrSlope(world.tiles.get(position.add(Vector.unit(adjacentDirection))), Directions.opposite(adjacentDirection));
-		const accentInset = (WorldData.TILE_SIZE - WorldData.TILE_ACCENT_DISTANCE) / 2;
 		if(!solid90Degrees) {
-			return WorldData.TILE_SIZE / Math.SQRT2 - accentInset * (1 + Math.SQRT2);
+			return WorldData.TILE_SIZE / Math.SQRT2 - WorldData.TILE_ACCENT_INSET * (1 + Math.SQRT2);
 		}
 		const solid135Degrees = SolidTile.isSolidOrSlope(world.tiles.get(position.add(Vector.unit(adjacentDirection))), perpendicularDirection);
 		if(!solid135Degrees) {
-			return WorldData.TILE_SIZE / Math.SQRT2 - accentInset;
+			return WorldData.TILE_SIZE / Math.SQRT2 - WorldData.TILE_ACCENT_INSET;
 		}
 		const solid180Degrees = SolidTile.isSolidOrSlope(world.tiles.get(position.add(Vector.unit(adjacentDirection).add(Vector.unit(perpendicularDirection)))), Directions.opposite(perpendicularDirection));
 		if(!solid180Degrees) {
-			return WorldData.TILE_SIZE / Math.SQRT2 - accentInset / 2;
+			return WorldData.TILE_SIZE / Math.SQRT2 - WorldData.TILE_ACCENT_INSET / 2;
 		}
 		const solid225Degrees = SolidTile.isSolidOrSlope(world.tiles.get(position.add(Vector.unit(adjacentDirection).add(Vector.unit(perpendicularDirection)))), Directions.opposite(adjacentDirection));
 		if(!solid225Degrees) {
@@ -119,13 +117,13 @@ export class SolidTile {
 		}
 		const solid270Degrees = SolidTile.isSolidOrSlope(world.tiles.get(position.add(Vector.unit(perpendicularDirection))), adjacentDirection);
 		if(!solid270Degrees) {
-			return WorldData.TILE_SIZE / Math.SQRT2 + accentInset * (Math.SQRT2 - 1);
+			return WorldData.TILE_SIZE / Math.SQRT2 + WorldData.TILE_ACCENT_INSET * (Math.SQRT2 - 1);
 		}
 		const solid315Degrees = SolidTile.isSolidOrSlope(world.tiles.get(position.add(Vector.unit(perpendicularDirection))), Directions.opposite(perpendicularDirection));
 		if(!solid315Degrees) {
-			return WorldData.TILE_SIZE / Math.SQRT2 + accentInset;
+			return WorldData.TILE_SIZE / Math.SQRT2 + WorldData.TILE_ACCENT_INSET;
 		}
-		return WorldData.TILE_SIZE / Math.SQRT2 + accentInset * (1 + Math.SQRT2);
+		return WorldData.TILE_SIZE / Math.SQRT2 + WorldData.TILE_ACCENT_INSET * (1 + Math.SQRT2);
 	}
 	static displaySolidTile(position: Vector, canvasIO: CanvasIO, world: World) {
 		canvasIO.ctx.fillStyle = WorldData.TILE_COLOR;
@@ -136,14 +134,13 @@ export class SolidTile {
 		);
 	}
 	static getAccentLength(position: Vector, side: Direction, direction: Direction, world: World): number {
-		const accentInset = (WorldData.TILE_SIZE - WorldData.TILE_ACCENT_DISTANCE) / 2;
 		const solid135Degrees = SolidTile.isSolidOrSlope(world.tiles.get(position.add(Vector.unit(direction))), Directions.opposite(direction));
 		if(!solid135Degrees) {
-			return WorldData.TILE_ACCENT_DISTANCE / 2;
+			return WorldData.TILE_ACCENT_RADIUS;
 		}
 		const solid180Degrees = SolidTile.isSolidOrSlope(world.tiles.get(position.add(Vector.unit(direction))), side);
 		if(!solid180Degrees) {
-			return WorldData.TILE_SIZE / 2 - accentInset * (Math.SQRT2 - 1);
+			return WorldData.TILE_SIZE / 2 - WorldData.TILE_ACCENT_INSET * (Math.SQRT2 - 1);
 		}
 		const solid225Degrees = SolidTile.isSolidOrSlope(world.tiles.get(position.add(Vector.unit(direction).add(Vector.unit(side)))), Directions.opposite(side));
 		if(!solid225Degrees) {
@@ -151,13 +148,13 @@ export class SolidTile {
 		}
 		const solid270Degrees = SolidTile.isSolidOrSlope(world.tiles.get(position.add(Vector.unit(direction).add(Vector.unit(side)))), Directions.opposite(direction));
 		if(!solid270Degrees) {
-			return WorldData.TILE_SIZE / 2 + accentInset * (Math.SQRT2 - 1);
+			return WorldData.TILE_SIZE / 2 + WorldData.TILE_ACCENT_INSET * (Math.SQRT2 - 1);
 		}
 		const solid315Degrees = SolidTile.isSolidOrSlope(world.tiles.get(position.add(Vector.unit(side))), direction);
 		if(!solid315Degrees) {
-			return WorldData.TILE_SIZE / 2 + accentInset;
+			return WorldData.TILE_SIZE / 2 + WorldData.TILE_ACCENT_INSET;
 		}
-		return WorldData.TILE_SIZE / 2 + accentInset * (Math.SQRT2 + 1);
+		return WorldData.TILE_SIZE / 2 + WorldData.TILE_ACCENT_INSET * (Math.SQRT2 + 1);
 	}
 	static displayTileAccent(position: Vector, canvasIO: CanvasIO, world: World) {
 		canvasIO.ctx.strokeStyle = WorldData.TILE_ACCENT_COLOR;
@@ -169,7 +166,7 @@ export class SolidTile {
 			const adjacentTile = world.tiles.get(position.add(Vector.unit(side)));
 			if(SolidTile.isSolidOrSlope(adjacentTile, Directions.opposite(side))) { continue; }
 			
-			const edgeCenter = center.add(Vector.unit(side).multiply(WorldData.TILE_ACCENT_DISTANCE / 2));
+			const edgeCenter = center.add(Vector.unit(side).multiply(WorldData.TILE_ACCENT_RADIUS));
 			for(const direction of [Directions.rotateClockwise(side), Directions.rotateCounterclockwise(side)] as Direction[]) {
 				const length = this.getAccentLength(position, side, direction, world);
 				canvasIO.strokeLine(
