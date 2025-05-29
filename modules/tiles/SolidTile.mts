@@ -94,28 +94,16 @@ export class SolidTile {
 		}
 	}
 	static getSlopeAccentLength(position: Vector, adjacentDirection: Direction, perpendicularDirection: Direction, world: World) {
-		const adjacent = world.tiles.get(position.add(Vector.unit(adjacentDirection)));
-		const diagonal = world.tiles.get(position.add(Vector.unit(adjacentDirection).add(Vector.unit(perpendicularDirection))));
-		const perpendicular = world.tiles.get(position.add(Vector.unit(perpendicularDirection)));
-		if(!SolidTile.isSolidOrSlope(adjacent, Directions.opposite(adjacentDirection))) {
-			return WorldData.TILE_SIZE / Math.SQRT2 - WorldData.TILE_ACCENT_INSET * (1 + Math.SQRT2);
-		}
-		if(!SolidTile.isSolidOrSlope(adjacent, perpendicularDirection)) {
-			return WorldData.TILE_SIZE / Math.SQRT2 - WorldData.TILE_ACCENT_INSET;
-		}
-		if(!SolidTile.isSolidOrSlope(diagonal, Directions.opposite(perpendicularDirection))) {
-			return WorldData.TILE_SIZE / Math.SQRT2 - WorldData.TILE_ACCENT_INSET / 2;
-		}
-		if(!SolidTile.isSolidOrSlope(diagonal, Directions.opposite(adjacentDirection))) {
-			return WorldData.TILE_SIZE * Math.SQRT2 / 2;
-		}
-		if(!SolidTile.isSolidOrSlope(perpendicular, adjacentDirection)) {
-			return WorldData.TILE_SIZE / Math.SQRT2 + WorldData.TILE_ACCENT_INSET * (Math.SQRT2 - 1);
-		}
-		if(!SolidTile.isSolidOrSlope(perpendicular, Directions.opposite(perpendicularDirection))) {
-			return WorldData.TILE_SIZE / Math.SQRT2 + WorldData.TILE_ACCENT_INSET;
-		}
-		return WorldData.TILE_SIZE / Math.SQRT2 + WorldData.TILE_ACCENT_INSET * (1 + Math.SQRT2);
+		const angle = SolidTile.angle(position, adjacentDirection, perpendicularDirection, world, false);
+		const defaultLength = WorldData.TILE_SIZE / Math.SQRT2 + WorldData.TILE_ACCENT_INSET * (1 + Math.SQRT2);
+		return ({
+			0: WorldData.TILE_SIZE / Math.SQRT2 - WorldData.TILE_ACCENT_INSET * (1 + Math.SQRT2),
+			45: WorldData.TILE_SIZE / Math.SQRT2 - WorldData.TILE_ACCENT_INSET,
+			90: WorldData.TILE_SIZE / Math.SQRT2 - WorldData.TILE_ACCENT_INSET / 2,
+			135: WorldData.TILE_SIZE * Math.SQRT2 / 2,
+			180: WorldData.TILE_SIZE / Math.SQRT2 + WorldData.TILE_ACCENT_INSET * (Math.SQRT2 - 1),
+			225: WorldData.TILE_SIZE / Math.SQRT2 + WorldData.TILE_ACCENT_INSET
+		} as { [key: number]: number } )[angle] ?? defaultLength;
 	}
 	static displaySolidTile(position: Vector, canvasIO: CanvasIO, world: World) {
 		canvasIO.ctx.fillStyle = WorldData.TILE_COLOR;
@@ -169,34 +157,34 @@ export class SolidTile {
 			}
 		}
 	}
-	static angle(position: Vector, adjacentDirection: Direction, perpendicularDirection: Direction, world: World) {
-		/* Returns the angle before encountering a solid, when first moving in `adjacentDirection` and then in `perpendicularDirection` and then in a circle after that. */
+	static angle(position: Vector, adjacentDirection: Direction, perpendicularDirection: Direction, world: World, empty: boolean = true) {
+		/* Returns the angle before encountering a solid/empty, when first moving in `adjacentDirection` and then in `perpendicularDirection` and then in a circle after that. */
 		const tile = world.tiles.get(position);
 		const adjacent = world.tiles.get(position.add(Vector.unit(adjacentDirection)));
 		const diagonal = world.tiles.get(position.add(Vector.unit(adjacentDirection)).add(Vector.unit(perpendicularDirection)));
 		const perpendicular = world.tiles.get(position.add(Vector.unit(perpendicularDirection)));
-		if(SolidTile.isSolidOrSlope(adjacent, Directions.opposite(adjacentDirection))) {
+		if(SolidTile.isSolidOrSlope(adjacent, Directions.opposite(adjacentDirection)) === empty) {
 			return 0;
 		}
-		if(SolidTile.isSolidOrSlope(adjacent, perpendicularDirection)) {
+		if(SolidTile.isSolidOrSlope(adjacent, perpendicularDirection) === empty) {
 			return 45;
 		}
-		if(SolidTile.isSolidOrSlope(diagonal, Directions.opposite(perpendicularDirection))) {
+		if(SolidTile.isSolidOrSlope(diagonal, Directions.opposite(perpendicularDirection)) === empty) {
 			return 90;
 		}
-		if(SolidTile.isSolidOrSlope(diagonal, Directions.opposite(adjacentDirection))) {
+		if(SolidTile.isSolidOrSlope(diagonal, Directions.opposite(adjacentDirection)) === empty) {
 			return 135;
 		}
-		if(SolidTile.isSolidOrSlope(perpendicular, adjacentDirection)) {
+		if(SolidTile.isSolidOrSlope(perpendicular, adjacentDirection) === empty) {
 			return 180;
 		}
-		if(SolidTile.isSolidOrSlope(perpendicular, Directions.opposite(perpendicularDirection))) {
+		if(SolidTile.isSolidOrSlope(perpendicular, Directions.opposite(perpendicularDirection)) === empty) {
 			return 225;
 		}
-		if(SolidTile.isSolidOrSlope(tile, perpendicularDirection)) {
+		if(SolidTile.isSolidOrSlope(tile, perpendicularDirection) === empty) {
 			return 270;
 		}
-		if(SolidTile.isSolidOrSlope(tile, adjacentDirection)) {
+		if(SolidTile.isSolidOrSlope(tile, adjacentDirection) === empty) {
 			return 315;
 		}
 		return 360;
