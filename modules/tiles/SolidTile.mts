@@ -94,28 +94,25 @@ export class SolidTile {
 		}
 	}
 	static getSlopeAccentLength(position: Vector, adjacentDirection: Direction, perpendicularDirection: Direction, world: World) {
-		const solid90Degrees = SolidTile.isSolidOrSlope(world.tiles.get(position.add(Vector.unit(adjacentDirection))), Directions.opposite(adjacentDirection));
-		if(!solid90Degrees) {
+		const adjacent = world.tiles.get(position.add(Vector.unit(adjacentDirection)));
+		const diagonal = world.tiles.get(position.add(Vector.unit(adjacentDirection).add(Vector.unit(perpendicularDirection))));
+		const perpendicular = world.tiles.get(position.add(Vector.unit(perpendicularDirection)));
+		if(!SolidTile.isSolidOrSlope(adjacent, Directions.opposite(adjacentDirection))) {
 			return WorldData.TILE_SIZE / Math.SQRT2 - WorldData.TILE_ACCENT_INSET * (1 + Math.SQRT2);
 		}
-		const solid135Degrees = SolidTile.isSolidOrSlope(world.tiles.get(position.add(Vector.unit(adjacentDirection))), perpendicularDirection);
-		if(!solid135Degrees) {
+		if(!SolidTile.isSolidOrSlope(adjacent, perpendicularDirection)) {
 			return WorldData.TILE_SIZE / Math.SQRT2 - WorldData.TILE_ACCENT_INSET;
 		}
-		const solid180Degrees = SolidTile.isSolidOrSlope(world.tiles.get(position.add(Vector.unit(adjacentDirection).add(Vector.unit(perpendicularDirection)))), Directions.opposite(perpendicularDirection));
-		if(!solid180Degrees) {
+		if(!SolidTile.isSolidOrSlope(diagonal, Directions.opposite(perpendicularDirection))) {
 			return WorldData.TILE_SIZE / Math.SQRT2 - WorldData.TILE_ACCENT_INSET / 2;
 		}
-		const solid225Degrees = SolidTile.isSolidOrSlope(world.tiles.get(position.add(Vector.unit(adjacentDirection).add(Vector.unit(perpendicularDirection)))), Directions.opposite(adjacentDirection));
-		if(!solid225Degrees) {
+		if(!SolidTile.isSolidOrSlope(diagonal, Directions.opposite(adjacentDirection))) {
 			return WorldData.TILE_SIZE * Math.SQRT2 / 2;
 		}
-		const solid270Degrees = SolidTile.isSolidOrSlope(world.tiles.get(position.add(Vector.unit(perpendicularDirection))), adjacentDirection);
-		if(!solid270Degrees) {
+		if(!SolidTile.isSolidOrSlope(perpendicular, adjacentDirection)) {
 			return WorldData.TILE_SIZE / Math.SQRT2 + WorldData.TILE_ACCENT_INSET * (Math.SQRT2 - 1);
 		}
-		const solid315Degrees = SolidTile.isSolidOrSlope(world.tiles.get(position.add(Vector.unit(perpendicularDirection))), Directions.opposite(perpendicularDirection));
-		if(!solid315Degrees) {
+		if(!SolidTile.isSolidOrSlope(perpendicular, Directions.opposite(perpendicularDirection))) {
 			return WorldData.TILE_SIZE / Math.SQRT2 + WorldData.TILE_ACCENT_INSET;
 		}
 		return WorldData.TILE_SIZE / Math.SQRT2 + WorldData.TILE_ACCENT_INSET * (1 + Math.SQRT2);
