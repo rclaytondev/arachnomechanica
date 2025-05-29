@@ -114,27 +114,15 @@ export class SolidTile {
 		);
 	}
 	static getAccentLength(position: Vector, side: Direction, direction: Direction, world: World): number {
-		const solid135Degrees = SolidTile.isSolidOrSlope(world.tiles.get(position.add(Vector.unit(direction))), Directions.opposite(direction));
-		if(!solid135Degrees) {
-			return WorldData.TILE_ACCENT_RADIUS;
-		}
-		const solid180Degrees = SolidTile.isSolidOrSlope(world.tiles.get(position.add(Vector.unit(direction))), side);
-		if(!solid180Degrees) {
-			return WorldData.TILE_SIZE / 2 - WorldData.TILE_ACCENT_INSET * (Math.SQRT2 - 1);
-		}
-		const solid225Degrees = SolidTile.isSolidOrSlope(world.tiles.get(position.add(Vector.unit(direction).add(Vector.unit(side)))), Directions.opposite(side));
-		if(!solid225Degrees) {
-			return WorldData.TILE_SIZE / 2;
-		}
-		const solid270Degrees = SolidTile.isSolidOrSlope(world.tiles.get(position.add(Vector.unit(direction).add(Vector.unit(side)))), Directions.opposite(direction));
-		if(!solid270Degrees) {
-			return WorldData.TILE_SIZE / 2 + WorldData.TILE_ACCENT_INSET * (Math.SQRT2 - 1);
-		}
-		const solid315Degrees = SolidTile.isSolidOrSlope(world.tiles.get(position.add(Vector.unit(side))), direction);
-		if(!solid315Degrees) {
-			return WorldData.TILE_SIZE / 2 + WorldData.TILE_ACCENT_INSET;
-		}
-		return WorldData.TILE_SIZE / 2 + WorldData.TILE_ACCENT_INSET * (Math.SQRT2 + 1);
+		const angle = SolidTile.angle(position, direction, side, world, false);
+		const defaultLength = WorldData.TILE_SIZE / 2 + WorldData.TILE_ACCENT_INSET * (Math.SQRT2 + 1);
+		return ({
+			0: WorldData.TILE_ACCENT_RADIUS,
+			45: WorldData.TILE_SIZE / 2 - WorldData.TILE_ACCENT_INSET * (Math.SQRT2 - 1),
+			90: WorldData.TILE_SIZE / 2,
+			135: WorldData.TILE_SIZE / 2 + WorldData.TILE_ACCENT_INSET * (Math.SQRT2 - 1),
+			180: WorldData.TILE_SIZE / 2 + WorldData.TILE_ACCENT_INSET
+		} as { [ key: number]: number } )[angle] ?? defaultLength;
 	}
 	static displayTileAccent(position: Vector, canvasIO: CanvasIO, world: World) {
 		canvasIO.ctx.strokeStyle = WorldData.TILE_ACCENT_COLOR;
