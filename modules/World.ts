@@ -23,7 +23,7 @@ import { WorldGenerator } from "./level-generator/WorldGenerator.mjs";
 import { MathUtils } from "../utils-ts/modules/math/MathUtils.mjs";
 import { Humanoid } from "./entities/Humanoid.mjs";
 import { RoomEditor } from "./RoomEditor.mjs";
-import { SolidTile } from "./tiles/SolidTile.mjs";
+import { TowerTile } from "./tiles/TowerTile.mjs";
 
 export type TileEntity = Gate | LaserBlock | SpikeballBlock;
 export type Tile = (typeof WorldData.STRING_TILE_TYPES)[number] | TileEntity;
@@ -131,10 +131,10 @@ export class World {
 				const position = new Vector(x, y);
 				const tile = this.tiles.get(position);
 				if(tile === "solid") {
-					SolidTile.displayTileGlow(position, canvasIO, this);
+					TowerTile.displayTileGlow(position, canvasIO, this);
 				}
 				else if(World.isSlope(tile)) {
-					SolidTile.displaySlopeGlow(position, canvasIO, tile, this);
+					TowerTile.displaySlopeGlow(position, canvasIO, tile, this);
 				}
 			}
 		}
@@ -174,7 +174,7 @@ export class World {
 				const position = new Vector(x, y);
 				const tile = this.tiles.get(position);
 				if(tile === "solid") {
-					SolidTile.displaySolidTile(position, canvasIO, this);
+					TowerTile.displaySolidTile(position, canvasIO, this);
 				}
 				else if(tile === "platform") {
 					canvasIO.ctx.fillStyle = WorldData.TILE_COLOR;
@@ -185,7 +185,7 @@ export class World {
 					);
 				}
 				else if(World.isSlope(tile)) {
-					SolidTile.displaySlopedTile(position, canvasIO, tile);
+					TowerTile.displaySlopedTile(position, canvasIO, tile);
 				}
 				else if(typeof tile !== "string" && "display" in tile && !(tile instanceof LaserBlock)) {
 					tile.display(canvasIO, x, y);
@@ -202,10 +202,10 @@ export class World {
 				const position = new Vector(x, y);
 				const tile = this.tiles.get(position);
 				if(tile === "solid") {
-					SolidTile.displayTileAccent(position, canvasIO, this);
+					TowerTile.displayTileAccent(position, canvasIO, this);
 				}
 				else if(World.isSlope(tile)) {
-					SolidTile.displaySlopedAccent(position, canvasIO, tile, this);
+					TowerTile.displaySlopedAccent(position, canvasIO, tile, this);
 				}
 			}
 		}
@@ -386,8 +386,8 @@ export class World {
 		const tile = this.tiles.get(tilePosition);
 		const adjacent = this.tiles.get(adjacentPosition);
 		if(
-			SolidTile.isSolidOrSlope(tile, direction)
-			|| SolidTile.isSolidOrSlope(adjacent, Directions.opposite(direction))
+			TowerTile.isSolidOrSlope(tile, direction)
+			|| TowerTile.isSolidOrSlope(adjacent, Directions.opposite(direction))
 		) { return true; }
 
 		for(const position of [tilePosition, adjacentPosition]) {
