@@ -218,12 +218,10 @@ export class SolidTile {
 		for(const direction of directions) {
 			const adjacentTile = SolidTile.isSolidOrSlope(world.tiles.get(position.add(Vector.unit(direction))), Directions.opposite(direction));
 			const right = Directions.rotateClockwise(direction);
-			// const tileRight = world.tiles.get(position.add(Vector.unit(right))) === "solid";
 			const tileRight = (
 				SolidTile.isSolidOrSlope(world.tiles.get(position.add(Vector.unit(right))), direction)
 				|| SolidTile.isSolidOrSlope(world.tiles.get(position.add(Vector.unit(right))), Directions.opposite(right))
 			);
-			// const tileDiagonalRight = world.tiles.get(position.add(Vector.unit(direction)).add(Vector.unit(right))) === "solid";
 			const tileDiagonalRight = (
 				SolidTile.isSolidOrSlope(world.tiles.get(position.add(Vector.unit(direction))), right)
 				|| SolidTile.isSolidOrSlope(world.tiles.get(position.add(Vector.unit(direction).add(Vector.unit(right)))), Directions.opposite(right))
@@ -232,13 +230,6 @@ export class SolidTile {
 				if(!cornerOnly) {
 					SolidTile.displayGlow(position, canvasIO, direction);
 				}
-
-				// const angle = SolidTile.angle(position, direction, right, world);
-				// if(angle > 180) {
-				// 	const startAngle = Directions.angle(direction);
-				// 	// const corner = 
-				// }
-
 				if(!tileRight && !tileDiagonalRight) {
 					const tileEdgeCenter = center.add(Vector.unit(direction).multiply(WorldData.TILE_SIZE / 2));
 					const rightEdgeCorner = tileEdgeCenter.add(Vector.unit(right).multiply(WorldData.TILE_SIZE / 2));
@@ -271,7 +262,6 @@ export class SolidTile {
 	static displaySlopeEdgeGlow(position: Vector, canvasIO: CanvasIO, slope: Slope, world: World) {
 		const edges = SolidTile.slopeEdges(slope);
 		for(const edge of edges) {
-			// if(position.equals(8, 5)) { debugger; }
 			if(!SolidTile.isSolidOrSlope(world.tiles.get(position.add(Vector.unit(edge))), Directions.opposite(edge))) {
 				SolidTile.displayGlow(position, canvasIO, edge);
 			}
@@ -287,21 +277,9 @@ export class SolidTile {
 			"slope-ceiling-right": -135,
 		}[slope];
 
-		// const rightTurnDirections = 
-		// const right135DegreeAngle = 
-
 		canvasIO.ctx.rotate(MathUtils.toRadians(angle));
 		canvasIO.ctx.fillStyle = SolidTile.getTileGlowGradent();
 		canvasIO.ctx.globalCompositeOperation = "lighter";
-		if(position.equals(3, 9)) {
-			// canvasIO.fillPoly(
-			// 	-WorldData.TILE_SIZE * Math.SQRT2 / 2, 0,
-			// 	0, -WorldData.TILE_SIZE * Math.SQRT2 / 2,
-			// 	WorldData.TILE_SIZE * Math.SQRT2 / 2, 0,
-			// );
-			// canvasIO.ctx.restore();
-			// return;
-		}
 		canvasIO.ctx.fillRect(
 			-WorldData.TILE_SIZE * Math.SQRT2 / 2, -WorldData.TILE_GLOW_SIZE,
 			WorldData.TILE_SIZE * Math.SQRT2, WorldData.TILE_GLOW_SIZE
@@ -313,22 +291,18 @@ export class SolidTile {
 			"slope-floor-left": [
 				["up", "left", 315, position.multiply(WorldData.TILE_SIZE), false, 45],
 				["right", "down", 315, position.add(1, 1).multiply(WorldData.TILE_SIZE), true, 45],
-				// ["down", "left", 90, position.add(0, 1).multiply(WorldData.TILE_SIZE), true, 0]
 			],
 			"slope-floor-right": [
 				["left", "down", 225, position.add(0, 1).multiply(WorldData.TILE_SIZE), false, 45],
 				["up", "right", 225, position.add(1, 0).multiply(WorldData.TILE_SIZE), true, 45],
-				// ["right", "down", 0, position.add(1, 1).multiply(WorldData.TILE_SIZE), true, 0]
 			],
 			"slope-ceiling-left": [
 				["down", "left", 45, position.add(0, 1).multiply(WorldData.TILE_SIZE), true, 45],
 				["right", "up", 45, position.add(1, 0).multiply(WorldData.TILE_SIZE), false, 45],
-				// ["left", "up", 180, position.multiply(WorldData.TILE_SIZE), true, 0],
 			],
 			"slope-ceiling-right": [
 				["down", "right", 135, position.add(1, 1).multiply(WorldData.TILE_SIZE), false, 45],
 				["left", "up", 135, position.multiply(WorldData.TILE_SIZE), true, 45],
-				// ["right", "up", 0, position.add(1, 0).multiply(WorldData.TILE_SIZE), false, 0]
 			]
 		} as const)[slope];
 		for(const [adjacentDirection, perpendicularDirection, startAngle, corner, clockwise, extraAngle] of data) {
@@ -357,12 +331,10 @@ export class SolidTile {
 			GameUtils.glowArc(
 				corner.x, corner.y,
 				WorldData.TILE_GLOW_SIZE, WorldData.TILE_GLOW_INTENSITY,
-				// WorldData.TILE_GLOW_SIZE, 1,
 				canvasIO,
 				clockwise ? MathUtils.toRadians(startAngle) : MathUtils.toRadians(startAngle - (angle - 180)),
 				clockwise ? MathUtils.toRadians(startAngle + (angle - 180)) : MathUtils.toRadians(startAngle),
 				WorldData.TILE_GLOW_COLOR.red, WorldData.TILE_GLOW_COLOR.green, WorldData.TILE_GLOW_COLOR.blue
-				// 255, 0, 0
 			);
 		}
 
