@@ -10,7 +10,10 @@ import { MathUtils } from "../../utils-ts/modules/math/MathUtils.mjs";
 
 export class WorldData {
 	static TILE_SIZE = 50;
-	static TILE_COLOR = "rgb(30, 30, 30)";
+	static TILE_COLORS = {
+		"tower": "rgb(30, 30, 30)",
+		"stone": "rgb(59, 67, 70)"
+	};
 	static TILE_ACCENT_COLOR = "rgb(100, 180, 255)";
 	static TILE_ACCENT_RADIUS = WorldData.TILE_SIZE * 0.35;
 	static TILE_ACCENT_INSET = WorldData.TILE_SIZE / 2 - WorldData.TILE_ACCENT_RADIUS;

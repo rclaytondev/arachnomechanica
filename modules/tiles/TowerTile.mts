@@ -30,25 +30,6 @@ export class TowerTile {
 		return this.diagonalGlowGradient;
 	}
 	
-	static displaySlopedTile(position: Vector, canvasIO: CanvasIO, tile: Slope) {
-		const center = position.add(1/2, 1/2).multiply(WorldData.TILE_SIZE);
-		const angles = {
-			"slope-floor-right": 0,
-			"slope-floor-left": MathUtils.toRadians(90),
-			"slope-ceiling-right": MathUtils.toRadians(-90),
-			"slope-ceiling-left": MathUtils.toRadians(-180),
-		};
-		canvasIO.ctx.save();
-		canvasIO.ctx.translate(center.x, center.y);
-		canvasIO.ctx.rotate(angles[tile]);
-		canvasIO.ctx.fillStyle = WorldData.TILE_COLOR;
-		canvasIO.fillPoly(
-			WorldData.TILE_SIZE / 2, -WorldData.TILE_SIZE / 2,
-			WorldData.TILE_SIZE / 2, WorldData.TILE_SIZE / 2,
-			-WorldData.TILE_SIZE / 2, WorldData.TILE_SIZE / 2,
-		);
-		canvasIO.ctx.restore();
-	}
 	static displaySlopedAccent(position: Vector, canvasIO: CanvasIO, tile: Slope, world: World) {
 		const inwardNormal = {
 			"slope-floor-left": new Vector(-1, 1),
@@ -105,14 +86,6 @@ export class TowerTile {
 			180: WorldData.TILE_SIZE / Math.SQRT2 + WorldData.TILE_ACCENT_INSET * (Math.SQRT2 - 1),
 			225: WorldData.TILE_SIZE / Math.SQRT2 + WorldData.TILE_ACCENT_INSET
 		} as { [key: number]: number } )[angle] ?? defaultLength;
-	}
-	static displaySolidTile(position: Vector, canvasIO: CanvasIO, world: World) {
-		canvasIO.ctx.fillStyle = WorldData.TILE_COLOR;
-		canvasIO.ctx.fillRect(
-			position.x * WorldData.TILE_SIZE - 1, 
-			position.y * WorldData.TILE_SIZE - 1, 
-			WorldData.TILE_SIZE + 2, WorldData.TILE_SIZE + 2
-		);
 	}
 	static getAccentLength(position: Vector, side: Direction, direction: Direction, world: World): number {
 		const angle = TowerTile.angle(position, direction, side, world, false);

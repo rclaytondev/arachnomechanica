@@ -56,7 +56,8 @@ world.tiles.fillRect(new Rectangle(-5, -5, 1, 20), new SolidTile("solid", "stone
 world.addTile(new Vector(8, -3), new LaserBlock(1, 0.05, Math.PI));
 // world.tiles.set(3, -4, "solid");
 // world.tiles.set(4, -4, "solid");
-// world.tiles.set(4, -3, "solid");
+world.tiles.set(8, 0, new SolidTile("slope-floor-right", "stone"));
+world.tiles.set(4, -3, new SolidTile("solid", "tower"));
 
 LevelGenerator.initializeRooms();
 

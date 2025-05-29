@@ -174,18 +174,18 @@ export class World {
 			for(let y = region.top(); y < region.bottom(); y ++) {
 				const position = new Vector(x, y);
 				const tile = this.tiles.get(position);
-				if(tile instanceof SolidTile && tile.shape === "solid" && tile.texture === "tower") {
-					SolidTile.displayTile(position, canvasIO, tile, this);
+				if(tile instanceof SolidTile && tile.shape === "solid") {
+					SolidTile.displayTile(position, canvasIO, tile);
 				}
 				else if(tile === "platform") {
-					canvasIO.ctx.fillStyle = WorldData.TILE_COLOR;
+					canvasIO.ctx.fillStyle = WorldData.TILE_COLORS.tower;
 					canvasIO.ctx.fillRect(
 						x * WorldData.TILE_SIZE,
 						y * WorldData.TILE_SIZE,
 						WorldData.TILE_SIZE, WorldData.PLATFORM_THICKNESS
 					);
 				}
-				else if(World.isSlopeTile(tile) && tile.texture === "tower") {
+				else if(World.isSlopeTile(tile)) {
 					SolidTile.displaySlopedTile(position, canvasIO, tile);
 				}
 				else if(typeof tile !== "string" && "display" in tile && !(tile instanceof LaserBlock)) {
