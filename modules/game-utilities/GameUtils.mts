@@ -142,6 +142,14 @@ export class GameUtils {
 		canvasIO.fillCircle(x, y, size * 2);
 		canvasIO.ctx.restore();
 	}
+	static glowArc(x: number, y: number, size: number, intensity: number, canvasIO: CanvasIO, startAngle: number, endAngle: number, red: number = 255, green: number = 255, blue: number = 255) {
+		const gradient = GameUtils.glowCircleGradient(x, y, size, intensity, red, green, blue);
+		canvasIO.ctx.save();
+		canvasIO.ctx.fillStyle = gradient;
+		canvasIO.ctx.globalCompositeOperation = "lighter";
+		canvasIO.fillArc(x, y, size * 2, startAngle, endAngle);
+		canvasIO.ctx.restore();
+	}
 	static glowCircleGradient(x: number, y: number, size: number, intensity: number, red: number = 255, green: number = 255, blue: number = 255) {
 		const canvas = document.createElement("canvas");
 		const ctx = canvas.getContext("2d")!;

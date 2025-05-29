@@ -128,8 +128,13 @@ export class World {
 		}
 		for(let x = visibleRegion.left(); x < visibleRegion.right(); x ++) {
 			for(let y = visibleRegion.top(); y < visibleRegion.bottom(); y ++) {
-				if(this.tiles.get(x, y) === "solid") {
-					SolidTile.displayTileGlow(new Vector(x, y), canvasIO, this);
+				const position = new Vector(x, y);
+				const tile = this.tiles.get(position);
+				if(tile === "solid") {
+					SolidTile.displayTileGlow(position, canvasIO, this);
+				}
+				else if(World.isSlope(tile)) {
+					SolidTile.displaySlopeGlow(position, canvasIO, tile, this);
 				}
 			}
 		}
