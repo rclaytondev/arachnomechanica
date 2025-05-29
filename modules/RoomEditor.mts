@@ -11,6 +11,7 @@ import { Rectangle } from "../utils-ts/modules/geometry/Rectangle.mjs";
 import { ROOMS } from "./level-generator/Rooms.mjs";
 import { GameUtils } from "./game-utilities/GameUtils.mjs";
 import { Portal } from "./entities/Portal.mjs";
+import { SolidTile } from "./tiles/SolidTile.mjs";
 
 export class RoomEditor {
 	room: Room;
@@ -49,8 +50,11 @@ export class RoomEditor {
 		if(!canvasIO.mouse.pressed) { return; }
 		const position = this.world.getTileCoordinates(canvasIO.mouse.position);
 		if(canvasIO.mouse.button === "left") {
-			if(this.mode === "solid" || this.mode === "platform") {
-				this.setTile(position, canvasIO.mouse.button === "left" ? this.mode : "empty");
+			if(this.mode === "solid") {
+				this.setTile(position, canvasIO.mouse.button === "left" ? new SolidTile("solid", "tower") : "empty");
+			}
+			else if(this.mode === "platform") {
+				this.setTile(position, canvasIO.mouse.button === "left" ? "platform" : "empty");
 			}
 			else if(this.mode === "exit" && Directions.isDirection(this.direction)) {
 				this.room.exitTiles.set(position, this.direction);
@@ -75,7 +79,7 @@ export class RoomEditor {
 					"down-left": "slope-floor-left",
 					"down-right": "slope-floor-right",
 				} as const)[this.direction];
-				this.setTile(position, tile);
+				this.setTile(position, new SolidTile(tile, "tower"));
 			}
 		}
 		else {

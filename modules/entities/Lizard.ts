@@ -13,6 +13,7 @@ import { Particle, ParticleSettings } from "../game-utilities/Particle.mjs";
 import { LizardData, WorldData } from "../constants/GameData.mjs";
 import { LaserBlock } from "../tiles/LaserBlock.mjs";
 import { SpikeballBlock } from "../tiles/SpikeballBlock.mjs";
+import { SolidTile } from "../tiles/SolidTile.mjs";
 
 type Joint = { position: Vector, direction: Direction };
 
@@ -468,11 +469,11 @@ export class Lizard {
 		const lookaheadRectangle = this.lookaheadRectangle(direction, distance, length);
 		for(const { tile } of world.getTilesAt(lookaheadRectangle)) {
 			if(
-				tile === "solid" ||
+				(tile instanceof SolidTile && tile.shape === "solid") ||
 				(tile === "platform" && direction === "down") ||
 				(tile instanceof Gate && tile.openness !== 1) ||
 				(tile instanceof LaserBlock || tile instanceof SpikeballBlock) ||
-				World.isSlope(tile)
+				World.isSlopeTile(tile)
 			) { return true; }
 		}
 		if(world.entities.some(entity => "hitboxes" in entity && entity.hitboxes().some(b => b.intersects(lookaheadRectangle)))) {

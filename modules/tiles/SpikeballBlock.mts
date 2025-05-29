@@ -161,9 +161,6 @@ export class SpikeballBlock {
 	}
 
 	static canSpawn(position: Vector, world: World) {
-		if(world.tiles.get(position) !== "solid") {
-			return false;
-		}
 		const block = new SpikeballBlock([]);
 		return (
 			block.canSpawnSpikeball(position.x, position.y, "left", "up", world)

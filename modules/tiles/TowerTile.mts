@@ -5,6 +5,7 @@ import { MathUtils } from "../../utils-ts/modules/math/MathUtils.mjs";
 import { WorldData } from "../constants/GameData.mjs";
 import { GameUtils } from "../game-utilities/GameUtils.mjs";
 import { Slope, Tile, World } from "../World.js";
+import { SolidTile } from "./SolidTile.mjs";
 
 export class TowerTile {
 	static tileGlowGradient: CanvasGradient | null = null;
@@ -315,16 +316,16 @@ export class TowerTile {
 
 	
 	static isSolidOrSlope(tile: Tile, direction: Direction) {
-		if(World.isSlope(tile)) {
+		if(tile instanceof SolidTile && World.isSlope(tile.shape)) {
 			const edges = ({
 				"slope-floor-left": ["left", "down"],
 				"slope-floor-right": ["right", "down"],
 				"slope-ceiling-left": ["left", "up"],
 				"slope-ceiling-right": ["right", "up"]
-			} as const)[tile];
+			} as const)[tile.shape];
 			return (edges as readonly Direction[]).includes(direction);
 		}
-		return tile === "solid";
+		return tile instanceof SolidTile && tile.shape === "solid";
 	}
 	static slopeEdges(tile: Slope) {
 		return ({

@@ -83,8 +83,8 @@ export class Spikeball {
 			(direction, collisions) => {
 				this.bounces --;
 				if(collisions.some(
-					t => "tile" in t && World.isSlope(t.tile)
-					&& ((t.tile === "slope-floor-left" || t.tile === "slope-ceiling-left") === (this.physicsObject.velocity.x < 0)))
+					t => "tile" in t && World.isSlopeTile(t.tile)
+					&& ((t.tile.shape === "slope-floor-left" || t.tile.shape === "slope-ceiling-left") === (this.physicsObject.velocity.x < 0)))
 				) {
 					this.physicsObject.velocity.y = -this.physicsObject.velocity.y;
 				}
@@ -97,8 +97,8 @@ export class Spikeball {
 			(direction, collisions) => {
 				this.bounces --;
 				if(collisions.some(
-					t => "tile" in t && World.isSlope(t.tile)
-					&& ((t.tile === "slope-ceiling-left" || t.tile === "slope-ceiling-right") === (this.physicsObject.velocity.y < 0)))
+					t => "tile" in t && World.isSlopeTile(t.tile)
+					&& ((t.tile.shape === "slope-ceiling-left" || t.tile.shape === "slope-ceiling-right") === (this.physicsObject.velocity.y < 0)))
 				) {
 					this.physicsObject.velocity.x = -this.physicsObject.velocity.x;
 				}

@@ -17,6 +17,7 @@ import { SpikeballBlock } from "./tiles/SpikeballBlock.mjs";
 import { Rectangle } from "../utils-ts/modules/geometry/Rectangle.mjs";
 import { Portal } from "./entities/Portal.mjs";
 import { Humanoid } from "./entities/Humanoid.mjs";
+import { SolidTile } from "./tiles/SolidTile.mjs";
 
 const recordedRNG: number[] = [];
 let rngOverrideIndex = 0;
@@ -35,22 +36,22 @@ if(DEBUG_SETTINGS.PRINT_RNG_KEY) {
 const CORNER_SIZE = 3;
 const EMPTY_ROOM = new World();
 for(let i = 0; i < CORNER_SIZE; i ++) {
-	EMPTY_ROOM.tiles.set(i, 0, "solid");
-	EMPTY_ROOM.tiles.set(0, i, "solid");
-	EMPTY_ROOM.tiles.set(RoomData.SIZE - 1 - i, 0, "solid");
-	EMPTY_ROOM.tiles.set(RoomData.SIZE - 1, i, "solid");
-	EMPTY_ROOM.tiles.set(0, RoomData.SIZE - 1 - i, "solid");
-	EMPTY_ROOM.tiles.set(i, RoomData.SIZE - 1, "solid");
-	EMPTY_ROOM.tiles.set(RoomData.SIZE - 1 - i, RoomData.SIZE - 1, "solid");
-	EMPTY_ROOM.tiles.set(RoomData.SIZE - 1, RoomData.SIZE - 1 - i, "solid");
+	EMPTY_ROOM.tiles.set(i, 0, new SolidTile("solid", "tower"));
+	EMPTY_ROOM.tiles.set(0, i, new SolidTile("solid", "tower"));
+	EMPTY_ROOM.tiles.set(RoomData.SIZE - 1 - i, 0, new SolidTile("solid", "tower"));
+	EMPTY_ROOM.tiles.set(RoomData.SIZE - 1, i, new SolidTile("solid", "tower"));
+	EMPTY_ROOM.tiles.set(0, RoomData.SIZE - 1 - i, new SolidTile("solid", "tower"));
+	EMPTY_ROOM.tiles.set(i, RoomData.SIZE - 1, new SolidTile("solid", "tower"));
+	EMPTY_ROOM.tiles.set(RoomData.SIZE - 1 - i, RoomData.SIZE - 1, new SolidTile("solid", "tower"));
+	EMPTY_ROOM.tiles.set(RoomData.SIZE - 1, RoomData.SIZE - 1 - i, new SolidTile("solid", "tower"));
 }
 
 let frameCount = 0;
 const FRAMERATE = 60;
 const world = new World();
-world.tiles.fillRect(new Rectangle(-1, -10, 12, 12), "solid");
+world.tiles.fillRect(new Rectangle(-1, -10, 12, 12), new SolidTile("solid", "tower"));
 world.tiles.fillRect(new Rectangle(-1, -9, 10, 10), "empty");
-world.tiles.fillRect(new Rectangle(-5, -5, 1, 20), "solid");
+world.tiles.fillRect(new Rectangle(-5, -5, 1, 20), new SolidTile("solid", "tower"));
 // world.entities.push(new Lizard(new Vector(275, -275), "down", 150, 3));
 world.addTile(new Vector(8, -3), new LaserBlock(1, 0.05, Math.PI));
 // world.tiles.set(3, -4, "solid");

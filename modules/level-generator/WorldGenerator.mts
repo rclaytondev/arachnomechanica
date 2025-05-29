@@ -13,6 +13,7 @@ import { World } from "../World.js";
 import { LaserBlock } from "../tiles/LaserBlock.mjs";
 import { Gate } from "../tiles/Gate.mjs";
 import { SpikeballBlock } from "../tiles/SpikeballBlock.mjs";
+import { SolidTile } from "../tiles/SolidTile.mjs";
 
 export class WorldGenerator {
 	levelGenerator: LevelGenerator = new LevelGenerator();
@@ -49,7 +50,7 @@ export class WorldGenerator {
 			this.position.y + y * (RoomData.SIZE + LevelGeneratorData.MARGIN_Y),
 			RoomData.SIZE,
 			RoomData.SIZE,
-		), "solid");
+		), new SolidTile("solid", "tower"));
 	}
 	fillUnusedRegions() {
 		for(let x = 0; x < LevelGeneratorData.WIDTH; x ++) {
@@ -70,7 +71,7 @@ export class WorldGenerator {
 					continue;
 				}
 				for(let x = xStart; x < xStart + LevelGeneratorData.MARGIN_X; x ++) {
-					this.world.tiles.set(x, y, "solid");
+					this.world.tiles.set(x, y, new SolidTile("solid", "tower"));
 				}
 			}
 		}
@@ -83,7 +84,7 @@ export class WorldGenerator {
 					continue;
 				}
 				for(let y = yStart; y < yStart + LevelGeneratorData.MARGIN_Y; y ++) {
-					this.world.tiles.set(x, y, "solid");
+					this.world.tiles.set(x, y, new SolidTile("solid", "tower"));
 				}
 			}
 		}
@@ -94,14 +95,14 @@ export class WorldGenerator {
 			this.world.tiles.fillRect(new Rectangle(
 				xStart, room1Position.y, 
 				LevelGeneratorData.MARGIN_X, RoomData.SIZE
-			), "solid");
+			), new SolidTile("solid", "tower"));
 		}
 		else {
 			const yStart = room1Position.y + RoomData.SIZE;
 			this.world.tiles.fillRect(new Rectangle(
 				room1Position.x, yStart,
 				RoomData.SIZE, LevelGeneratorData.MARGIN_Y
-			), "solid");
+			), new SolidTile("solid", "tower"));
 		}
 	}
 	generateMargins() {
@@ -134,7 +135,7 @@ export class WorldGenerator {
 					this.world.tiles.fillRect(new Rectangle(
 						this.position.x + position.x + RoomData.SIZE, this.position.y + position.y + RoomData.SIZE, 
 						LevelGeneratorData.MARGIN_X, LevelGeneratorData.MARGIN_Y
-					), "solid");
+					), new SolidTile("solid", "tower"));
 				}
 			}
 		}
@@ -144,22 +145,22 @@ export class WorldGenerator {
 			this.position.x - LevelGeneratorData.BORDER_X, this.position.y - LevelGeneratorData.BORDER_Y,
 			LevelGeneratorData.WIDTH * (RoomData.SIZE + LevelGeneratorData.MARGIN_X) + LevelGeneratorData.BORDER_X - LevelGeneratorData.MARGIN_X,
 			LevelGeneratorData.BORDER_Y
-		), "solid");
+		), new SolidTile("solid", "tower"));
 		this.world.tiles.fillRect(new Rectangle(
 			this.position.x - LevelGeneratorData.BORDER_X, this.position.y,
 			LevelGeneratorData.BORDER_X,
 			LevelGeneratorData.HEIGHT * (RoomData.SIZE + LevelGeneratorData.MARGIN_Y)
-		), "solid");
+		), new SolidTile("solid", "tower"));
 		this.world.tiles.fillRect(new Rectangle(
 			this.position.x + LevelGeneratorData.WIDTH * (RoomData.SIZE + LevelGeneratorData.MARGIN_X) - LevelGeneratorData.MARGIN_X, this.position.y - LevelGeneratorData.BORDER_Y,
 			LevelGeneratorData.BORDER_X,
 			LevelGeneratorData.HEIGHT * (RoomData.SIZE + LevelGeneratorData.MARGIN_Y) + LevelGeneratorData.BORDER_Y
-		), "solid");
+		), new SolidTile("solid", "tower"));
 		this.world.tiles.fillRect(new Rectangle(
 			this.position.x - LevelGeneratorData.BORDER_X, this.position.y + LevelGeneratorData.HEIGHT * (RoomData.SIZE + LevelGeneratorData.MARGIN_Y) - LevelGeneratorData.MARGIN_Y, 
 			LevelGeneratorData.WIDTH * (RoomData.SIZE + LevelGeneratorData.MARGIN_X) + 2 * LevelGeneratorData.BORDER_X - LevelGeneratorData.MARGIN_X,
 			LevelGeneratorData.BORDER_Y,
-		), "solid");
+		), new SolidTile("solid", "tower"));
 	}
 
 
@@ -172,7 +173,8 @@ export class WorldGenerator {
 					this.position.x + lastRoom.x * (RoomData.SIZE + LevelGeneratorData.MARGIN_X) + x,
 					this.position.y + lastRoom.y * (RoomData.SIZE + LevelGeneratorData.MARGIN_Y) + y
 				);
-				if(this.world.tiles.get(position) === "empty" && this.world.tiles.get(position.x, position.y + 1) === "solid") {
+				const tileBelow = this.world.tiles.get(position.x, position.y + 1);
+				if(this.world.tiles.get(position) === "empty" && tileBelow instanceof SolidTile && tileBelow.shape === "solid") {
 					emptyTiles.push(position);
 				}
 			}
@@ -183,7 +185,10 @@ export class WorldGenerator {
 	}
 
 	static spawnRequirements = {
-		replaceSolid: (position: Vector, world: World) => world.tiles.get(position) === "solid",
+		replaceSolid: (position: Vector, world: World) => {
+			const tile = world.tiles.get(position);
+			return tile instanceof SolidTile && tile.shape === "solid";
+		},
 		atLeast2Empty: (position: Vector, world: World) => (
 			Directions.DIRECTIONS.filter(d => world.tiles.get(position.add(Vector.unit(d))) === "empty").length >= 2
 		),
@@ -193,7 +198,7 @@ export class WorldGenerator {
 		atLeastLine3Empty: (position: Vector, world: World) => {
 			for(const direction of Directions.DIRECTIONS) {
 				const firstTile = world.tiles.get(position.add(Vector.unit(direction)));
-				if(firstTile === "solid") { continue; }
+				if(firstTile instanceof SolidTile) { continue; }
 				for(let i = 2; i <= 3; i ++) {
 					if(world.tiles.get(position.add(Vector.unit(direction).multiply(i))) !== "empty") {
 						return false;
@@ -208,7 +213,7 @@ export class WorldGenerator {
 				const perpendicular1 = Vector.unit(Directions.rotateClockwise(direction));
 				const perpendicular2 = Vector.unit(Directions.rotateCounterclockwise(direction));
 				const firstTile = world.tiles.get(position.add(directionVector));
-				if(firstTile === "solid") { continue; }
+				if(firstTile instanceof SolidTile) { continue; }
 				for(let i = 2; i <= 3; i ++) {
 					if(
 						world.tiles.get(position.add(directionVector.multiply(i))) !== "empty" ||
