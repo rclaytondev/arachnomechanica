@@ -131,10 +131,10 @@ export class World {
 			for(let y = visibleRegion.top(); y < visibleRegion.bottom(); y ++) {
 				const position = new Vector(x, y);
 				const tile = this.tiles.get(position);
-				if(tile instanceof SolidTile && tile.shape === "solid") {
+				if(tile instanceof SolidTile && tile.shape === "solid" && tile.texture === "tower") {
 					TowerTile.displayTileGlow(position, canvasIO, this);
 				}
-				else if(World.isSlopeTile(tile)) {
+				else if(World.isSlopeTile(tile) && tile.texture === "tower") {
 					TowerTile.displaySlopeGlow(position, canvasIO, tile.shape, this);
 				}
 			}
@@ -174,8 +174,8 @@ export class World {
 			for(let y = region.top(); y < region.bottom(); y ++) {
 				const position = new Vector(x, y);
 				const tile = this.tiles.get(position);
-				if(tile instanceof SolidTile && tile.shape === "solid") {
-					TowerTile.displaySolidTile(position, canvasIO, this);
+				if(tile instanceof SolidTile && tile.shape === "solid" && tile.texture === "tower") {
+					SolidTile.displayTile(position, canvasIO, tile, this);
 				}
 				else if(tile === "platform") {
 					canvasIO.ctx.fillStyle = WorldData.TILE_COLOR;
@@ -185,8 +185,8 @@ export class World {
 						WorldData.TILE_SIZE, WorldData.PLATFORM_THICKNESS
 					);
 				}
-				else if(World.isSlopeTile(tile)) {
-					TowerTile.displaySlopedTile(position, canvasIO, tile.shape);
+				else if(World.isSlopeTile(tile) && tile.texture === "tower") {
+					SolidTile.displaySlopedTile(position, canvasIO, tile);
 				}
 				else if(typeof tile !== "string" && "display" in tile && !(tile instanceof LaserBlock)) {
 					tile.display(canvasIO, x, y);
@@ -202,10 +202,10 @@ export class World {
 			for(let y = region.top(); y < region.bottom(); y ++) {
 				const position = new Vector(x, y);
 				const tile = this.tiles.get(position);
-				if(tile instanceof SolidTile && tile.shape === "solid") {
+				if(tile instanceof SolidTile && tile.shape === "solid" && tile.texture === "tower") {
 					TowerTile.displayTileAccent(position, canvasIO, this);
 				}
-				else if(World.isSlopeTile(tile)) {
+				else if(World.isSlopeTile(tile) && tile.texture === "tower") {
 					TowerTile.displaySlopedAccent(position, canvasIO, tile.shape, this);
 				}
 			}
