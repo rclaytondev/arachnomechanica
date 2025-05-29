@@ -19,7 +19,7 @@ export class SolidTile {
 		);
 		return this.tileGlowGradient;
 	}
-	static getDiagonalGlowGradient(canvasIO: CanvasIO) {
+	static getDiagonalGlowGradient() {
 		if(this.diagonalGlowGradient) { return this.diagonalGlowGradient; }
 		this.diagonalGlowGradient = GameUtils.glowCircleGradient(
 			0, 0, WorldData.TILE_GLOW_SIZE,
@@ -83,12 +83,7 @@ export class SolidTile {
 		canvasIO.ctx.lineCap = "round";
 		canvasIO.strokeLine(endpoint1.x, endpoint1.y, endpoint2.x, endpoint2.y);
 
-		const directions = ({
-			"slope-floor-left": ["left", "down"],
-			"slope-floor-right": ["right", "down"],
-			"slope-ceiling-left": ["left", "up"],
-			"slope-ceiling-right": ["right", "up"]
-		} as const)[tile];
+		const directions = SolidTile.slopeEdges(tile);
 		for(const [edge, direction] of [directions, [...directions].reverse()]) {
 			const edgeCenter = center.add(Vector.unit(edge).multiply(WorldData.TILE_ACCENT_RADIUS));
 			if(!SolidTile.isSolidOrSlope(world.tiles.get(position.add(Vector.unit(edge))), Directions.opposite(edge))) {
@@ -233,7 +228,7 @@ export class SolidTile {
 					canvasIO.ctx.save();
 					canvasIO.ctx.translate(rightEdgeCorner.x, rightEdgeCorner.y);
 					canvasIO.ctx.rotate(-Directions.angle(direction) + Math.PI / 2);
-					canvasIO.ctx.fillStyle = SolidTile.getDiagonalGlowGradient(canvasIO);
+					canvasIO.ctx.fillStyle = SolidTile.getDiagonalGlowGradient();
 					canvasIO.ctx.globalCompositeOperation = "lighter";
 					canvasIO.ctx.fillRect(0, -WorldData.TILE_GLOW_SIZE, WorldData.TILE_SIZE, WorldData.TILE_GLOW_SIZE);
 					canvasIO.ctx.restore();
@@ -286,24 +281,24 @@ export class SolidTile {
 	static displaySlopeCornerGlow(position: Vector, canvasIO: CanvasIO, slope: Slope, world: World) {
 		const data = ({
 			"slope-floor-left": [
-				["up", "left", 315, position.multiply(WorldData.TILE_SIZE), false, 45],
-				["right", "down", 315, position.add(1, 1).multiply(WorldData.TILE_SIZE), true, 45],
+				["up", "left", 315, position.multiply(WorldData.TILE_SIZE), false],
+				["right", "down", 315, position.add(1, 1).multiply(WorldData.TILE_SIZE), true],
 			],
 			"slope-floor-right": [
-				["left", "down", 225, position.add(0, 1).multiply(WorldData.TILE_SIZE), false, 45],
-				["up", "right", 225, position.add(1, 0).multiply(WorldData.TILE_SIZE), true, 45],
+				["left", "down", 225, position.add(0, 1).multiply(WorldData.TILE_SIZE), false],
+				["up", "right", 225, position.add(1, 0).multiply(WorldData.TILE_SIZE), true],
 			],
 			"slope-ceiling-left": [
-				["down", "left", 45, position.add(0, 1).multiply(WorldData.TILE_SIZE), true, 45],
-				["right", "up", 45, position.add(1, 0).multiply(WorldData.TILE_SIZE), false, 45],
+				["down", "left", 45, position.add(0, 1).multiply(WorldData.TILE_SIZE), true],
+				["right", "up", 45, position.add(1, 0).multiply(WorldData.TILE_SIZE), false],
 			],
 			"slope-ceiling-right": [
-				["down", "right", 135, position.add(1, 1).multiply(WorldData.TILE_SIZE), false, 45],
-				["left", "up", 135, position.multiply(WorldData.TILE_SIZE), true, 45],
+				["down", "right", 135, position.add(1, 1).multiply(WorldData.TILE_SIZE), false],
+				["left", "up", 135, position.multiply(WorldData.TILE_SIZE), true],
 			]
 		} as const)[slope];
-		for(const [adjacentDirection, perpendicularDirection, startAngle, corner, clockwise, extraAngle] of data) {
-			const angle = extraAngle + SolidTile.angle(position, adjacentDirection, perpendicularDirection, world);
+		for(const [adjacentDirection, perpendicularDirection, startAngle, corner, clockwise] of data) {
+			const angle = 45 + SolidTile.angle(position, adjacentDirection, perpendicularDirection, world);
 			if(angle === 135) {
 				GameUtils.glowArc(
 					corner.x, corner.y,
@@ -324,7 +319,7 @@ export class SolidTile {
 			}
 
 			if(angle <= 180) { continue; }
-			if(extraAngle === 45 && angle === 270 && clockwise) { continue; } // prevent re-drawing same glow when two corners meet at a point
+			if(angle === 270 && clockwise) { continue; } // prevent re-drawing same glow when two corners meet at a point
 			GameUtils.glowArc(
 				corner.x, corner.y,
 				WorldData.TILE_GLOW_SIZE, WorldData.TILE_GLOW_INTENSITY,
