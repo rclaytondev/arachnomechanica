@@ -49,15 +49,9 @@ for(let i = 0; i < CORNER_SIZE; i ++) {
 let frameCount = 0;
 const FRAMERATE = 60;
 const world = new World();
-world.tiles.fillRect(new Rectangle(-1, -10, 12, 12), new SolidTile("solid", "stone"));
-world.tiles.fillRect(new Rectangle(-1, -9, 10, 10), "empty");
-world.tiles.fillRect(new Rectangle(-5, -5, 1, 20), new SolidTile("solid", "stone"));
-// world.entities.push(new Lizard(new Vector(275, -275), "down", 150, 3));
-world.addTile(new Vector(8, -3), new LaserBlock(1, 0.05, Math.PI));
-// world.tiles.set(3, -4, "solid");
-// world.tiles.set(4, -4, "solid");
-world.tiles.set(8, 0, new SolidTile("slope-floor-right", "stone"));
-world.tiles.set(4, -3, new SolidTile("solid", "tower"));
+world.tiles.fillRect(new Rectangle(-1, -10, 50, 30), new SolidTile("solid", "stone"));
+world.tiles.fillRect(new Rectangle(-1, -9, 20, 10), "empty");
+// world.tiles.set(0, 1, new SolidTile("solid", "stone"));
 
 LevelGenerator.initializeRooms();
 

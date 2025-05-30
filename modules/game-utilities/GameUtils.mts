@@ -48,12 +48,15 @@ export class GameUtils {
 		return Math.abs(GameUtils.signedAngleDistance(angle1, angle2));
 	}
 	static signedAngleDistance(angle1: number, angle2: number) {
-		angle1 = MathUtils.generalizedModulo(angle1, 2 * Math.PI);
-		angle2 = MathUtils.generalizedModulo(angle2, 2 * Math.PI);
+		return GameUtils.signedModularDistance(angle1, angle2, 2 * Math.PI);
+	}
+	static signedModularDistance(num1: number, num2: number, modulo: number) {
+		num1 = MathUtils.generalizedModulo(num1, modulo);
+		num2 = MathUtils.generalizedModulo(num2, modulo);
 		return Utils.minValue([
-			angle2 - angle1,
-			angle2 + 2 * Math.PI - angle1,
-			angle2 - 2 * Math.PI - angle1
+			num2 - num1,
+			num2 + modulo - num1,
+			num2 - modulo - num1
 		], Math.abs);
 	}
 	static diagonalAngle(direction1: Direction, direction2: Direction) {

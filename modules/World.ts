@@ -25,6 +25,7 @@ import { Humanoid } from "./entities/Humanoid.mjs";
 import { RoomEditor } from "./RoomEditor.mjs";
 import { TowerTile } from "./tiles/TowerTile.mjs";
 import { SolidTile } from "./tiles/SolidTile.mjs";
+import { StoneTile } from "./tiles/StoneTile.mjs";
 
 export type TileEntity = SolidTile | Gate | LaserBlock | SpikeballBlock;
 export type Tile = (typeof WorldData.STRING_TILE_TYPES)[number] | TileEntity;
@@ -174,7 +175,7 @@ export class World {
 			for(let y = region.top(); y < region.bottom(); y ++) {
 				const position = new Vector(x, y);
 				const tile = this.tiles.get(position);
-				if(tile instanceof SolidTile && tile.shape === "solid") {
+				if(tile instanceof SolidTile) {
 					SolidTile.displayTile(position, canvasIO, tile);
 				}
 				else if(tile === "platform") {
@@ -185,9 +186,6 @@ export class World {
 						WorldData.TILE_SIZE, WorldData.PLATFORM_THICKNESS
 					);
 				}
-				else if(World.isSlopeTile(tile)) {
-					SolidTile.displaySlopedTile(position, canvasIO, tile);
-				}
 				else if(typeof tile !== "string" && "display" in tile && !(tile instanceof LaserBlock)) {
 					tile.display(canvasIO, x, y);
 				}
@@ -196,6 +194,8 @@ export class World {
 				}
 			}
 		}
+
+		StoneTile.displayStoneTiles(this, canvasIO, region);
 	}
 	displaytTileAccents(canvasIO: CanvasIO, region: Rectangle) {
 		for(let x = region.left(); x < region.right(); x ++) {

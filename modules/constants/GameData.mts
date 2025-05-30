@@ -35,6 +35,14 @@ export class WorldData {
 	static CAMERA_SPEED = 100;
 
 	static PARTICLE_RENDER_DISTANCE_Y = 15;
+
+	static STONE_LINE_AMOUNT = 3e-4; // 1e-2 means 1 per 10x10 grid, 1e-4 means 1 per 100x100 grid, etc
+	static STONE_PATTERN_WIDTH = 600;
+	static STONE_PATTERN_HEIGHT = 600;
+	static STONE_LINE_EVENNESS = 30;
+	static STONE_CONNECTIONS = 3;
+	static STONE_LINE_COLOR = "rgb(64, 71, 74)";
+	static STONE_LINE_THICKNESS = 10;
 }
 
 export class LevelGeneratorData {
