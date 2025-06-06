@@ -69,6 +69,7 @@ export class StoneTile {
 	}
 
 	static displayStoneTiles(world: World, canvasIO: CanvasIO, visibleRegion: Rectangle) {
+		canvasIO.ctx.save();
 		canvasIO.ctx.beginPath();
 		for(let x = visibleRegion.left(); x < visibleRegion.right(); x ++) {
 			for(let y = visibleRegion.top(); y < visibleRegion.bottom(); y ++) {
@@ -93,5 +94,6 @@ export class StoneTile {
 				)
 			}
 		}
+		canvasIO.ctx.restore();
 	}
 }

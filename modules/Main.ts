@@ -49,7 +49,7 @@ for(let i = 0; i < CORNER_SIZE; i ++) {
 let frameCount = 0;
 const FRAMERATE = 60;
 const world = new World();
-world.tiles.fillRect(new Rectangle(-1, -10, 50, 30), new SolidTile("solid", "stone"));
+world.tiles.fillRect(new Rectangle(-1, -10, 50, 30), new SolidTile("solid", "tower"));
 world.tiles.fillRect(new Rectangle(-1, -9, 20, 10), "empty");
 // world.tiles.set(0, 1, new SolidTile("solid", "stone"));
 
