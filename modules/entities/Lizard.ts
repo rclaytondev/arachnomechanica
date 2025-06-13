@@ -178,12 +178,12 @@ export class Lizard {
 
 		this.updateLegs();
 		this.updateMouth();
+		this.checkForPlayer(world);
 		this.checkForCollisions(world);
 		this.updateJoints();
 		this.updateHeadAngle();
 		this.updateFire(world, canvasIO);
 		this.updateHurtbox(world);
-		this.checkForPlayer(world);
 	}
 	updateLegs() {
 		if(this.waitingTimer < 0) {
