@@ -1,0 +1,26 @@
+- [ ] Idea 1: no secrets outside, and balconies that go outside the tower (this conflicts with 1 secret below)
+	- Benefit: the outside of the tower looks cool, and it would be cool to have a winding path that goes outside the tower.
+	- Drawback: secrets are cool and it would be sad not to have as many.
+- [ ] Idea 2: secrets on the outside of the tower with loot (this conflicts with 1 secret below)
+- [ ] Idea 3: a few secrets
+	- Locations for secrets:
+		- One outside the tower, just below where the screen normally stops scrolling
+		- One below the lowest room (or actually above the highest room, then it's harder to get to)
+		- One far outside the tower, on floating islands a few screens away
+		- One that you get if you defeat every enemy in a level (this will be very hard to do given that you can't harm the enemies directly)
+	- Each secret could have a extra life (one use only) and some lore, like in Noita
+	- There could be a secret ending if you get all 4 secrets and beat the game without using any of the extra lives.
+- [ ] Idea 4: a whole secret world, like in Noita (this will vastly increase the development time) - see section below for ideas
+
+## Location Ideas
+- On one side of the tower there could be lots of floating islands with bridges between them, with unique enemies and traps.
+- On another side of the tower there could be a series of cliffs or something.
+- Below the tower there could be a nice grassy area with trees (fractal trees?) and an ocean.
+- At the base of the tower there could be a "floor 0" with some kind of secret.
+- Below the tower there could be a "floor -1" with an even-more-secret secret.
+- Below that there could be a cave with unique enemies and traps.
+- Below that there could be a bottomless pit with some kind of secret.
+- Somewhere there could be a large compound like a castle.
+- Somewhere there could be an extremely deep ravine.
+- Somewhere there could be a mountain with a tunnel that goes through it.
+- Somewhere there could be a city made of very tall, thin towers with bridges connecting them.
