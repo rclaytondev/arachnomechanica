@@ -1,7 +1,7 @@
-import { Direction, Directions } from "../../utils-ts/modules/geometry/Direction.mjs";
-import { Vector } from "../../utils-ts/modules/geometry/Vector.mjs";
-import { Utils } from "../../utils-ts/modules/Utils.mjs";
-import { Traversability } from "./Room.mjs";
+import { Direction, Directions } from "../../../utils-ts/modules/geometry/Direction.mjs";
+import { Vector } from "../../../utils-ts/modules/geometry/Vector.mjs";
+import { Utils } from "../../../utils-ts/modules/Utils.mjs";
+import { Traversability } from "./TowerRoom.mjs";
 
 export class GateState {
 	position: Vector | null;

@@ -1,17 +1,17 @@
-import { Direction, Directions } from "../../utils-ts/modules/geometry/Direction.mjs";
-import { Vector } from "../../utils-ts/modules/geometry/Vector.mjs";
-import { Grid } from "../../utils-ts/modules/Grid.mjs";
-import { RoomData, WorldData } from "../constants/GameData.mjs";
+import { Direction, Directions } from "../../../utils-ts/modules/geometry/Direction.mjs";
+import { Vector } from "../../../utils-ts/modules/geometry/Vector.mjs";
+import { Grid } from "../../../utils-ts/modules/Grid.mjs";
+import { RoomData, WorldData } from "../../constants/GameData.mjs";
 import { GateState } from "./GateState.mjs";
-import { RoomPlaceholder } from "./LevelGenerator.mjs";
-import { Gate } from "../tiles/Gate.mjs";
-import { Slope, Tile, World } from "../World.js";
-import { Portal } from "../entities/Portal.mjs";
-import { SolidTile } from "../tiles/SolidTile.mjs";
+import { RoomPlaceholder } from "./TowerLevelGenerator.mjs";
+import { Gate } from "../../tiles/Gate.mjs";
+import { Slope, Tile, World } from "../../World.js";
+import { Portal } from "../../entities/Portal.mjs";
+import { SolidTile } from "../../tiles/SolidTile.mjs";
 
 export type Traversability = { start: GateState, end: GateState }[];
 
-export class Room {
+export class TowerRoom {
 	name: string;
 	tiles: Grid<Tile>;
 	canSpawnWithExits: (exits: Direction[]) => boolean;
@@ -82,7 +82,7 @@ export class Room {
 	}
 
 	reflect() {
-		const reflected = new Room(
+		const reflected = new TowerRoom(
 			`${this.name}-reflected`,
 			[],
 			[],
@@ -108,7 +108,7 @@ export class Room {
 		return reflected;
 	}
 	copy() {
-		return new Room(
+		return new TowerRoom(
 			this.name,
 			this.tiles.map(tile => typeof tile === "string" ? tile : tile.copy()),
 			this.exitTiles.map(v => v),

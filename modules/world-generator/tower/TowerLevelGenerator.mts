@@ -1,36 +1,36 @@
-import { Direction, Directions } from "../../utils-ts/modules/geometry/Direction.mjs";
-import { Vector } from "../../utils-ts/modules/geometry/Vector.mjs";
-import { Utils } from "../../utils-ts/modules/Utils.mjs";
-import { GameUtils } from "../game-utilities/GameUtils.mjs";
-import { Traversability } from "./Room.mjs";
+import { Direction, Directions } from "../../../utils-ts/modules/geometry/Direction.mjs";
+import { Vector } from "../../../utils-ts/modules/geometry/Vector.mjs";
+import { Utils } from "../../../utils-ts/modules/Utils.mjs";
+import { GameUtils } from "../../game-utilities/GameUtils.mjs";
+import { Traversability } from "./TowerRoom.mjs";
 import { GateState } from "./GateState.mjs";
-import { ROOMS } from "./Rooms.mjs";
-import { LevelGeneratorData, LizardData, RoomData, WorldData } from "../constants/GameData.mjs";
-import { Grid } from "../../utils-ts/modules/Grid.mjs";
-import { Rectangle } from "../../utils-ts/modules/geometry/Rectangle.mjs";
+import { TOWER_ROOMS } from "./TowerRooms.mjs";
+import { TowerGeneratorData, LizardData, RoomData, WorldData } from "../../constants/GameData.mjs";
+import { Grid } from "../../../utils-ts/modules/Grid.mjs";
+import { Rectangle } from "../../../utils-ts/modules/geometry/Rectangle.mjs";
 
 export type RoomPlaceholder = { exits: Direction[], traversability: Traversability };
 
-export class LevelGenerator {
+export class TowerLevelGenerator {
 	path: Vector[] = [];
 	rooms: Grid<RoomPlaceholder | null> = new Grid(null);
 
 	static initializeRooms() {
-		const length = ROOMS.length;
+		const length = TOWER_ROOMS.length;
 		for(let i = 0; i < length; i ++) {
-			ROOMS.push(ROOMS[i].reflect());
+			TOWER_ROOMS.push(TOWER_ROOMS[i].reflect());
 		}
 		for(let i = 0; i < 2 * length; i ++) {
-			ROOMS.push(ROOMS[i].toggleGates());
+			TOWER_ROOMS.push(TOWER_ROOMS[i].toggleGates());
 		}
 	}
 
 	generatePath() {
-		let x = GameUtils.randomInt(0, LevelGeneratorData.WIDTH - 1);
+		let x = GameUtils.randomInt(0, TowerGeneratorData.WIDTH - 1);
 		let y = 0;
 		this.path.push(new Vector(x, y));
 		this.rooms.set(x, y, { exits: [], traversability: RoomData.ALL_TRAVERSABILITY });
-		while(y < LevelGeneratorData.HEIGHT - 1) {
+		while(y < TowerGeneratorData.HEIGHT - 1) {
 			const nextDirection = Utils.randomItem(this.possibleNextDirections(x, y));
 			const nextPosition = Vector.unit(nextDirection).add(x, y);
 			this.path.push(nextPosition);
@@ -50,7 +50,7 @@ export class LevelGenerator {
 		if(this.path.length <= 1) {
 			return [
 				...((x > 0) ? ["left"] as const : []),
-				...((x < LevelGeneratorData.WIDTH - 1) ? ["right"] as const : []), 
+				...((x < TowerGeneratorData.WIDTH - 1) ? ["right"] as const : []), 
 				"down"
 			];
 		}
@@ -59,7 +59,7 @@ export class LevelGenerator {
 		if(x > 0 && !(x === lastRoom.x + 1 && y === lastRoom.y)) {
 			directions.push("left");
 		}
-		if(x < LevelGeneratorData.WIDTH - 1 && !(x === lastRoom.x - 1 && y === lastRoom.y)) {
+		if(x < TowerGeneratorData.WIDTH - 1 && !(x === lastRoom.x - 1 && y === lastRoom.y)) {
 			directions.push("right");
 		}
 		return directions;
@@ -69,12 +69,12 @@ export class LevelGenerator {
 			const room = this.rooms.get(position)!;
 			const exits = Directions.DIRECTIONS.filter(dir => (
 				this.rooms.get(position.add(Vector.unit(dir))) === null &&
-				LevelGenerator.isInBounds(position.add(Vector.unit(dir)))
+				TowerLevelGenerator.isInBounds(position.add(Vector.unit(dir)))
 			));
 			for(const exit of exits) {
 				if(
-					(Directions.isHorizontal(exit) && Math.random() < LevelGeneratorData.MAIN_PATH_BRANCH_PROBABILITY_X) ||
-					(Directions.isVertical(exit) && Math.random() < LevelGeneratorData.MAIN_PATH_BRANCH_PROBABILITY_Y)
+					(Directions.isHorizontal(exit) && Math.random() < TowerGeneratorData.MAIN_PATH_BRANCH_PROBABILITY_X) ||
+					(Directions.isVertical(exit) && Math.random() < TowerGeneratorData.MAIN_PATH_BRANCH_PROBABILITY_Y)
 				) { room.exits.push(exit); }
 			}
 		}
@@ -92,10 +92,10 @@ export class LevelGenerator {
 			const adjacentPosition = position.add(Vector.unit(exit));
 			if(
 				(
-					(Directions.isHorizontal(exit) && Math.random() < LevelGeneratorData.OFF_PATH_BRANCH_PROBABILITY_X)
-					|| (Directions.isVertical(exit) && Math.random() < LevelGeneratorData.OFF_PATH_BRANCH_PROBABILITY_Y)
+					(Directions.isHorizontal(exit) && Math.random() < TowerGeneratorData.OFF_PATH_BRANCH_PROBABILITY_X)
+					|| (Directions.isVertical(exit) && Math.random() < TowerGeneratorData.OFF_PATH_BRANCH_PROBABILITY_Y)
 				)
-				&& LevelGenerator.isInBounds(adjacentPosition)
+				&& TowerLevelGenerator.isInBounds(adjacentPosition)
 				&& this.rooms.get(adjacentPosition) === null
 			) { exits.push(exit); }
 		}
@@ -104,8 +104,8 @@ export class LevelGenerator {
 	}
 	generateRoomsOffPath() {
 		const positions = [];
-		for(let x = 0; x < LevelGeneratorData.WIDTH; x ++) {
-			for(let y = 0; y < LevelGeneratorData.HEIGHT; y ++) {
+		for(let x = 0; x < TowerGeneratorData.WIDTH; x ++) {
+			for(let y = 0; y < TowerGeneratorData.HEIGHT; y ++) {
 				if(this.rooms.get(x, y) === null) {
 					positions.push(new Vector(x, y));
 				}
@@ -193,9 +193,9 @@ export class LevelGenerator {
 	pruneRoom(position: Vector) {
 		const oldRoom = this.rooms.get(position);
 		if(!oldRoom) { return false; }
-		const connectivity = LevelGenerator.connectivity(oldRoom.exits, oldRoom.traversability);
-		const lessConnectiveRooms = ROOMS.filter(r => 
-			LevelGenerator.connectivity(oldRoom.exits, r.traversability) < connectivity
+		const connectivity = TowerLevelGenerator.connectivity(oldRoom.exits, oldRoom.traversability);
+		const lessConnectiveRooms = TOWER_ROOMS.filter(r => 
+			TowerLevelGenerator.connectivity(oldRoom.exits, r.traversability) < connectivity
 			&& r.canAdd(oldRoom, false)
 		);
 		for(const room of GameUtils.randomPermutation(lessConnectiveRooms)) {
@@ -210,21 +210,21 @@ export class LevelGenerator {
 	averageConnectivity() {
 		let count = 0;
 		let total = 0;
-		for(let x = 0; x < LevelGeneratorData.WIDTH; x ++) {
-			for(let y = 0; y < LevelGeneratorData.HEIGHT; y ++) {
+		for(let x = 0; x < TowerGeneratorData.WIDTH; x ++) {
+			for(let y = 0; y < TowerGeneratorData.HEIGHT; y ++) {
 				const room = this.rooms.get(x, y);
 				if(room) {
 					count ++;
-					total += LevelGenerator.connectivity(room.exits, room.traversability);
+					total += TowerLevelGenerator.connectivity(room.exits, room.traversability);
 				}
 			}
 		}
 		return total / count;
 	}
 	pruneAll() {
-		while(this.averageConnectivity() > LevelGeneratorData.MAX_CONNECTIVITY) {
+		while(this.averageConnectivity() > TowerGeneratorData.MAX_CONNECTIVITY) {
 			let prunedSome = false;
-			const positions = new Rectangle(0, 0, LevelGeneratorData.WIDTH, LevelGeneratorData.HEIGHT).squares();
+			const positions = new Rectangle(0, 0, TowerGeneratorData.WIDTH, TowerGeneratorData.HEIGHT).squares();
 			for(const position of GameUtils.randomPermutation(positions)) {
 				if(position.equals(this.path[this.path.length - 1]) || position.equals(this.path[0])) { continue; }
 				const pruned = this.pruneRoom(position);
@@ -243,8 +243,8 @@ export class LevelGenerator {
 
 	roomPositions() {
 		const positions = [];
-		for(let x = 0; x < LevelGeneratorData.WIDTH; x ++) {
-			for(let y = 0; y < LevelGeneratorData.HEIGHT; y ++) {
+		for(let x = 0; x < TowerGeneratorData.WIDTH; x ++) {
+			for(let y = 0; y < TowerGeneratorData.HEIGHT; y ++) {
 				if(this.rooms.get(x, y) !== null) {
 					positions.push(new Vector(x, y))
 				}
@@ -254,8 +254,8 @@ export class LevelGenerator {
 	}
 	numRooms() {
 		let count = 0;
-		for(let x = 0; x < LevelGeneratorData.WIDTH; x ++) {
-			for(let y = 0; y < LevelGeneratorData.HEIGHT; y ++) {
+		for(let x = 0; x < TowerGeneratorData.WIDTH; x ++) {
+			for(let y = 0; y < TowerGeneratorData.HEIGHT; y ++) {
 				if(this.rooms.get(x, y) !== null) {
 					count ++;
 				}
@@ -283,8 +283,8 @@ export class LevelGenerator {
 	}
 	static isInBounds(position: Vector) {
 		return (
-			0 <= position.x && position.x < LevelGeneratorData.WIDTH &&
-			0 <= position.y && position.y < LevelGeneratorData.HEIGHT
+			0 <= position.x && position.x < TowerGeneratorData.WIDTH &&
+			0 <= position.y && position.y < TowerGeneratorData.HEIGHT
 		)
 	}
 }

@@ -1,25 +1,25 @@
-import { Directions } from "../../utils-ts/modules/geometry/Direction.mjs";
-import { Rectangle } from "../../utils-ts/modules/geometry/Rectangle.mjs";
-import { Vector } from "../../utils-ts/modules/geometry/Vector.mjs";
-import { Grid } from "../../utils-ts/modules/Grid.mjs";
-import { Utils } from "../../utils-ts/modules/Utils.mjs";
-import { LaserBlockData, LevelGeneratorData, LizardData, RoomData, SpikeballBlockData, WorldData } from "../constants/GameData.mjs";
-import { Lizard } from "../entities/Lizard.js";
-import { GameUtils } from "../game-utilities/GameUtils.mjs";
-import { LevelGenerator } from "./LevelGenerator.mjs";
-import { Room } from "./Room.mjs";
-import { ROOMS } from "./Rooms.mjs";
-import { World } from "../World.js";
-import { LaserBlock } from "../tiles/LaserBlock.mjs";
-import { Gate } from "../tiles/Gate.mjs";
-import { SpikeballBlock } from "../tiles/SpikeballBlock.mjs";
-import { SolidTile } from "../tiles/SolidTile.mjs";
+import { Directions } from "../../../utils-ts/modules/geometry/Direction.mjs";
+import { Rectangle } from "../../../utils-ts/modules/geometry/Rectangle.mjs";
+import { Vector } from "../../../utils-ts/modules/geometry/Vector.mjs";
+import { Grid } from "../../../utils-ts/modules/Grid.mjs";
+import { Utils } from "../../../utils-ts/modules/Utils.mjs";
+import { LaserBlockData, TowerGeneratorData, LizardData, RoomData, SpikeballBlockData, WorldData } from "../../constants/GameData.mjs";
+import { Lizard } from "../../entities/Lizard.js";
+import { GameUtils } from "../../game-utilities/GameUtils.mjs";
+import { TowerLevelGenerator } from "./TowerLevelGenerator.mjs";
+import { TowerRoom } from "./TowerRoom.mjs";
+import { TOWER_ROOMS } from "./TowerRooms.mjs";
+import { World } from "../../World.js";
+import { LaserBlock } from "../../tiles/LaserBlock.mjs";
+import { Gate } from "../../tiles/Gate.mjs";
+import { SpikeballBlock } from "../../tiles/SpikeballBlock.mjs";
+import { SolidTile } from "../../tiles/SolidTile.mjs";
 
-export class WorldGenerator {
-	levelGenerator: LevelGenerator = new LevelGenerator();
+export class TowerGenerator {
+	levelGenerator: TowerLevelGenerator = new TowerLevelGenerator();
 	position: Vector;
 	world: World;
-	rooms: Grid<Room | null> = new Grid(null);
+	rooms: Grid<TowerRoom | null> = new Grid(null);
 
 	constructor(position: Vector = new Vector(0, 0), world: World = new World()) {
 		this.position = position;
@@ -27,18 +27,18 @@ export class WorldGenerator {
 	}
 
 	generateRooms() {
-		for(let x = 0; x < LevelGeneratorData.WIDTH; x ++) {
-			for(let y = 0; y < LevelGeneratorData.HEIGHT; y ++) {
+		for(let x = 0; x < TowerGeneratorData.WIDTH; x ++) {
+			for(let y = 0; y < TowerGeneratorData.HEIGHT; y ++) {
 				const roomPlaceholder = this.levelGenerator.rooms.get(x, y);
 				if(!roomPlaceholder) { continue; }
-				const possibleRooms = ROOMS.filter(
+				const possibleRooms = TOWER_ROOMS.filter(
 					room => room.canAdd(roomPlaceholder)
 					&& room.hasPortal() === this.levelGenerator.path[0].equals(x, y)
 				);
 				const room = GameUtils.weightedRandom(possibleRooms, possibleRooms.map(r => r.weight));
 				room.add(new Vector(
-					this.position.x + x * (RoomData.SIZE + LevelGeneratorData.MARGIN_X),
-					this.position.y + y * (RoomData.SIZE + LevelGeneratorData.MARGIN_Y)
+					this.position.x + x * (RoomData.SIZE + TowerGeneratorData.MARGIN_X),
+					this.position.y + y * (RoomData.SIZE + TowerGeneratorData.MARGIN_Y)
 				), this.world, roomPlaceholder.exits);
 				this.rooms.set(x, y, room);
 			}
@@ -46,22 +46,22 @@ export class WorldGenerator {
 	}
 	fillRoom(x: number, y: number) {
 		this.world.tiles.fillRect(new Rectangle(
-			this.position.x + x * (RoomData.SIZE + LevelGeneratorData.MARGIN_X),
-			this.position.y + y * (RoomData.SIZE + LevelGeneratorData.MARGIN_Y),
+			this.position.x + x * (RoomData.SIZE + TowerGeneratorData.MARGIN_X),
+			this.position.y + y * (RoomData.SIZE + TowerGeneratorData.MARGIN_Y),
 			RoomData.SIZE,
 			RoomData.SIZE,
 		), new SolidTile("solid", "tower"));
 	}
 	fillUnusedRegions() {
-		for(let x = 0; x < LevelGeneratorData.WIDTH; x ++) {
-			for(let y = 0; y < LevelGeneratorData.HEIGHT; y ++) {
+		for(let x = 0; x < TowerGeneratorData.WIDTH; x ++) {
+			for(let y = 0; y < TowerGeneratorData.HEIGHT; y ++) {
 				if(this.levelGenerator.rooms.get(x, y) === null) {
 					this.fillRoom(x, y);
 				}
 			}
 		}
 	}
-	addMargin(room1Position: Vector, room1: Room, room2: Room, direction: "right" | "down", forceSolid: boolean) {
+	addMargin(room1Position: Vector, room1: TowerRoom, room2: TowerRoom, direction: "right" | "down", forceSolid: boolean) {
 		if(direction === "right") {
 			const room1YExits = new Set(room1.getExitCoordinates("right", "y"));
 			const room2YExits = new Set(room2.getExitCoordinates("left", "y"));
@@ -70,7 +70,7 @@ export class WorldGenerator {
 				if(room1YExits.has(y - room1Position.y) && room2YExits.has(y - room1Position.y) && !forceSolid) {
 					continue;
 				}
-				for(let x = xStart; x < xStart + LevelGeneratorData.MARGIN_X; x ++) {
+				for(let x = xStart; x < xStart + TowerGeneratorData.MARGIN_X; x ++) {
 					this.world.tiles.set(x, y, new SolidTile("solid", "tower"));
 				}
 			}
@@ -83,7 +83,7 @@ export class WorldGenerator {
 				if(room1XExits.has(x - room1Position.x) && room2XExits.has(x - room1Position.x) && !forceSolid) {
 					continue;
 				}
-				for(let y = yStart; y < yStart + LevelGeneratorData.MARGIN_Y; y ++) {
+				for(let y = yStart; y < yStart + TowerGeneratorData.MARGIN_Y; y ++) {
 					this.world.tiles.set(x, y, new SolidTile("solid", "tower"));
 				}
 			}
@@ -94,29 +94,29 @@ export class WorldGenerator {
 			const xStart = room1Position.x + RoomData.SIZE;
 			this.world.tiles.fillRect(new Rectangle(
 				xStart, room1Position.y, 
-				LevelGeneratorData.MARGIN_X, RoomData.SIZE
+				TowerGeneratorData.MARGIN_X, RoomData.SIZE
 			), new SolidTile("solid", "tower"));
 		}
 		else {
 			const yStart = room1Position.y + RoomData.SIZE;
 			this.world.tiles.fillRect(new Rectangle(
 				room1Position.x, yStart,
-				RoomData.SIZE, LevelGeneratorData.MARGIN_Y
+				RoomData.SIZE, TowerGeneratorData.MARGIN_Y
 			), new SolidTile("solid", "tower"));
 		}
 	}
 	generateMargins() {
-		for(let x = 0; x < LevelGeneratorData.WIDTH; x ++) {
-			for(let y = 0; y < LevelGeneratorData.HEIGHT; y ++) {
+		for(let x = 0; x < TowerGeneratorData.WIDTH; x ++) {
+			for(let y = 0; y < TowerGeneratorData.HEIGHT; y ++) {
 				const room = this.rooms.get(x, y);
 				const position = new Vector(
-					this.position.x + x * (RoomData.SIZE + LevelGeneratorData.MARGIN_X),
-					this.position.y + y * (RoomData.SIZE + LevelGeneratorData.MARGIN_Y)
+					this.position.x + x * (RoomData.SIZE + TowerGeneratorData.MARGIN_X),
+					this.position.y + y * (RoomData.SIZE + TowerGeneratorData.MARGIN_Y)
 				);
 				for(const direction of ["right", "down"] as const) {
 					if(
-						(direction === "right" && x === LevelGeneratorData.WIDTH - 1) || 
-						(direction === "down" && y === LevelGeneratorData.HEIGHT - 1)
+						(direction === "right" && x === TowerGeneratorData.WIDTH - 1) || 
+						(direction === "down" && y === TowerGeneratorData.HEIGHT - 1)
 					) { continue; }
 					const adjacentRoom = this.rooms.get(Vector.unit(direction).add(x, y));
 					if(room && adjacentRoom) {
@@ -131,10 +131,10 @@ export class WorldGenerator {
 					}
 				}
 
-				if(x < LevelGeneratorData.WIDTH - 1 && y < LevelGeneratorData.HEIGHT - 1) {
+				if(x < TowerGeneratorData.WIDTH - 1 && y < TowerGeneratorData.HEIGHT - 1) {
 					this.world.tiles.fillRect(new Rectangle(
 						this.position.x + position.x + RoomData.SIZE, this.position.y + position.y + RoomData.SIZE, 
-						LevelGeneratorData.MARGIN_X, LevelGeneratorData.MARGIN_Y
+						TowerGeneratorData.MARGIN_X, TowerGeneratorData.MARGIN_Y
 					), new SolidTile("solid", "tower"));
 				}
 			}
@@ -142,24 +142,24 @@ export class WorldGenerator {
 	}
 	fillBoundaries() {
 		this.world.tiles.fillRect(new Rectangle(
-			this.position.x - LevelGeneratorData.BORDER_X, this.position.y - LevelGeneratorData.BORDER_Y,
-			LevelGeneratorData.WIDTH * (RoomData.SIZE + LevelGeneratorData.MARGIN_X) + LevelGeneratorData.BORDER_X - LevelGeneratorData.MARGIN_X,
-			LevelGeneratorData.BORDER_Y
+			this.position.x - TowerGeneratorData.BORDER_X, this.position.y - TowerGeneratorData.BORDER_Y,
+			TowerGeneratorData.WIDTH * (RoomData.SIZE + TowerGeneratorData.MARGIN_X) + TowerGeneratorData.BORDER_X - TowerGeneratorData.MARGIN_X,
+			TowerGeneratorData.BORDER_Y
 		), new SolidTile("solid", "tower"));
 		this.world.tiles.fillRect(new Rectangle(
-			this.position.x - LevelGeneratorData.BORDER_X, this.position.y,
-			LevelGeneratorData.BORDER_X,
-			LevelGeneratorData.HEIGHT * (RoomData.SIZE + LevelGeneratorData.MARGIN_Y)
+			this.position.x - TowerGeneratorData.BORDER_X, this.position.y,
+			TowerGeneratorData.BORDER_X,
+			TowerGeneratorData.HEIGHT * (RoomData.SIZE + TowerGeneratorData.MARGIN_Y)
 		), new SolidTile("solid", "tower"));
 		this.world.tiles.fillRect(new Rectangle(
-			this.position.x + LevelGeneratorData.WIDTH * (RoomData.SIZE + LevelGeneratorData.MARGIN_X) - LevelGeneratorData.MARGIN_X, this.position.y - LevelGeneratorData.BORDER_Y,
-			LevelGeneratorData.BORDER_X,
-			LevelGeneratorData.HEIGHT * (RoomData.SIZE + LevelGeneratorData.MARGIN_Y) + LevelGeneratorData.BORDER_Y
+			this.position.x + TowerGeneratorData.WIDTH * (RoomData.SIZE + TowerGeneratorData.MARGIN_X) - TowerGeneratorData.MARGIN_X, this.position.y - TowerGeneratorData.BORDER_Y,
+			TowerGeneratorData.BORDER_X,
+			TowerGeneratorData.HEIGHT * (RoomData.SIZE + TowerGeneratorData.MARGIN_Y) + TowerGeneratorData.BORDER_Y
 		), new SolidTile("solid", "tower"));
 		this.world.tiles.fillRect(new Rectangle(
-			this.position.x - LevelGeneratorData.BORDER_X, this.position.y + LevelGeneratorData.HEIGHT * (RoomData.SIZE + LevelGeneratorData.MARGIN_Y) - LevelGeneratorData.MARGIN_Y, 
-			LevelGeneratorData.WIDTH * (RoomData.SIZE + LevelGeneratorData.MARGIN_X) + 2 * LevelGeneratorData.BORDER_X - LevelGeneratorData.MARGIN_X,
-			LevelGeneratorData.BORDER_Y,
+			this.position.x - TowerGeneratorData.BORDER_X, this.position.y + TowerGeneratorData.HEIGHT * (RoomData.SIZE + TowerGeneratorData.MARGIN_Y) - TowerGeneratorData.MARGIN_Y, 
+			TowerGeneratorData.WIDTH * (RoomData.SIZE + TowerGeneratorData.MARGIN_X) + 2 * TowerGeneratorData.BORDER_X - TowerGeneratorData.MARGIN_X,
+			TowerGeneratorData.BORDER_Y,
 		), new SolidTile("solid", "tower"));
 	}
 
@@ -170,8 +170,8 @@ export class WorldGenerator {
 		for(let x = 0; x < RoomData.SIZE; x ++) {
 			for(let y = 0; y < RoomData.SIZE; y ++) {
 				const position = new Vector(
-					this.position.x + lastRoom.x * (RoomData.SIZE + LevelGeneratorData.MARGIN_X) + x,
-					this.position.y + lastRoom.y * (RoomData.SIZE + LevelGeneratorData.MARGIN_Y) + y
+					this.position.x + lastRoom.x * (RoomData.SIZE + TowerGeneratorData.MARGIN_X) + x,
+					this.position.y + lastRoom.y * (RoomData.SIZE + TowerGeneratorData.MARGIN_Y) + y
 				);
 				const tileBelow = this.world.tiles.get(position.x, position.y + 1);
 				if(this.world.tiles.get(position) === "empty" && tileBelow instanceof SolidTile && tileBelow.shape === "solid") {
@@ -233,14 +233,14 @@ export class WorldGenerator {
 	
 	spawnLizards() {
 		const positions = [];
-		const totalLizards = Math.ceil(LevelGeneratorData.WIDTH * LevelGeneratorData.HEIGHT * LizardData.LIZARDS_PER_ROOM);
+		const totalLizards = Math.ceil(TowerGeneratorData.WIDTH * TowerGeneratorData.HEIGHT * LizardData.LIZARDS_PER_ROOM);
 		let amountSpawned = 0;
 		while(amountSpawned < totalLizards) {
 			const position = GameUtils.randomEvenlySpaced(
 				new Rectangle(
 					this.position.x, this.position.y,
-					LevelGeneratorData.WIDTH * (RoomData.SIZE + LevelGeneratorData.MARGIN_X) - LevelGeneratorData.MARGIN_X - 1,
-					LevelGeneratorData.HEIGHT * (RoomData.SIZE + LevelGeneratorData.MARGIN_Y) - LevelGeneratorData.MARGIN_Y - 1
+					TowerGeneratorData.WIDTH * (RoomData.SIZE + TowerGeneratorData.MARGIN_X) - TowerGeneratorData.MARGIN_X - 1,
+					TowerGeneratorData.HEIGHT * (RoomData.SIZE + TowerGeneratorData.MARGIN_Y) - TowerGeneratorData.MARGIN_Y - 1
 				),
 				positions,
 				LizardData.SPAWN_EVENNESS,
@@ -264,10 +264,10 @@ export class WorldGenerator {
 		return this.spawnTraps(
 			LaserBlockData.LASERS_PER_ROOM,
 			[
-				WorldGenerator.spawnRequirements.replaceSolid,
-				WorldGenerator.spawnRequirements.atLeast2Empty,
-				WorldGenerator.spawnRequirements.noAdjacentGates,
-				WorldGenerator.spawnRequirements.notOnFloor,
+				TowerGenerator.spawnRequirements.replaceSolid,
+				TowerGenerator.spawnRequirements.atLeast2Empty,
+				TowerGenerator.spawnRequirements.noAdjacentGates,
+				TowerGenerator.spawnRequirements.notOnFloor,
 				LaserBlock.canSpawn
 			],
 			(x, y, world) => {
@@ -284,9 +284,9 @@ export class WorldGenerator {
 		return this.spawnTraps(
 			SpikeballBlockData.SPIKEBALLS_PER_ROOM,
 			[
-				WorldGenerator.spawnRequirements.replaceSolid,
-				WorldGenerator.spawnRequirements.noAdjacentGates,
-				WorldGenerator.spawnRequirements.atLeast3RectEmpty,
+				TowerGenerator.spawnRequirements.replaceSolid,
+				TowerGenerator.spawnRequirements.noAdjacentGates,
+				TowerGenerator.spawnRequirements.atLeast3RectEmpty,
 				SpikeballBlock.canSpawn,
 			],
 			(x: number, y: number, world: World) => {
@@ -301,15 +301,15 @@ export class WorldGenerator {
 	}
 	spawnTraps(density: number, requirements: ((position: Vector, world: World) => boolean)[], spawn: (x: number, y: number, world: World) => void, positionsSpawned: Vector[] = []) {
 		let possiblePositions: Vector[] = [];
-		for(let x = -1; x < LevelGeneratorData.WIDTH * (RoomData.SIZE + LevelGeneratorData.MARGIN_X) + 1; x ++) {
-			for(let y = -1; y < LevelGeneratorData.HEIGHT * (RoomData.SIZE + LevelGeneratorData.MARGIN_Y) + 1; y ++) {
+		for(let x = -1; x < TowerGeneratorData.WIDTH * (RoomData.SIZE + TowerGeneratorData.MARGIN_X) + 1; x ++) {
+			for(let y = -1; y < TowerGeneratorData.HEIGHT * (RoomData.SIZE + TowerGeneratorData.MARGIN_Y) + 1; y ++) {
 				const position = new Vector(this.position.x + x, this.position.y + y);
 				if(requirements.every(r => r(position, this.world))) {
 					possiblePositions.push(position);
 				}
 			}
 		}
-		const totalTraps = Math.ceil(LevelGeneratorData.WIDTH * LevelGeneratorData.HEIGHT * density);
+		const totalTraps = Math.ceil(TowerGeneratorData.WIDTH * TowerGeneratorData.HEIGHT * density);
 		let amountSpawned = 0;
 		while(amountSpawned < totalTraps && possiblePositions.length > 0) {
 			const next = GameUtils.randomEvenlySpaced(

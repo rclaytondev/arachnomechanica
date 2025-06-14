@@ -2,25 +2,25 @@ import { canvasIO, CanvasIO } from "../utils-ts/modules/CanvasIO.mjs";
 import { Diagonal, Direction, Directions } from "../utils-ts/modules/geometry/Direction.mjs";
 import { Vector } from "../utils-ts/modules/geometry/Vector.mjs";
 import { Grid } from "../utils-ts/modules/Grid.mjs";
-import { Room } from "./level-generator/Room.mjs";
+import { TowerRoom } from "./world-generator/tower/TowerRoom.mjs";
 import { DEBUG_SETTINGS } from "./constants/DebugSettings.mjs";
 import { Gate } from "./tiles/Gate.mjs";
 import { Tile, World } from "./World.js";
 import { PortalData, WorldData } from "./constants/GameData.mjs";
 import { Rectangle } from "../utils-ts/modules/geometry/Rectangle.mjs";
-import { ROOMS } from "./level-generator/Rooms.mjs";
+import { TOWER_ROOMS } from "./world-generator/tower/TowerRooms.mjs";
 import { GameUtils } from "./game-utilities/GameUtils.mjs";
 import { Portal } from "./entities/Portal.mjs";
 import { SolidTile } from "./tiles/SolidTile.mjs";
 
 export class RoomEditor {
-	room: Room;
+	room: TowerRoom;
 	world: World = new World();
 	mode: "solid" | "platform" | "exit" | "gate-open" | "gate-closed" | "portal" | "slope" = "solid";
 	direction: Direction | Diagonal = "right";
 	static readonly MODES = ["solid", "platform", "exit", "gate-open", "gate-closed", "portal", "slope"] as const;
 
-	constructor(room: Room = new Room("editor room", [], [], [], () => false, [])) {
+	constructor(room: TowerRoom = new TowerRoom("editor room", [], [], [], () => false, [])) {
 		this.room = room;
 		this.world = new World();
 		for(const [tile, position] of this.room.tiles.entries()) {
@@ -122,23 +122,23 @@ export class RoomEditor {
 			this.direction = canvasIO.keyDirection(true) ?? this.direction;
 		}
 	}
-	loadRoom(room: Room) {
+	loadRoom(room: TowerRoom) {
 		this.room = room;
 		this.world = new World();
 		room.add(new Vector(0, 0), this.world, ["left", "right", "up", "down"]);
 	}
 	loadNextRoom() {
-		const index = ROOMS.indexOf(this.room);
-		if(index < ROOMS.length - 1) {
-			this.loadRoom(ROOMS[index + 1]);
-			console.log(`loaded room ${index + 1} (${ROOMS[index + 1].name}) in the editor`);
+		const index = TOWER_ROOMS.indexOf(this.room);
+		if(index < TOWER_ROOMS.length - 1) {
+			this.loadRoom(TOWER_ROOMS[index + 1]);
+			console.log(`loaded room ${index + 1} (${TOWER_ROOMS[index + 1].name}) in the editor`);
 		}
 	}
 	loadPreviousRoom() {
-		const index = ROOMS.indexOf(this.room);
+		const index = TOWER_ROOMS.indexOf(this.room);
 		if(index > 0) {
-			this.loadRoom(ROOMS[index - 1]);
-			console.log(`loaded room ${index - 1} (${ROOMS[index - 1].name}) in the editor`);
+			this.loadRoom(TOWER_ROOMS[index - 1]);
+			console.log(`loaded room ${index - 1} (${TOWER_ROOMS[index - 1].name}) in the editor`);
 		}
 	}
 

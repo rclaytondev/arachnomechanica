@@ -4,13 +4,13 @@ import { DEBUG_SETTINGS } from "./constants/DebugSettings.mjs";
 import { LaserBlockData, LizardData, PlayerData, RoomData, SpikeballBlockData } from "./constants/GameData.mjs";
 import { Lizard } from "./entities/Lizard.js";
 import { GameUtils } from "./game-utilities/GameUtils.mjs";
-import { LevelGenerator } from "./level-generator/LevelGenerator.mjs";
-import { Room } from "./level-generator/Room.mjs";
+import { TowerLevelGenerator } from "./world-generator/tower/TowerLevelGenerator.mjs";
+import { TowerRoom } from "./world-generator/tower/TowerRoom.mjs";
 import { RoomEditor } from "./RoomEditor.mjs";
-import { ROOMS } from "./level-generator/Rooms.mjs";
+import { TOWER_ROOMS } from "./world-generator/tower/TowerRooms.mjs";
 import { Gate } from "./tiles/Gate.mjs";
 import { World } from "./World.js";
-import { WorldGenerator } from "./level-generator/WorldGenerator.mjs";
+import { TowerGenerator } from "./world-generator/tower/TowerGenerator.mjs";
 import { LaserBlock } from "./tiles/LaserBlock.mjs";
 import { Spikeball } from "./entities/Spikeball.mjs";
 import { SpikeballBlock } from "./tiles/SpikeballBlock.mjs";
@@ -53,7 +53,7 @@ world.tiles.fillRect(new Rectangle(-1, -10, 50, 30), new SolidTile("solid", "tow
 world.tiles.fillRect(new Rectangle(-1, -9, 20, 10), "empty");
 // world.tiles.set(0, 1, new SolidTile("solid", "stone"));
 
-LevelGenerator.initializeRooms();
+TowerLevelGenerator.initializeRooms();
 
 export class Main {
 	// static screen: World | RoomEditor = new WorldGenerator().generate();
@@ -83,7 +83,7 @@ export class Main {
 		}
 		if(Main.fadingTimer > PlayerData.FADE_DELAY) {
 			Main.fadingTimer = 0;
-			Main.screen = new WorldGenerator().generate();
+			Main.screen = new TowerGenerator().generate();
 			Main.fadingDestination = 0;
 		}
 	}
@@ -99,8 +99,8 @@ export class Main {
 
 if(DEBUG_SETTINGS.EDITOR_ROOM != null  && Main.screen instanceof RoomEditor) {
 	const room = (typeof DEBUG_SETTINGS.EDITOR_ROOM === "number")
-		? ROOMS[DEBUG_SETTINGS.EDITOR_ROOM]
-		: ROOMS.find(r => r.name === DEBUG_SETTINGS.EDITOR_ROOM);
+		? TOWER_ROOMS[DEBUG_SETTINGS.EDITOR_ROOM]
+		: TOWER_ROOMS.find(r => r.name === DEBUG_SETTINGS.EDITOR_ROOM);
 	if(!room) {
 		throw new Error(`Room "${DEBUG_SETTINGS.EDITOR_ROOM}" does not exist.`);
 	}

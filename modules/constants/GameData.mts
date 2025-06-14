@@ -1,7 +1,7 @@
 import { Vector } from "../../utils-ts/modules/geometry/Vector.mjs";
 import { ParticleSettings } from "../game-utilities/Particle.mjs";
-import { Room, Traversability } from "../level-generator/Room.mjs";
-import { GateState } from "../level-generator/GateState.mjs";
+import { TowerRoom, Traversability } from "../world-generator/tower/TowerRoom.mjs";
+import { GateState } from "../world-generator/tower/GateState.mjs";
 import { World } from "../World";
 import { Rectangle } from "../../utils-ts/modules/geometry/Rectangle.mjs";
 import { Direction } from "../../utils-ts/modules/geometry/Direction.mjs";
@@ -45,7 +45,7 @@ export class WorldData {
 	static STONE_LINE_THICKNESS = 10;
 }
 
-export class LevelGeneratorData {
+export class TowerGeneratorData {
 	static WIDTH = 4;
 	static HEIGHT = 6;
 	static MARGIN_X = 2;

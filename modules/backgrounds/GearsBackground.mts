@@ -2,7 +2,7 @@ import { CanvasIO } from "../../utils-ts/modules/CanvasIO.mjs";
 import { Rectangle } from "../../utils-ts/modules/geometry/Rectangle.mjs";
 import { Vector } from "../../utils-ts/modules/geometry/Vector.mjs";
 import { MathUtils } from "../../utils-ts/modules/math/MathUtils.mjs";
-import { BackgroundData, BackgroundGearLayerData, LevelGeneratorData, RoomData, WorldData } from "../constants/GameData.mjs";
+import { BackgroundData, BackgroundGearLayerData, TowerGeneratorData, RoomData, WorldData } from "../constants/GameData.mjs";
 import { GameUtils } from "../game-utilities/GameUtils.mjs";
 import { frameCount } from "../Main.js";
 
@@ -97,11 +97,11 @@ class GearLayer {
 
 	static generate(info: BackgroundGearLayerData) {
 		const gears: BackgroundGear[] = [];
-		const numGears = LevelGeneratorData.WIDTH * LevelGeneratorData.HEIGHT * info.density;
+		const numGears = TowerGeneratorData.WIDTH * TowerGeneratorData.HEIGHT * info.density;
 		const region = new Rectangle(
 			0, 0, 
-			LevelGeneratorData.WIDTH * RoomData.SIZE * WorldData.TILE_SIZE, 
-			LevelGeneratorData.HEIGHT * RoomData.SIZE * WorldData.TILE_SIZE
+			TowerGeneratorData.WIDTH * RoomData.SIZE * WorldData.TILE_SIZE, 
+			TowerGeneratorData.HEIGHT * RoomData.SIZE * WorldData.TILE_SIZE
 		);
 		for(let i = 0; i < numGears; i ++) {
 			let spawned = false;

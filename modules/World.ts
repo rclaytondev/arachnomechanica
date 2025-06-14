@@ -3,13 +3,13 @@ import { Diagonal, Direction, Directions } from "../utils-ts/modules/geometry/Di
 import { Rectangle } from "../utils-ts/modules/geometry/Rectangle.mjs";
 import { Vector } from "../utils-ts/modules/geometry/Vector.mjs";
 import { Grid } from "../utils-ts/modules/Grid.mjs";
-import { BackgroundData, LevelGeneratorData, PlayerData, RoomData, WorldData } from "./constants/GameData.mjs";
-import { LevelGenerator } from "./level-generator/LevelGenerator.mjs";
+import { BackgroundData, TowerGeneratorData, PlayerData, RoomData, WorldData } from "./constants/GameData.mjs";
+import { TowerLevelGenerator } from "./world-generator/tower/TowerLevelGenerator.mjs";
 import { Main } from "./Main.js";
 import { DEBUG_SETTINGS } from "./constants/DebugSettings.mjs";
 import { Particle } from "./game-utilities/Particle.mjs";
 import { Player } from "./Player.mjs";
-import { Room } from "./level-generator/Room.mjs";
+import { TowerRoom } from "./world-generator/tower/TowerRoom.mjs";
 import { Gate } from "./tiles/Gate.mjs";
 import { GearsBackground } from "./backgrounds/GearsBackground.mjs";
 import { SkyBackground } from "./backgrounds/SkyBackground.mjs";
@@ -19,7 +19,7 @@ import { Lizard } from "./entities/Lizard.js";
 import { Spikeball } from "./entities/Spikeball.mjs";
 import { SpikeballBlock } from "./tiles/SpikeballBlock.mjs";
 import { Portal } from "./entities/Portal.mjs";
-import { WorldGenerator } from "./level-generator/WorldGenerator.mjs";
+import { TowerGenerator } from "./world-generator/tower/TowerGenerator.mjs";
 import { MathUtils } from "../utils-ts/modules/math/MathUtils.mjs";
 import { Humanoid } from "./entities/Humanoid.mjs";
 import { RoomEditor } from "./RoomEditor.mjs";
@@ -59,14 +59,14 @@ export class World {
 		}
 		if(Main.screen instanceof World && DEBUG_SETTINGS.DISPLAY_WHOLE_LEVEL) {
 			const amount = Math.min(
-				canvasIO.canvas.width / (LevelGeneratorData.WIDTH * (RoomData.SIZE + LevelGeneratorData.MARGIN_X) * WorldData.TILE_SIZE),
-				canvasIO.canvas.height / (LevelGeneratorData.HEIGHT * (RoomData.SIZE + LevelGeneratorData.MARGIN_Y) * WorldData.TILE_SIZE)
+				canvasIO.canvas.width / (TowerGeneratorData.WIDTH * (RoomData.SIZE + TowerGeneratorData.MARGIN_X) * WorldData.TILE_SIZE),
+				canvasIO.canvas.height / (TowerGeneratorData.HEIGHT * (RoomData.SIZE + TowerGeneratorData.MARGIN_Y) * WorldData.TILE_SIZE)
 			);
 			canvasIO.ctx.scale(amount, amount);
 			visibleRegion = new Rectangle(
 				0, 0,
-				LevelGeneratorData.WIDTH * (RoomData.SIZE + LevelGeneratorData.MARGIN_X) * WorldData.TILE_SIZE,
-				LevelGeneratorData.HEIGHT * (RoomData.SIZE + LevelGeneratorData.MARGIN_Y) * WorldData.TILE_SIZE,
+				TowerGeneratorData.WIDTH * (RoomData.SIZE + TowerGeneratorData.MARGIN_X) * WorldData.TILE_SIZE,
+				TowerGeneratorData.HEIGHT * (RoomData.SIZE + TowerGeneratorData.MARGIN_Y) * WorldData.TILE_SIZE,
 			);
 		}
 		this.displayGlowEffects(canvasIO, visibleRegion);
@@ -101,9 +101,9 @@ export class World {
 		this.skyBackground.display(canvasIO);
 		canvasIO.ctx.save();
 		const rectangle = new Rectangle(
-			-LevelGeneratorData.BORDER_X, -LevelGeneratorData.BORDER_Y,
-			LevelGeneratorData.WIDTH * (RoomData.SIZE + LevelGeneratorData.MARGIN_X) * WorldData.TILE_SIZE + 2 * LevelGeneratorData.BORDER_X,
-			LevelGeneratorData.HEIGHT * (RoomData.SIZE + LevelGeneratorData.MARGIN_X) * WorldData.TILE_SIZE + 2 * LevelGeneratorData.BORDER_Y,
+			-TowerGeneratorData.BORDER_X, -TowerGeneratorData.BORDER_Y,
+			TowerGeneratorData.WIDTH * (RoomData.SIZE + TowerGeneratorData.MARGIN_X) * WorldData.TILE_SIZE + 2 * TowerGeneratorData.BORDER_X,
+			TowerGeneratorData.HEIGHT * (RoomData.SIZE + TowerGeneratorData.MARGIN_X) * WorldData.TILE_SIZE + 2 * TowerGeneratorData.BORDER_Y,
 		).translate(this.translationToCamera(canvasIO));
 		canvasIO.clipRect(rectangle.x, rectangle.y, rectangle.width, rectangle.height);
 		canvasIO.fillCanvas(BackgroundData.BACKGROUND_COLOR);
@@ -527,9 +527,9 @@ export class World {
 	}
 
 	generateNextLevel() {
-		const generator = new WorldGenerator(new Vector(
+		const generator = new TowerGenerator(new Vector(
 			0,
-			-(LevelGeneratorData.HEIGHT * (RoomData.SIZE + LevelGeneratorData.MARGIN_Y)) * this.levels
+			-(TowerGeneratorData.HEIGHT * (RoomData.SIZE + TowerGeneratorData.MARGIN_Y)) * this.levels
 		), this);
 		generator.generate();
 	}

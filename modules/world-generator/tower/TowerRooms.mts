@@ -1,14 +1,14 @@
-import { Direction } from "../../utils-ts/modules/geometry/Direction.mjs";
-import { Vector } from "../../utils-ts/modules/geometry/Vector.mjs";
-import { Grid } from "../../utils-ts/modules/Grid.mjs";
-import { RoomData } from "../constants/GameData.mjs";
+import { Direction } from "../../../utils-ts/modules/geometry/Direction.mjs";
+import { Vector } from "../../../utils-ts/modules/geometry/Vector.mjs";
+import { Grid } from "../../../utils-ts/modules/Grid.mjs";
+import { RoomData } from "../../constants/GameData.mjs";
 import { GateState } from "./GateState.mjs";
-import { Room } from "./Room.mjs";
-import { Gate } from "../tiles/Gate.mjs";
-import { Portal } from "../entities/Portal.mjs";
+import { TowerRoom } from "./TowerRoom.mjs";
+import { Gate } from "../../tiles/Gate.mjs";
+import { Portal } from "../../entities/Portal.mjs";
 
-export const ROOMS: Room[] = [
-	new Room(
+export const TOWER_ROOMS: TowerRoom[] = [
+	new TowerRoom(
 		"two-wide-platforms",
 		[
 			{ x: 0, y: 0, type: "solid" },
@@ -78,7 +78,7 @@ export const ROOMS: Room[] = [
 		],
 		() => true
 	),
-	new Room(
+	new TowerRoom(
 		"empty-room",
 		[
 			{ x: 0, y: 0, type: "solid" },
@@ -158,7 +158,7 @@ export const ROOMS: Room[] = [
 		],
 		(exits: Direction[]) => !exits.includes("up") && !exits.includes("down")
 	),
-	new Room(
+	new TowerRoom(
 		"platform-over-pit",
 		[
 			{ x: 0, y: 0, type: "solid" },
@@ -263,7 +263,7 @@ export const ROOMS: Room[] = [
 		[],
 		(exits: Direction[]) => exits.includes("down") && !exits.includes("up")
 	),
-	new Room(
+	new TowerRoom(
 		"vertical-chute",
 		[
 			{ x: 0, y: 0, type: "solid" },
@@ -370,7 +370,7 @@ export const ROOMS: Room[] = [
 		],
 		(exits: Direction[]) => exits.includes("up") && exits.includes("down") && !exits.includes("right")
 	),
-	new Room(
+	new TowerRoom(
 		"hallway-gates",
 		[
 			{ x: 0, y: 0, type: "solid" },
@@ -480,11 +480,11 @@ export const ROOMS: Room[] = [
 		],
 		(exits: Direction[]) => exits.includes("left") && exits.includes("right") && !exits.includes("up") && !exits.includes("down"),
 		[
-			...Room.gatePath("left", "right", true),
-			...Room.gatePath("left", "right", false)
+			...TowerRoom.gatePath("left", "right", true),
+			...TowerRoom.gatePath("left", "right", false)
 		]
 	),
-	new Room(
+	new TowerRoom(
 		"tunnels", 
 		[
 			{ x: 0, y: 0, type: "solid" },
@@ -553,7 +553,7 @@ export const ROOMS: Room[] = [
 		[],
 		(exits: Direction[]) => !exits.includes("up") && !exits.includes("down")
 	),
-	new Room(
+	new TowerRoom(
 		"tunnels-2", 
 		[
 			{ x: 0, y: 0, type: "solid" },
@@ -630,7 +630,7 @@ export const ROOMS: Room[] = [
 		[],
 		() => true
 	),
-	new Room(
+	new TowerRoom(
 		"tunnels-and-gates",
 		[
 			{ x: 0, y: 0, type: "solid" },
@@ -706,13 +706,13 @@ export const ROOMS: Room[] = [
 		],
 		[],
 		(exits: Direction[]) => !exits.includes("up") && !exits.includes("down"),
-		Room.getTraversability([
-			...Room.gatePath("left", "right", true),
-			...Room.gatePath("left", "right", false),
-			...Room.doubleGatePath("right", "left")
+		TowerRoom.getTraversability([
+			...TowerRoom.gatePath("left", "right", true),
+			...TowerRoom.gatePath("left", "right", false),
+			...TowerRoom.doubleGatePath("right", "left")
 		])
 	),
-	new Room(
+	new TowerRoom(
 		"vertical-gate-contraption",
 		[
 			{ x: 0, y: 0, type: "solid" },
@@ -794,14 +794,14 @@ export const ROOMS: Room[] = [
 		],
 		[],
 		(exits: Direction[]) => exits.includes("up") && exits.includes("down") && !exits.includes("left"),
-		Room.getTraversability([
-			...Room.gatelessPath("down", "right"),
-			...Room.onewayGatelessPath("down", "up"),
-			...Room.gatePath("up", "up", false),
-			...Room.doubleGatePath("up", "down"),
+		TowerRoom.getTraversability([
+			...TowerRoom.gatelessPath("down", "right"),
+			...TowerRoom.onewayGatelessPath("down", "up"),
+			...TowerRoom.gatePath("up", "up", false),
+			...TowerRoom.doubleGatePath("up", "down"),
 ]		)
 	),
-	new Room(
+	new TowerRoom(
 		"the-maze",
 		[
 			{ x: 0, y: 0, type: "solid" },
@@ -899,7 +899,7 @@ export const ROOMS: Room[] = [
 		],
 		(exits: Direction[]) => exits.includes("up") && exits.includes("right") && !exits.includes("left")
 	),
-	new Room(
+	new TowerRoom(
 		"gate-contraption",
 		[
 			{ x: 0, y: 0, type: "solid" },
@@ -1001,15 +1001,15 @@ export const ROOMS: Room[] = [
 		],
 		[],
 		(exits: Direction[]) => exits.includes("left") && !exits.includes("up"),
-		Room.getTraversability([
-			...Room.gatelessPath("down", "right"),
-			...Room.onewayGatelessPath("down", "left"),
-			...Room.gatePath("up", "up", false),
-			...Room.gatePath("up", "right", true),
-			...Room.gatePath("up", "left", true)
+		TowerRoom.getTraversability([
+			...TowerRoom.gatelessPath("down", "right"),
+			...TowerRoom.onewayGatelessPath("down", "left"),
+			...TowerRoom.gatePath("up", "up", false),
+			...TowerRoom.gatePath("up", "right", true),
+			...TowerRoom.gatePath("up", "left", true)
 		])
 	),
-	new Room(
+	new TowerRoom(
 		"the-tomb",
 		[
 			{ x: 0, y: 0, type: "solid" },
@@ -1100,14 +1100,14 @@ export const ROOMS: Room[] = [
 		[
 		],
 		(exits: Direction[]) => exits.includes("up") && (exits.includes("left") || exits.includes("right")),
-		Room.getTraversability([
-			...Room.gatelessPath("left", "right"),
-			...Room.onewayGatelessPath("down", "left"),
-			...Room.gatePath("down", "left", true),
-			...Room.gatePath("up", "left", false)
+		TowerRoom.getTraversability([
+			...TowerRoom.gatelessPath("left", "right"),
+			...TowerRoom.onewayGatelessPath("down", "left"),
+			...TowerRoom.gatePath("down", "left", true),
+			...TowerRoom.gatePath("up", "left", false)
 		])
 	),
-	new Room(
+	new TowerRoom(
 		// This particular room is very important for level generation because it is maximally connected.
 		// If you remove it, the level generator might stop working.
 		"control-room-junction",
@@ -1207,7 +1207,7 @@ export const ROOMS: Room[] = [
 		() => true,
 		RoomData.ALL_TRAVERSABILITY
 	),
-	new Room(
+	new TowerRoom(
 		"gate-hallway",
 		[
 			{ x: 0, y: 0, type: "solid" },
@@ -1336,9 +1336,9 @@ export const ROOMS: Room[] = [
 		[
 		],
 		(exits: Direction[]) => exits.includes("left") && exits.includes("right") && !exits.includes("up") && !exits.includes("down"),
-		Room.gatePath("left", "right", true)
+		TowerRoom.gatePath("left", "right", true)
 	),
-	new Room(
+	new TowerRoom(
 		"partial-control-room",
 		[
 			{ x: 0, y: 0, type: "solid" },
@@ -1440,14 +1440,14 @@ export const ROOMS: Room[] = [
 		],
 		[],
 		() => true,
-		Room.getTraversability([
-			...Room.onewayGatelessPath("up", "left"),
-			...Room.gatelessPath("left", "right"),
-			...Room.gatelessPath("left", "down"),
-			...Room.gatePath("left", "left", false)
+		TowerRoom.getTraversability([
+			...TowerRoom.onewayGatelessPath("up", "left"),
+			...TowerRoom.gatelessPath("left", "right"),
+			...TowerRoom.gatelessPath("left", "down"),
+			...TowerRoom.gatePath("left", "left", false)
 		])
 	),
-	new Room(
+	new TowerRoom(
 		"gate-junction",
 		[
 			{ x: 0, y: 0, type: "solid" },
@@ -1587,7 +1587,7 @@ export const ROOMS: Room[] = [
 			{ start: new GateState(null, "up", false), end: new GateState(null, "down", false) },
 		]
 	),
-	new Room(
+	new TowerRoom(
 		"sloped-gate-junction",
 		[
 			{ x: 0, y: 0, type: "solid" },
@@ -1728,7 +1728,7 @@ export const ROOMS: Room[] = [
 			{ start: new GateState(null, "up", false), end: new GateState(null, "down", false) },
 		]
 	),
-	new Room(
+	new TowerRoom(
 		"vertical-gate",
 		[
 			{ x: 0, y: 0, type: "solid" },
@@ -1841,12 +1841,12 @@ export const ROOMS: Room[] = [
 		],
 		[],
 		(exits: Direction[]) => exits.includes("up") && exits.includes("down") && !exits.includes("right"),
-		Room.getTraversability([
-			...Room.gatelessPath("left", "down"),
-			...Room.gatePath("down", "up", true)
+		TowerRoom.getTraversability([
+			...TowerRoom.gatelessPath("left", "down"),
+			...TowerRoom.gatePath("down", "up", true)
 		])
 	),
-	new Room(
+	new TowerRoom(
 		"diagonal-connectors",
 		[
 			{ x: 0, y: 0, type: "solid" },
@@ -1964,11 +1964,11 @@ export const ROOMS: Room[] = [
 		],
 		(exits: Direction[]) => exits.length === 4,
 		[
-			...Room.gatelessPath("left", "up"),
-			...Room.gatelessPath("right", "down"),
+			...TowerRoom.gatelessPath("left", "up"),
+			...TowerRoom.gatelessPath("right", "down"),
 		]
 	),
-	new Room(
+	new TowerRoom(
 		"half-junction",
 		[
 			{ x: 0, y: 0, type: "solid" },
@@ -2120,13 +2120,13 @@ export const ROOMS: Room[] = [
 		],
 		[],
 		(exits: Direction[]) => (exits.includes("up") || exits.includes("down")) && (exits.includes("left") && exits.includes("right")),
-		Room.getTraversability([
-			...Room.gatelessPath("up", "down"),
-			...Room.gatePath("left", "down", true),
-			...Room.gatePath("right", "down", true)
+		TowerRoom.getTraversability([
+			...TowerRoom.gatelessPath("up", "down"),
+			...TowerRoom.gatePath("left", "down", true),
+			...TowerRoom.gatePath("right", "down", true)
 		])
 	),
-	new Room(
+	new TowerRoom(
 		"gate-contraption-simplified",
 		[
 			{ x: 0, y: 0, type: "solid" },
@@ -2245,13 +2245,13 @@ export const ROOMS: Room[] = [
 		[
 		],
 		(exits: Direction[])  => exits.includes("left") && exits.includes("right") && exits.includes("up"),
-		Room.getTraversability([
-			...Room.onewayGatelessPath("down", "up"),
-			...Room.gatePath("left", "up",  true),
-			...Room.gatePath("right", "up",  true)
+		TowerRoom.getTraversability([
+			...TowerRoom.onewayGatelessPath("down", "up"),
+			...TowerRoom.gatePath("left", "up",  true),
+			...TowerRoom.gatePath("right", "up",  true)
 		])
 	),
-	new Room(
+	new TowerRoom(
 		"small-gate-junction",
 		[
 			{ x: 0, y: 0, type: "solid" },
@@ -2409,7 +2409,7 @@ export const ROOMS: Room[] = [
 			{ start: new GateState(null, "up", false), end: new GateState(null, "left", false) },
 		]
 	),
-	new Room(
+	new TowerRoom(
 		"small-gate-junction-with-slopes",
 		[
 			{ x: 0, y: 0, type: "solid" },
@@ -2574,7 +2574,7 @@ export const ROOMS: Room[] = [
 			{ start: new GateState(null, "up", false), end: new GateState(null, "left", false) },
 		]
 	),
-	new Room(
+	new TowerRoom(
 		"control-room-junction-2",
 		[
 			{ x: 0, y: 0, type: "solid" },
@@ -2673,7 +2673,7 @@ export const ROOMS: Room[] = [
 		() => true,
 		RoomData.ALL_TRAVERSABILITY
 	),
-	new Room(
+	new TowerRoom(
 		"two-double-gate-hallways",
 		[
 			{ x: 0, y: 0, type: "solid" },
@@ -2780,13 +2780,13 @@ export const ROOMS: Room[] = [
 		[
 		],
 		(exits: Direction[]) => !exits.includes("down") && exits.includes("up") && exits.includes("left") && exits.includes("right"),
-		Room.getTraversability([
-			...Room.doubleGatePath("left", "right"),
-			...Room.gatePath("left", "up", false),
-			...Room.gatePath("right", "up", true),
+		TowerRoom.getTraversability([
+			...TowerRoom.doubleGatePath("left", "right"),
+			...TowerRoom.gatePath("left", "up", false),
+			...TowerRoom.gatePath("right", "up", true),
 		])
 	),
-	new Room(
+	new TowerRoom(
 		"double-gate-hallway",
 		[
 			{ x: 0, y: 0, type: "solid" },
@@ -2922,9 +2922,9 @@ export const ROOMS: Room[] = [
 		],
 		[],
 		(exits: Direction[]) => exits.includes("left") && exits.includes("right") && !exits.includes("up") && !exits.includes("down"),
-		Room.doubleGatePath("left", "right")
+		TowerRoom.doubleGatePath("left", "right")
 	),
-	new Room(
+	new TowerRoom(
 		"elevator",
 		[
 			{ x: 0, y: 0, type: "solid" },
@@ -3062,13 +3062,13 @@ export const ROOMS: Room[] = [
 		],
 		[],
 		(exits: Direction[]) => exits.includes("up") && exits.includes("down"),
-		Room.getTraversability([
-			...Room.gatelessPath("left", "right"),
-			...Room.gatePath("left", "up",true),
-			...Room.doubleGatePath("down", "left")
+		TowerRoom.getTraversability([
+			...TowerRoom.gatelessPath("left", "right"),
+			...TowerRoom.gatePath("left", "up",true),
+			...TowerRoom.doubleGatePath("down", "left")
 		])
 	),
-	new Room(
+	new TowerRoom(
 		"elevator-asymmetrical",
 		[
 			{ x: 0, y: 0, type: "solid" },
@@ -3206,13 +3206,13 @@ export const ROOMS: Room[] = [
 		],
 		[],
 		(exits: Direction[]) => exits.includes("up") && exits.includes("down"),
-		Room.getTraversability([
-			...Room.gatePath("left", "down", true),
-			...Room.gatePath("left", "right", false),
-			...Room.gatePath("right", "up", true)
+		TowerRoom.getTraversability([
+			...TowerRoom.gatePath("left", "down", true),
+			...TowerRoom.gatePath("left", "right", false),
+			...TowerRoom.gatePath("right", "up", true)
 		])
 	),
-	new Room(
+	new TowerRoom(
 		"tunnels-3",
 		[
 			{ x: 0, y: 0, type: "solid" },
@@ -3338,14 +3338,14 @@ export const ROOMS: Room[] = [
 		],
 		[],
 		(exits: Direction[]) => exits.includes("right") && exits.includes("left"),
-		Room.getTraversability([
-			...Room.onewayGatelessPath("right", "up"),
-			...Room.onewayGatelessPath("down", "up"),
-			...Room.onewayGatelessPath("up", "left"),
-			...Room.gatePath("left", "down", false)
+		TowerRoom.getTraversability([
+			...TowerRoom.onewayGatelessPath("right", "up"),
+			...TowerRoom.onewayGatelessPath("down", "up"),
+			...TowerRoom.onewayGatelessPath("up", "left"),
+			...TowerRoom.gatePath("left", "down", false)
 		])
 	),
-	new Room(
+	new TowerRoom(
 		"five-platforms",
 		[
 			{ x: 0, y: 0, type: "solid" },
@@ -3420,7 +3420,7 @@ export const ROOMS: Room[] = [
 		(exits: Direction[]) => exits.includes("up"),
 		RoomData.NO_GATE_TRAVERSABILITY
 	),
-	new Room(
+	new TowerRoom(
 		"two-platforms-asymmetrical",
 		[
 			{ x: 0, y: 0, type: "solid" },
@@ -3491,7 +3491,7 @@ export const ROOMS: Room[] = [
 		(exits: Direction[]) => exits.includes("up"),
 		RoomData.NO_GATE_TRAVERSABILITY
 	),
-	new Room(
+	new TowerRoom(
 		"control-room-junction-3",
 		[
 			{ x: 0, y: 0, type: "solid" },
@@ -3572,7 +3572,7 @@ export const ROOMS: Room[] = [
 		(exits: Direction[]) => true,
 		RoomData.ALL_TRAVERSABILITY
 	),
-	new Room(
+	new TowerRoom(
 		"control-room-T-junction",
 		[
 			{ x: 0, y: 0, type: "solid" },
@@ -3675,7 +3675,7 @@ export const ROOMS: Room[] = [
 		RoomData.ALL_TRAVERSABILITY,
 		3
 	),
-	new Room(
+	new TowerRoom(
 		"comb",
 		[
 			{ x: 0, y: 0, type: "solid" },
@@ -3754,7 +3754,7 @@ export const ROOMS: Room[] = [
 		(exits: Direction[]) => true,
 		RoomData.NO_GATE_TRAVERSABILITY
 	),
-	new Room(
+	new TowerRoom(
 		"gate-platforms",
 		[
 			{ x: 0, y: 0, type: "solid" },
@@ -3882,7 +3882,7 @@ export const ROOMS: Room[] = [
 			{ start: new GateState(null, "down", true), end: new GateState(null, "up", true) },
 		]
 	),
-	new Room(
+	new TowerRoom(
 		"funnel",
 		[
 			{ x: 0, y: 0, type: "solid" },
@@ -3968,7 +3968,7 @@ export const ROOMS: Room[] = [
 		],
 		(exits: Direction[]) => exits.includes("up") && exits.includes("down")
 	),
-	new Room(
+	new TowerRoom(
 		"two-platforms-asymmetrical-2",
 		[
 			{ x: 0, y: 0, type: "solid" },
@@ -4063,7 +4063,7 @@ export const ROOMS: Room[] = [
 		],
 		(exits: Direction[]) => exits.length >= 2 && exits.includes("up")
 	),
-	new Room(
+	new TowerRoom(
 		"one-platform",
 		[
 			{ x: 0, y: 0, type: "solid" },
@@ -4132,7 +4132,7 @@ export const ROOMS: Room[] = [
 		[],
 		(exits: Direction[]) => !exits.includes("up")
 	),
-	new Room(
+	new TowerRoom(
 		"wide-vertical-room",
 		[
 			{ x: 0, y: 0, type: "solid" },
@@ -4223,7 +4223,7 @@ export const ROOMS: Room[] = [
 		],
 		(exits: Direction[]) => !exits.includes("left")
 	),
-	new Room(
+	new TowerRoom(
 		"hallway-and-empty",
 		[
 			{ x: 0, y: 0, type: "solid" },
@@ -4329,12 +4329,12 @@ export const ROOMS: Room[] = [
 		[
 		],
 		(exits: Direction[]) => exits.includes("up") && exits.includes("left") && !exits.includes("down"),
-		Room.getTraversability([
-			...Room.gatelessPath("left", "up"),
+		TowerRoom.getTraversability([
+			...TowerRoom.gatelessPath("left", "up"),
 			{ start: new GateState(null, "right", false), end: new GateState(null, "left", true) }
 		])
 	),
-	new Room(
+	new TowerRoom(
 		"level-exit",
 		[
 		{ x: 0, y: 0, type: "solid" },
@@ -4440,7 +4440,7 @@ export const ROOMS: Room[] = [
 		(exits: Direction[]) => !exits.includes("up"),
 		RoomData.NO_GATE_TRAVERSABILITY
 	),
-	new Room(
+	new TowerRoom(
 		"two-slanted-platforms",
 		[
 			{ x: 0, y: 0, type: "solid" },
@@ -4513,7 +4513,7 @@ export const ROOMS: Room[] = [
 		[],
 		(exits: Direction[]) => (exits.includes("left") || exits.includes("right")) && !exits.includes("up")
 	),
-	new Room(
+	new TowerRoom(
 		"platform-with-edges",
 		[
 			{ x: 0, y: 0, type: "solid" },
@@ -4596,7 +4596,7 @@ export const ROOMS: Room[] = [
 		[],
 		(exits: Direction[]) => !exits.includes("down") && exits.length >= 2
 	),
-	new Room(
+	new TowerRoom(
 		"diagonal",
 		[
 			{ x: 0, y: 0, type: "solid" },
@@ -4675,13 +4675,13 @@ export const ROOMS: Room[] = [
 		[
 		],
 		(exits: Direction[]) => true,
-		Room.getTraversability([
-			...Room.gatelessPath("left", "right"),
-			...Room.gatelessPath("left", "down"),
-			...Room.onewayGatelessPath("up", "left")
+		TowerRoom.getTraversability([
+			...TowerRoom.gatelessPath("left", "right"),
+			...TowerRoom.gatelessPath("left", "down"),
+			...TowerRoom.onewayGatelessPath("up", "left")
 		])
 	),
-	new Room(
+	new TowerRoom(
 		"totem-pole",
 		[
 			{ x: 0, y: 0, type: "solid" },
