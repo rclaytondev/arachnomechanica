@@ -8,43 +8,18 @@ import { Gate } from "../../tiles/Gate.mjs";
 import { Slope, Tile, World } from "../../World.js";
 import { Portal } from "../../entities/Portal.mjs";
 import { SolidTile } from "../../tiles/SolidTile.mjs";
+import { Room } from "../Room.mjs";
 
 export type Traversability = { start: GateState, end: GateState }[];
 
-export class TowerRoom {
-	name: string;
-	tiles: Grid<Tile>;
-	canSpawnWithExits: (exits: Direction[]) => boolean;
-	exitTiles: Grid<Direction | "none">;
+export class TowerRoom extends Room {
 	traversability: Traversability;
-	weight: number;
-	entities: Portal[];
+	declare canSpawnWithExits: ((exits: Direction[]) => boolean);
+	declare exitTiles: Grid<Direction | "none">;
 
 	constructor(name: string, tiles: { x: number, y: number, type: Tile | "solid" | Slope }[] | Grid<Tile>, exitTiles: { x: number, y: number, direction: Direction }[] | Grid<Direction | "none">, entities: Portal[] = [], canSpawnWithExits: (exits: Direction[]) => boolean, traversability?: Traversability, weight: number = 1) {
-		this.name = name;
-		if(tiles instanceof Grid) {
-			this.tiles = tiles;
-		}
-		else {
-			this.tiles = new Grid("empty");
-			for(const { x, y, type } of tiles) {
-				const tile = (type === "solid" || World.isSlope(type as string)) ? new SolidTile(type as "solid" | Slope, "tower") : type;
-				this.tiles.set(x, y, tile as Tile);
-			}
-		}
-		if(exitTiles instanceof Grid) {
-			this.exitTiles = exitTiles;
-		}
-		else {
-			this.exitTiles = new Grid("none");
-			for(const { x, y, direction } of exitTiles) {
-				this.exitTiles.set(x, y, direction);
-			}
-		}
-		this.canSpawnWithExits = canSpawnWithExits;
+		super(name, tiles, exitTiles, entities, canSpawnWithExits, RoomData.SIZE, RoomData.SIZE, weight);
 		this.traversability = GateState.deduplicateTraversability((traversability ?? RoomData.NO_GATE_TRAVERSABILITY));
-		this.weight = weight;
-		this.entities = entities;
 	}
 
 	canAdd(roomPlaceholder: RoomPlaceholder, matchTraversability: boolean = true) {
@@ -54,38 +29,13 @@ export class TowerRoom {
 		);
 		return this.canSpawnWithExits(roomPlaceholder.exits) && (traversabilityMatches || !matchTraversability);
 	}
-	hasPortal() {
-		return this.entities.some(e => e instanceof Portal);
-	}
-
-	add(position: Vector, world: World, exits: Direction[]) {
-		for(let x = 0; x < RoomData.SIZE; x ++) {
-			for(let y = 0; y < RoomData.SIZE; y ++) {
-				const tile = this.tiles.get(x, y);
-				const tileCopy = (typeof tile === "string") ? tile : tile.copy();
-				const worldPosition = position.add(x, y);
-				world.addTile(worldPosition, tileCopy);
-
-				const direction = this.exitTiles.get(x, y);
-				if(direction !== "none" && !exits.includes(direction)) {
-					world.addTile(worldPosition, new SolidTile("solid", "tower"));
-				}
-			}
-		}
-		for(const entity of this.entities) {
-			world.entities.push(entity.translate(position.multiply(WorldData.TILE_SIZE)));
-		}
-	}
-
-	getExitCoordinates(direction: Direction, coordinate: "x" | "y") {
-		return [...this.exitTiles.positions()].filter(p => this.exitTiles.get(p) === direction).map(p => p[coordinate]);
-	}
 
 	reflect() {
+		const [tiles, exitTiles] = this.reflectTiles();
 		const reflected = new TowerRoom(
 			`${this.name}-reflected`,
-			[],
-			[],
+			tiles,
+			exitTiles as Grid<Direction | "none">,
 			this.entities.map(e => e.reflect()),
 			(exits) => this.canSpawnWithExits(exits.map(e => Directions.reflectX[e])),
 			this.traversability.map(({ start, end }) => ({ 
@@ -93,18 +43,6 @@ export class TowerRoom {
 				end: new GateState(null, Directions.reflectX[end.exit], end.toggled)
 			}))
 		);
-		for(let x = 0; x < RoomData.SIZE; x ++) {
-			for(let y = 0; y < RoomData.SIZE; y ++) {
-				const reflectedX = RoomData.SIZE - x - 1;
-				const tile = this.tiles.get(x, y);
-				reflected.tiles.set(reflectedX, y, World.reflectTile(tile));
-
-				const exitTile = this.exitTiles.get(x, y);
-				if(exitTile !== "none") {
-					reflected.exitTiles.set(reflectedX, y, Directions.reflectX[exitTile]);
-				}
-			}
-		}
 		return reflected;
 	}
 	copy() {

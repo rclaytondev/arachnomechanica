@@ -14,6 +14,7 @@ import { LaserBlock } from "../../tiles/LaserBlock.mjs";
 import { Gate } from "../../tiles/Gate.mjs";
 import { SpikeballBlock } from "../../tiles/SpikeballBlock.mjs";
 import { SolidTile } from "../../tiles/SolidTile.mjs";
+import { Portal } from "../../entities/Portal.mjs";
 
 export class TowerGenerator {
 	levelGenerator: TowerLevelGenerator = new TowerLevelGenerator();
@@ -33,7 +34,7 @@ export class TowerGenerator {
 				if(!roomPlaceholder) { continue; }
 				const possibleRooms = TOWER_ROOMS.filter(
 					room => room.canAdd(roomPlaceholder)
-					&& room.hasPortal() === this.levelGenerator.path[0].equals(x, y)
+					&& room.entities.some(e => e instanceof Portal) === this.levelGenerator.path[0].equals(x, y)
 				);
 				const room = GameUtils.weightedRandom(possibleRooms, possibleRooms.map(r => r.weight));
 				room.add(new Vector(
