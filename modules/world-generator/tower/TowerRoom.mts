@@ -87,10 +87,10 @@ export class TowerRoom {
 			[],
 			[],
 			this.entities.map(e => e.reflect()),
-			(exits) => this.canSpawnWithExits(exits.map(Directions.reflectX)),
+			(exits) => this.canSpawnWithExits(exits.map(e => Directions.reflectX[e])),
 			this.traversability.map(({ start, end }) => ({ 
-				start: new GateState(null, Directions.reflectX(start.exit), start.toggled),
-				end: new GateState(null, Directions.reflectX(end.exit), end.toggled)
+				start: new GateState(null, Directions.reflectX[start.exit], start.toggled),
+				end: new GateState(null, Directions.reflectX[end.exit], end.toggled)
 			}))
 		);
 		for(let x = 0; x < RoomData.SIZE; x ++) {
@@ -101,7 +101,7 @@ export class TowerRoom {
 
 				const exitTile = this.exitTiles.get(x, y);
 				if(exitTile !== "none") {
-					reflected.exitTiles.set(reflectedX, y, Directions.reflectX(exitTile));
+					reflected.exitTiles.set(reflectedX, y, Directions.reflectX[exitTile]);
 				}
 			}
 		}
