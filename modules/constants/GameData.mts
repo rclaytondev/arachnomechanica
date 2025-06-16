@@ -60,6 +60,11 @@ export class TowerGeneratorData {
 	static MAX_CONNECTIVITY = 0; // 0 = all rooms isolated; 1/2 = all rooms connected with no gates; 1 = all rooms connected with maximally controllable gates
 };
 
+export class BuildingGeneratorData {
+	static WIDTH = 5;
+	static HEIGHT = 3;
+}
+
 export class PlayerData {
 	static COLOR = "rgb(0, 128, 0)"; // temporary
 
