@@ -24,9 +24,7 @@ export class RoomEditor {
 		this.room = room;
 		this.world = new World();
 		for(const [tile, position] of this.room.tiles.entries()) {
-			if(World.isTile(tile)) {
-				this.world.tiles.set(position, tile);
-			}
+			this.world.tiles.set(position, tile);
 		}
 		this.world.entities = [...this.world.entities, ...this.room.entities];
 	}

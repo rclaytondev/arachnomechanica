@@ -536,6 +536,7 @@ export class World {
 
 	static isTile(value: unknown): value is Tile {
 		return (typeof value === "string" && (WorldData.STRING_TILE_TYPES as readonly string[]).includes(value))
+			|| value instanceof SolidTile
 			|| World.isTileEntity(value);
 	}
 	static isSlope(value: string): value is (typeof WorldData.SLOPES)[number] {
