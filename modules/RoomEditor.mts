@@ -193,6 +193,9 @@ export class RoomEditor {
 		if(typeof tile === "string"){
 			return `"${tile}"`;
 		}
+		else if(tile instanceof SolidTile) {
+			return `"${tile.shape}"`;
+		}
 		else if(tile instanceof Gate) {
 			return `new Gate("${tile.direction}", ${tile.open})`;
 		}
