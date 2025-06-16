@@ -97,10 +97,12 @@ export class Main {
 }
 
 
-if(DEBUG_SETTINGS.EDITOR_ROOM != null  && Main.screen instanceof RoomEditor) {
-	const room = (typeof DEBUG_SETTINGS.EDITOR_ROOM === "number")
-		? ROOMS[DEBUG_SETTINGS.EDITOR_ROOM]
-		: ROOMS.find(r => r.name === DEBUG_SETTINGS.EDITOR_ROOM);
+if(Main.screen instanceof RoomEditor) {
+	const room = (
+		(typeof DEBUG_SETTINGS.EDITOR_ROOM === "number") ? ROOMS[DEBUG_SETTINGS.EDITOR_ROOM]
+		: (typeof DEBUG_SETTINGS.EDITOR_ROOM === "string") ? ROOMS.find(r => r.name === DEBUG_SETTINGS.EDITOR_ROOM)
+		: [...ROOMS].reverse().find(r => !r.name.includes("-reflected") && !r.name.includes("-toggled"))
+	);
 	if(!room) {
 		throw new Error(`Room "${DEBUG_SETTINGS.EDITOR_ROOM}" does not exist.`);
 	}
