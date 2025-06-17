@@ -4,7 +4,6 @@ import { Rectangle } from "../utils-ts/modules/geometry/Rectangle.mjs";
 import { Vector } from "../utils-ts/modules/geometry/Vector.mjs";
 import { Grid } from "../utils-ts/modules/Grid.mjs";
 import { BackgroundData, LevelGeneratorData, PlayerData, RoomData, WorldData } from "./constants/GameData.mjs";
-import { LevelGenerator } from "./level-generator/LevelGenerator.mjs";
 import { Main } from "./Main.js";
 import { DEBUG_SETTINGS } from "./constants/DebugSettings.mjs";
 import { Particle } from "./game-utilities/Particle.mjs";
@@ -19,7 +18,6 @@ import { Lizard } from "./entities/Lizard.js";
 import { Spikeball } from "./entities/Spikeball.mjs";
 import { SpikeballBlock } from "./tiles/SpikeballBlock.mjs";
 import { Portal } from "./entities/Portal.mjs";
-import { WorldGenerator } from "./level-generator/WorldGenerator.mjs";
 import { MathUtils } from "../utils-ts/modules/math/MathUtils.mjs";
 import { Humanoid } from "./entities/Humanoid.mjs";
 import { RoomEditor } from "./RoomEditor.mjs";
@@ -524,14 +522,6 @@ export class World {
 		) {
 			this.particles.push(particle);
 		}
-	}
-
-	generateNextLevel() {
-		const generator = new WorldGenerator(new Vector(
-			0,
-			-(LevelGeneratorData.HEIGHT * (RoomData.SIZE + LevelGeneratorData.MARGIN_Y)) * this.levels
-		), this);
-		generator.generate();
 	}
 
 	static isTile(value: unknown): value is Tile {

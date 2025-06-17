@@ -3,7 +3,6 @@ import { Vector } from "../../utils-ts/modules/geometry/Vector.mjs";
 import { Grid } from "../../utils-ts/modules/Grid.mjs";
 import { RoomData, WorldData } from "../constants/GameData.mjs";
 import { GateState } from "./GateState.mjs";
-import { RoomPlaceholder } from "./LevelGenerator.mjs";
 import { Gate } from "../tiles/Gate.mjs";
 import { Slope, Tile, World } from "../World.js";
 import { Portal } from "../entities/Portal.mjs";
@@ -47,13 +46,6 @@ export class Room {
 		this.entities = entities;
 	}
 
-	canAdd(roomPlaceholder: RoomPlaceholder, matchTraversability: boolean = true) {
-		const traversabilityMatches = GateState.traversabilityEquals(
-			this.traversability,
-			roomPlaceholder.traversability
-		);
-		return this.canSpawnWithExits(roomPlaceholder.exits) && (traversabilityMatches || !matchTraversability);
-	}
 	hasPortal() {
 		return this.entities.some(e => e instanceof Portal);
 	}

@@ -20,7 +20,7 @@ export class Portal {
 		}
 
 		if(world.player.physicsObject.hitbox().intersects(this.teleportHitbox())) {
-			world.generateNextLevel();
+			console.log("Portal teleportation is currently unimplemented.");
 		}
 	}
 	teleportHitbox() {
