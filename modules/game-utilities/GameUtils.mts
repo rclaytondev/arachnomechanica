@@ -231,4 +231,19 @@ export class GameUtils {
 		) { return distance; }
 		return Infinity;
 	}
+
+	static reachableNodes<T>(startNode: T, neighbors: (node: T) => T[], equals: (n1: T, n2: T) => boolean = (n1, n2) => n1 === n2) {
+		const visited: T[] = [];
+		const boundary = [startNode];
+		while(boundary.length !== 0) {
+			const node = boundary.pop()!;
+			for(const neighbor of neighbors(node)) {
+				if(![...visited, ...boundary].some(n => equals(n, neighbor))) {
+					boundary.push(neighbor);
+				}
+			}
+			visited.push(node);
+		}
+		return visited;
+	}
 }

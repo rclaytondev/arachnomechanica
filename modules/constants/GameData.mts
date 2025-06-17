@@ -53,6 +53,7 @@ export class LevelGeneratorData {
 	static BORDER_X = 2;
 	static BORDER_Y = 10;
 
+	static CHUNK_SIZE = 5;
 };
 
 export class PlayerData {
