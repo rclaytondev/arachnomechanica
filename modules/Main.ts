@@ -16,6 +16,7 @@ import { Rectangle } from "../utils-ts/modules/geometry/Rectangle.mjs";
 import { Portal } from "./entities/Portal.mjs";
 import { Humanoid } from "./entities/Humanoid.mjs";
 import { SolidTile } from "./tiles/SolidTile.mjs";
+import { WorldGenerator } from "./level-generator/WorldGenerator.mjs";
 
 const recordedRNG: number[] = [];
 let rngOverrideIndex = 0;
@@ -104,6 +105,13 @@ if(Main.screen instanceof RoomEditor) {
 	}
 	console.log(`loaded room ${room.name} in the editor`);
 	Main.screen = new RoomEditor(room);
+}
+
+if(DEBUG_SETTINGS.VISUALIZE_WORLD_GENERATION) {
+	const generator = new WorldGenerator();
+	generator.generateChunk(new Vector(0, 0));
+	generator.visualize(canvasIO!);
+	debugger;
 }
 
 const frameTimes: number[] = [];
