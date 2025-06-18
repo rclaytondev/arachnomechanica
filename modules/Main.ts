@@ -107,9 +107,10 @@ if(Main.screen instanceof RoomEditor) {
 	Main.screen = new RoomEditor(room);
 }
 
-if(DEBUG_SETTINGS.VISUALIZE_WORLD_GENERATION) {
+if(DEBUG_SETTINGS.GENERATOR_VISUALIZATION.ENABLED) {
 	const generator = new WorldGenerator();
 	generator.generateChunk(new Vector(0, 0));
+	generator.generateChunk(new Vector(1, 0));
 	generator.visualize(canvasIO!);
 	debugger;
 }
