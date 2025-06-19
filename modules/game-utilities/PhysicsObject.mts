@@ -91,7 +91,7 @@ export class PhysicsObject {
 			return offset.add(0, -1);
 		}
 
-		const opposite = Directions.opposite(direction);
+		const opposite = Directions.opposite[direction];
 		if(
 			Directions.isHorizontal(opposite)
 			&& slopeMode === "slide"

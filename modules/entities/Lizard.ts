@@ -83,7 +83,7 @@ export class Lizard {
 	getLegAngle(distance: number) {
 		const [, , jointBefore, jointAfter, distanceBefore, distanceAfter] = this.getPointOnBody(distance);
 		const directionBefore = (jointBefore === "head") ? this.direction : jointBefore.direction;
-		const angleBefore = Directions.angle(directionBefore);
+		const angleBefore = Directions.angle[directionBefore];
 		if(distance < distanceBefore + LizardData.LEG_ROTATION_START && jointBefore !=="head") {
 			const index = this.joints.indexOf(jointBefore);
 			const previousDirection = this.joints[index - 1]?.direction ?? this.direction;
@@ -212,8 +212,8 @@ export class Lizard {
 	checkForCollisions(world: World) {
 		const lookaheadPoint = this.position.add(Vector.unit(this.direction).multiply(LizardData.LOOKAHEAD_DISTANCE));
 		if(this.isObstructed(world, this.direction) && this.waitingTimer < 0) {
-			const clockwise = Directions.rotateClockwise(this.direction);
-			const counterclockwise = Directions.rotateCounterclockwise(this.direction);
+			const clockwise = Directions.rotateClockwise[this.direction];
+			const counterclockwise = Directions.rotateCounterclockwise[this.direction];
 			const obstructedCounterclockwise = this.isObstructed(world, counterclockwise, WorldData.TILE_SIZE);
 			const obstructedClockwise = this.isObstructed(world, clockwise, WorldData.TILE_SIZE);
 			if(obstructedClockwise && obstructedCounterclockwise) {
@@ -383,7 +383,7 @@ export class Lizard {
 				Math.min(MathUtils.dist(lookaheadPoint.y, player.top()), MathUtils.dist(lookaheadPoint.y, player.bottom()))
 			)
 		) { nextTurn = yDirection; }
-		if(nextTurn !== null && nextTurn !== Directions.opposite(this.direction)) {
+		if(nextTurn !== null && nextTurn !== Directions.opposite[this.direction]) {
 			this.nextTurn = nextTurn;
 		}
 
@@ -558,4 +558,3 @@ export class Lizard {
 		);
 	}
 }
-

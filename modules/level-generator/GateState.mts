@@ -18,7 +18,7 @@ export class GateState {
 		if(this.position !== null && (this.exit === "left" || this.exit === "up")) {
 			return new GateState(
 				this.position.add(Vector.unit(this.exit)),
-				Directions.opposite(this.exit),
+				Directions.opposite[this.exit],
 				this.toggled
 			);
 		}

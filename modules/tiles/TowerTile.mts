@@ -68,7 +68,7 @@ export class TowerTile {
 		const directions = TowerTile.slopeEdges(tile);
 		for(const [edge, direction] of [directions, [...directions].reverse()]) {
 			const edgeCenter = center.add(Vector.unit(edge).multiply(WorldData.TILE_ACCENT_RADIUS));
-			if(!TowerTile.isSolidOrSlope(world.tiles.get(position.add(Vector.unit(edge))), Directions.opposite(edge))) {
+			if(!TowerTile.isSolidOrSlope(world.tiles.get(position.add(Vector.unit(edge))), Directions.opposite[edge])) {
 				const vertex1 = edgeCenter.add(Vector.unit(direction).multiply(-(WorldData.TILE_SIZE / 2 - WorldData.TILE_ACCENT_INSET * (1 + Math.SQRT2))));
 				const vertex2 = edgeCenter.add(Vector.unit(direction).multiply(TowerTile.getAccentLength(position, edge, direction, world)));
 				canvasIO.strokeLine(vertex1.x, vertex1.y, vertex2.x, vertex2.y);
@@ -106,10 +106,10 @@ export class TowerTile {
 		const center = position.multiply(WorldData.TILE_SIZE).add(WorldData.TILE_SIZE / 2, WorldData.TILE_SIZE / 2);
 		for(const side of Directions.DIRECTIONS) {
 			const adjacentTile = world.tiles.get(position.add(Vector.unit(side)));
-			if(TowerTile.isSolidOrSlope(adjacentTile, Directions.opposite(side))) { continue; }
+			if(TowerTile.isSolidOrSlope(adjacentTile, Directions.opposite[side])) { continue; }
 			
 			const edgeCenter = center.add(Vector.unit(side).multiply(WorldData.TILE_ACCENT_RADIUS));
-			for(const direction of [Directions.rotateClockwise(side), Directions.rotateCounterclockwise(side)] as Direction[]) {
+			for(const direction of [Directions.rotateClockwise[side], Directions.rotateCounterclockwise[side]] as Direction[]) {
 				const length = this.getAccentLength(position, side, direction, world);
 				canvasIO.strokeLine(
 					edgeCenter.x, edgeCenter.y,
@@ -125,22 +125,22 @@ export class TowerTile {
 		const adjacent = world.tiles.get(position.add(Vector.unit(adjacentDirection)));
 		const diagonal = world.tiles.get(position.add(Vector.unit(adjacentDirection)).add(Vector.unit(perpendicularDirection)));
 		const perpendicular = world.tiles.get(position.add(Vector.unit(perpendicularDirection)));
-		if(TowerTile.isSolidOrSlope(adjacent, Directions.opposite(adjacentDirection)) === empty) {
+		if(TowerTile.isSolidOrSlope(adjacent, Directions.opposite[adjacentDirection]) === empty) {
 			return 0;
 		}
 		if(TowerTile.isSolidOrSlope(adjacent, perpendicularDirection) === empty) {
 			return 45;
 		}
-		if(TowerTile.isSolidOrSlope(diagonal, Directions.opposite(perpendicularDirection)) === empty) {
+		if(TowerTile.isSolidOrSlope(diagonal, Directions.opposite[perpendicularDirection]) === empty) {
 			return 90;
 		}
-		if(TowerTile.isSolidOrSlope(diagonal, Directions.opposite(adjacentDirection)) === empty) {
+		if(TowerTile.isSolidOrSlope(diagonal, Directions.opposite[adjacentDirection]) === empty) {
 			return 135;
 		}
 		if(TowerTile.isSolidOrSlope(perpendicular, adjacentDirection) === empty) {
 			return 180;
 		}
-		if(TowerTile.isSolidOrSlope(perpendicular, Directions.opposite(perpendicularDirection)) === empty) {
+		if(TowerTile.isSolidOrSlope(perpendicular, Directions.opposite[perpendicularDirection]) === empty) {
 			return 225;
 		}
 		if(TowerTile.isSolidOrSlope(tile, perpendicularDirection) === empty) {
@@ -155,15 +155,15 @@ export class TowerTile {
 	static displayTileGlow(position: Vector, canvasIO: CanvasIO, world: World, directions: readonly Direction[] = Directions.DIRECTIONS, cornerOnly: boolean = false) {
 		const center = position.multiply(WorldData.TILE_SIZE).add(WorldData.TILE_SIZE / 2, WorldData.TILE_SIZE / 2);
 		for(const direction of directions) {
-			const adjacentTile = TowerTile.isSolidOrSlope(world.tiles.get(position.add(Vector.unit(direction))), Directions.opposite(direction));
-			const right = Directions.rotateClockwise(direction);
+			const adjacentTile = TowerTile.isSolidOrSlope(world.tiles.get(position.add(Vector.unit(direction))), Directions.opposite[direction]);
+			const right = Directions.rotateClockwise[direction];
 			const tileRight = (
 				TowerTile.isSolidOrSlope(world.tiles.get(position.add(Vector.unit(right))), direction)
-				|| TowerTile.isSolidOrSlope(world.tiles.get(position.add(Vector.unit(right))), Directions.opposite(right))
+				|| TowerTile.isSolidOrSlope(world.tiles.get(position.add(Vector.unit(right))), Directions.opposite[right])
 			);
 			const tileDiagonalRight = (
 				TowerTile.isSolidOrSlope(world.tiles.get(position.add(Vector.unit(direction))), right)
-				|| TowerTile.isSolidOrSlope(world.tiles.get(position.add(Vector.unit(direction).add(Vector.unit(right)))), Directions.opposite(right))
+				|| TowerTile.isSolidOrSlope(world.tiles.get(position.add(Vector.unit(direction).add(Vector.unit(right)))), Directions.opposite[right])
 			);
 			if(!adjacentTile) {
 				if(!cornerOnly) {
@@ -174,7 +174,7 @@ export class TowerTile {
 					const rightEdgeCorner = tileEdgeCenter.add(Vector.unit(right).multiply(WorldData.TILE_SIZE / 2));
 					canvasIO.ctx.save();
 					canvasIO.ctx.translate(rightEdgeCorner.x, rightEdgeCorner.y);
-					canvasIO.ctx.rotate(-Directions.angle(direction) + Math.PI / 2);
+					canvasIO.ctx.rotate(-Directions.angle[direction] + Math.PI / 2);
 					canvasIO.ctx.fillStyle = TowerTile.getDiagonalGlowGradient();
 					canvasIO.ctx.globalCompositeOperation = "lighter";
 					canvasIO.ctx.fillRect(0, -WorldData.TILE_GLOW_SIZE, WorldData.TILE_SIZE, WorldData.TILE_GLOW_SIZE);
@@ -188,7 +188,7 @@ export class TowerTile {
 		const tileEdgeCenter = center.add(Vector.unit(direction).multiply(WorldData.TILE_SIZE / 2));
 		canvasIO.ctx.save();
 		canvasIO.ctx.translate(tileEdgeCenter.x, tileEdgeCenter.y);
-		canvasIO.ctx.rotate(-Directions.angle(direction) + Math.PI / 2);
+		canvasIO.ctx.rotate(-Directions.angle[direction] + Math.PI / 2);
 		canvasIO.ctx.fillStyle = TowerTile.getTileGlowGradent();
 		canvasIO.ctx.globalCompositeOperation = "lighter";
 		canvasIO.ctx.fillRect(-WorldData.TILE_SIZE / 2, -WorldData.TILE_GLOW_SIZE, WorldData.TILE_SIZE, WorldData.TILE_GLOW_SIZE);
@@ -201,7 +201,7 @@ export class TowerTile {
 	static displaySlopeEdgeGlow(position: Vector, canvasIO: CanvasIO, slope: Slope, world: World) {
 		const edges = TowerTile.slopeEdges(slope);
 		for(const edge of edges) {
-			if(!TowerTile.isSolidOrSlope(world.tiles.get(position.add(Vector.unit(edge))), Directions.opposite(edge))) {
+			if(!TowerTile.isSolidOrSlope(world.tiles.get(position.add(Vector.unit(edge))), Directions.opposite[edge])) {
 				TowerTile.displayGlow(position, canvasIO, edge);
 			}
 		}

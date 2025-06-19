@@ -210,8 +210,8 @@ export class WorldGenerator {
 		atLeast3RectEmpty: (position: Vector, world: World) => {
 			for(const direction of Directions.DIRECTIONS) {
 				const directionVector = Vector.unit(direction);
-				const perpendicular1 = Vector.unit(Directions.rotateClockwise(direction));
-				const perpendicular2 = Vector.unit(Directions.rotateCounterclockwise(direction));
+				const perpendicular1 = Vector.unit(Directions.rotateClockwise[direction]);
+				const perpendicular2 = Vector.unit(Directions.rotateCounterclockwise[direction]);
 				const firstTile = world.tiles.get(position.add(directionVector));
 				if(firstTile instanceof SolidTile) { continue; }
 				for(let i = 2; i <= 3; i ++) {

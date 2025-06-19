@@ -35,7 +35,7 @@ export class LevelGenerator {
 			const nextPosition = Vector.unit(nextDirection).add(x, y);
 			this.path.push(nextPosition);
 			this.rooms.set(nextPosition, {
-				exits: [Directions.opposite(nextDirection)] as const,
+				exits: [Directions.opposite[nextDirection]] as const,
 				traversability: RoomData.ALL_TRAVERSABILITY
 			});
 			this.rooms.get(x, y)!.exits.push(nextDirection);
@@ -82,7 +82,7 @@ export class LevelGenerator {
 
 	generateRoom(position: Vector) {
 		const exits = Directions.DIRECTIONS.filter(dir => (
-			this.rooms.get(position.add(Vector.unit(dir)))?.exits.includes(Directions.opposite(dir))
+			this.rooms.get(position.add(Vector.unit(dir)))?.exits.includes(Directions.opposite[dir])
 		));
 		if(exits.length === 0) {
 			return false;
