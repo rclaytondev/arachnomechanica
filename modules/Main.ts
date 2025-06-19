@@ -6,7 +6,7 @@ import { Lizard } from "./entities/Lizard.js";
 import { GameUtils } from "./game-utilities/GameUtils.mjs";
 import { Room } from "./level-generator/Room.mjs";
 import { RoomEditor } from "./RoomEditor.mjs";
-import { ROOMS } from "./level-generator/Rooms.mjs";
+import { Rooms, ROOMS } from "./level-generator/Rooms.mjs";
 import { Gate } from "./tiles/Gate.mjs";
 import { World } from "./World.js";
 import { LaserBlock } from "./tiles/LaserBlock.mjs";
@@ -44,6 +44,8 @@ for(let i = 0; i < CORNER_SIZE; i ++) {
 	EMPTY_ROOM.tiles.set(RoomData.SIZE - 1 - i, RoomData.SIZE - 1, new SolidTile("solid", "tower"));
 	EMPTY_ROOM.tiles.set(RoomData.SIZE - 1, RoomData.SIZE - 1 - i, new SolidTile("solid", "tower"));
 }
+
+Rooms.initialize();
 
 let frameCount = 0;
 const FRAMERATE = 60;
