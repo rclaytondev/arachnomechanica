@@ -54,7 +54,7 @@ export class LevelGeneratorData {
 	static BORDER_Y = 10;
 
 	static CHUNK_SIZE = 5;
-	static INTERIOR_CONNECTIONS = 4;
+	static INTERIOR_CONNECTIONS = 3;
 	static BOUNDARY_CONNECTIONS = Math.floor( 1/2 * ((LevelGeneratorData.CHUNK_SIZE + 1) + LevelGeneratorData.INTERIOR_CONNECTIONS / (LevelGeneratorData.CHUNK_SIZE - 1)) - 1);
 };
 
