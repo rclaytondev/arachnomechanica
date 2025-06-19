@@ -19,6 +19,7 @@ export class WorldGenerator {
 		this.currentChunk = chunkPosition;
 		this.initializeChunk();
 		this.prunePhysicalConnections();
+		this.connectRandomRooms();
 	}
 
 	initializeChunk() {
@@ -49,6 +50,37 @@ export class WorldGenerator {
 			else {
 				this.disconnect(position, direction);
 				if(!this.isPhysicallyConnected()) {
+					this.connect(position, direction);
+				}
+			}
+		}
+	}
+	connectRandomRooms() {
+		const unconnected = [];
+		const unconnectedBoundary = [];
+		for(let x = 0; x < LevelGeneratorData.CHUNK_SIZE; x ++) {
+			for(let y = 0; y < LevelGeneratorData.CHUNK_SIZE; y ++) {
+				const position = this.roomPosition(new Vector(x, y));
+				for(const direction of Directions.DIRECTIONS) {
+					const adjacent = position.add(Vector.unit(direction));
+					const adjacentRoom = this.rooms.get(adjacent);
+					if(this.isInChunk(adjacent) && (direction === "right" || direction === "down") && !adjacentRoom.exits.includes(Directions.opposite[direction])) {
+						unconnected.push({ position, direction });
+					}
+					else if(!this.isInChunk(adjacent) && !adjacentRoom.room) {
+						unconnectedBoundary.push({ position, direction });
+					}
+				}
+			}
+		}
+
+		for(const { position, direction } of GameUtils.randomPermutation(unconnected).slice(0, LevelGeneratorData.INTERIOR_CONNECTIONS)) {
+			this.connect(position, direction);
+		}
+		for(const direction of Directions.DIRECTIONS) {
+			if(!this.isChunkGenerated(this.currentChunk.add(Vector.unit(direction)))) {
+				const boundary = unconnectedBoundary.filter(edge => edge.direction === direction);
+				for(const { position } of GameUtils.randomPermutation(boundary).slice(0, LevelGeneratorData.BOUNDARY_CONNECTIONS)) {
 					this.connect(position, direction);
 				}
 			}
@@ -117,6 +149,10 @@ export class WorldGenerator {
 		else {
 			return "down";
 		}
+	}
+	isChunkGenerated(chunkPosition: Vector) {
+		const roomPlaceholder = this.rooms.get(chunkPosition.multiply(LevelGeneratorData.CHUNK_SIZE));
+		return roomPlaceholder.room != null;
 	}
 
 

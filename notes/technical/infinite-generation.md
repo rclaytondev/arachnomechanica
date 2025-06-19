@@ -65,3 +65,18 @@ What kind of data needs to be stored?
 	- Disadvantages:
 		- 
 - Like before, it may be a good idea to split `WorldGenerator` into two classes: one that handles deciding which rooms go where, and another that handles adding tiles from those rooms into the world, as well as generating margins, traps, and enemies. But this separation may be more difficult to achieve than before.
+
+# Temporary Calculations
+Suppose each chunk is an $n \times n$ square, so there are $n^{2}$ rooms.
+There are also $2n(n-1)$ possible edges that can be connected.
+Since it's a tree, there are $n^{2} - 1$ edges of rooms that are connected.
+If we randomly connect $k$ more edges, we have $n^{2} - 1 + k$ edges.
+Therefore the proportion that are connected is $\frac{n^{2} - 1 + k}{2n(n-1)}$.
+
+For the boundary of the chunk, we start with $1$ out of $n$ room edges connected on each chunk edge.
+Suppose we connect $j$ room edges randomly per edge.
+Then the proportion of edges that are connected is $\frac{j+1}{n}$.
+
+Ideally, we want the proportion of edges that are connected to be the same as in the interior vs. on the chunk boundary.
+So we should choose $j$ such that $\frac{j+1}{n} = \frac{n^{2} - 1 + k}{2n(n-1)}$.
+After doing some algebra, we get that the correct choice is $j := \frac{n^{2} - 1 + k}{2(n-1)} - 1 = \frac{1}{2}\left( n+1 + \frac{k}{n-1} \right) - 1$.
