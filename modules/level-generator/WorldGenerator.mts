@@ -44,7 +44,7 @@ export class WorldGenerator {
 			const adjacent = position.add(Vector.unit(direction));
 			const adjacentRoom = this.rooms.get(adjacent);
 			if(adjacentRoom.room != null) {
-				this.setConnected(position, direction, adjacentRoom.exits.includes(Directions.opposite(direction)));
+				this.setConnected(position, direction, adjacentRoom.exits.includes(Directions.opposite[direction]));
 			}
 			else {
 				this.disconnect(position, direction);
@@ -58,7 +58,7 @@ export class WorldGenerator {
 
 	connect(roomPosition: Vector, direction: Direction) {
 		const adjacentRoom = this.rooms.get(roomPosition.add(Vector.unit(direction)));
-		const opposite = Directions.opposite(direction);
+		const opposite = Directions.opposite[direction];
 		const room = this.rooms.get(roomPosition);
 		if(!room.exits.includes(direction)) {
 			room.exits.push(direction);
@@ -69,7 +69,7 @@ export class WorldGenerator {
 	}
 	disconnect(roomPosition: Vector, direction: Direction) {
 		const adjacentRoom = this.rooms.get(roomPosition.add(Vector.unit(direction)));
-		const opposite = Directions.opposite(direction);
+		const opposite = Directions.opposite[direction];
 		const room = this.rooms.get(roomPosition);
 		room.exits = room.exits.filter(e => e !== direction);
 		adjacentRoom.exits = adjacentRoom.exits.filter(e => e !== opposite);
