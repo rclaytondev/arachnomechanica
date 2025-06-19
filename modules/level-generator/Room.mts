@@ -72,7 +72,10 @@ export class Room {
 	canAdd(roomPlaceholder: RoomPlaceholder) {
 		return (
 			this.canSpawnWithExits(roomPlaceholder.exits)
-			&& GateState.traversabilityEquals(this.traversability, roomPlaceholder.traversability)
+			&& GateState.traversabilityEquals(
+				this.traversability.filter(({ start, end }) => roomPlaceholder.exits.includes(start.exit) && roomPlaceholder.exits.includes(end.exit)),
+				roomPlaceholder.traversability.filter(({ start, end }) => roomPlaceholder.exits.includes(start.exit) && roomPlaceholder.exits.includes(end.exit))
+			)
 		);
 	}
 
@@ -182,11 +185,11 @@ export class Room {
 		return connections;
 	}
 
-	connectivity(exits: Direction[]) {
+	static connectivity(traversability: Traversability, exits: Direction[]) {
 		let total = 0;
 		for(const exit of exits) {
 			for(const toggled of [true, false]) {
-				const reachableStates = this.traversability.filter(({ start }) => (
+				const reachableStates = traversability.filter(({ start }) => (
 					start.exit === exit && start.toggled === toggled
 				));
 				const reachableDirections = new Set(reachableStates.map(s => s.end.exit).filter(s => exits.includes(s)));
