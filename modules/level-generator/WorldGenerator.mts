@@ -38,6 +38,12 @@ export class WorldGenerator {
 				const position = this.roomPosition(new Vector(x, y));
 				connections.push({ position, direction: "right" });
 				connections.push({ position, direction: "down" });
+				if(x === 0) {
+					connections.push({ position, direction: "left" });
+				}
+				if(y === 0) {
+					connections.push({ position, direction: "up" });
+				}
 			}
 		}
 		const randomized = GameUtils.randomPermutation(connections);
@@ -61,13 +67,14 @@ export class WorldGenerator {
 		for(let x = 0; x < LevelGeneratorData.CHUNK_SIZE; x ++) {
 			for(let y = 0; y < LevelGeneratorData.CHUNK_SIZE; y ++) {
 				const position = this.roomPosition(new Vector(x, y));
+				const room = this.rooms.get(position);
 				for(const direction of Directions.DIRECTIONS) {
 					const adjacent = position.add(Vector.unit(direction));
 					const adjacentRoom = this.rooms.get(adjacent);
 					if(this.isInChunk(adjacent) && (direction === "right" || direction === "down") && !adjacentRoom.exits.includes(Directions.opposite[direction])) {
 						unconnected.push({ position, direction });
 					}
-					else if(!this.isInChunk(adjacent) && !adjacentRoom.room) {
+					else if(!this.isInChunk(adjacent) && !room.exits.includes(direction) && !adjacentRoom.room) {
 						unconnectedBoundary.push({ position, direction });
 					}
 				}

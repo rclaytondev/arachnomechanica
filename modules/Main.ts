@@ -111,6 +111,8 @@ if(DEBUG_SETTINGS.GENERATOR_VISUALIZATION.ENABLED) {
 	const generator = new WorldGenerator();
 	generator.generateChunk(new Vector(0, 0));
 	generator.generateChunk(new Vector(1, 0));
+	generator.generateChunk(new Vector(0, 1));
+	generator.generateChunk(new Vector(1, 1));
 	generator.visualize(canvasIO!);
 	debugger;
 }
