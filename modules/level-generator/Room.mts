@@ -7,6 +7,7 @@ import { Gate } from "../tiles/Gate.mjs";
 import { Slope, Tile, World } from "../World.js";
 import { Portal } from "../entities/Portal.mjs";
 import { SolidTile } from "../tiles/SolidTile.mjs";
+import { RoomPlaceholder } from "./RoomPlaceholder.mjs";
 
 export type Traversability = { start: GateState, end: GateState }[];
 
@@ -67,6 +68,12 @@ export class Room {
 		for(const entity of this.entities) {
 			world.entities.push(entity.translate(position.multiply(WorldData.TILE_SIZE)));
 		}
+	}
+	canAdd(roomPlaceholder: RoomPlaceholder) {
+		return (
+			this.canSpawnWithExits(roomPlaceholder.exits)
+			&& GateState.traversabilityEquals(this.traversability, roomPlaceholder.traversability)
+		);
 	}
 
 	getExitCoordinates(direction: Direction, coordinate: "x" | "y") {
@@ -173,5 +180,24 @@ export class Room {
 			}
 		}
 		return connections;
+	}
+
+	connectivity(exits: Direction[]) {
+		let total = 0;
+		for(const exit of exits) {
+			for(const toggled of [true, false]) {
+				const reachableStates = this.traversability.filter(({ start }) => (
+					start.exit === exit && start.toggled === toggled
+				));
+				const reachableDirections = new Set(reachableStates.map(s => s.end.exit).filter(s => exits.includes(s)));
+				reachableDirections.delete(exit);
+				total += reachableDirections.size;
+				if(reachableStates.some(s => s.end.exit === exit && s.end.toggled === !toggled)) {
+					total ++;
+				}
+			}
+		}
+		const average = total / (2 * exits.length);
+		return average;
 	}
 }

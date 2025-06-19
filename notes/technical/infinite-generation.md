@@ -47,10 +47,11 @@ It is "connected" if you can get from any point in the boundary of the rectangle
 Problem: this will probably result in a lot of control rooms near the borders, which is undesirable.
 
 ### Connectedness Criterion 2
-It is connected if, for each adjacent generated chunk:
-- You can get between the centers of the chunks (while staying in this chunk or the adjacent chunk), regardless of starting gate state.
-- You can get from the center of the chunk to any room in the chunk (while staying in this chunk or any adjacent chunk), regardless of starting gate state.
-- You can get from any room in the chunk to the center of the chunk (while staying in this chunk or any adjacent chunk), regardless of starting gate state.
+Basic idea: it's connected if you can get from anywhere to any adjacent chunk and anywhere in the chunk.
+
+It is connected if the following criteria are met:
+- Regardless of starting gate state, you can get from the center of the chunk to any edge in the chunk or along the chunk boundary, and...
+- Regardless of starting gate state, you can get from any edge in the chunk or along the chunk boundary to the center of the chunk.
 
 This seems good?
 

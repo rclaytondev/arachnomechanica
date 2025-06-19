@@ -1,32 +1,40 @@
 import { CanvasIO } from "../../utils-ts/modules/CanvasIO.mjs";
 import { Direction, Directions } from "../../utils-ts/modules/geometry/Direction.mjs";
+import { Rectangle } from "../../utils-ts/modules/geometry/Rectangle.mjs";
 import { Vector } from "../../utils-ts/modules/geometry/Vector.mjs";
 import { Grid } from "../../utils-ts/modules/Grid.mjs";
+import { Utils } from "../../utils-ts/modules/Utils.mjs";
 import { DEBUG_SETTINGS } from "../constants/DebugSettings.mjs";
 import { LevelGeneratorData, RoomData } from "../constants/GameData.mjs";
 import { GameUtils } from "../game-utilities/GameUtils.mjs";
+import { World } from "../World";
+import { GateState } from "./GateState.mjs";
 import { Room } from "./Room.mjs";
 import { RoomPlaceholder } from "./RoomPlaceholder.mjs";
+import { ROOMS } from "./Rooms.mjs";
 
 export class WorldGenerator {
 	rooms: Grid<RoomPlaceholder> = new Grid(new RoomPlaceholder(
 		[...Directions.DIRECTIONS],
-		RoomData.ALL_TRAVERSABILITY
+		RoomData.ALL_TRAVERSABILITY,
+		new Vector(0, 0)
 	));
 	currentChunk: Vector = new Vector(0, 0);
 
-	generateChunk(chunkPosition: Vector) {
+	generateChunk(chunkPosition: Vector, world: World) {
 		this.currentChunk = chunkPosition;
 		this.initializeChunk();
 		this.prunePhysicalConnections();
 		this.connectRandomRooms();
+		this.pruneConnections();
+		this.addRooms(world);
 	}
 
 	initializeChunk() {
 		for(let x = 0; x < LevelGeneratorData.CHUNK_SIZE; x ++) {
 			for(let y = 0; y < LevelGeneratorData.CHUNK_SIZE; y ++) {
 				const position = this.roomPosition(new Vector(x, y));
-				const placeholder = new RoomPlaceholder([...Directions.DIRECTIONS], RoomData.ALL_TRAVERSABILITY);
+				const placeholder = new RoomPlaceholder([...Directions.DIRECTIONS], RoomData.ALL_TRAVERSABILITY, position);
 				this.rooms.set(position, placeholder);
 			}
 		}
@@ -93,6 +101,39 @@ export class WorldGenerator {
 			}
 		}
 	}
+	pruneConnections() {
+		let prunedSome = false;
+		do {
+			prunedSome = false;
+			const positions = this.chunkRectangle().squares();
+			for(const position of GameUtils.randomPermutation(positions)) {
+				const pruned = this.pruneRoom(this.rooms.get(position));
+				if(pruned) { prunedSome = true; }
+			}
+		} while(prunedSome);
+	}
+	pruneRoom(roomPlaceholder: RoomPlaceholder) {
+		const originalRoom = roomPlaceholder.room;
+		const connectivity = roomPlaceholder.room!.connectivity(roomPlaceholder.exits);
+		const lessConnectiveRooms = ROOMS.filter(r => (
+			r.canSpawnWithExits(roomPlaceholder.exits)
+			&& r.connectivity(roomPlaceholder.exits) < connectivity)
+		);
+		for(const room of GameUtils.randomPermutation(lessConnectiveRooms)) {
+			roomPlaceholder.room = room;
+			if(this.isConnected()) { return true; }
+		}
+		roomPlaceholder.room = originalRoom;
+		return false;
+	}
+	addRooms(world: World) {
+		for(const position of this.chunkRectangle().squares()) {
+			const roomPlaceholder = this.rooms.get(position);
+			const rooms = ROOMS.filter(r => r.canAdd(roomPlaceholder));
+			const room = Utils.randomItem(rooms);
+			room.add(position, world, roomPlaceholder.exits);
+		}
+	}
 
 
 	connect(roomPosition: Vector, direction: Direction) {
@@ -131,6 +172,49 @@ export class WorldGenerator {
 		);
 		return reachable.length >= LevelGeneratorData.CHUNK_SIZE ** 2 + 4;
 	}
+	isConnected() {
+		const edges = this.connectedEdges().length; // can be optimized: this is a constant.
+		const startState = new GateState(this.chunkCenter(), "right", false);
+		for(const backwards of [true, false]) {
+			const reachable = GameUtils.reachableNodes(
+				startState,
+				(state) => this.neighbors(state, backwards).filter(n => this.isEdgeInChunk(n.position!, n.exit)),
+				(s1, s2) => s1.equals(s2)
+			);
+			if(reachable.length < edges) {
+				return false;
+			}
+		}
+		return true;
+	}
+	neighbors(state: GateState, backwards: boolean = false) {
+		if(!state.position) {
+			throw new Error("Cannot get next states if the state does not have a position set.");
+		}
+		const result = [];
+		const positions = [
+			state.position,
+			state.position.add(Vector.unit(state.exit))
+		];
+		for(const position of positions) {
+			const room = this.rooms.get(position);
+			for(let { start, end } of room.traversability) {
+				if(!room.exits.includes(start.exit) || !room.exits.includes(end.exit)) { continue; }
+				if(!backwards && start.equals(state)) {
+					result.push(end);
+				}
+				if(backwards && end.equals(state)) {
+					result.push(start);
+				}
+			}
+		}
+		return result;
+	}
+	connectedEdges(chunkPosition: Vector = this.currentChunk) {
+		return this.edgesInChunk(chunkPosition).filter(
+			({ position, direction }) => this.rooms.get(position).exits.includes(direction)
+		);
+	}
 
 
 
@@ -142,6 +226,16 @@ export class WorldGenerator {
 	}
 	isInChunk(position: Vector, chunkPosition: Vector = this.currentChunk) {
 		return position.divide(LevelGeneratorData.CHUNK_SIZE).floor().equals(chunkPosition);
+	}
+	isEdgeInChunk(position: Vector, edge: Direction, chunkPosition: Vector = this.currentChunk) {
+		return this.isInChunk(position, chunkPosition) || this.isInChunk(position.add(Vector.unit(edge)), chunkPosition);
+	}
+	chunkRectangle(chunkPosition: Vector = this.currentChunk) {
+		return Rectangle.square(
+			chunkPosition.x * LevelGeneratorData.CHUNK_SIZE,
+			chunkPosition.y * LevelGeneratorData.CHUNK_SIZE,
+			LevelGeneratorData.CHUNK_SIZE,
+		);
 	}
 	directionFromChunk(position: Vector, chunkPosition: Vector = this.currentChunk): Direction {
 		if(position.x < chunkPosition.x * LevelGeneratorData.CHUNK_SIZE) {
@@ -160,6 +254,23 @@ export class WorldGenerator {
 	isChunkGenerated(chunkPosition: Vector) {
 		const roomPlaceholder = this.rooms.get(chunkPosition.multiply(LevelGeneratorData.CHUNK_SIZE));
 		return roomPlaceholder.room != null;
+	}
+	edgesInChunk(chunkPosition: Vector = this.currentChunk) {
+		const edges: { position: Vector, direction: Direction }[] = [];
+		for(let x = 0; x < LevelGeneratorData.CHUNK_SIZE; x ++) {
+			for(let y = 0; y < LevelGeneratorData.CHUNK_SIZE; y ++) {
+				const position = this.roomPosition(new Vector(x, y), chunkPosition);
+				edges.push({ position, direction: "right" });
+				edges.push({ position, direction: "down" });
+				if(x === 0) {
+					edges.push({ position, direction: "left" });
+				}
+				if(y === 0) {
+					edges.push({ position, direction: "up" });
+				}
+			}
+		}
+		return edges;
 	}
 
 

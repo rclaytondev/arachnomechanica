@@ -44,7 +44,7 @@ export class GateState {
 		);
 	}
 	toString() {
-		return `${this.position}, ${this.exit}, ${this.toggled}`;
+		return `${this.exit}, ${this.toggled}`;
 	}
 	static traversabilityEquals(traversability1: Traversability, traversability2: Traversability) {
 		return Utils.setEquals(
