@@ -389,7 +389,7 @@ export class World {
 		const adjacent = this.tiles.get(adjacentPosition);
 		if(
 			TowerTile.isSolidOrSlope(tile, direction)
-			|| TowerTile.isSolidOrSlope(adjacent, Directions.opposite(direction))
+			|| TowerTile.isSolidOrSlope(adjacent, Directions.opposite[direction])
 		) { return true; }
 
 		for(const position of [tilePosition, adjacentPosition]) {
@@ -497,7 +497,7 @@ export class World {
 		for(const direction of Directions.DIRECTIONS) {
 			const adjacentPosition = position.add(Vector.unit(direction));
 			const adjacentTile = this.tiles.get(adjacentPosition);
-			if(adjacentTile instanceof Gate && adjacentTile.direction === Directions.opposite(direction)) {
+			if(adjacentTile instanceof Gate && adjacentTile.direction === Directions.opposite[direction]) {
 				this.destroyTile(adjacentPosition);
 			}
 			else if(tile instanceof SolidTile && tile.shape === "solid" && adjacentTile instanceof Gate && adjacentTile.direction === direction) {
@@ -573,7 +573,7 @@ export class World {
 		}
 		else if(tile instanceof Gate) {
 			const result = tile.copy();
-			result.direction = Directions.reflectX(result.direction);
+			result.direction = Directions.reflectX[result.direction];
 			return result;
 		}
 		else {

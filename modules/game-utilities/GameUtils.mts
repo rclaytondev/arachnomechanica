@@ -73,7 +73,7 @@ export class GameUtils {
 			return 7 * Math.PI / 4;
 		}
 		else {
-			return Directions.angle(direction1);
+			return Directions.angle[direction1];
 		}
 	}
 
