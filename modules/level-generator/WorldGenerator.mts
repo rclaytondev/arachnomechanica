@@ -14,11 +14,7 @@ import { RoomPlaceholder } from "./RoomPlaceholder.mjs";
 import { ROOMS } from "./Rooms.mjs";
 
 export class WorldGenerator {
-	rooms: Grid<RoomPlaceholder> = new Grid(new RoomPlaceholder(
-		[...Directions.DIRECTIONS],
-		RoomData.ALL_TRAVERSABILITY,
-		new Vector(0, 0)
-	));
+	rooms: Grid<RoomPlaceholder | null> = new Grid(null);
 	currentChunk: Vector = new Vector(0, 0);
 
 	generateChunk(chunkPosition: Vector, world: World) {
@@ -58,7 +54,7 @@ export class WorldGenerator {
 		for(const { position, direction } of randomized) {
 			const adjacent = position.add(Vector.unit(direction));
 			const adjacentRoom = this.rooms.get(adjacent);
-			if(adjacentRoom.room != null) {
+			if(adjacentRoom && adjacentRoom.room != null) {
 				this.setConnected(position, direction, adjacentRoom.exits.includes(Directions.opposite[direction]));
 			}
 			else {
@@ -70,32 +66,17 @@ export class WorldGenerator {
 		}
 	}
 	connectRandomRooms() {
-		const unconnected = [];
-		const unconnectedBoundary = [];
-		for(let x = 0; x < LevelGeneratorData.CHUNK_SIZE; x ++) {
-			for(let y = 0; y < LevelGeneratorData.CHUNK_SIZE; y ++) {
-				const position = this.roomPosition(new Vector(x, y));
-				const room = this.rooms.get(position);
-				for(const direction of Directions.DIRECTIONS) {
-					const adjacent = position.add(Vector.unit(direction));
-					const adjacentRoom = this.rooms.get(adjacent);
-					if(this.isInChunk(adjacent) && (direction === "right" || direction === "down") && !adjacentRoom.exits.includes(Directions.opposite[direction])) {
-						unconnected.push({ position, direction });
-					}
-					else if(!this.isInChunk(adjacent) && !room.exits.includes(direction) && !adjacentRoom.room) {
-						unconnectedBoundary.push({ position, direction });
-					}
-				}
-			}
-		}
+		const edges = this.unconnectedEdges();
+		const interior = edges.filter(({ position, direction }) => this.isInChunk(position) && this.isInChunk(position.add(Vector.unit(direction))));
+		const boundary = edges.filter(e => !interior.includes(e));
 
-		for(const { position, direction } of GameUtils.randomPermutation(unconnected).slice(0, LevelGeneratorData.INTERIOR_CONNECTIONS)) {
+		for(const { position, direction } of GameUtils.randomPermutation(interior).slice(0, LevelGeneratorData.INTERIOR_CONNECTIONS)) {
 			this.connect(position, direction);
 		}
 		for(const direction of Directions.DIRECTIONS) {
 			if(!this.isChunkGenerated(this.currentChunk.add(Vector.unit(direction)))) {
-				const boundary = unconnectedBoundary.filter(edge => edge.direction === direction);
-				for(const { position } of GameUtils.randomPermutation(boundary).slice(0, LevelGeneratorData.BOUNDARY_CONNECTIONS)) {
+				const boundaryInDirection = boundary.filter(edge => edge.direction === direction);
+				for(const { position } of GameUtils.randomPermutation(boundaryInDirection).slice(0, LevelGeneratorData.BOUNDARY_CONNECTIONS)) {
 					this.connect(position, direction);
 				}
 			}
@@ -107,7 +88,7 @@ export class WorldGenerator {
 			prunedSome = false;
 			const positions = this.chunkRectangle().squares();
 			for(const position of GameUtils.randomPermutation(positions)) {
-				const pruned = this.pruneRoom(this.rooms.get(position));
+				const pruned = this.pruneRoom(this.rooms.get(position)!);
 				if(pruned) { prunedSome = true; }
 			}
 		} while(prunedSome);
@@ -128,7 +109,7 @@ export class WorldGenerator {
 	}
 	addRooms(world: World) {
 		for(const position of this.chunkRectangle().squares()) {
-			const roomPlaceholder = this.rooms.get(position);
+			const roomPlaceholder = this.rooms.get(position)!;
 			const rooms = ROOMS.filter(r => r.canAdd(roomPlaceholder));
 			const room = Utils.randomItem(rooms);
 			room.add(position, world, roomPlaceholder.exits);
@@ -140,10 +121,10 @@ export class WorldGenerator {
 		const adjacentRoom = this.rooms.get(roomPosition.add(Vector.unit(direction)));
 		const opposite = Directions.opposite[direction];
 		const room = this.rooms.get(roomPosition);
-		if(!room.exits.includes(direction)) {
+		if(room && !room.exits.includes(direction)) {
 			room.exits.push(direction);
 		}
-		if(!adjacentRoom.exits.includes(opposite)) {
+		if(adjacentRoom && !adjacentRoom.exits.includes(opposite)) {
 			adjacentRoom.exits.push(opposite);
 		}
 	}
@@ -151,8 +132,12 @@ export class WorldGenerator {
 		const adjacentRoom = this.rooms.get(roomPosition.add(Vector.unit(direction)));
 		const opposite = Directions.opposite[direction];
 		const room = this.rooms.get(roomPosition);
-		room.exits = room.exits.filter(e => e !== direction);
-		adjacentRoom.exits = adjacentRoom.exits.filter(e => e !== opposite);
+		if(room) {
+			room.exits = room.exits.filter(e => e !== direction);
+		}
+		if(adjacentRoom) {
+			adjacentRoom.exits = adjacentRoom.exits.filter(e => e !== opposite);
+		}
 	}
 	setConnected(room: Vector, direction: Direction, connected: boolean) {
 		if(connected) {
@@ -165,7 +150,7 @@ export class WorldGenerator {
 	isPhysicallyConnected() {
 		const reachable = GameUtils.reachableNodes<Vector | Direction>(
 			this.chunkCenter(),
-			(position) => position instanceof Vector ? this.rooms.get(position).exits
+			(position) => position instanceof Vector ? this.rooms.get(position)!.exits
 				.map(e => position.add(Vector.unit(e)))
 				.map(p => this.isInChunk(p) ? p : this.directionFromChunk(p)) : [],
 			(v1, v2) => v1 === v2 || (v1 instanceof Vector && v2 instanceof Vector && v1.equals(v2))
@@ -198,6 +183,7 @@ export class WorldGenerator {
 		];
 		for(const position of positions) {
 			const room = this.rooms.get(position);
+			if(!room) { continue; }
 			for(let { start, end } of room.traversability) {
 				if(!room.exits.includes(start.exit) || !room.exits.includes(end.exit)) { continue; }
 				if(!backwards && start.equals(state)) {
@@ -212,7 +198,12 @@ export class WorldGenerator {
 	}
 	connectedEdges(chunkPosition: Vector = this.currentChunk) {
 		return this.edgesInChunk(chunkPosition).filter(
-			({ position, direction }) => this.rooms.get(position).exits.includes(direction)
+			({ position, direction }) => this.rooms.get(position)?.exits.includes(direction)
+		);
+	}
+	unconnectedEdges(chunkPosition: Vector = this.currentChunk) {
+		return this.edgesInChunk(chunkPosition).filter(
+			({ position, direction }) => !(this.rooms.get(position)?.exits.includes(direction))
 		);
 	}
 
@@ -253,7 +244,7 @@ export class WorldGenerator {
 	}
 	isChunkGenerated(chunkPosition: Vector) {
 		const roomPlaceholder = this.rooms.get(chunkPosition.multiply(LevelGeneratorData.CHUNK_SIZE));
-		return roomPlaceholder.room != null;
+		return roomPlaceholder != null && roomPlaceholder.room != null;
 	}
 	edgesInChunk(chunkPosition: Vector = this.currentChunk) {
 		const edges: { position: Vector, direction: Direction }[] = [];
@@ -277,7 +268,9 @@ export class WorldGenerator {
 	visualize(canvasIO: CanvasIO) {
 		canvasIO.fillCanvas("white");
 		for(const [room, position] of this.rooms.entries()) {
-			this.visualizeRoom(canvasIO, room, position);
+			if(room) {
+				this.visualizeRoom(canvasIO, room, position);
+			}
 		}
 
 		canvasIO.ctx.strokeStyle = DEBUG_SETTINGS.GENERATOR_VISUALIZATION.GRID_COLOR;
