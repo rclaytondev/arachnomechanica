@@ -47,8 +47,9 @@ export class World {
 
 	player: Player = new Player();
 
-	constructor() {
+	initializeGeneration() {
 		this.worldGenerator.generateChunk(new Vector(0, 0), this);
+		return this;
 	}
 
 	display(canvasIO: CanvasIO, visibleRegion: Rectangle = this.visibleRegion(canvasIO)) {

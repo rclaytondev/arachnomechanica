@@ -32,6 +32,8 @@ if(DEBUG_SETTINGS.PRINT_RNG_KEY) {
 	};
 }
 
+Rooms.initialize();
+
 const CORNER_SIZE = 3;
 const EMPTY_ROOM = new World();
 for(let i = 0; i < CORNER_SIZE; i ++) {
@@ -45,8 +47,6 @@ for(let i = 0; i < CORNER_SIZE; i ++) {
 	EMPTY_ROOM.tiles.set(RoomData.SIZE - 1, RoomData.SIZE - 1 - i, new SolidTile("solid", "tower"));
 }
 
-Rooms.initialize();
-
 let frameCount = 0;
 const FRAMERATE = 60;
 const world = new World();
@@ -55,8 +55,8 @@ world.tiles.fillRect(new Rectangle(-1, -9, 20, 10), "empty");
 // world.tiles.set(0, 1, new SolidTile("solid", "stone"));
 
 export class Main {
-	// static screen: World | RoomEditor = new WorldGenerator().generate();
-	static screen: World | RoomEditor = new RoomEditor();
+	static screen: World | RoomEditor = new World().initializeGeneration();
+	// static screen: World | RoomEditor = new RoomEditor();
 	// static screen: World | RoomEditor = world;
 
 	static fadingOpacity: number = 0;

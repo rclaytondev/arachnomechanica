@@ -4,15 +4,10 @@ import { Room, Traversability } from "./Room.mjs";
 
 export class RoomPlaceholder {
 	exits: Direction[];
-	traversability: Traversability;
-	room: Room | null = null;
+	room: Room;
 
-	constructor(exits: Direction[], traversability: Traversability, position: Vector) {
+	constructor(exits: Direction[], room: Room) {
 		this.exits = exits;
-		this.traversability = traversability;
-		for(const { start, end } of traversability) {
-			start.position = position;
-			end.position = position;
-		}
+		this.room = room;
 	}
 }

@@ -30,7 +30,7 @@ export class WorldGenerator {
 		for(let x = 0; x < LevelGeneratorData.CHUNK_SIZE; x ++) {
 			for(let y = 0; y < LevelGeneratorData.CHUNK_SIZE; y ++) {
 				const position = this.roomPosition(new Vector(x, y));
-				const placeholder = new RoomPlaceholder([...Directions.DIRECTIONS], RoomData.ALL_TRAVERSABILITY, position);
+				const placeholder = new RoomPlaceholder([...Directions.DIRECTIONS], ROOMS.find(r => r.name === "control-room-junction")!);
 				this.rooms.set(position, placeholder);
 			}
 		}
@@ -95,7 +95,7 @@ export class WorldGenerator {
 	}
 	pruneRoom(roomPlaceholder: RoomPlaceholder) {
 		const originalRoom = roomPlaceholder.room;
-		const connectivity = Room.connectivity(roomPlaceholder.traversability, roomPlaceholder.exits);
+		const connectivity = Room.connectivity(roomPlaceholder.room.traversability, roomPlaceholder.exits);
 		const lessConnectiveRooms = ROOMS.filter(r => (
 			r.canSpawnWithExits(roomPlaceholder.exits)
 			&& Room.connectivity(r.traversability, roomPlaceholder.exits) < connectivity)
@@ -110,9 +110,7 @@ export class WorldGenerator {
 	addRooms(world: World) {
 		for(const position of this.chunkRectangle().squares()) {
 			const roomPlaceholder = this.rooms.get(position)!;
-			const rooms = ROOMS.filter(r => r.canAdd(roomPlaceholder));
-			const room = Utils.randomItem(rooms);
-			room.add(position, world, roomPlaceholder.exits);
+			roomPlaceholder.room.add(position.multiply(RoomData.SIZE), world, roomPlaceholder.exits);
 		}
 	}
 
@@ -184,13 +182,13 @@ export class WorldGenerator {
 		for(const position of positions) {
 			const room = this.rooms.get(position);
 			if(!room) { continue; }
-			for(let { start, end } of room.traversability) {
+			for(let { start, end } of room.room.traversability) {
 				if(!room.exits.includes(start.exit) || !room.exits.includes(end.exit)) { continue; }
-				if(!backwards && start.equals(state)) {
-					result.push(end);
+				if(!backwards && start.translate(position).equals(state)) {
+					result.push(end.translate(position));
 				}
-				if(backwards && end.equals(state)) {
-					result.push(start);
+				if(backwards && end.translate(position).equals(state)) {
+					result.push(start.translate(position));
 				}
 			}
 		}

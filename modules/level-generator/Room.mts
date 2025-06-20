@@ -69,15 +69,6 @@ export class Room {
 			world.entities.push(entity.translate(position.multiply(WorldData.TILE_SIZE)));
 		}
 	}
-	canAdd(roomPlaceholder: RoomPlaceholder) {
-		return (
-			this.canSpawnWithExits(roomPlaceholder.exits)
-			&& GateState.traversabilityEquals(
-				this.traversability.filter(({ start, end }) => roomPlaceholder.exits.includes(start.exit) && roomPlaceholder.exits.includes(end.exit)),
-				roomPlaceholder.traversability.filter(({ start, end }) => roomPlaceholder.exits.includes(start.exit) && roomPlaceholder.exits.includes(end.exit))
-			)
-		);
-	}
 
 	getExitCoordinates(direction: Direction, coordinate: "x" | "y") {
 		return [...this.exitTiles.positions()].filter(p => this.exitTiles.get(p) === direction).map(p => p[coordinate]);

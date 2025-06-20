@@ -5148,7 +5148,7 @@ export class Rooms {
 				],
 				[
 				],
-				(exits: Direction[]) => exits.includes("up") && exits.includes("down"),
+				(exits: Direction[]) => exits.includes("up") && exits.includes("down") && !exits.includes("left") && !exits.includes("right"),
 				Room.onewayGatelessPath("up", "down")
 			)
 		];
