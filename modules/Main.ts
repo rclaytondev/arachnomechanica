@@ -36,7 +36,7 @@ Rooms.initialize();
 Room.addRoomVariants();
 
 const CORNER_SIZE = 3;
-const EMPTY_ROOM = new World();
+const EMPTY_ROOM = new World(false);
 for(let i = 0; i < CORNER_SIZE; i ++) {
 	EMPTY_ROOM.tiles.set(i, 0, new SolidTile("solid", "tower"));
 	EMPTY_ROOM.tiles.set(0, i, new SolidTile("solid", "tower"));
@@ -50,15 +50,15 @@ for(let i = 0; i < CORNER_SIZE; i ++) {
 
 let frameCount = 0;
 const FRAMERATE = 60;
-const world = new World();
+const world = new World(false);
 world.tiles.fillRect(new Rectangle(-1, -10, 50, 30), new SolidTile("solid", "tower"));
 world.tiles.fillRect(new Rectangle(-1, -9, 20, 10), "empty");
 // world.tiles.set(0, 1, new SolidTile("solid", "stone"));
 
 export class Main {
-	static screen: World | RoomEditor = new World().initializeGeneration();
+	// static screen: World | RoomEditor = new World(true).initializeGeneration();
 	// static screen: World | RoomEditor = new RoomEditor();
-	// static screen: World | RoomEditor = world;
+	static screen: World | RoomEditor = world;
 
 	static fadingOpacity: number = 0;
 	static fadingDestination: number = 0;

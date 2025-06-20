@@ -15,14 +15,14 @@ import { SolidTile } from "./tiles/SolidTile.mjs";
 
 export class RoomEditor {
 	room: Room;
-	world: World = new World();
+	world: World = new World(false);
 	mode: "solid" | "platform" | "exit" | "gate-open" | "gate-closed" | "portal" | "slope" = "solid";
 	direction: Direction | Diagonal = "right";
 	static readonly MODES = ["solid", "platform", "exit", "gate-open", "gate-closed", "portal", "slope"] as const;
 
 	constructor(room: Room = new Room("editor room", [], [], [], () => false, [])) {
 		this.room = room;
-		this.world = new World();
+		this.world = new World(false);
 		for(const [tile, position] of this.room.tiles.entries()) {
 			this.world.tiles.set(position, tile);
 		}
@@ -122,7 +122,7 @@ export class RoomEditor {
 	}
 	loadRoom(room: Room) {
 		this.room = room;
-		this.world = new World();
+		this.world = new World(false);
 		room.add(new Vector(0, 0), this.world, ["left", "right", "up", "down"]);
 	}
 	loadNextRoom() {

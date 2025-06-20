@@ -45,8 +45,13 @@ export class World {
 	camera: Vector = new Vector(0, 0);
 	levels: number = 0;
 	worldGenerator: WorldGenerator = new WorldGenerator();
+	enableGeneration: boolean;
 
 	player: Player = new Player();
+
+	constructor(enableGeneration: boolean) {
+		this.enableGeneration = enableGeneration;
+	}
 
 	initializeGeneration() {
 		this.worldGenerator.generateChunk(new Vector(0, 0), this);
@@ -300,6 +305,7 @@ export class World {
 	}
 
 	checkWorldGeneration() {
+		if(!this.enableGeneration) { return; }
 		const position = this.player.physicsObject.hitbox().center();
 		const chunk = position.divide(WorldData.TILE_SIZE * RoomData.SIZE * LevelGeneratorData.CHUNK_SIZE).floor();
 		for(const adjacent of [chunk, ...chunk.adjacentVectors()]) {
