@@ -25,6 +25,7 @@ import { TowerTile } from "./tiles/TowerTile.mjs";
 import { SolidTile } from "./tiles/SolidTile.mjs";
 import { StoneTile } from "./tiles/StoneTile.mjs";
 import { WorldGenerator } from "./level-generator/WorldGenerator.mjs";
+import { Utils } from "../utils-ts/modules/Utils.mjs";
 
 export type TileEntity = SolidTile | Gate | LaserBlock | SpikeballBlock;
 export type Tile = (typeof WorldData.STRING_TILE_TYPES)[number] | TileEntity;
@@ -49,7 +50,20 @@ export class World {
 
 	initializeGeneration() {
 		this.worldGenerator.generateChunk(new Vector(0, 0), this);
+		this.spawnPlayer();
 		return this;
+	}
+	spawnPlayer() {
+		const emptyTiles = [];
+		for(const position of Rectangle.square(0, 0, RoomData.SIZE).squares()) {
+			const tileBelow = this.tiles.get(position.x, position.y + 1);
+			if(this.tiles.get(position) === "empty" && tileBelow instanceof SolidTile && tileBelow.shape === "solid") {
+				emptyTiles.push(position);
+			}
+		}
+		const tile = Utils.randomItem(emptyTiles);
+		this.player.physicsObject.positionInt = tile.multiply(WorldData.TILE_SIZE)
+		this.camera = this.player.physicsObject.hitbox().center();
 	}
 
 	display(canvasIO: CanvasIO, visibleRegion: Rectangle = this.visibleRegion(canvasIO)) {
