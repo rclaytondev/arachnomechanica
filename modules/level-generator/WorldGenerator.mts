@@ -167,7 +167,7 @@ export class WorldGenerator {
 				(state) => this.neighbors(state, backwards).filter(n => this.isEdgeInChunk(n.position!, n.exit)),
 				(s1, s2) => s1.equals(s2)
 			);
-			if(reachable.length < edges) {
+			if(reachable.length < edges * 2) {
 				return false;
 			}
 		}
