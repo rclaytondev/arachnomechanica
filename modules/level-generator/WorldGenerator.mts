@@ -269,7 +269,7 @@ export class WorldGenerator {
 	}
 
 
-	visualize(canvasIO: CanvasIO) {
+	visualize(canvasIO: CanvasIO, pauseDebugger: boolean = true) {
 		canvasIO.fillCanvas("white");
 		for(const [room, position] of this.rooms.entries()) {
 			if(room) {
@@ -282,7 +282,9 @@ export class WorldGenerator {
 			canvasIO.strokeLine(0, i, canvasIO.canvas.width, i);
 			canvasIO.strokeLine(i, 0, i, canvasIO.canvas.height);
 		}
-		debugger;
+		if(pauseDebugger) {
+			debugger;
+		}
 	}
 	visualizeExits(canvasIO: CanvasIO, room: RoomPlaceholder, position: Vector) {
 		position = position.multiply(DEBUG_SETTINGS.GENERATOR_VISUALIZATION.GRID_SIZE);
