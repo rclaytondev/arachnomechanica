@@ -98,13 +98,15 @@ export class WorldGenerator {
 	pruneRoom(roomPlaceholder: RoomPlaceholder) {
 		const originalRoom = roomPlaceholder.room;
 		const connectivity = Room.connectivity(roomPlaceholder.room.traversability, roomPlaceholder.exits);
-		const lessConnectiveRooms = ROOMS.filter(r => (
+		let lessConnectiveRooms = ROOMS.filter(r => (
 			r.canSpawnWithExits(roomPlaceholder.exits)
 			&& Room.connectivity(r.traversability, roomPlaceholder.exits) < connectivity)
 		);
-		for(const room of GameUtils.randomPermutation(lessConnectiveRooms)) {
+		while(lessConnectiveRooms.length > 0) {
+			const room = GameUtils.weightedRandom(lessConnectiveRooms, lessConnectiveRooms.map(r => r.weight));
 			roomPlaceholder.room = room;
 			if(this.isConnected()) { return true; }
+			lessConnectiveRooms = lessConnectiveRooms.filter(r => r !== room);
 		}
 		roomPlaceholder.room = originalRoom;
 		return false;
