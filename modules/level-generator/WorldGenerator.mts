@@ -7,6 +7,8 @@ import { Utils } from "../../utils-ts/modules/Utils.mjs";
 import { DEBUG_SETTINGS } from "../constants/DebugSettings.mjs";
 import { LevelGeneratorData, RoomData } from "../constants/GameData.mjs";
 import { GameUtils } from "../game-utilities/GameUtils.mjs";
+import { Gate } from "../tiles/Gate.mjs";
+import { SolidTile } from "../tiles/SolidTile.mjs";
 import { World } from "../World";
 import { GateState } from "./GateState.mjs";
 import { Room } from "./Room.mjs";
@@ -276,8 +278,9 @@ export class WorldGenerator {
 			canvasIO.strokeLine(0, i, canvasIO.canvas.width, i);
 			canvasIO.strokeLine(i, 0, i, canvasIO.canvas.height);
 		}
+		debugger;
 	}
-	visualizeRoom(canvasIO: CanvasIO, room: RoomPlaceholder, position: Vector) {
+	visualizeExits(canvasIO: CanvasIO, room: RoomPlaceholder, position: Vector) {
 		position = position.multiply(DEBUG_SETTINGS.GENERATOR_VISUALIZATION.GRID_SIZE);
 		canvasIO.ctx.fillStyle = "black";
 		canvasIO.ctx.fillRect(
@@ -306,5 +309,23 @@ export class WorldGenerator {
 			DEBUG_SETTINGS.GENERATOR_VISUALIZATION.BORDER_SIZE,
 			DEBUG_SETTINGS.GENERATOR_VISUALIZATION.BORDER_SIZE
 		);
+	}
+	visualizeRoom(canvasIO: CanvasIO, roomPlaceholder: RoomPlaceholder, position: Vector) {
+		for(const tilePosition of Rectangle.square(0, 0, RoomData.SIZE).squares()) {
+			const tile = roomPlaceholder.room.tiles.get(tilePosition);
+			const exitTile = roomPlaceholder.room.exitTiles.get(tilePosition);
+			if(tile instanceof SolidTile || tile === "platform" || (exitTile !== "none" && !roomPlaceholder.exits.includes(exitTile as Direction))) {
+				canvasIO.ctx.fillStyle = "black";
+			}
+			else if(tile instanceof Gate) {
+				canvasIO.ctx.fillStyle = tile.open ? "green" : "red";
+			}
+			else { continue; }
+			canvasIO.fillSquare(
+				DEBUG_SETTINGS.GENERATOR_VISUALIZATION.GRID_SIZE * (position.x + tilePosition.x / RoomData.SIZE),
+				DEBUG_SETTINGS.GENERATOR_VISUALIZATION.GRID_SIZE * (position.y + tilePosition.y / RoomData.SIZE),
+				DEBUG_SETTINGS.GENERATOR_VISUALIZATION.GRID_SIZE / RoomData.SIZE
+			)
+		}
 	}
 }

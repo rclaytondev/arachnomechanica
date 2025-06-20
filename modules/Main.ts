@@ -112,11 +112,10 @@ if(Main.screen instanceof RoomEditor) {
 if(DEBUG_SETTINGS.GENERATOR_VISUALIZATION.ENABLED && Main.screen instanceof World) {
 	const generator = new WorldGenerator();
 	generator.generateChunk(new Vector(0, 0), Main.screen);
-	generator.generateChunk(new Vector(1, 0), Main.screen);
-	generator.generateChunk(new Vector(0, 1), Main.screen);
-	generator.generateChunk(new Vector(1, 1), Main.screen);
+	// generator.generateChunk(new Vector(1, 0), Main.screen);
+	// generator.generateChunk(new Vector(0, 1), Main.screen);
+	// generator.generateChunk(new Vector(1, 1), Main.screen);
 	generator.visualize(canvasIO!);
-	debugger;
 }
 
 const frameTimes: number[] = [];
