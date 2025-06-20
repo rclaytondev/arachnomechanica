@@ -56,7 +56,7 @@ export class WorldGenerator {
 		for(const { position, direction } of randomized) {
 			const adjacent = position.add(Vector.unit(direction));
 			const adjacentRoom = this.rooms.get(adjacent);
-			if(adjacentRoom && adjacentRoom.room != null) {
+			if(adjacentRoom && adjacentRoom.generated) {
 				this.setConnected(position, direction, adjacentRoom.exits.includes(Directions.opposite[direction]));
 			}
 			else {
@@ -112,6 +112,7 @@ export class WorldGenerator {
 	addRooms(world: World) {
 		for(const position of this.chunkRectangle().squares()) {
 			const roomPlaceholder = this.rooms.get(position)!;
+			roomPlaceholder.generated = true;
 			roomPlaceholder.room.add(position.multiply(RoomData.SIZE), world, roomPlaceholder.exits);
 		}
 	}
