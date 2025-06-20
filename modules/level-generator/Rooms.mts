@@ -4598,7 +4598,11 @@ export class Rooms {
 					{ x: 5, y: 2, direction: "up" },
 				],
 				[],
-				(exits: Direction[]) => !exits.includes("down") && exits.length >= 2
+				(exits: Direction[]) => !exits.includes("down") && exits.length >= 2,
+				Room.getTraversability([
+					...Room.gatelessPath("left", "right"),
+					...Room.onewayGatelessPath("left", "up")
+				])
 			),
 			new Room(
 				"diagonal",
