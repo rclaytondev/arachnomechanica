@@ -8,6 +8,7 @@ import { Slope, Tile, World } from "../World.js";
 import { Portal } from "../entities/Portal.mjs";
 import { SolidTile } from "../tiles/SolidTile.mjs";
 import { RoomPlaceholder } from "./RoomPlaceholder.mjs";
+import { ROOMS } from "./Rooms.mjs";
 
 export type Traversability = { start: GateState, end: GateState }[];
 
@@ -193,5 +194,15 @@ export class Room {
 		}
 		const average = total / (2 * exits.length);
 		return average;
+	}
+
+	static addRoomVariants() {
+		const length = ROOMS.length;
+		for(let i = 0; i < length; i ++) {
+			ROOMS.push(ROOMS[i].reflect());
+		}
+		for(let i = 0; i < 2 * length; i ++) {
+			ROOMS.push(ROOMS[i].toggleGates());
+		}
 	}
 }

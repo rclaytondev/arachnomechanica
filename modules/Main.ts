@@ -33,6 +33,7 @@ if(DEBUG_SETTINGS.PRINT_RNG_KEY) {
 }
 
 Rooms.initialize();
+Room.addRoomVariants();
 
 const CORNER_SIZE = 3;
 const EMPTY_ROOM = new World();
