@@ -160,7 +160,8 @@ export class WorldGenerator {
 	}
 	isConnected() {
 		const edges = this.connectedEdges().length; // can be optimized: this is a constant.
-		const startState = new GateState(this.chunkCenter(), "right", false);
+		const chunkCenter = this.rooms.get(this.chunkCenter());
+		const startState = new GateState(this.chunkCenter(), chunkCenter!.exits[0], false);
 		for(const backwards of [true, false]) {
 			const reachable = GameUtils.reachableNodes(
 				startState,
