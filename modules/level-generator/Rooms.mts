@@ -4948,6 +4948,10 @@ export class Rooms {
 					{ x: 2, y: 5, type: "solid" },
 					{ x: 2, y: 6, type: "solid" },
 					{ x: 2, y: 7, type: "solid" },
+					{ x: 3, y: 4, type: new Gate("right", true) },
+					{ x: 3, y: 6, type: new Gate("right", true) },
+					{ x: 3, y: 5, type: new Gate("left", true) },
+					{ x: 3, y: 7, type: new Gate("left", true) },
 				],
 				[
 					{ x: 6, y: 0, direction: "up" },
@@ -4959,10 +4963,6 @@ export class Rooms {
 					{ x: 6, y: 11, direction: "down" },
 					{ x: 5, y: 11, direction: "down" },
 					{ x: 4, y: 0, direction: "up" },
-					{ x: 3, y: 4, direction: "right" },
-					{ x: 3, y: 5, direction: "left" },
-					{ x: 3, y: 6, direction: "right" },
-					{ x: 3, y: 7, direction: "left" },
 				],
 				[
 				],
