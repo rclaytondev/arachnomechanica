@@ -252,6 +252,7 @@ export class World {
 		this.screenShakeTimer --;
 		this.updateCamera();
 		this.checkDebugInputs(canvasIO);
+		this.checkWorldGeneration();
 	}
 	updateEntities(canvasIO: CanvasIO) {
 		for(const entity of this.entities) {
@@ -281,6 +282,16 @@ export class World {
 	checkDebugInputs(canvasIO: CanvasIO) {
 		if(canvasIO.keys[DEBUG_SETTINGS.SKIP_LEVEL_KEY]) {
 			this.player.physicsObject.positionInt = [...this.entities].reverse().find(e => e instanceof Portal)!.position;
+		}
+	}
+
+	checkWorldGeneration() {
+		const position = this.player.physicsObject.hitbox().center();
+		const chunk = position.divide(WorldData.TILE_SIZE * RoomData.SIZE * LevelGeneratorData.CHUNK_SIZE).floor();
+		for(const adjacent of [chunk, ...chunk.adjacentVectors()]) {
+			if(!this.worldGenerator.isChunkGenerated(adjacent)) {
+				this.worldGenerator.generateChunk(adjacent, this);
+			}
 		}
 	}
 
