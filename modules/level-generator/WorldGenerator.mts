@@ -106,7 +106,10 @@ export class WorldGenerator {
 			const room = GameUtils.weightedRandom(lessConnectiveRooms, lessConnectiveRooms.map(r => r.weight));
 			roomPlaceholder.room = room;
 			if(this.isConnected()) { return true; }
-			lessConnectiveRooms = lessConnectiveRooms.filter(r => r !== room);
+			lessConnectiveRooms = lessConnectiveRooms.filter(r => !Utils.isSubset(
+				Room.filterTraversability(r.traversability, roomPlaceholder.exits).map(s => `${s.end}, ${s.start}`),
+				Room.filterTraversability(room.traversability, roomPlaceholder.exits).map(s => `${s.end}, ${s.start}`)
+			));
 		}
 		roomPlaceholder.room = originalRoom;
 		return false;

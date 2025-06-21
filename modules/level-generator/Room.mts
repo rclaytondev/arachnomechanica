@@ -195,6 +195,9 @@ export class Room {
 		const average = total / (2 * exits.length);
 		return average;
 	}
+	static filterTraversability(traversability: Traversability, exits: Direction[]) {
+		return traversability.filter(({ start, end }) => exits.includes(start.exit) && exits.includes(end.exit));
+	}
 
 	static addRoomVariants() {
 		const length = ROOMS.length;
