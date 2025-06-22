@@ -111,6 +111,20 @@ export class Room {
 			this.traversability.map(({ start, end }) => ({ start: start.copy(), end: end.copy() }))
 		);
 	}
+	equals(room: Room) {
+		return this.tiles.equals(room.tiles, (t1, t2) => {
+			if(typeof t1 === "string") {
+				return t1 === t2;
+			}
+			else if(t1 instanceof SolidTile) {
+				return t2 instanceof SolidTile && t1.equals(t2);
+			}
+			else if(t1 instanceof Gate) {
+				return t2 instanceof Gate && t1.open === t2.open;
+			}
+			throw new Error("Unexpected.");
+		});
+	}
 	toggleGates() {
 		const copy = this.copy();
 		copy.name += "-toggled";
@@ -200,12 +214,14 @@ export class Room {
 	}
 
 	static addRoomVariants() {
-		const length = ROOMS.length;
-		for(let i = 0; i < length; i ++) {
-			ROOMS.push(ROOMS[i].reflect());
-		}
-		for(let i = 0; i < 2 * length; i ++) {
-			ROOMS.push(ROOMS[i].toggleGates());
+		for(const room of [...ROOMS]) {
+			const variants = [room];
+			for(const variant of [room.reflect(), room.toggleGates(), room.reflect().toggleGates()]) {
+				if(!variants.some(r => r.equals(variant))) {
+					variants.push(variant);
+					ROOMS.push(variant);
+				}
+			}
 		}
 	}
 }

@@ -17,6 +17,9 @@ export class SolidTile {
 	copy() {
 		return new SolidTile(this.shape, this.texture);
 	}
+	equals(tile: unknown) {
+		return tile instanceof SolidTile && this.shape === tile.shape && this.texture === tile.texture;
+	}
 
 	addToPath(position: Vector, canvasIO: CanvasIO) {
 		if(this.shape === "solid") {
