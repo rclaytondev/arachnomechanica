@@ -11,17 +11,18 @@ import { RoomPlaceholder } from "./RoomPlaceholder.mjs";
 import { ROOMS } from "./Rooms.mjs";
 
 export type Traversability = { start: GateState, end: GateState }[];
+export type RoomTile = "empty" | "platform" | SolidTile | Gate;
 
 export class Room {
 	name: string;
-	tiles: Grid<Tile>;
+	tiles: Grid<RoomTile>;
 	canSpawnWithExits: (exits: Direction[]) => boolean;
 	exitTiles: Grid<Direction | "none">;
 	traversability: Traversability;
 	weight: number;
 	entities: Portal[];
 
-	constructor(name: string, tiles: { x: number, y: number, type: Tile | "solid" | Slope }[] | Grid<Tile>, exitTiles: { x: number, y: number, direction: Direction }[] | Grid<Direction | "none">, entities: Portal[] = [], canSpawnWithExits: (exits: Direction[]) => boolean, traversability?: Traversability, weight: number = 1) {
+	constructor(name: string, tiles: { x: number, y: number, type: | "solid" | "platform" | Slope | Gate }[] | Grid<RoomTile>, exitTiles: { x: number, y: number, direction: Direction }[] | Grid<Direction | "none">, entities: Portal[] = [], canSpawnWithExits: (exits: Direction[]) => boolean, traversability?: Traversability, weight: number = 1) {
 		this.name = name;
 		if(tiles instanceof Grid) {
 			this.tiles = tiles;
@@ -29,8 +30,8 @@ export class Room {
 		else {
 			this.tiles = new Grid("empty");
 			for(const { x, y, type } of tiles) {
-				const tile = (type === "solid" || World.isSlope(type as string)) ? new SolidTile(type as "solid" | Slope, "tower") : type;
-				this.tiles.set(x, y, tile as Tile);
+				const tile = (type === "solid" || World.isSlope(type as string)) ? new SolidTile(type as "solid" | Slope, "tower") : (type as "platform" | Gate);
+				this.tiles.set(x, y, tile);
 			}
 		}
 		if(exitTiles instanceof Grid) {
@@ -119,10 +120,7 @@ export class Room {
 			else if(t1 instanceof SolidTile) {
 				return t2 instanceof SolidTile && t1.equals(t2);
 			}
-			else if(t1 instanceof Gate) {
-				return t2 instanceof Gate && t1.open === t2.open;
-			}
-			throw new Error("Unexpected.");
+			return t2 instanceof Gate && t1.open === t2.open;
 		});
 	}
 	toggleGates() {

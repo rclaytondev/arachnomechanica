@@ -2,7 +2,7 @@ import { canvasIO, CanvasIO } from "../utils-ts/modules/CanvasIO.mjs";
 import { Diagonal, Direction, Directions } from "../utils-ts/modules/geometry/Direction.mjs";
 import { Vector } from "../utils-ts/modules/geometry/Vector.mjs";
 import { Grid } from "../utils-ts/modules/Grid.mjs";
-import { Room } from "./level-generator/Room.mjs";
+import { Room, RoomTile } from "./level-generator/Room.mjs";
 import { DEBUG_SETTINGS } from "./constants/DebugSettings.mjs";
 import { Gate } from "./tiles/Gate.mjs";
 import { Tile, World } from "./World.js";
@@ -98,7 +98,7 @@ export class RoomEditor {
 		return this.world.getTileCoordinates(tilePosition.multiply(WorldData.TILE_SIZE).add(PortalData.WIDTH / 2, 0))
 			.add(0, 1).multiply(WorldData.TILE_SIZE);
 	}
-	setTile(position: Vector, tile: Tile) {
+	setTile(position: Vector, tile: RoomTile) {
 		this.world.tiles.set(position, tile);
 		this.room.tiles.set(position, tile);
 	}
