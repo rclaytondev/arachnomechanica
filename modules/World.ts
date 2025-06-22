@@ -4,7 +4,6 @@ import { Rectangle } from "../utils-ts/modules/geometry/Rectangle.mjs";
 import { Vector } from "../utils-ts/modules/geometry/Vector.mjs";
 import { Grid } from "../utils-ts/modules/Grid.mjs";
 import { BackgroundData, LevelGeneratorData, PlayerData, RoomData, WorldData } from "./constants/GameData.mjs";
-import { LevelGenerator } from "./level-generator/LevelGenerator.mjs";
 import { Main } from "./Main.js";
 import { DEBUG_SETTINGS } from "./constants/DebugSettings.mjs";
 import { Particle } from "./game-utilities/Particle.mjs";
@@ -19,13 +18,14 @@ import { Lizard } from "./entities/Lizard.js";
 import { Spikeball } from "./entities/Spikeball.mjs";
 import { SpikeballBlock } from "./tiles/SpikeballBlock.mjs";
 import { Portal } from "./entities/Portal.mjs";
-import { WorldGenerator } from "./level-generator/WorldGenerator.mjs";
 import { MathUtils } from "../utils-ts/modules/math/MathUtils.mjs";
 import { Humanoid } from "./entities/Humanoid.mjs";
 import { RoomEditor } from "./RoomEditor.mjs";
 import { TowerTile } from "./tiles/TowerTile.mjs";
 import { SolidTile } from "./tiles/SolidTile.mjs";
 import { StoneTile } from "./tiles/StoneTile.mjs";
+import { WorldGenerator } from "./level-generator/WorldGenerator.mjs";
+import { Utils } from "../utils-ts/modules/Utils.mjs";
 
 export type TileEntity = SolidTile | Gate | LaserBlock | SpikeballBlock;
 export type Tile = (typeof WorldData.STRING_TILE_TYPES)[number] | TileEntity;
@@ -44,9 +44,32 @@ export class World {
 	screenShakeIntensity: number = 0;
 	camera: Vector = new Vector(0, 0);
 	levels: number = 0;
+	worldGenerator: WorldGenerator = new WorldGenerator();
+	enableGeneration: boolean;
 
 	player: Player = new Player();
 
+	constructor(enableGeneration: boolean) {
+		this.enableGeneration = enableGeneration;
+	}
+
+	initializeGeneration() {
+		this.worldGenerator.generateChunk(new Vector(0, 0), this);
+		this.spawnPlayer();
+		return this;
+	}
+	spawnPlayer() {
+		const emptyTiles = [];
+		for(const position of Rectangle.square(0, 0, RoomData.SIZE).squares()) {
+			const tileBelow = this.tiles.get(position.x, position.y + 1);
+			if(this.tiles.get(position) === "empty" && tileBelow instanceof SolidTile && tileBelow.shape === "solid") {
+				emptyTiles.push(position);
+			}
+		}
+		const tile = Utils.randomItem(emptyTiles);
+		this.player.physicsObject.positionInt = tile.multiply(WorldData.TILE_SIZE)
+		this.camera = this.player.physicsObject.hitbox().center();
+	}
 
 	display(canvasIO: CanvasIO, visibleRegion: Rectangle = this.visibleRegion(canvasIO)) {
 		canvasIO.fillCanvas("white");
@@ -248,6 +271,7 @@ export class World {
 		this.screenShakeTimer --;
 		this.updateCamera();
 		this.checkDebugInputs(canvasIO);
+		this.checkWorldGeneration();
 	}
 	updateEntities(canvasIO: CanvasIO) {
 		for(const entity of this.entities) {
@@ -277,6 +301,17 @@ export class World {
 	checkDebugInputs(canvasIO: CanvasIO) {
 		if(canvasIO.keys[DEBUG_SETTINGS.SKIP_LEVEL_KEY]) {
 			this.player.physicsObject.positionInt = [...this.entities].reverse().find(e => e instanceof Portal)!.position;
+		}
+	}
+
+	checkWorldGeneration() {
+		if(!this.enableGeneration) { return; }
+		const position = this.player.physicsObject.hitbox().center();
+		const chunk = position.divide(WorldData.TILE_SIZE * RoomData.SIZE * LevelGeneratorData.CHUNK_SIZE).floor();
+		for(const adjacent of [chunk, ...chunk.adjacentVectors()]) {
+			if(!this.worldGenerator.isChunkGenerated(adjacent)) {
+				this.worldGenerator.generateChunk(adjacent, this);
+			}
 		}
 	}
 
@@ -524,14 +559,6 @@ export class World {
 		) {
 			this.particles.push(particle);
 		}
-	}
-
-	generateNextLevel() {
-		const generator = new WorldGenerator(new Vector(
-			0,
-			-(LevelGeneratorData.HEIGHT * (RoomData.SIZE + LevelGeneratorData.MARGIN_Y)) * this.levels
-		), this);
-		generator.generate();
 	}
 
 	static isTile(value: unknown): value is Tile {

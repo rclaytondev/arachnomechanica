@@ -3,24 +3,26 @@ import { Vector } from "../../utils-ts/modules/geometry/Vector.mjs";
 import { Grid } from "../../utils-ts/modules/Grid.mjs";
 import { RoomData, WorldData } from "../constants/GameData.mjs";
 import { GateState } from "./GateState.mjs";
-import { RoomPlaceholder } from "./LevelGenerator.mjs";
 import { Gate } from "../tiles/Gate.mjs";
 import { Slope, Tile, World } from "../World.js";
 import { Portal } from "../entities/Portal.mjs";
 import { SolidTile } from "../tiles/SolidTile.mjs";
+import { RoomPlaceholder } from "./RoomPlaceholder.mjs";
+import { ROOMS } from "./Rooms.mjs";
 
 export type Traversability = { start: GateState, end: GateState }[];
+export type RoomTile = "empty" | "platform" | SolidTile | Gate;
 
 export class Room {
 	name: string;
-	tiles: Grid<Tile>;
+	tiles: Grid<RoomTile>;
 	canSpawnWithExits: (exits: Direction[]) => boolean;
 	exitTiles: Grid<Direction | "none">;
 	traversability: Traversability;
 	weight: number;
 	entities: Portal[];
 
-	constructor(name: string, tiles: { x: number, y: number, type: Tile | "solid" | Slope }[] | Grid<Tile>, exitTiles: { x: number, y: number, direction: Direction }[] | Grid<Direction | "none">, entities: Portal[] = [], canSpawnWithExits: (exits: Direction[]) => boolean, traversability?: Traversability, weight: number = 1) {
+	constructor(name: string, tiles: { x: number, y: number, type: | "solid" | "platform" | Slope | Gate }[] | Grid<RoomTile>, exitTiles: { x: number, y: number, direction: Direction }[] | Grid<Direction | "none">, entities: Portal[] = [], canSpawnWithExits: (exits: Direction[]) => boolean, traversability?: Traversability, weight: number = 1) {
 		this.name = name;
 		if(tiles instanceof Grid) {
 			this.tiles = tiles;
@@ -28,8 +30,8 @@ export class Room {
 		else {
 			this.tiles = new Grid("empty");
 			for(const { x, y, type } of tiles) {
-				const tile = (type === "solid" || World.isSlope(type as string)) ? new SolidTile(type as "solid" | Slope, "tower") : type;
-				this.tiles.set(x, y, tile as Tile);
+				const tile = (type === "solid" || World.isSlope(type as string)) ? new SolidTile(type as "solid" | Slope, "tower") : (type as "platform" | Gate);
+				this.tiles.set(x, y, tile);
 			}
 		}
 		if(exitTiles instanceof Grid) {
@@ -47,13 +49,6 @@ export class Room {
 		this.entities = entities;
 	}
 
-	canAdd(roomPlaceholder: RoomPlaceholder, matchTraversability: boolean = true) {
-		const traversabilityMatches = GateState.traversabilityEquals(
-			this.traversability,
-			roomPlaceholder.traversability
-		);
-		return this.canSpawnWithExits(roomPlaceholder.exits) && (traversabilityMatches || !matchTraversability);
-	}
 	hasPortal() {
 		return this.entities.some(e => e instanceof Portal);
 	}
@@ -116,6 +111,17 @@ export class Room {
 			this.canSpawnWithExits,
 			this.traversability.map(({ start, end }) => ({ start: start.copy(), end: end.copy() }))
 		);
+	}
+	equals(room: Room) {
+		return this.tiles.equals(room.tiles, (t1, t2) => {
+			if(typeof t1 === "string") {
+				return t1 === t2;
+			}
+			else if(t1 instanceof SolidTile) {
+				return t2 instanceof SolidTile && t1.equals(t2);
+			}
+			return t2 instanceof Gate && t1.open === t2.open;
+		});
 	}
 	toggleGates() {
 		const copy = this.copy();
@@ -181,5 +187,39 @@ export class Room {
 			}
 		}
 		return connections;
+	}
+
+	static connectivity(traversability: Traversability, exits: Direction[]) {
+		let total = 0;
+		for(const exit of exits) {
+			for(const toggled of [true, false]) {
+				const reachableStates = traversability.filter(({ start }) => (
+					start.exit === exit && start.toggled === toggled
+				));
+				const reachableDirections = new Set(reachableStates.map(s => s.end.exit).filter(s => exits.includes(s)));
+				reachableDirections.delete(exit);
+				total += reachableDirections.size;
+				if(reachableStates.some(s => s.end.exit === exit && s.end.toggled === !toggled)) {
+					total ++;
+				}
+			}
+		}
+		const average = total / (2 * exits.length);
+		return average;
+	}
+	static filterTraversability(traversability: Traversability, exits: Direction[]) {
+		return traversability.filter(({ start, end }) => exits.includes(start.exit) && exits.includes(end.exit));
+	}
+
+	static addRoomVariants() {
+		for(const room of [...ROOMS]) {
+			const variants = [room];
+			for(const variant of [room.reflect(), room.toggleGates(), room.reflect().toggleGates()]) {
+				if(!variants.some(r => r.equals(variant))) {
+					variants.push(variant);
+					ROOMS.push(variant);
+				}
+			}
+		}
 	}
 }

@@ -1,344 +1,343 @@
-import { Directions } from "../../utils-ts/modules/geometry/Direction.mjs";
+import { CanvasIO } from "../../utils-ts/modules/CanvasIO.mjs";
+import { Direction, Directions } from "../../utils-ts/modules/geometry/Direction.mjs";
 import { Rectangle } from "../../utils-ts/modules/geometry/Rectangle.mjs";
 import { Vector } from "../../utils-ts/modules/geometry/Vector.mjs";
 import { Grid } from "../../utils-ts/modules/Grid.mjs";
 import { Utils } from "../../utils-ts/modules/Utils.mjs";
-import { LaserBlockData, LevelGeneratorData, LizardData, RoomData, SpikeballBlockData, WorldData } from "../constants/GameData.mjs";
-import { Lizard } from "../entities/Lizard.js";
+import { DEBUG_SETTINGS } from "../constants/DebugSettings.mjs";
+import { LevelGeneratorData, RoomData } from "../constants/GameData.mjs";
 import { GameUtils } from "../game-utilities/GameUtils.mjs";
-import { LevelGenerator } from "./LevelGenerator.mjs";
-import { Room } from "./Room.mjs";
-import { ROOMS } from "./Rooms.mjs";
-import { World } from "../World.js";
-import { LaserBlock } from "../tiles/LaserBlock.mjs";
 import { Gate } from "../tiles/Gate.mjs";
-import { SpikeballBlock } from "../tiles/SpikeballBlock.mjs";
 import { SolidTile } from "../tiles/SolidTile.mjs";
+import { World } from "../World";
+import { GateState } from "./GateState.mjs";
+import { Room } from "./Room.mjs";
+import { RoomPlaceholder } from "./RoomPlaceholder.mjs";
+import { ROOMS } from "./Rooms.mjs";
 
 export class WorldGenerator {
-	levelGenerator: LevelGenerator = new LevelGenerator();
-	position: Vector;
-	world: World;
-	rooms: Grid<Room | null> = new Grid(null);
+	rooms: Grid<RoomPlaceholder | null> = new Grid(null);
+	currentChunk: Vector = new Vector(0, 0);
 
-	constructor(position: Vector = new Vector(0, 0), world: World = new World()) {
-		this.position = position;
-		this.world = world;
+	generateChunk(chunkPosition: Vector, world: World) {
+		this.currentChunk = chunkPosition;
+		this.initializeChunk();
+		this.prunePhysicalConnections();
+		this.connectRandomRooms();
+		this.pruneConnections();
+		this.addRooms(world);
 	}
 
-	generateRooms() {
-		for(let x = 0; x < LevelGeneratorData.WIDTH; x ++) {
-			for(let y = 0; y < LevelGeneratorData.HEIGHT; y ++) {
-				const roomPlaceholder = this.levelGenerator.rooms.get(x, y);
-				if(!roomPlaceholder) { continue; }
-				const possibleRooms = ROOMS.filter(
-					room => room.canAdd(roomPlaceholder)
-					&& room.hasPortal() === this.levelGenerator.path[0].equals(x, y)
-				);
-				const room = GameUtils.weightedRandom(possibleRooms, possibleRooms.map(r => r.weight));
-				room.add(new Vector(
-					this.position.x + x * (RoomData.SIZE + LevelGeneratorData.MARGIN_X),
-					this.position.y + y * (RoomData.SIZE + LevelGeneratorData.MARGIN_Y)
-				), this.world, roomPlaceholder.exits);
-				this.rooms.set(x, y, room);
+	initializeChunk() {
+		for(let x = 0; x < LevelGeneratorData.CHUNK_SIZE; x ++) {
+			for(let y = 0; y < LevelGeneratorData.CHUNK_SIZE; y ++) {
+				const position = this.roomPosition(new Vector(x, y));
+				const placeholder = new RoomPlaceholder([...Directions.DIRECTIONS], ROOMS.find(r => r.name === "control-room-junction")!);
+				this.rooms.set(position, placeholder);
 			}
 		}
 	}
-	fillRoom(x: number, y: number) {
-		this.world.tiles.fillRect(new Rectangle(
-			this.position.x + x * (RoomData.SIZE + LevelGeneratorData.MARGIN_X),
-			this.position.y + y * (RoomData.SIZE + LevelGeneratorData.MARGIN_Y),
-			RoomData.SIZE,
-			RoomData.SIZE,
-		), new SolidTile("solid", "tower"));
-	}
-	fillUnusedRegions() {
-		for(let x = 0; x < LevelGeneratorData.WIDTH; x ++) {
-			for(let y = 0; y < LevelGeneratorData.HEIGHT; y ++) {
-				if(this.levelGenerator.rooms.get(x, y) === null) {
-					this.fillRoom(x, y);
+	prunePhysicalConnections() {
+		const connections: { position: Vector, direction: Direction }[] = [];
+		for(let x = 0; x < LevelGeneratorData.CHUNK_SIZE; x ++) {
+			for(let y = 0; y < LevelGeneratorData.CHUNK_SIZE; y ++) {
+				const position = this.roomPosition(new Vector(x, y));
+				connections.push({ position, direction: "right" });
+				connections.push({ position, direction: "down" });
+				if(x === 0) {
+					connections.push({ position, direction: "left" });
+				}
+				if(y === 0) {
+					connections.push({ position, direction: "up" });
+				}
+			}
+		}
+		const randomized = GameUtils.randomPermutation(connections);
+		for(const { position, direction } of randomized) {
+			const adjacent = position.add(Vector.unit(direction));
+			const adjacentRoom = this.rooms.get(adjacent);
+			if(adjacentRoom && adjacentRoom.generated) {
+				this.setConnected(position, direction, adjacentRoom.exits.includes(Directions.opposite[direction]));
+			}
+			else {
+				this.disconnect(position, direction);
+				if(!this.isPhysicallyConnected()) {
+					this.connect(position, direction);
 				}
 			}
 		}
 	}
-	addMargin(room1Position: Vector, room1: Room, room2: Room, direction: "right" | "down", forceSolid: boolean) {
-		if(direction === "right") {
-			const room1YExits = new Set(room1.getExitCoordinates("right", "y"));
-			const room2YExits = new Set(room2.getExitCoordinates("left", "y"));
-			const xStart = room1Position.x + RoomData.SIZE;
-			for(let y = room1Position.y; y < room1Position.y + RoomData.SIZE; y ++) {
-				if(room1YExits.has(y - room1Position.y) && room2YExits.has(y - room1Position.y) && !forceSolid) {
-					continue;
-				}
-				for(let x = xStart; x < xStart + LevelGeneratorData.MARGIN_X; x ++) {
-					this.world.tiles.set(x, y, new SolidTile("solid", "tower"));
+	connectRandomRooms() {
+		const edges = this.unconnectedEdges();
+		const interior = edges.filter(({ position, direction }) => this.isInChunk(position) && this.isInChunk(position.add(Vector.unit(direction))));
+		const boundary = edges.filter(e => !interior.includes(e));
+
+		for(const { position, direction } of GameUtils.randomPermutation(interior).slice(0, LevelGeneratorData.INTERIOR_CONNECTIONS)) {
+			this.connect(position, direction);
+		}
+		for(const direction of Directions.DIRECTIONS) {
+			if(!this.isChunkGenerated(this.currentChunk.add(Vector.unit(direction)))) {
+				const boundaryInDirection = boundary.filter(edge => edge.direction === direction);
+				for(const { position } of GameUtils.randomPermutation(boundaryInDirection).slice(0, LevelGeneratorData.BOUNDARY_CONNECTIONS)) {
+					this.connect(position, direction);
 				}
 			}
+		}
+	}
+	pruneConnections() {
+		const positions = this.chunkRectangle().squares();
+		for(const position of positions.sort((a, b) => this.rooms.get(b)!.exits.length - this.rooms.get(a)!.exits.length)) {
+			this.pruneRoom(this.rooms.get(position)!);
+		}
+	}
+	pruneRoom(roomPlaceholder: RoomPlaceholder) {
+		const originalRoom = roomPlaceholder.room;
+		const connectivity = Room.connectivity(roomPlaceholder.room.traversability, roomPlaceholder.exits);
+		const lessConnectiveRooms = Utils.groupBy(
+			ROOMS.filter(r => (
+				r.canSpawnWithExits(roomPlaceholder.exits)
+				&& Room.connectivity(r.traversability, roomPlaceholder.exits) < connectivity)
+			),
+			r => Room.connectivity(r.traversability, roomPlaceholder.exits)
+		)
+		while(lessConnectiveRooms.size > 0) {
+			const room = Utils.randomItem(lessConnectiveRooms.get(Math.min(...lessConnectiveRooms.keys()))!);
+			roomPlaceholder.room = room;
+			if(this.isConnected()) { return; }
+			for(const connectedness of [...lessConnectiveRooms.keys()]) {
+				const group = lessConnectiveRooms.get(connectedness)!;
+				lessConnectiveRooms.set(connectedness, group.filter(r => !Utils.isSubset(
+					Room.filterTraversability(r.traversability, roomPlaceholder.exits).map(s => `${s.end}, ${s.start}`),
+					Room.filterTraversability(room.traversability, roomPlaceholder.exits).map(s => `${s.end}, ${s.start}`)
+				)));
+				if(lessConnectiveRooms.get(connectedness)!.length === 0) {
+					lessConnectiveRooms.delete(connectedness);
+				}
+			}
+		}
+		roomPlaceholder.room = originalRoom;
+	}
+	addRooms(world: World) {
+		for(const position of this.chunkRectangle().squares()) {
+			const roomPlaceholder = this.rooms.get(position)!;
+			roomPlaceholder.generated = true;
+			roomPlaceholder.room.add(position.multiply(RoomData.SIZE), world, roomPlaceholder.exits);
+		}
+	}
+
+
+	connect(roomPosition: Vector, direction: Direction) {
+		const adjacentRoom = this.rooms.get(roomPosition.add(Vector.unit(direction)));
+		const opposite = Directions.opposite[direction];
+		const room = this.rooms.get(roomPosition);
+		if(room && !room.exits.includes(direction)) {
+			room.exits.push(direction);
+		}
+		if(adjacentRoom && !adjacentRoom.exits.includes(opposite)) {
+			adjacentRoom.exits.push(opposite);
+		}
+	}
+	disconnect(roomPosition: Vector, direction: Direction) {
+		const adjacentRoom = this.rooms.get(roomPosition.add(Vector.unit(direction)));
+		const opposite = Directions.opposite[direction];
+		const room = this.rooms.get(roomPosition);
+		if(room) {
+			room.exits = room.exits.filter(e => e !== direction);
+		}
+		if(adjacentRoom) {
+			adjacentRoom.exits = adjacentRoom.exits.filter(e => e !== opposite);
+		}
+	}
+	setConnected(room: Vector, direction: Direction, connected: boolean) {
+		if(connected) {
+			this.connect(room, direction);
 		}
 		else {
-			const room1XExits = new Set(room1.getExitCoordinates("down", "x"));
-			const room2XExits = new Set(room2.getExitCoordinates("up", "x"));
-			const yStart = room1Position.y + RoomData.SIZE;
-			for(let x = room1Position.x; x < room1Position.x + RoomData.SIZE; x ++) {
-				if(room1XExits.has(x - room1Position.x) && room2XExits.has(x - room1Position.x) && !forceSolid) {
-					continue;
+			this.disconnect(room, direction);
+		}
+	}
+	isPhysicallyConnected() {
+		const reachable = GameUtils.reachableNodes<Vector | Direction>(
+			this.chunkCenter(),
+			(position) => position instanceof Vector ? this.rooms.get(position)!.exits
+				.map(e => position.add(Vector.unit(e)))
+				.map(p => this.isInChunk(p) ? p : this.directionFromChunk(p)) : [],
+			(v1, v2) => v1 === v2 || (v1 instanceof Vector && v2 instanceof Vector && v1.equals(v2))
+		);
+		return reachable.length >= LevelGeneratorData.CHUNK_SIZE ** 2 + 4;
+	}
+	isConnected() {
+		const edges = this.connectedEdges().length; // can be optimized: this is a constant.
+		const chunkCenter = this.rooms.get(this.chunkCenter());
+		const startState = new GateState(this.chunkCenter(), chunkCenter!.exits[0], false);
+		for(const backwards of [true, false]) {
+			const reachable = GameUtils.reachableNodes(
+				startState,
+				(state) => this.neighbors(state, backwards).filter(n => this.isEdgeInChunk(n.position!, n.exit)),
+				(s1, s2) => s1.equals(s2)
+			);
+			if(reachable.length < edges * 2) {
+				return false;
+			}
+		}
+		return true;
+	}
+	neighbors(state: GateState, backwards: boolean = false) {
+		if(!state.position) {
+			throw new Error("Cannot get next states if the state does not have a position set.");
+		}
+		const result = [];
+		const positions = [
+			state.position,
+			state.position.add(Vector.unit(state.exit))
+		];
+		for(const position of positions) {
+			const room = this.rooms.get(position);
+			if(!room) { continue; }
+			for(let { start, end } of room.room.traversability) {
+				if(!room.exits.includes(start.exit) || !room.exits.includes(end.exit)) { continue; }
+				if(!backwards && start.translate(position).equals(state)) {
+					result.push(end.translate(position));
 				}
-				for(let y = yStart; y < yStart + LevelGeneratorData.MARGIN_Y; y ++) {
-					this.world.tiles.set(x, y, new SolidTile("solid", "tower"));
+				if(backwards && end.translate(position).equals(state)) {
+					result.push(start.translate(position));
 				}
 			}
 		}
+		return result;
 	}
-	addSolidMargin(room1Position: Vector, direction: "right" | "down") {
-		if(direction === "right") {
-			const xStart = room1Position.x + RoomData.SIZE;
-			this.world.tiles.fillRect(new Rectangle(
-				xStart, room1Position.y, 
-				LevelGeneratorData.MARGIN_X, RoomData.SIZE
-			), new SolidTile("solid", "tower"));
+	connectedEdges(chunkPosition: Vector = this.currentChunk) {
+		return this.edgesInChunk(chunkPosition).filter(
+			({ position, direction }) => this.rooms.get(position)?.exits.includes(direction)
+		);
+	}
+	unconnectedEdges(chunkPosition: Vector = this.currentChunk) {
+		return this.edgesInChunk(chunkPosition).filter(
+			({ position, direction }) => !(this.rooms.get(position)?.exits.includes(direction))
+		);
+	}
+
+
+
+	chunkCenter(chunkPosition: Vector = this.currentChunk) {
+		return chunkPosition.add(1/2, 1/2).multiply(LevelGeneratorData.CHUNK_SIZE).floor();
+	}
+	roomPosition(positionInChunk: Vector, chunkPosition: Vector = this.currentChunk) {
+		return chunkPosition.multiply(LevelGeneratorData.CHUNK_SIZE).add(positionInChunk);
+	}
+	isInChunk(position: Vector, chunkPosition: Vector = this.currentChunk) {
+		return position.divide(LevelGeneratorData.CHUNK_SIZE).floor().equals(chunkPosition);
+	}
+	isEdgeInChunk(position: Vector, edge: Direction, chunkPosition: Vector = this.currentChunk) {
+		return this.isInChunk(position, chunkPosition) || this.isInChunk(position.add(Vector.unit(edge)), chunkPosition);
+	}
+	chunkRectangle(chunkPosition: Vector = this.currentChunk) {
+		return Rectangle.square(
+			chunkPosition.x * LevelGeneratorData.CHUNK_SIZE,
+			chunkPosition.y * LevelGeneratorData.CHUNK_SIZE,
+			LevelGeneratorData.CHUNK_SIZE,
+		);
+	}
+	directionFromChunk(position: Vector, chunkPosition: Vector = this.currentChunk): Direction {
+		if(position.x < chunkPosition.x * LevelGeneratorData.CHUNK_SIZE) {
+			return "left";
+		}
+		else if(position.x >= (chunkPosition.x + 1) * LevelGeneratorData.CHUNK_SIZE) {
+			return "right";
+		}
+		else if(position.y < chunkPosition.y * LevelGeneratorData.CHUNK_SIZE) {
+			return "up";
 		}
 		else {
-			const yStart = room1Position.y + RoomData.SIZE;
-			this.world.tiles.fillRect(new Rectangle(
-				room1Position.x, yStart,
-				RoomData.SIZE, LevelGeneratorData.MARGIN_Y
-			), new SolidTile("solid", "tower"));
+			return "down";
 		}
 	}
-	generateMargins() {
-		for(let x = 0; x < LevelGeneratorData.WIDTH; x ++) {
-			for(let y = 0; y < LevelGeneratorData.HEIGHT; y ++) {
-				const room = this.rooms.get(x, y);
-				const position = new Vector(
-					this.position.x + x * (RoomData.SIZE + LevelGeneratorData.MARGIN_X),
-					this.position.y + y * (RoomData.SIZE + LevelGeneratorData.MARGIN_Y)
-				);
-				for(const direction of ["right", "down"] as const) {
-					if(
-						(direction === "right" && x === LevelGeneratorData.WIDTH - 1) || 
-						(direction === "down" && y === LevelGeneratorData.HEIGHT - 1)
-					) { continue; }
-					const adjacentRoom = this.rooms.get(Vector.unit(direction).add(x, y));
-					if(room && adjacentRoom) {
-						this.addMargin(
-							position,
-							room, adjacentRoom, direction,
-							!this.levelGenerator.rooms.get(x, y)!.exits.includes(direction)
-						);
-					}
-					else {
-						this.addSolidMargin(position, direction);
-					}
+	isChunkGenerated(chunkPosition: Vector) {
+		const roomPlaceholder = this.rooms.get(chunkPosition.multiply(LevelGeneratorData.CHUNK_SIZE));
+		return roomPlaceholder != null && roomPlaceholder.room != null;
+	}
+	edgesInChunk(chunkPosition: Vector = this.currentChunk) {
+		const edges: { position: Vector, direction: Direction }[] = [];
+		for(let x = 0; x < LevelGeneratorData.CHUNK_SIZE; x ++) {
+			for(let y = 0; y < LevelGeneratorData.CHUNK_SIZE; y ++) {
+				const position = this.roomPosition(new Vector(x, y), chunkPosition);
+				edges.push({ position, direction: "right" });
+				edges.push({ position, direction: "down" });
+				if(x === 0) {
+					edges.push({ position, direction: "left" });
 				}
-
-				if(x < LevelGeneratorData.WIDTH - 1 && y < LevelGeneratorData.HEIGHT - 1) {
-					this.world.tiles.fillRect(new Rectangle(
-						this.position.x + position.x + RoomData.SIZE, this.position.y + position.y + RoomData.SIZE, 
-						LevelGeneratorData.MARGIN_X, LevelGeneratorData.MARGIN_Y
-					), new SolidTile("solid", "tower"));
+				if(y === 0) {
+					edges.push({ position, direction: "up" });
 				}
 			}
 		}
-	}
-	fillBoundaries() {
-		this.world.tiles.fillRect(new Rectangle(
-			this.position.x - LevelGeneratorData.BORDER_X, this.position.y - LevelGeneratorData.BORDER_Y,
-			LevelGeneratorData.WIDTH * (RoomData.SIZE + LevelGeneratorData.MARGIN_X) + LevelGeneratorData.BORDER_X - LevelGeneratorData.MARGIN_X,
-			LevelGeneratorData.BORDER_Y
-		), new SolidTile("solid", "tower"));
-		this.world.tiles.fillRect(new Rectangle(
-			this.position.x - LevelGeneratorData.BORDER_X, this.position.y,
-			LevelGeneratorData.BORDER_X,
-			LevelGeneratorData.HEIGHT * (RoomData.SIZE + LevelGeneratorData.MARGIN_Y)
-		), new SolidTile("solid", "tower"));
-		this.world.tiles.fillRect(new Rectangle(
-			this.position.x + LevelGeneratorData.WIDTH * (RoomData.SIZE + LevelGeneratorData.MARGIN_X) - LevelGeneratorData.MARGIN_X, this.position.y - LevelGeneratorData.BORDER_Y,
-			LevelGeneratorData.BORDER_X,
-			LevelGeneratorData.HEIGHT * (RoomData.SIZE + LevelGeneratorData.MARGIN_Y) + LevelGeneratorData.BORDER_Y
-		), new SolidTile("solid", "tower"));
-		this.world.tiles.fillRect(new Rectangle(
-			this.position.x - LevelGeneratorData.BORDER_X, this.position.y + LevelGeneratorData.HEIGHT * (RoomData.SIZE + LevelGeneratorData.MARGIN_Y) - LevelGeneratorData.MARGIN_Y, 
-			LevelGeneratorData.WIDTH * (RoomData.SIZE + LevelGeneratorData.MARGIN_X) + 2 * LevelGeneratorData.BORDER_X - LevelGeneratorData.MARGIN_X,
-			LevelGeneratorData.BORDER_Y,
-		), new SolidTile("solid", "tower"));
+		return edges;
 	}
 
 
-	spawnPlayer() {
-		const lastRoom = this.levelGenerator.path[this.levelGenerator.path.length - 1];
-		const emptyTiles = [];
-		for(let x = 0; x < RoomData.SIZE; x ++) {
-			for(let y = 0; y < RoomData.SIZE; y ++) {
-				const position = new Vector(
-					this.position.x + lastRoom.x * (RoomData.SIZE + LevelGeneratorData.MARGIN_X) + x,
-					this.position.y + lastRoom.y * (RoomData.SIZE + LevelGeneratorData.MARGIN_Y) + y
-				);
-				const tileBelow = this.world.tiles.get(position.x, position.y + 1);
-				if(this.world.tiles.get(position) === "empty" && tileBelow instanceof SolidTile && tileBelow.shape === "solid") {
-					emptyTiles.push(position);
-				}
+	visualize(canvasIO: CanvasIO, pauseDebugger: boolean = true) {
+		canvasIO.fillCanvas("white");
+		for(const [room, position] of this.rooms.entries()) {
+			if(room) {
+				this.visualizeRoom(canvasIO, room, position);
 			}
 		}
-		const tile = Utils.randomItem(emptyTiles);
-		this.world.player.physicsObject.positionInt = tile.multiply(WorldData.TILE_SIZE)
-		this.world.camera = this.world.player.physicsObject.hitbox().center();
-	}
 
-	static spawnRequirements = {
-		replaceSolid: (position: Vector, world: World) => {
-			const tile = world.tiles.get(position);
-			return tile instanceof SolidTile && tile.shape === "solid";
-		},
-		atLeast2Empty: (position: Vector, world: World) => (
-			Directions.DIRECTIONS.filter(d => world.tiles.get(position.add(Vector.unit(d))) === "empty").length >= 2
-		),
-		noAdjacentGates: (position: Vector, world: World) => (
-			!position.adjacentVectors().some(v => world.tiles.get(v) instanceof Gate)
-		),
-		atLeastLine3Empty: (position: Vector, world: World) => {
-			for(const direction of Directions.DIRECTIONS) {
-				const firstTile = world.tiles.get(position.add(Vector.unit(direction)));
-				if(firstTile instanceof SolidTile) { continue; }
-				for(let i = 2; i <= 3; i ++) {
-					if(world.tiles.get(position.add(Vector.unit(direction).multiply(i))) !== "empty") {
-						return false;
-					}
-				}
-			}
-			return true;
-		},
-		atLeast3RectEmpty: (position: Vector, world: World) => {
-			for(const direction of Directions.DIRECTIONS) {
-				const directionVector = Vector.unit(direction);
-				const perpendicular1 = Vector.unit(Directions.rotateClockwise[direction]);
-				const perpendicular2 = Vector.unit(Directions.rotateCounterclockwise[direction]);
-				const firstTile = world.tiles.get(position.add(directionVector));
-				if(firstTile instanceof SolidTile) { continue; }
-				for(let i = 2; i <= 3; i ++) {
-					if(
-						world.tiles.get(position.add(directionVector.multiply(i))) !== "empty" ||
-						world.tiles.get(position.add(directionVector.multiply(i)).add(perpendicular1)) !== "empty" ||
-						world.tiles.get(position.add(directionVector.multiply(i)).add(perpendicular2)) !== "empty"
-					) {
-						return false;
-					}
-				}
-			}
-			return true;
-		},
-		notOnFloor: (position: Vector, world: World) => {
-			return world.tiles.get(position.add(0, -1)) !== "empty";
+		canvasIO.ctx.strokeStyle = DEBUG_SETTINGS.GENERATOR_VISUALIZATION.GRID_COLOR;
+		for(let i = 0; i < Math.max(canvasIO.canvas.width, canvasIO.canvas.height); i += DEBUG_SETTINGS.GENERATOR_VISUALIZATION.GRID_SIZE) {
+			canvasIO.strokeLine(0, i, canvasIO.canvas.width, i);
+			canvasIO.strokeLine(i, 0, i, canvasIO.canvas.height);
 		}
-	};
-	
-	spawnLizards() {
-		const positions = [];
-		const totalLizards = Math.ceil(LevelGeneratorData.WIDTH * LevelGeneratorData.HEIGHT * LizardData.LIZARDS_PER_ROOM);
-		let amountSpawned = 0;
-		while(amountSpawned < totalLizards) {
-			const position = GameUtils.randomEvenlySpaced(
-				new Rectangle(
-					this.position.x, this.position.y,
-					LevelGeneratorData.WIDTH * (RoomData.SIZE + LevelGeneratorData.MARGIN_X) - LevelGeneratorData.MARGIN_X - 1,
-					LevelGeneratorData.HEIGHT * (RoomData.SIZE + LevelGeneratorData.MARGIN_Y) - LevelGeneratorData.MARGIN_Y - 1
-				),
-				positions,
-				LizardData.SPAWN_EVENNESS,
-				"int"
-			);
-			const direction = Utils.randomItem(Directions.DIRECTIONS);
-			const length = GameUtils.randomInt(LizardData.MIN_LENGTH, LizardData.MAX_LENGTH);
-			const lizard = new Lizard(
-				position.add(1/2, 1/2).multiply(WorldData.TILE_SIZE), 
-				direction, (length + 1/2) * WorldData.TILE_SIZE, LizardData.SPEED
-			);
-			if(lizard.canSpawn(this.world)) {
-				this.world.entities.push(lizard);
-				positions.push(position);
-				amountSpawned ++;
-			}
+		if(pauseDebugger) {
+			debugger;
 		}
-		console.log(this.world.entities.length);
 	}
-	spawnLasers(trapPositions: Vector[] = []) {
-		return this.spawnTraps(
-			LaserBlockData.LASERS_PER_ROOM,
-			[
-				WorldGenerator.spawnRequirements.replaceSolid,
-				WorldGenerator.spawnRequirements.atLeast2Empty,
-				WorldGenerator.spawnRequirements.noAdjacentGates,
-				WorldGenerator.spawnRequirements.notOnFloor,
-				LaserBlock.canSpawn
-			],
-			(x, y, world) => {
-				world.addTile(new Vector(x, y), new LaserBlock(
-					LaserBlockData.BEAMS_PER_BLOCK,
-					GameUtils.random(LaserBlockData.MIN_SPEED, LaserBlockData.MAX_SPEED) * (Math.random() < 0.5 ? -1 : 1),
-					GameUtils.random(0, 2 * Math.PI)
-				));
-			},
-			trapPositions
+	visualizeExits(canvasIO: CanvasIO, room: RoomPlaceholder, position: Vector) {
+		position = position.multiply(DEBUG_SETTINGS.GENERATOR_VISUALIZATION.GRID_SIZE);
+		canvasIO.ctx.fillStyle = "black";
+		canvasIO.ctx.fillRect(
+			position.x, position.y,
+			room.exits.includes("up") ? DEBUG_SETTINGS.GENERATOR_VISUALIZATION.BORDER_SIZE : DEBUG_SETTINGS.GENERATOR_VISUALIZATION.GRID_SIZE,
+			DEBUG_SETTINGS.GENERATOR_VISUALIZATION.BORDER_SIZE,
+		);
+		canvasIO.ctx.fillRect(
+			position.x, position.y,
+			DEBUG_SETTINGS.GENERATOR_VISUALIZATION.BORDER_SIZE,
+			room.exits.includes("left") ? DEBUG_SETTINGS.GENERATOR_VISUALIZATION.BORDER_SIZE : DEBUG_SETTINGS.GENERATOR_VISUALIZATION.GRID_SIZE,
+		);
+		canvasIO.ctx.fillRect(
+			position.x, position.y + DEBUG_SETTINGS.GENERATOR_VISUALIZATION.GRID_SIZE - DEBUG_SETTINGS.GENERATOR_VISUALIZATION.BORDER_SIZE,
+			room.exits.includes("down") ? DEBUG_SETTINGS.GENERATOR_VISUALIZATION.BORDER_SIZE : DEBUG_SETTINGS.GENERATOR_VISUALIZATION.GRID_SIZE,
+			DEBUG_SETTINGS.GENERATOR_VISUALIZATION.BORDER_SIZE,
+		);
+		canvasIO.ctx.fillRect(
+			position.x + DEBUG_SETTINGS.GENERATOR_VISUALIZATION.GRID_SIZE - DEBUG_SETTINGS.GENERATOR_VISUALIZATION.BORDER_SIZE, position.y,
+			DEBUG_SETTINGS.GENERATOR_VISUALIZATION.BORDER_SIZE,
+			room.exits.includes("right") ? DEBUG_SETTINGS.GENERATOR_VISUALIZATION.BORDER_SIZE : DEBUG_SETTINGS.GENERATOR_VISUALIZATION.GRID_SIZE,
+		);
+		canvasIO.ctx.fillRect(
+			position.x + DEBUG_SETTINGS.GENERATOR_VISUALIZATION.GRID_SIZE - DEBUG_SETTINGS.GENERATOR_VISUALIZATION.BORDER_SIZE,
+			position.y + DEBUG_SETTINGS.GENERATOR_VISUALIZATION.GRID_SIZE - DEBUG_SETTINGS.GENERATOR_VISUALIZATION.BORDER_SIZE,
+			DEBUG_SETTINGS.GENERATOR_VISUALIZATION.BORDER_SIZE,
+			DEBUG_SETTINGS.GENERATOR_VISUALIZATION.BORDER_SIZE
 		);
 	}
-	spawnSpikeballBlocks(trapPositions: Vector[] = []) {
-		return this.spawnTraps(
-			SpikeballBlockData.SPIKEBALLS_PER_ROOM,
-			[
-				WorldGenerator.spawnRequirements.replaceSolid,
-				WorldGenerator.spawnRequirements.noAdjacentGates,
-				WorldGenerator.spawnRequirements.atLeast3RectEmpty,
-				SpikeballBlock.canSpawn,
-			],
-			(x: number, y: number, world: World) => {
-				world.addTile(new Vector(x, y), new SpikeballBlock(Utils.randomItem(SpikeballBlockData.PATTERNS)));
-			},
-			trapPositions
-		);
-	}
-	spawnAllTraps() {
-		const positions = this.spawnLasers();
-		// this.spawnSpikeballBlocks(positions);
-	}
-	spawnTraps(density: number, requirements: ((position: Vector, world: World) => boolean)[], spawn: (x: number, y: number, world: World) => void, positionsSpawned: Vector[] = []) {
-		let possiblePositions: Vector[] = [];
-		for(let x = -1; x < LevelGeneratorData.WIDTH * (RoomData.SIZE + LevelGeneratorData.MARGIN_X) + 1; x ++) {
-			for(let y = -1; y < LevelGeneratorData.HEIGHT * (RoomData.SIZE + LevelGeneratorData.MARGIN_Y) + 1; y ++) {
-				const position = new Vector(this.position.x + x, this.position.y + y);
-				if(requirements.every(r => r(position, this.world))) {
-					possiblePositions.push(position);
-				}
+	visualizeRoom(canvasIO: CanvasIO, roomPlaceholder: RoomPlaceholder, position: Vector) {
+		for(const tilePosition of Rectangle.square(0, 0, RoomData.SIZE).squares()) {
+			const tile = roomPlaceholder.room.tiles.get(tilePosition);
+			const exitTile = roomPlaceholder.room.exitTiles.get(tilePosition);
+			if(tile instanceof SolidTile || tile === "platform" || (exitTile !== "none" && !roomPlaceholder.exits.includes(exitTile as Direction))) {
+				canvasIO.ctx.fillStyle = "black";
 			}
-		}
-		const totalTraps = Math.ceil(LevelGeneratorData.WIDTH * LevelGeneratorData.HEIGHT * density);
-		let amountSpawned = 0;
-		while(amountSpawned < totalTraps && possiblePositions.length > 0) {
-			const next = GameUtils.randomEvenlySpaced(
-				new Rectangle(0, 0, 0, 0),
-				positionsSpawned,
-				LaserBlockData.SPAWN_EVENNESS,
-				"int",
-				() => Utils.randomItem(possiblePositions)
-			);
-			spawn(next.x, next.y, this.world);
-			positionsSpawned.push(next);
-			for(const neighbor of [next, ...Directions.DIRECTIONS.map(d => next.add(Vector.unit(d)))]) {
-				possiblePositions = possiblePositions.filter(p => !p.equals(neighbor));
+			else if(tile instanceof Gate) {
+				canvasIO.ctx.fillStyle = tile.open ? "green" : "red";
 			}
-			amountSpawned ++;
+			else { continue; }
+			canvasIO.fillSquare(
+				DEBUG_SETTINGS.GENERATOR_VISUALIZATION.GRID_SIZE * (position.x + tilePosition.x / RoomData.SIZE),
+				DEBUG_SETTINGS.GENERATOR_VISUALIZATION.GRID_SIZE * (position.y + tilePosition.y / RoomData.SIZE),
+				DEBUG_SETTINGS.GENERATOR_VISUALIZATION.GRID_SIZE / RoomData.SIZE
+			)
 		}
-		return positionsSpawned;
-	}
-
-	generate() {
-		this.levelGenerator.generate();
-		this.generateRooms();
-		this.fillUnusedRegions();
-		this.generateMargins();
-		this.fillBoundaries();
-		this.spawnPlayer();
-		this.spawnLizards();
-		this.spawnAllTraps();
-		this.world.levels ++;
-		return this.world;
 	}
 }

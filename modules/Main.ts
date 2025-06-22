@@ -4,13 +4,11 @@ import { DEBUG_SETTINGS } from "./constants/DebugSettings.mjs";
 import { LaserBlockData, LizardData, PlayerData, RoomData, SpikeballBlockData } from "./constants/GameData.mjs";
 import { Lizard } from "./entities/Lizard.js";
 import { GameUtils } from "./game-utilities/GameUtils.mjs";
-import { LevelGenerator } from "./level-generator/LevelGenerator.mjs";
 import { Room } from "./level-generator/Room.mjs";
 import { RoomEditor } from "./RoomEditor.mjs";
-import { ROOMS } from "./level-generator/Rooms.mjs";
+import { Rooms, ROOMS } from "./level-generator/Rooms.mjs";
 import { Gate } from "./tiles/Gate.mjs";
 import { World } from "./World.js";
-import { WorldGenerator } from "./level-generator/WorldGenerator.mjs";
 import { LaserBlock } from "./tiles/LaserBlock.mjs";
 import { Spikeball } from "./entities/Spikeball.mjs";
 import { SpikeballBlock } from "./tiles/SpikeballBlock.mjs";
@@ -18,6 +16,7 @@ import { Rectangle } from "../utils-ts/modules/geometry/Rectangle.mjs";
 import { Portal } from "./entities/Portal.mjs";
 import { Humanoid } from "./entities/Humanoid.mjs";
 import { SolidTile } from "./tiles/SolidTile.mjs";
+import { WorldGenerator } from "./level-generator/WorldGenerator.mjs";
 
 const recordedRNG: number[] = [];
 let rngOverrideIndex = 0;
@@ -33,8 +32,11 @@ if(DEBUG_SETTINGS.PRINT_RNG_KEY) {
 	};
 }
 
+Rooms.initialize();
+Room.addRoomVariants();
+
 const CORNER_SIZE = 3;
-const EMPTY_ROOM = new World();
+const EMPTY_ROOM = new World(false);
 for(let i = 0; i < CORNER_SIZE; i ++) {
 	EMPTY_ROOM.tiles.set(i, 0, new SolidTile("solid", "tower"));
 	EMPTY_ROOM.tiles.set(0, i, new SolidTile("solid", "tower"));
@@ -48,17 +50,15 @@ for(let i = 0; i < CORNER_SIZE; i ++) {
 
 let frameCount = 0;
 const FRAMERATE = 60;
-const world = new World();
+const world = new World(false);
 world.tiles.fillRect(new Rectangle(-1, -10, 50, 30), new SolidTile("solid", "tower"));
 world.tiles.fillRect(new Rectangle(-1, -9, 20, 10), "empty");
 // world.tiles.set(0, 1, new SolidTile("solid", "stone"));
 
-LevelGenerator.initializeRooms();
-
 export class Main {
-	// static screen: World | RoomEditor = new WorldGenerator().generate();
-	static screen: World | RoomEditor = new RoomEditor();
-	// static screen: World | RoomEditor = world;
+	// static screen: World | RoomEditor = new World(true).initializeGeneration();
+	// static screen: World | RoomEditor = new RoomEditor();
+	static screen: World | RoomEditor = world;
 
 	static fadingOpacity: number = 0;
 	static fadingDestination: number = 0;
@@ -83,8 +83,8 @@ export class Main {
 		}
 		if(Main.fadingTimer > PlayerData.FADE_DELAY) {
 			Main.fadingTimer = 0;
-			Main.screen = new WorldGenerator().generate();
 			Main.fadingDestination = 0;
+			throw new Error("Unimplemented: should reset world.");
 		}
 	}
 	static display(canvasIO: CanvasIO) {
@@ -108,6 +108,18 @@ if(Main.screen instanceof RoomEditor) {
 	}
 	console.log(`loaded room ${room.name} in the editor`);
 	Main.screen = new RoomEditor(room);
+}
+
+if(DEBUG_SETTINGS.GENERATOR_VISUALIZATION.ENABLED && Main.screen instanceof World) {
+	console.time("generating chunk");
+	const generator = new WorldGenerator();
+	generator.generateChunk(new Vector(0, 0), Main.screen);
+	// generator.generateChunk(new Vector(1, 0), Main.screen);
+	// generator.generateChunk(new Vector(0, 1), Main.screen);
+	// generator.generateChunk(new Vector(1, 1), Main.screen);
+	generator.visualize(canvasIO!, false);
+	console.timeEnd("generating chunk");
+	debugger;
 }
 
 const frameTimes: number[] = [];
