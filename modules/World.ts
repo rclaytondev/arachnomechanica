@@ -76,22 +76,8 @@ export class World {
 		this.displayBackground(canvasIO);
 		canvasIO.ctx.save();
 		this.applyScreenShake(canvasIO);
-		if(Main.screen instanceof World && !DEBUG_SETTINGS.DISPLAY_WHOLE_LEVEL) {
-			const translation = this.translationToCamera(canvasIO);
-			canvasIO.ctx.translate(translation.x, translation.y);
-		}
-		if(Main.screen instanceof World && DEBUG_SETTINGS.DISPLAY_WHOLE_LEVEL) {
-			const amount = Math.min(
-				canvasIO.canvas.width / (LevelGeneratorData.WIDTH * (RoomData.SIZE + LevelGeneratorData.MARGIN_X) * WorldData.TILE_SIZE),
-				canvasIO.canvas.height / (LevelGeneratorData.HEIGHT * (RoomData.SIZE + LevelGeneratorData.MARGIN_Y) * WorldData.TILE_SIZE)
-			);
-			canvasIO.ctx.scale(amount, amount);
-			visibleRegion = new Rectangle(
-				0, 0,
-				LevelGeneratorData.WIDTH * (RoomData.SIZE + LevelGeneratorData.MARGIN_X) * WorldData.TILE_SIZE,
-				LevelGeneratorData.HEIGHT * (RoomData.SIZE + LevelGeneratorData.MARGIN_Y) * WorldData.TILE_SIZE,
-			);
-		}
+		const translation = this.translationToCamera(canvasIO);
+		canvasIO.ctx.translate(translation.x, translation.y);
 		this.displayGlowEffects(canvasIO, visibleRegion);
 		this.displayLaserBlocks(canvasIO, visibleRegion);
 		this.displayLasers(canvasIO);
@@ -106,9 +92,6 @@ export class World {
 		canvasIO.ctx.restore();
 		this.player.displayEnergyBar(canvasIO);
 
-		if(DEBUG_SETTINGS.DISPLAY_WHOLE_LEVEL) {
-			debugger;
-		}
 		if(DEBUG_SETTINGS.SHOW_MOUSE_COORDINATES) {
 			this.displayMouseCoordinates(canvasIO);
 		}
