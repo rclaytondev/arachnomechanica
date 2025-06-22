@@ -12,5 +12,8 @@
 		"noImplicitReturns": true,
 		"strictNullChecks": true,
 		"allowSyntheticDefaultImports": true
-	}
+	},
+
+	"include": ["modules", "utils-ts"],
+	"exclude": ["utils-ts/modules/tests"]
 }
