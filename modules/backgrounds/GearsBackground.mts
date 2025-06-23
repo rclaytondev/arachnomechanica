@@ -128,7 +128,7 @@ class GearLayer {
 					GameUtils.random(info.minSize,  info.maxSize),
 					GameUtils.randomInt(info.minTeeth, info.maxTeeth),
 					GameUtils.random(info.minInnerRadius, info.maxInnerRadius),
-					GameUtils.random(info.minSpeed, info.maxSpeed),
+					GameUtils.random(info.minSpeed, info.maxSpeed) * (Math.random() < 0.5 ? 1 : -1),
 					info.color,
 					GameUtils.randomInt(0, 360)
 				);
