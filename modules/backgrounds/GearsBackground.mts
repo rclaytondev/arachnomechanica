@@ -2,6 +2,7 @@ import { CanvasIO } from "../../utils-ts/modules/CanvasIO.mjs";
 import { Rectangle } from "../../utils-ts/modules/geometry/Rectangle.mjs";
 import { Vector } from "../../utils-ts/modules/geometry/Vector.mjs";
 import { MathUtils } from "../../utils-ts/modules/math/MathUtils.mjs";
+import { Utils } from "../../utils-ts/modules/Utils.mjs";
 import { BackgroundData, BackgroundGearLayerData, LevelGeneratorData, RoomData, WorldData } from "../constants/GameData.mjs";
 import { GameUtils } from "../game-utilities/GameUtils.mjs";
 import { frameCount } from "../Main.js";
@@ -69,7 +70,10 @@ class BackgroundGear {
 	}
 
 	intersects(gear: BackgroundGear, parallax: number) {
-		return Vector.dist(this.position, gear.position) * parallax < this.size + gear.size;
+		const distX = GameUtils.signedModularDistance(this.position.x, gear.position.x, BackgroundData.BACKGROUND_REPEAT_SIZE);
+		const distY = GameUtils.signedModularDistance(this.position.y, gear.position.y, BackgroundData.BACKGROUND_REPEAT_SIZE);
+		const distance = Math.sqrt(distX ** 2 + distY ** 2);
+		return distance * parallax < this.size + gear.size;
 	}
 }
 
@@ -87,7 +91,11 @@ class GearLayer {
 	display(cameraPosition: Vector, canvasIO: CanvasIO) {
 		canvasIO.ctx.save();
 		for(const gear of this.gears) {
-			const position = gear.position.subtract(cameraPosition).multiply(this.parallax).add(canvasIO.canvas.width / 2, canvasIO.canvas.height / 2);
+			const repeatedPosition = new Vector(
+				cameraPosition.x + GameUtils.signedModularDistance(cameraPosition.x, gear.position.x, BackgroundData.BACKGROUND_REPEAT_SIZE),
+				cameraPosition.y + GameUtils.signedModularDistance(cameraPosition.y, gear.position.y, BackgroundData.BACKGROUND_REPEAT_SIZE)
+			);
+			const position = repeatedPosition.subtract(cameraPosition).multiply(this.parallax).add(canvasIO.canvas.width / 2, canvasIO.canvas.height / 2);
 			if(BackgroundGear.isVisible(position, gear.size, canvasIO)) {
 				gear.display(position, this.blur, canvasIO);
 			}
@@ -97,18 +105,24 @@ class GearLayer {
 
 	static generate(info: BackgroundGearLayerData) {
 		const gears: BackgroundGear[] = [];
-		const numGears = LevelGeneratorData.WIDTH * LevelGeneratorData.HEIGHT * info.density;
-		const region = new Rectangle(
-			0, 0, 
-			LevelGeneratorData.WIDTH * RoomData.SIZE * WorldData.TILE_SIZE, 
-			LevelGeneratorData.HEIGHT * RoomData.SIZE * WorldData.TILE_SIZE
-		);
+		const numGears = BackgroundData.BACKGROUND_REPEAT_SIZE ** 2 * info.density;
+		const region = Rectangle.square(0, 0, BackgroundData.BACKGROUND_REPEAT_SIZE);
 		for(let i = 0; i < numGears; i ++) {
 			let spawned = false;
 			let attempts = 0;
 			while(!spawned) {
 				attempts ++;
-				const position = GameUtils.randomEvenlySpaced(region, gears.map(g => g.position), info.evenness);
+				const positions = [];
+				for(let j = 0; j < info.evenness; j ++) {
+					positions.push(new Vector(
+						GameUtils.randomInt(0, BackgroundData.BACKGROUND_REPEAT_SIZE),
+						GameUtils.randomInt(0, BackgroundData.BACKGROUND_REPEAT_SIZE)
+					));
+				}
+				const position = Utils.maxValue(positions, point => Math.min(...gears.map(gear => 
+					GameUtils.signedModularDistance(point.x, gear.position.x, BackgroundData.BACKGROUND_REPEAT_SIZE) ** 2
+					+ GameUtils.signedModularDistance(point.y, gear.position.y, BackgroundData.BACKGROUND_REPEAT_SIZE) ** 2
+				)));
 				const gear = new BackgroundGear(
 					position,
 					GameUtils.random(info.minSize,  info.maxSize),

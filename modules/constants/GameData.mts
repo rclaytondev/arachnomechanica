@@ -263,6 +263,7 @@ export class BackgroundData {
 	static STAR_EVENNESS = 6;
 	static STAR_SIZE = 1;
 
+	static BACKGROUND_REPEAT_SIZE = 2400;
 	static LAYERS: BackgroundGearLayerData[] = [
 		{
 			minSize: 100,
@@ -271,7 +272,7 @@ export class BackgroundData {
 			parallax: 0.75,
 			minSpeed: 0.25,
 			maxSpeed: 0.75,
-			density: 2,
+			density: 0.000025,
 			evenness: 5,
 			minTeeth: 6,
 			maxTeeth: 8,

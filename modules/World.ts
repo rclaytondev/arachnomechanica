@@ -72,7 +72,6 @@ export class World {
 	}
 
 	display(canvasIO: CanvasIO, visibleRegion: Rectangle = this.visibleRegion(canvasIO)) {
-		canvasIO.fillCanvas("white");
 		this.displayBackground(canvasIO);
 		canvasIO.ctx.save();
 		this.applyScreenShake(canvasIO);
@@ -104,14 +103,7 @@ export class World {
 		}
 	}
 	displayBackground(canvasIO: CanvasIO) {
-		this.skyBackground.display(canvasIO);
 		canvasIO.ctx.save();
-		const rectangle = new Rectangle(
-			-LevelGeneratorData.BORDER_X, -LevelGeneratorData.BORDER_Y,
-			LevelGeneratorData.WIDTH * (RoomData.SIZE + LevelGeneratorData.MARGIN_X) * WorldData.TILE_SIZE + 2 * LevelGeneratorData.BORDER_X,
-			LevelGeneratorData.HEIGHT * (RoomData.SIZE + LevelGeneratorData.MARGIN_X) * WorldData.TILE_SIZE + 2 * LevelGeneratorData.BORDER_Y,
-		).translate(this.translationToCamera(canvasIO));
-		canvasIO.clipRect(rectangle.x, rectangle.y, rectangle.width, rectangle.height);
 		canvasIO.fillCanvas(BackgroundData.BACKGROUND_COLOR);
 		this.gearsBackground.display(canvasIO, this.camera);
 		canvasIO.ctx.restore();
