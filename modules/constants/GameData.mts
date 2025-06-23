@@ -46,13 +46,6 @@ export class WorldData {
 }
 
 export class LevelGeneratorData {
-	static WIDTH = 4;
-	static HEIGHT = 6;
-	static MARGIN_X = 2;
-	static MARGIN_Y = 0;
-	static BORDER_X = 2;
-	static BORDER_Y = 10;
-
 	static CHUNK_SIZE = 6;
 	static INTERIOR_CONNECTIONS = 2;
 	static BOUNDARY_CONNECTIONS = Math.floor( 1/2 * ((LevelGeneratorData.CHUNK_SIZE + 1) + LevelGeneratorData.INTERIOR_CONNECTIONS / (LevelGeneratorData.CHUNK_SIZE - 1)) - 1);
