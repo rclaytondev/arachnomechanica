@@ -56,9 +56,9 @@ world.tiles.fillRect(new Rectangle(-1, -9, 20, 10), "empty");
 // world.tiles.set(0, 1, new SolidTile("solid", "stone"));
 
 export class Main {
-	// static screen: World | RoomEditor = new World(true).initializeGeneration();
+	static screen: World | RoomEditor = new World(true).initializeGeneration();
 	// static screen: World | RoomEditor = new RoomEditor();
-	static screen: World | RoomEditor = world;
+	// static screen: World | RoomEditor = world;
 
 	static fadingOpacity: number = 0;
 	static fadingDestination: number = 0;
@@ -112,12 +112,9 @@ if(Main.screen instanceof RoomEditor) {
 
 if(DEBUG_SETTINGS.GENERATOR_VISUALIZATION.ENABLED && Main.screen instanceof World) {
 	console.time("generating chunk");
-	const generator = new WorldGenerator();
-	generator.generateChunk(new Vector(0, 0), Main.screen);
-	// generator.generateChunk(new Vector(1, 0), Main.screen);
-	// generator.generateChunk(new Vector(0, 1), Main.screen);
-	// generator.generateChunk(new Vector(1, 1), Main.screen);
-	generator.visualize(canvasIO!, false);
+	const debugWorld = new World(false);
+	debugWorld.worldGenerator.generateChunk(new Vector(0, 0), debugWorld);
+	debugWorld.worldGenerator.visualize(canvasIO!, false);
 	console.timeEnd("generating chunk");
 	debugger;
 }
