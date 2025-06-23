@@ -245,7 +245,6 @@ export class World {
 		this.updateParticles();
 		this.screenShakeTimer --;
 		this.updateCamera();
-		this.checkDebugInputs(canvasIO);
 		this.checkWorldGeneration();
 	}
 	updateEntities(canvasIO: CanvasIO) {
@@ -271,11 +270,6 @@ export class World {
 	updateCamera() {
 		if(!(Main.screen instanceof RoomEditor)) {
 			this.camera = GameUtils.moveVectorTowards(this.camera, this.player.physicsObject.hitbox().center(), WorldData.CAMERA_SPEED);
-		}
-	}
-	checkDebugInputs(canvasIO: CanvasIO) {
-		if(canvasIO.keys[DEBUG_SETTINGS.SKIP_LEVEL_KEY]) {
-			this.player.physicsObject.positionInt = [...this.entities].reverse().find(e => e instanceof Portal)!.position;
 		}
 	}
 
