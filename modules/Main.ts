@@ -17,7 +17,7 @@ import { Portal } from "./entities/Portal.mjs";
 import { Humanoid } from "./entities/Humanoid.mjs";
 import { SolidTile } from "./tiles/SolidTile.mjs";
 import { WorldGenerator } from "./level-generator/WorldGenerator.mjs";
-import { Spider } from "./entities/Spider.mjs";
+import { PointOnSurface, Spider, Surface } from "./entities/Spider.mjs";
 
 const recordedRNG: number[] = [];
 let rngOverrideIndex = 0;
@@ -54,7 +54,8 @@ const FRAMERATE = 60;
 const world = new World(false);
 world.tiles.fillRect(new Rectangle(-1, -10, 50, 30), new SolidTile("solid", "tower"));
 world.tiles.fillRect(new Rectangle(-1, -9, 10, 10), "empty");
-const spider = new Spider(new Vector(300, 25));
+const spider = new Spider(new Vector(325, 25));
+spider.basepoint = new PointOnSurface(new Surface(new Vector(6, 1), "up"), 25);
 world.entities.push(spider);
 
 export class Main {

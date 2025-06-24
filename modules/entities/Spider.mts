@@ -2,6 +2,7 @@ import { CanvasIO } from "../../utils-ts/modules/CanvasIO.mjs";
 import { Diagonal, Direction, Directions } from "../../utils-ts/modules/geometry/Direction.mjs";
 import { Rectangle } from "../../utils-ts/modules/geometry/Rectangle.mjs";
 import { Vector } from "../../utils-ts/modules/geometry/Vector.mjs";
+import { DEBUG_SETTINGS } from "../constants/DebugSettings.mjs";
 import { SpiderData, WorldData } from "../constants/GameData.mjs";
 import { PhysicsObject } from "../game-utilities/PhysicsObject.mjs";
 import { World } from "../World";
@@ -34,6 +35,10 @@ export class Surface {
 		};
 		return positions[this.tangentDirectionCW()];
 	}
+
+	end() {
+		return this.start.add(Vector.gridUnit(this.tangentDirectionCW()));
+	}
 }
 
 export class PointOnSurface {
@@ -65,6 +70,22 @@ export class Spider {
 		const position = this.physicsObject.hitbox().center();
 		canvasIO.ctx.fillStyle = SpiderData.COLOR;
 		canvasIO.fillRegularPoly(position, SpiderData.SIZE / 2, 6);
+
+		if(DEBUG_SETTINGS.SPIDER_VISUALIZATION) {
+			this.displayDebug(canvasIO);
+		}
+	}
+	displayDebug(canvasIO: CanvasIO) {
+		if(this.basepoint) {
+			canvasIO.ctx.fillStyle = "red";
+			canvasIO.ctx.strokeStyle = "red";
+			canvasIO.ctx.lineWidth = 5;
+			const basepoint = this.basepoint.position();
+			canvasIO.fillCircle(basepoint.x, basepoint.y, 7);
+			const start = this.basepoint.surface.start.multiply(WorldData.TILE_SIZE);
+			const end = this.basepoint.surface.end().multiply(WorldData.TILE_SIZE);
+			canvasIO.strokeLine(start.x, start.y, end.x, end.y);
+		}
 	}
 
 	update(world: World) {
