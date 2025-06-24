@@ -5,6 +5,7 @@ import { Vector } from "../../utils-ts/modules/geometry/Vector.mjs";
 import { DEBUG_SETTINGS } from "../constants/DebugSettings.mjs";
 import { SpiderData, WorldData } from "../constants/GameData.mjs";
 import { PhysicsObject } from "../game-utilities/PhysicsObject.mjs";
+import { TowerTile } from "../tiles/TowerTile.mjs";
 import { World } from "../World";
 
 export class Surface {
@@ -38,6 +39,9 @@ export class Surface {
 
 	end() {
 		return this.start.add(Vector.gridUnit(this.tangentDirectionCW()));
+	}
+	length() {
+		return WorldData.TILE_SIZE * (Directions.isDirection(this.outwardNormal) ? 1 : Math.SQRT2);
 	}
 }
 
@@ -95,9 +99,30 @@ export class Spider {
 		this.moveBasepoint(amount, world);
 	}
 	moveBasepoint(amount: number, world: World) {
-
+		this.basepoint!.distance += amount;
+		while(this.basepoint!.distance > this.basepoint!.surface.length()) {
+			this.basepoint = new PointOnSurface(
+				this.nextSurfaceCW(world),
+				this.basepoint!.distance - this.basepoint!.surface.length()
+			)
+		}
 	}
-	nextSurfaceCW() {
-
+	nextSurfaceCW(world: World) {
+		const tangent = this.basepoint!.surface.tangentDirectionCW();
+		const tileTangent = Directions.isDirection(tangent) ? tangent : Directions.rotateClockwise45[tangent];
+		const angle = TowerTile.angle(
+			this.basepoint!.surface.tilePosition(),
+			Directions.rotateCounterclockwise[tileTangent],
+				tileTangent,
+			world
+		) + (Directions.isDiagonal(tangent) ? 45 : 0);
+		let newTangent = Directions.opposite[tangent];
+		for(let i = 0; i < angle; i += 45) {
+			newTangent = Directions.rotateClockwise45[newTangent];
+		}
+		return new Surface(
+			this.basepoint!.surface.end(),
+			Directions.rotateCounterclockwise[newTangent]
+		);
 	}
 }
