@@ -53,7 +53,7 @@ let frameCount = 0;
 const FRAMERATE = 60;
 const world = new World(false);
 world.tiles.fillRect(new Rectangle(-1, -10, 50, 30), new SolidTile("solid", "tower"));
-world.tiles.fillRect(new Rectangle(-1, -9, 20, 10), "empty");
+world.tiles.fillRect(new Rectangle(-1, -9, 10, 10), "empty");
 const spider = new Spider(new Vector(300, 25));
 spider.attachment = "down";
 world.entities.push(spider);

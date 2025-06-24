@@ -21,7 +21,7 @@ export class PhysicsObject {
 		this.velocity.y += amount;
 	}
 
-	move(amount: Vector, world: World, oncollision: (direction: Direction) => void = () => {}) {
+	move(amount: Vector, world: World, oncollision: (direction: Direction, collisions: (Entity | TileWithPosition)[]) => void = () => {}) {
 		this.moveX(amount.x, oncollision, world);
 		this.moveY(amount.y, oncollision, world);
 	}

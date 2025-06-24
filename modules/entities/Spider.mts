@@ -4,7 +4,7 @@ import { Rectangle } from "../../utils-ts/modules/geometry/Rectangle.mjs";
 import { Vector } from "../../utils-ts/modules/geometry/Vector.mjs";
 import { SpiderData } from "../constants/GameData.mjs";
 import { PhysicsObject } from "../game-utilities/PhysicsObject.mjs";
-import { World } from "../World";
+import { Entity, TileWithPosition, World } from "../World";
 
 export class Spider {
 	physicsObject: PhysicsObject;
@@ -30,7 +30,16 @@ export class Spider {
 	move(amount: number, world: World) {
 		const forward = this.forwardDirection();
 		if(forward === null) { return; }
-		this.physicsObject.move(Vector.unit(forward).multiply(amount), world);
+		this.physicsObject.move(
+			Vector.unit(forward).multiply(amount),
+			world,
+			(dir, objects) => this.onCollision(dir, objects)
+		);
+	}
+	onCollision(direction: Direction, collisions: (Entity | TileWithPosition)[]) {
+		if(collisions.some(c => "tile" in c)) {
+			this.attachment = this.movement === "clockwise" ? Directions.rotateCounterclockwise[this.attachment!] : Directions.rotateClockwise[this.attachment!];
+		}
 	}
 
 	outwardNormalDirection() {
