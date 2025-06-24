@@ -4,6 +4,7 @@ import { Rectangle } from "../../utils-ts/modules/geometry/Rectangle.mjs";
 import { Vector } from "../../utils-ts/modules/geometry/Vector.mjs";
 import { DEBUG_SETTINGS } from "../constants/DebugSettings.mjs";
 import { SpiderData, WorldData } from "../constants/GameData.mjs";
+import { GameUtils } from "../game-utilities/GameUtils.mjs";
 import { PhysicsObject } from "../game-utilities/PhysicsObject.mjs";
 import { TowerTile } from "../tiles/TowerTile.mjs";
 import { World } from "../World";
@@ -97,7 +98,9 @@ export class Spider {
 	}
 	move(amount: number, world: World) {
 		this.moveBasepoint(amount, world);
-		const newCenter = this.basepoint!.position().add(Vector.unit(this.basepoint!.surface.outwardNormal).multiply(SpiderData.SIZE / 2));
+		const distance = this.wallDistance(world);
+		const normal = this.smoothedNormal(world);
+		const newCenter = this.basepoint!.position().add(normal.multiply(distance));
 		const newPosition = newCenter.subtract(SpiderData.SIZE / 2, SpiderData.SIZE / 2);
 		this.physicsObject.move(
 			newPosition.subtract(this.physicsObject.positionInt),
@@ -120,6 +123,48 @@ export class Spider {
 			);
 		}
 	}
+	smoothedNormal(world: World) {
+		if(this.basepoint!.distance < SpiderData.TURN_WALL_DURATION) {
+			const nextSurface = this.nextSurfaceCCW(world);
+			const angle = Directions.angle[this.basepoint!.surface.outwardNormal];
+			const nextAngle = Directions.angle[nextSurface.outwardNormal];
+			const lerpedAngle = GameUtils.lerpAngle(
+				this.basepoint!.distance,
+				-SpiderData.TURN_WALL_DURATION, SpiderData.TURN_WALL_DURATION,
+				nextAngle, angle
+			);
+			return new Vector(Math.cos(lerpedAngle), -Math.sin(lerpedAngle));
+		}
+		if(this.basepoint!.surface.length() - this.basepoint!.distance < SpiderData.TURN_WALL_DURATION) {
+			const nextSurface = this.nextSurfaceCW(world);
+			const angle = Directions.angle[this.basepoint!.surface.outwardNormal];
+			const nextAngle = Directions.angle[nextSurface.outwardNormal];
+			const lerpedAngle = GameUtils.lerpAngle(
+				this.basepoint!.distance - this.basepoint!.surface.length(),
+				-SpiderData.TURN_WALL_DURATION, SpiderData.TURN_WALL_DURATION,
+				angle, nextAngle
+			);
+			return new Vector(Math.cos(lerpedAngle), -Math.sin(lerpedAngle));
+		}
+		return Vector.unit(this.basepoint!.surface.outwardNormal);
+	}
+	wallDistance(world: World) {
+		const nextSurfaceCW = this.nextSurfaceCW(world);
+		const nextSurfaceCCW = this.nextSurfaceCCW(world);
+		const distanceToTurn = Math.min(
+			nextSurfaceCCW.outwardNormal === this.basepoint!.surface.outwardNormal ? Infinity : this.basepoint!.distance,
+			nextSurfaceCW.outwardNormal === this.basepoint!.surface.outwardNormal ? Infinity : this.basepoint!.surface.length() - this.basepoint!.distance
+		);
+		if(distanceToTurn > SpiderData.TURN_WALL_DURATION) {
+			return SpiderData.SIZE / 2;
+		}
+		return SpiderData.SIZE / 2 + GameUtils.lerp(
+			distanceToTurn,
+			0, SpiderData.TURN_WALL_DURATION,
+			SpiderData.TURN_WALL_DISTANCE, 0
+		);
+	}
+
 	nextSurfaceCW(world: World) {
 		const tangent = this.basepoint!.surface.tangentDirectionCW();
 		const tileTangent = Directions.isDirection(tangent) ? tangent : Directions.rotateClockwise45[tangent];

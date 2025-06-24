@@ -55,9 +55,9 @@ const world = new World(false);
 world.tiles.fillRect(new Rectangle(0, 1, 5, 1), new SolidTile("solid", "tower"));
 world.tiles.set(new Vector(4, 0), new SolidTile("slope-floor-right", "tower"));
 world.tiles.set(new Vector(5, -1), new SolidTile("slope-floor-right", "tower"));
-const spider = new Spider(new Vector(125, 25));
+const spider = new Spider(new Vector(25, 25));
 spider.movement = "counterclockwise";
-spider.basepoint = new PointOnSurface(new Surface(new Vector(2, 1), "up"), 25);
+spider.basepoint = new PointOnSurface(new Surface(new Vector(0, 1), "up"), 25);
 world.entities.push(spider);
 
 export class Main {

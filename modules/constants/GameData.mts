@@ -440,4 +440,6 @@ export class SpiderData {
 	static SIZE = WorldData.TILE_SIZE;
 	static COLOR = "black";
 	static SPEED = 3;
+	static TURN_WALL_DISTANCE = 10;
+	static TURN_WALL_DURATION = 20;
 }
