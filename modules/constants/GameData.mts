@@ -439,4 +439,5 @@ export class HumanoidData {
 export class SpiderData {
 	static SIZE = WorldData.TILE_SIZE;
 	static COLOR = "black";
+	static SPEED = 3;
 }
