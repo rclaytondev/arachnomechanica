@@ -99,12 +99,19 @@ export class Spider {
 		this.moveBasepoint(amount, world);
 	}
 	moveBasepoint(amount: number, world: World) {
-		this.basepoint!.distance += amount;
+		this.basepoint!.distance += amount * (this.movement === "clockwise" ? 1 : -1);
 		while(this.basepoint!.distance > this.basepoint!.surface.length()) {
 			this.basepoint = new PointOnSurface(
 				this.nextSurfaceCW(world),
 				this.basepoint!.distance - this.basepoint!.surface.length()
 			)
+		}
+		while(this.basepoint!.distance < 0) {
+			const nextSurface = this.nextSurfaceCCW(world);
+			this.basepoint = new PointOnSurface(
+				nextSurface,
+				nextSurface.length() + this.basepoint!.distance
+			);
 		}
 	}
 	nextSurfaceCW(world: World) {
@@ -122,6 +129,24 @@ export class Spider {
 		}
 		return new Surface(
 			this.basepoint!.surface.end(),
+			Directions.rotateCounterclockwise[newTangent]
+		);
+	}
+	nextSurfaceCCW(world: World) {
+		const tangent = this.basepoint!.surface.tangentDirectionCW();
+		const tileTangent = Directions.isDirection(tangent) ? tangent : Directions.rotateCounterclockwise45[tangent];
+		const angle = TowerTile.angle(
+			this.basepoint!.surface.tilePosition(),
+			Directions.rotateCounterclockwise[tileTangent],
+			Directions.opposite[tileTangent],
+			world
+		) + (Directions.isDiagonal(tangent) ? 45 : 0);
+		let newTangent = Directions.opposite[tangent];
+		for(let i = 0; i < angle; i += 45) {
+			newTangent = Directions.rotateCounterclockwise45[newTangent];
+		}
+		return new Surface(
+			this.basepoint!.surface.start.subtract(Vector.gridUnit(newTangent)),
 			Directions.rotateCounterclockwise[newTangent]
 		);
 	}
