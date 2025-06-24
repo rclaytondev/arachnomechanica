@@ -97,6 +97,12 @@ export class Spider {
 	}
 	move(amount: number, world: World) {
 		this.moveBasepoint(amount, world);
+		const newCenter = this.basepoint!.position().add(Vector.unit(this.basepoint!.surface.outwardNormal).multiply(SpiderData.SIZE / 2));
+		const newPosition = newCenter.subtract(SpiderData.SIZE / 2, SpiderData.SIZE / 2);
+		this.physicsObject.move(
+			newPosition.subtract(this.physicsObject.positionInt),
+			world
+		);
 	}
 	moveBasepoint(amount: number, world: World) {
 		this.basepoint!.distance += amount * (this.movement === "clockwise" ? 1 : -1);
