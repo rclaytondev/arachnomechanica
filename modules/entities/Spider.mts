@@ -66,8 +66,8 @@ export class Spider {
 
 	constructor(position: Vector) {
 		this.physicsObject = new PhysicsObject(
-			position.subtract(SpiderData.SIZE / 2, SpiderData.SIZE / 2).floor(),
-			Rectangle.square(0, 0, SpiderData.SIZE)
+			position.subtract(SpiderData.HITBOX_SIZE / 2, SpiderData.HITBOX_SIZE / 2).floor(),
+			new Rectangle(0, 0, SpiderData.HITBOX_SIZE, SpiderData.HITBOX_SIZE)
 		);
 	}
 
@@ -105,9 +105,9 @@ export class Spider {
 		const distance = this.wallDistance(world);
 		const normal = this.smoothedNormal(world);
 		const newCenter = this.basepoint!.position().add(normal.multiply(distance));
-		const newPosition = newCenter.subtract(SpiderData.SIZE / 2, SpiderData.SIZE / 2);
+		const newPosition = newCenter.subtract(SpiderData.HITBOX_SIZE / 2, SpiderData.HITBOX_SIZE / 2);
 		this.physicsObject.move(
-			newPosition.subtract(this.physicsObject.positionInt),
+			newPosition.subtract(this.physicsObject.positionFloat()),
 			world
 		);
 	}
