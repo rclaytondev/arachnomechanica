@@ -60,11 +60,60 @@ export class PointOnSurface {
 	}
 }
 
+export class SpiderLeg {
+	attachmentOffset: Vector;
+	position: Vector;
+	destination: Vector;
+	length: number;
+
+	constructor(length: number, attachmentOffset: Vector, position: Vector) {
+		this.length = length;
+		this.attachmentOffset = attachmentOffset;
+		this.position = position;
+		this.destination = position;
+	}
+
+	display(spider: Spider, canvasIO: CanvasIO) {
+		const attachment = this.attachment(spider);
+		canvasIO.ctx.strokeStyle = "green";
+		canvasIO.strokeLine(this.position.x, this.position.y, attachment.x, attachment.y);
+	}
+
+	attachment(spider: Spider) {
+		const center = spider.physicsObject.hitbox().center();
+		return center.add(this.attachmentOffset.rotate(MathUtils.toDegrees(spider.angle)));
+	}
+}
+
 export class Spider {
 	physicsObject: PhysicsObject;
 	movement: "clockwise" | "counterclockwise" = "clockwise";
 	basepoint: PointOnSurface | null = null;
 	angle: number = 0;
+
+	legs: SpiderLeg[] = [
+		new SpiderLeg(
+			40,
+			new Vector(-15, 20),
+			new Vector(-40, 20)
+		),
+		new SpiderLeg(
+			40,
+			new Vector(15, 20),
+			new Vector(40, 20)
+		),
+
+		new SpiderLeg(
+			60,
+			new Vector(-25, 0),
+			new Vector(-40, 20)
+		),
+		new SpiderLeg(
+			60,
+			new Vector(25, 0),
+			new Vector(40, 20)
+		)
+	];
 
 	constructor(position: Vector) {
 		this.physicsObject = new PhysicsObject(
@@ -82,8 +131,15 @@ export class Spider {
 		canvasIO.fillRegularPoly(new Vector(0, 0), SpiderData.SIZE / 2, 6);
 		canvasIO.ctx.restore();
 
+		this.displayLegs(canvasIO);
+
 		if(DEBUG_SETTINGS.SPIDER_VISUALIZATION) {
 			this.displayDebug(canvasIO);
+		}
+	}
+	displayLegs(canvasIO: CanvasIO) {
+		for(const leg of this.legs) {
+			leg.display(this, canvasIO);
 		}
 	}
 	displayDebug(canvasIO: CanvasIO) {
