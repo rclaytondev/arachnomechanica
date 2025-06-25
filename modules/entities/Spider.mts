@@ -91,35 +91,40 @@ export class Spider {
 	basepoint: PointOnSurface | null = null;
 	angle: number = 0;
 
-	legs: SpiderLeg[] = [
-		new SpiderLeg(
-			40,
-			new Vector(-15, 20),
-			new Vector(-40, 20)
-		),
-		new SpiderLeg(
-			40,
-			new Vector(15, 20),
-			new Vector(40, 20)
-		),
-
-		new SpiderLeg(
-			60,
-			new Vector(-25, 0),
-			new Vector(-40, 20)
-		),
-		new SpiderLeg(
-			60,
-			new Vector(25, 0),
-			new Vector(40, 20)
-		)
-	];
+	legs: SpiderLeg[];
 
 	constructor(position: Vector) {
 		this.physicsObject = new PhysicsObject(
 			position.subtract(SpiderData.HITBOX_SIZE / 2, SpiderData.HITBOX_SIZE / 2).floor(),
 			new Rectangle(0, 0, SpiderData.HITBOX_SIZE, SpiderData.HITBOX_SIZE)
 		);
+		this.legs = this.initializeLegs();
+	}
+	initializeLegs() {
+		const center = this.physicsObject.hitbox().center();
+		return [
+			new SpiderLeg(
+				40,
+				new Vector(-15, 20),
+				center.add(-30, 20)
+			),
+			new SpiderLeg(
+				40,
+				new Vector(15, 20),
+				center.add(30, 20)
+			),
+
+			new SpiderLeg(
+				60,
+				new Vector(-25, 0),
+				center.add(-40, 20)
+			),
+			new SpiderLeg(
+				60,
+				new Vector(25, 0),
+				center.add(40, 20)
+			)
+		];
 	}
 
 	display(canvasIO: CanvasIO) {
@@ -164,7 +169,7 @@ export class Spider {
 		this.updateAngle();
 	}
 	updateAngle() {
-		const targetAngle = (2 * Math.PI / 12) - (this.basepoint ? Directions.angle[this.basepoint.surface.outwardNormal] : 0);
+		const targetAngle = Math.PI / 2 - (this.basepoint ? Directions.angle[this.basepoint.surface.outwardNormal] : 0);
 		this.angle = GameUtils.moveAngleTowards(this.angle, targetAngle, SpiderData.ANGULAR_SPEED);
 	}
 
