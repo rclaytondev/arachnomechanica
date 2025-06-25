@@ -91,6 +91,10 @@ export class Spider {
 			const end = this.basepoint.surface.end().multiply(WorldData.TILE_SIZE);
 			canvasIO.strokeLine(start.x, start.y, end.x, end.y);
 		}
+
+		canvasIO.ctx.strokeStyle = "rgb(0, 255, 255)";
+		canvasIO.ctx.lineWidth = 1;
+		canvasIO.strokeRect(this.physicsObject.hitbox());
 	}
 
 	update(world: World) {
