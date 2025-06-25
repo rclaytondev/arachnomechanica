@@ -2,6 +2,7 @@ import { CanvasIO } from "../../utils-ts/modules/CanvasIO.mjs";
 import { Diagonal, Direction, Directions } from "../../utils-ts/modules/geometry/Direction.mjs";
 import { Rectangle } from "../../utils-ts/modules/geometry/Rectangle.mjs";
 import { Vector } from "../../utils-ts/modules/geometry/Vector.mjs";
+import { MathUtils } from "../../utils-ts/modules/math/MathUtils.mjs";
 import { DEBUG_SETTINGS } from "../constants/DebugSettings.mjs";
 import { SpiderData, WorldData } from "../constants/GameData.mjs";
 import { GameUtils } from "../game-utilities/GameUtils.mjs";
@@ -63,6 +64,7 @@ export class Spider {
 	physicsObject: PhysicsObject;
 	movement: "clockwise" | "counterclockwise" = "clockwise";
 	basepoint: PointOnSurface | null = null;
+	angle: number = 0;
 
 	constructor(position: Vector) {
 		this.physicsObject = new PhysicsObject(
@@ -72,9 +74,13 @@ export class Spider {
 	}
 
 	display(canvasIO: CanvasIO) {
+		canvasIO.ctx.save();
 		const position = this.physicsObject.hitbox().center();
+		canvasIO.ctx.translate(position.x, position.y);
+		canvasIO.ctx.rotate(this.angle);
 		canvasIO.ctx.fillStyle = SpiderData.COLOR;
-		canvasIO.fillRegularPoly(position, SpiderData.SIZE / 2, 6);
+		canvasIO.fillRegularPoly(new Vector(0, 0), SpiderData.SIZE / 2, 6);
+		canvasIO.ctx.restore();
 
 		if(DEBUG_SETTINGS.SPIDER_VISUALIZATION) {
 			this.displayDebug(canvasIO);
@@ -99,7 +105,13 @@ export class Spider {
 
 	update(world: World) {
 		this.move(SpiderData.SPEED, world);
+		this.updateAngle();
 	}
+	updateAngle() {
+		const targetAngle = (2 * Math.PI / 12) - (this.basepoint ? Directions.angle[this.basepoint.surface.outwardNormal] : 0);
+		this.angle = GameUtils.moveAngleTowards(this.angle, targetAngle, SpiderData.ANGULAR_SPEED);
+	}
+
 	move(amount: number, world: World) {
 		this.moveBasepoint(amount, world);
 		const distance = this.wallDistance(world);
