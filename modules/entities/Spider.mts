@@ -77,76 +77,42 @@ export class PointOnSurface {
 export class SpiderLeg {
 	minDistance: number;
 	maxDistance: number;
+	distance: number;
+	destination: number;
 	attachmentOffset: Vector;
-	position: Vector;
-	destination: Vector;
 	length: number;
 
-	constructor(length: number, attachmentOffset: Vector, position: Vector, minDistance: number, maxDistance: number) {
+	constructor(length: number, attachmentOffset: Vector, minDistance: number, maxDistance: number) {
 		this.length = length;
 		this.attachmentOffset = attachmentOffset;
-		this.position = position;
-		this.destination = position;
+		this.distance = minDistance;
+		this.destination = maxDistance;
 		this.minDistance = minDistance;
 		this.maxDistance = maxDistance;
 	}
 
-	update(spider: Spider, world: World) {
-		if(frameCount === 20) {
-			// debugger;
+	update() {
+		if(Math.abs(this.distance) <= this.minDistance || Math.sign(this.distance) !== Math.sign(this.attachmentOffset.x)) {
+			this.destination = this.maxDistance * Math.sign(this.attachmentOffset.x);
 		}
-		// if(this.signedDistance(spider) > 15) { debugger; }
-		const distance = this.signedDistance(spider);
-		console.log(distance);
-		if(Math.abs(distance) < this.minDistance || Math.sign(distance) !== Math.sign(this.attachmentOffset.x)) {
-			this.destination = this.nextDestination(this.maxDistance, spider, world) ?? this.destination;
-		}
-		else if(Math.abs(distance) > this.maxDistance && Math.sign(distance) === Math.sign(this.attachmentOffset.x)) {
-			this.destination = this.nextDestination(this.minDistance, spider, world) ?? this.destination;
-			// if(Vector.dist(this.position, this.destination) > 15) { debugger; }
+		else if(Math.abs(this.distance) >= this.maxDistance && Math.sign(this.distance) === Math.sign(this.attachmentOffset.x)) {
+			this.destination = this.minDistance * Math.sign(this.attachmentOffset.x);
 		}
 
-		this.position = GameUtils.moveVectorTowards(this.position, this.destination, SpiderData.LEG_SPEED);
+		this.distance = GameUtils.moveTowards(this.distance, this.destination, SpiderData.LEG_SPEED);
 	}
-	nextDestination(distance: number, spider: Spider, world: World) {
-		return spider.moveAlongSurface(spider.basepoint!, distance, world).position();
-
-		return;
-		const surface = spider.basepoint!.surface.line();
-		const nextSurface = spider.nextSurfaceCW(world).line();
-		const previousSurface = spider.nextSurfaceCCW(world).line();
-
-		const left = new Vector(-1, 0).rotate(MathUtils.toDegrees(spider.angle));
-		const horizontal = (this.attachmentOffset.x < 0) ? left : left.multiply(-1);
-		const down = new Vector(0, 1).rotate(MathUtils.toDegrees(spider.angle));
-		const center = spider.physicsObject.hitbox().center();
-		const line = new Line(center.add(horizontal.multiply(distance)), center.add(horizontal.multiply(distance).add(down)));
-		const intersections = [
-			line.intersection(surface, "line", "segment"),
-			line.intersection(previousSurface, "line", "segment"),
-			line.intersection(nextSurface, "line", "segment"),
-		].filter(v => v != null);
-		if(intersections.length === 0) {
-			// console.log("null");
-			return null;
-		}
-		return Utils.minValue(intersections, v => Vector.dist(v, line.endpoint1));
+	position(spider: Spider, world: World) {
+		return spider.moveAlongSurface(spider.basepoint!, this.distance, world).position();
 	}
 
-	signedDistance(spider: Spider) {
-		const center = spider.physicsObject.hitbox().center();
-		const rotated = this.position.subtract(center).rotate(MathUtils.toDegrees(spider.angle)).add(center);
-		return rotated.x - center.x;
-	}
-
-	display(spider: Spider, canvasIO: CanvasIO) {
+	display(spider: Spider, canvasIO: CanvasIO, world: World) {
 		const attachment = this.attachment(spider);
+		const position = this.position(spider, world);
 		canvasIO.ctx.strokeStyle = "green";
-		canvasIO.strokeLine(this.position.x, this.position.y, attachment.x, attachment.y);
+		canvasIO.strokeLine(position.x, position.y, attachment.x, attachment.y);
 	}
 	displayDebug(canvasIO: CanvasIO) {
-		canvasIO.ctx.fillStyle = "yellow";
-		canvasIO.fillCircle(this.destination.x, this.destination.y, 5);
+		// Unimplemented
 	}
 
 	attachment(spider: Spider) {
@@ -171,41 +137,36 @@ export class Spider {
 		this.legs = this.initializeLegs();
 	}
 	initializeLegs() {
-		const center = this.physicsObject.hitbox().center();
 		return [
 			new SpiderLeg(
 				40,
 				new Vector(-15, 20),
-				center.add(-30, 20),
 				20,
 				40
 			),
-			// new SpiderLeg(
-			// 	40,
-			// 	new Vector(15, 20),
-			// 	center.add(30, 20),
-			// 	20,
-			// 	40
-			// ),
+			new SpiderLeg(
+				40,
+				new Vector(15, 20),
+				20,
+				40
+			),
 
-			// new SpiderLeg(
-			// 	60,
-			// 	new Vector(-25, 0),
-			// 	center.add(-40, 20),
-			// 	40,
-			// 	70
-			// ),
-			// new SpiderLeg(
-			// 	60,
-			// 	new Vector(25, 0),
-			// 	center.add(40, 20),
-			// 	40,
-			// 	70
-			// )
+			new SpiderLeg(
+				60,
+				new Vector(-25, 0),
+				40,
+				70
+			),
+			new SpiderLeg(
+				60,
+				new Vector(25, 0),
+				40,
+				70
+			)
 		];
 	}
 
-	display(canvasIO: CanvasIO) {
+	display(canvasIO: CanvasIO, world: World) {
 		canvasIO.ctx.save();
 		const position = this.physicsObject.hitbox().center();
 		canvasIO.ctx.translate(position.x, position.y);
@@ -214,11 +175,11 @@ export class Spider {
 		canvasIO.fillRegularPoly(new Vector(0, 0), SpiderData.SIZE / 2, 6);
 		canvasIO.ctx.restore();
 
-		this.displayLegs(canvasIO);
+		this.displayLegs(canvasIO, world);
 	}
-	displayLegs(canvasIO: CanvasIO) {
+	displayLegs(canvasIO: CanvasIO, world: World) {
 		for(const leg of this.legs) {
-			leg.display(this, canvasIO);
+			leg.display(this, canvasIO, world);
 		}
 	}
 	displayDebug(canvasIO: CanvasIO) {
@@ -253,7 +214,7 @@ export class Spider {
 	}
 	updateLegs(world: World) {
 		for(const leg of this.legs) {
-			leg.update(this, world);
+			leg.update();
 		}
 	}
 

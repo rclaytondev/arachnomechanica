@@ -212,7 +212,7 @@ export class World {
 	}
 	displayEntities(canvasIO: CanvasIO) {
 		for(const entity of this.entities) {
-			entity.display(canvasIO);
+			entity.display(canvasIO, this);
 		}
 	}
 	displayParticles(canvasIO: CanvasIO) {
