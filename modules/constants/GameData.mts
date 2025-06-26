@@ -444,4 +444,5 @@ export class SpiderData {
 	static ANGULAR_SPEED = 0.2;
 	static TURN_WALL_DISTANCE = 10;
 	static TURN_WALL_DURATION = 20;
+	static LEG_SPEED = 6;
 }

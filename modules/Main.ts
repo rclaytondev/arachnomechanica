@@ -50,14 +50,16 @@ for(let i = 0; i < CORNER_SIZE; i ++) {
 }
 
 let frameCount = 0;
-const FRAMERATE = 60;
+const FRAMERATE = 10;
 const world = new World(false);
-world.tiles.fillRect(new Rectangle(0, 1, 5, 1), new SolidTile("solid", "tower"));
-world.tiles.set(new Vector(4, 0), new SolidTile("slope-floor-right", "tower"));
-world.tiles.set(new Vector(5, -1), new SolidTile("slope-floor-right", "tower"));
-const spider = new Spider(new Vector(25, 25));
+world.tiles.fillRect(new Rectangle(0, 1, 10, 10), new SolidTile("solid", "tower"));
+// world.tiles.set(new Vector(4, 0), new SolidTile("slope-floor-right", "tower"));
+// world.tiles.set(new Vector(5, -1), new SolidTile("slope-floor-right", "tower"));
+const spider = new Spider(new Vector(75, 25));
+// const spider = new Spider(new Vector(75, 125));
 spider.movement = "counterclockwise";
-spider.basepoint = new PointOnSurface(new Surface(new Vector(0, 1), "up"), 25);
+spider.basepoint = new PointOnSurface(new Surface(new Vector(1, 1), "up"), 25);
+// spider.basepoint = new PointOnSurface(new Surface(new Vector(2, 2), "down"), 25);
 world.entities.push(spider);
 
 export class Main {

@@ -1,12 +1,15 @@
 import { CanvasIO } from "../../utils-ts/modules/CanvasIO.mjs";
 import { Diagonal, Direction, Directions } from "../../utils-ts/modules/geometry/Direction.mjs";
+import { Line } from "../../utils-ts/modules/geometry/Line.mjs";
 import { Rectangle } from "../../utils-ts/modules/geometry/Rectangle.mjs";
 import { Vector } from "../../utils-ts/modules/geometry/Vector.mjs";
 import { MathUtils } from "../../utils-ts/modules/math/MathUtils.mjs";
+import { Utils } from "../../utils-ts/modules/Utils.mjs";
 import { DEBUG_SETTINGS } from "../constants/DebugSettings.mjs";
 import { SpiderData, WorldData } from "../constants/GameData.mjs";
 import { GameUtils } from "../game-utilities/GameUtils.mjs";
 import { PhysicsObject } from "../game-utilities/PhysicsObject.mjs";
+import { frameCount } from "../Main.js";
 import { TowerTile } from "../tiles/TowerTile.mjs";
 import { World } from "../World";
 
@@ -45,6 +48,13 @@ export class Surface {
 	length() {
 		return WorldData.TILE_SIZE * (Directions.isDirection(this.outwardNormal) ? 1 : Math.SQRT2);
 	}
+	line() {
+		return new Line(this.start.multiply(WorldData.TILE_SIZE), this.end().multiply(WorldData.TILE_SIZE));
+	}
+
+	copy() {
+		return new Surface(this.start.clone(), this.outwardNormal);
+	}
 }
 
 export class PointOnSurface {
@@ -58,19 +68,75 @@ export class PointOnSurface {
 	position() {
 		return this.surface.start.multiply(WorldData.TILE_SIZE).add(this.surface.tangentVectorCW().multiply(this.distance));
 	}
+
+	copy() {
+		return new PointOnSurface(this.surface.copy(), this.distance);
+	}
 }
 
 export class SpiderLeg {
+	minDistance: number;
+	maxDistance: number;
 	attachmentOffset: Vector;
 	position: Vector;
 	destination: Vector;
 	length: number;
 
-	constructor(length: number, attachmentOffset: Vector, position: Vector) {
+	constructor(length: number, attachmentOffset: Vector, position: Vector, minDistance: number, maxDistance: number) {
 		this.length = length;
 		this.attachmentOffset = attachmentOffset;
 		this.position = position;
 		this.destination = position;
+		this.minDistance = minDistance;
+		this.maxDistance = maxDistance;
+	}
+
+	update(spider: Spider, world: World) {
+		if(frameCount === 20) {
+			// debugger;
+		}
+		// if(this.signedDistance(spider) > 15) { debugger; }
+		const distance = this.signedDistance(spider);
+		console.log(distance);
+		if(Math.abs(distance) < this.minDistance || Math.sign(distance) !== Math.sign(this.attachmentOffset.x)) {
+			this.destination = this.nextDestination(this.maxDistance, spider, world) ?? this.destination;
+		}
+		else if(Math.abs(distance) > this.maxDistance && Math.sign(distance) === Math.sign(this.attachmentOffset.x)) {
+			this.destination = this.nextDestination(this.minDistance, spider, world) ?? this.destination;
+			// if(Vector.dist(this.position, this.destination) > 15) { debugger; }
+		}
+
+		this.position = GameUtils.moveVectorTowards(this.position, this.destination, SpiderData.LEG_SPEED);
+	}
+	nextDestination(distance: number, spider: Spider, world: World) {
+		return spider.moveAlongSurface(spider.basepoint!, distance, world).position();
+
+		return;
+		const surface = spider.basepoint!.surface.line();
+		const nextSurface = spider.nextSurfaceCW(world).line();
+		const previousSurface = spider.nextSurfaceCCW(world).line();
+
+		const left = new Vector(-1, 0).rotate(MathUtils.toDegrees(spider.angle));
+		const horizontal = (this.attachmentOffset.x < 0) ? left : left.multiply(-1);
+		const down = new Vector(0, 1).rotate(MathUtils.toDegrees(spider.angle));
+		const center = spider.physicsObject.hitbox().center();
+		const line = new Line(center.add(horizontal.multiply(distance)), center.add(horizontal.multiply(distance).add(down)));
+		const intersections = [
+			line.intersection(surface, "line", "segment"),
+			line.intersection(previousSurface, "line", "segment"),
+			line.intersection(nextSurface, "line", "segment"),
+		].filter(v => v != null);
+		if(intersections.length === 0) {
+			// console.log("null");
+			return null;
+		}
+		return Utils.minValue(intersections, v => Vector.dist(v, line.endpoint1));
+	}
+
+	signedDistance(spider: Spider) {
+		const center = spider.physicsObject.hitbox().center();
+		const rotated = this.position.subtract(center).rotate(MathUtils.toDegrees(spider.angle)).add(center);
+		return rotated.x - center.x;
 	}
 
 	display(spider: Spider, canvasIO: CanvasIO) {
@@ -110,24 +176,32 @@ export class Spider {
 			new SpiderLeg(
 				40,
 				new Vector(-15, 20),
-				center.add(-30, 20)
+				center.add(-30, 20),
+				20,
+				40
 			),
-			new SpiderLeg(
-				40,
-				new Vector(15, 20),
-				center.add(30, 20)
-			),
+			// new SpiderLeg(
+			// 	40,
+			// 	new Vector(15, 20),
+			// 	center.add(30, 20),
+			// 	20,
+			// 	40
+			// ),
 
-			new SpiderLeg(
-				60,
-				new Vector(-25, 0),
-				center.add(-40, 20)
-			),
-			new SpiderLeg(
-				60,
-				new Vector(25, 0),
-				center.add(40, 20)
-			)
+			// new SpiderLeg(
+			// 	60,
+			// 	new Vector(-25, 0),
+			// 	center.add(-40, 20),
+			// 	40,
+			// 	70
+			// ),
+			// new SpiderLeg(
+			// 	60,
+			// 	new Vector(25, 0),
+			// 	center.add(40, 20),
+			// 	40,
+			// 	70
+			// )
 		];
 	}
 
@@ -171,10 +245,16 @@ export class Spider {
 	update(world: World) {
 		this.move(SpiderData.SPEED, world);
 		this.updateAngle();
+		this.updateLegs(world);
 	}
 	updateAngle() {
 		const targetAngle = Math.PI / 2 - (this.basepoint ? Directions.angle[this.basepoint.surface.outwardNormal] : 0);
 		this.angle = GameUtils.moveAngleTowards(this.angle, targetAngle, SpiderData.ANGULAR_SPEED);
+	}
+	updateLegs(world: World) {
+		for(const leg of this.legs) {
+			leg.update(this, world);
+		}
 	}
 
 	move(amount: number, world: World) {
@@ -187,6 +267,24 @@ export class Spider {
 			newPosition.subtract(this.physicsObject.positionFloat()),
 			world
 		);
+	}
+	moveAlongSurface(point: PointOnSurface, amount: number, world: World) {
+		point = point.copy();
+		point.distance += amount;
+		while(point.distance > point.surface.length()) {
+			point = new PointOnSurface(
+				this.nextSurfaceCW(world, point),
+				point.distance - point.surface.length()
+			);
+		}
+		while(point.distance < 0) {
+			const nextSurface = this.nextSurfaceCCW(world, point);
+			point = new PointOnSurface(
+				nextSurface,
+				nextSurface.length() + point.distance
+			);
+		}
+		return point;
 	}
 	moveBasepoint(amount: number, world: World) {
 		this.basepoint!.distance += amount * (this.movement === "clockwise" ? 1 : -1);
@@ -246,11 +344,11 @@ export class Spider {
 		);
 	}
 
-	nextSurfaceCW(world: World) {
-		const tangent = this.basepoint!.surface.tangentDirectionCW();
+	nextSurfaceCW(world: World, point: PointOnSurface = this.basepoint!) {
+		const tangent = point.surface.tangentDirectionCW();
 		const tileTangent = Directions.isDirection(tangent) ? tangent : Directions.rotateClockwise45[tangent];
 		const angle = TowerTile.angle(
-			this.basepoint!.surface.tilePosition(),
+			point.surface.tilePosition(),
 			Directions.rotateCounterclockwise[tileTangent],
 				tileTangent,
 			world
@@ -260,15 +358,15 @@ export class Spider {
 			newTangent = Directions.rotateClockwise45[newTangent];
 		}
 		return new Surface(
-			this.basepoint!.surface.end(),
+			point.surface.end(),
 			Directions.rotateCounterclockwise[newTangent]
 		);
 	}
-	nextSurfaceCCW(world: World) {
-		const tangent = this.basepoint!.surface.tangentDirectionCW();
+	nextSurfaceCCW(world: World, point: PointOnSurface = this.basepoint!) {
+		const tangent = point.surface.tangentDirectionCW();
 		const tileTangent = Directions.isDirection(tangent) ? tangent : Directions.rotateCounterclockwise45[tangent];
 		const angle = TowerTile.angle(
-			this.basepoint!.surface.tilePosition(),
+			point.surface.tilePosition(),
 			Directions.rotateCounterclockwise[tileTangent],
 			Directions.opposite[tileTangent],
 			world
@@ -278,7 +376,7 @@ export class Spider {
 			newTangent = Directions.rotateCounterclockwise45[newTangent];
 		}
 		return new Surface(
-			this.basepoint!.surface.start.subtract(Vector.gridUnit(newTangent)),
+			point.surface.start.subtract(Vector.gridUnit(newTangent)),
 			Directions.rotateCounterclockwise[newTangent]
 		);
 	}
