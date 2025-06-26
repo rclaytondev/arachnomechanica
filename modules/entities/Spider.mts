@@ -78,6 +78,10 @@ export class SpiderLeg {
 		canvasIO.ctx.strokeStyle = "green";
 		canvasIO.strokeLine(this.position.x, this.position.y, attachment.x, attachment.y);
 	}
+	displayDebug(canvasIO: CanvasIO) {
+		canvasIO.ctx.fillStyle = "yellow";
+		canvasIO.fillCircle(this.destination.x, this.destination.y, 5);
+	}
 
 	attachment(spider: Spider) {
 		const center = spider.physicsObject.hitbox().center();
@@ -137,10 +141,6 @@ export class Spider {
 		canvasIO.ctx.restore();
 
 		this.displayLegs(canvasIO);
-
-		if(DEBUG_SETTINGS.SPIDER_VISUALIZATION) {
-			this.displayDebug(canvasIO);
-		}
 	}
 	displayLegs(canvasIO: CanvasIO) {
 		for(const leg of this.legs) {
@@ -151,9 +151,9 @@ export class Spider {
 		if(this.basepoint) {
 			canvasIO.ctx.fillStyle = "red";
 			canvasIO.ctx.strokeStyle = "red";
-			canvasIO.ctx.lineWidth = 5;
+			canvasIO.ctx.lineWidth = 2;
 			const basepoint = this.basepoint.position();
-			canvasIO.fillCircle(basepoint.x, basepoint.y, 7);
+			canvasIO.fillCircle(basepoint.x, basepoint.y, 5);
 			const start = this.basepoint.surface.start.multiply(WorldData.TILE_SIZE);
 			const end = this.basepoint.surface.end().multiply(WorldData.TILE_SIZE);
 			canvasIO.strokeLine(start.x, start.y, end.x, end.y);
@@ -162,6 +162,10 @@ export class Spider {
 		canvasIO.ctx.strokeStyle = "rgb(0, 255, 255)";
 		canvasIO.ctx.lineWidth = 1;
 		canvasIO.strokeRect(this.physicsObject.hitbox());
+
+		for(const leg of this.legs) {
+			leg.displayDebug(canvasIO);
+		}
 	}
 
 	update(world: World) {

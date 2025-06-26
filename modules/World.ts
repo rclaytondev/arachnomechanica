@@ -236,6 +236,9 @@ export class World {
 			else if("displayHitboxes" in entity) {
 				entity.displayHitboxes(canvasIO);
 			}
+			else if("displayDebug" in entity) {
+				entity.displayDebug(canvasIO);
+			}
 		}
 	}
 
