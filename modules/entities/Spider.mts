@@ -160,12 +160,22 @@ export class SpiderLeg {
 	position(spider: Spider, world: World) {
 		return spider.basepoint!.moveAlongSurface(this.distance, world).position();
 	}
+	jointPosition(spider: Spider, position: Vector) {
+		const center = spider.physicsObject.hitbox().center();
+		const distance = Vector.dist(position, center);
+		const horizontal = position.subtract(center).normalize();
+		const up = horizontal.rotate(this.attachmentOffset.x < 0 ? 90 : -90);
+		const height = Math.sqrt(this.length ** 2 - (distance / 2) ** 2);
+		return center.add(horizontal.multiply(distance / 2)).add(up.multiply(height));
+	}
 
 	display(spider: Spider, canvasIO: CanvasIO, world: World) {
 		const attachment = this.attachment(spider);
 		const position = this.position(spider, world);
+		const joint = this.jointPosition(spider, position);
 		canvasIO.ctx.strokeStyle = "green";
-		canvasIO.strokeLine(position.x, position.y, attachment.x, attachment.y);
+		canvasIO.strokeLine(attachment.x, attachment.y, joint.x, joint.y);
+		canvasIO.strokeLine(joint.x, joint.y, position.x, position.y);
 	}
 	displayDebug(canvasIO: CanvasIO) {
 		// Unimplemented
