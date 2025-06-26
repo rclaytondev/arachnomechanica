@@ -28,6 +28,43 @@ export class Surface {
 		return Vector.unit(this.tangentDirectionCW());
 	}
 
+	nextSurfaceCW(world: World) {
+		const tangent = this.tangentDirectionCW();
+		const tileTangent = Directions.isDirection(tangent) ? tangent : Directions.rotateClockwise45[tangent];
+		const angle = TowerTile.angle(
+			this.tilePosition(),
+			Directions.rotateCounterclockwise[tileTangent],
+				tileTangent,
+			world
+		) + (Directions.isDiagonal(tangent) ? 45 : 0);
+		let newTangent = Directions.opposite[tangent];
+		for(let i = 0; i < angle; i += 45) {
+			newTangent = Directions.rotateClockwise45[newTangent];
+		}
+		return new Surface(
+			this.end(),
+			Directions.rotateCounterclockwise[newTangent]
+		);
+	}
+	nextSurfaceCCW(world: World) {
+		const tangent = this.tangentDirectionCW();
+		const tileTangent = Directions.isDirection(tangent) ? tangent : Directions.rotateCounterclockwise45[tangent];
+		const angle = TowerTile.angle(
+			this.tilePosition(),
+			Directions.rotateCounterclockwise[tileTangent],
+			Directions.opposite[tileTangent],
+			world
+		) + (Directions.isDiagonal(tangent) ? 45 : 0);
+		let newTangent = Directions.opposite[tangent];
+		for(let i = 0; i < angle; i += 45) {
+			newTangent = Directions.rotateCounterclockwise45[newTangent];
+		}
+		return new Surface(
+			this.start.subtract(Vector.gridUnit(newTangent)),
+			Directions.rotateCounterclockwise[newTangent]
+		);
+	}
+
 	tilePosition() {
 		const positions = {
 			"right": this.start,
@@ -234,12 +271,12 @@ export class Spider {
 		point.distance += amount;
 		while(point.distance > point.surface.length()) {
 			point = new PointOnSurface(
-				this.nextSurfaceCW(world, point),
+				point.surface.nextSurfaceCW(world),
 				point.distance - point.surface.length()
 			);
 		}
 		while(point.distance < 0) {
-			const nextSurface = this.nextSurfaceCCW(world, point);
+			const nextSurface = point.surface.nextSurfaceCCW(world);
 			point = new PointOnSurface(
 				nextSurface,
 				nextSurface.length() + point.distance
@@ -252,7 +289,7 @@ export class Spider {
 	}
 	smoothedNormal(world: World) {
 		if(this.basepoint!.distance < SpiderData.TURN_WALL_DURATION) {
-			const nextSurface = this.nextSurfaceCCW(world);
+			const nextSurface = this.basepoint!.surface.nextSurfaceCCW(world);
 			const angle = Directions.angle[this.basepoint!.surface.outwardNormal];
 			const nextAngle = Directions.angle[nextSurface.outwardNormal];
 			const lerpedAngle = GameUtils.lerpAngle(
@@ -263,7 +300,7 @@ export class Spider {
 			return new Vector(Math.cos(lerpedAngle), -Math.sin(lerpedAngle));
 		}
 		if(this.basepoint!.surface.length() - this.basepoint!.distance < SpiderData.TURN_WALL_DURATION) {
-			const nextSurface = this.nextSurfaceCW(world);
+			const nextSurface = this.basepoint!.surface.nextSurfaceCW(world);
 			const angle = Directions.angle[this.basepoint!.surface.outwardNormal];
 			const nextAngle = Directions.angle[nextSurface.outwardNormal];
 			const lerpedAngle = GameUtils.lerpAngle(
@@ -276,8 +313,8 @@ export class Spider {
 		return Vector.unit(this.basepoint!.surface.outwardNormal);
 	}
 	wallDistance(world: World) {
-		const nextSurfaceCW = this.nextSurfaceCW(world);
-		const nextSurfaceCCW = this.nextSurfaceCCW(world);
+		const nextSurfaceCW = this.basepoint!.surface.nextSurfaceCW(world);
+		const nextSurfaceCCW = this.basepoint!.surface.nextSurfaceCCW(world);
 		const distanceToTurn = Math.min(
 			nextSurfaceCCW.outwardNormal === this.basepoint!.surface.outwardNormal ? Infinity : this.basepoint!.distance,
 			nextSurfaceCW.outwardNormal === this.basepoint!.surface.outwardNormal ? Infinity : this.basepoint!.surface.length() - this.basepoint!.distance
@@ -289,43 +326,6 @@ export class Spider {
 			distanceToTurn,
 			0, SpiderData.TURN_WALL_DURATION,
 			SpiderData.TURN_WALL_DISTANCE, 0
-		);
-	}
-
-	nextSurfaceCW(world: World, point: PointOnSurface = this.basepoint!) {
-		const tangent = point.surface.tangentDirectionCW();
-		const tileTangent = Directions.isDirection(tangent) ? tangent : Directions.rotateClockwise45[tangent];
-		const angle = TowerTile.angle(
-			point.surface.tilePosition(),
-			Directions.rotateCounterclockwise[tileTangent],
-				tileTangent,
-			world
-		) + (Directions.isDiagonal(tangent) ? 45 : 0);
-		let newTangent = Directions.opposite[tangent];
-		for(let i = 0; i < angle; i += 45) {
-			newTangent = Directions.rotateClockwise45[newTangent];
-		}
-		return new Surface(
-			point.surface.end(),
-			Directions.rotateCounterclockwise[newTangent]
-		);
-	}
-	nextSurfaceCCW(world: World, point: PointOnSurface = this.basepoint!) {
-		const tangent = point.surface.tangentDirectionCW();
-		const tileTangent = Directions.isDirection(tangent) ? tangent : Directions.rotateCounterclockwise45[tangent];
-		const angle = TowerTile.angle(
-			point.surface.tilePosition(),
-			Directions.rotateCounterclockwise[tileTangent],
-			Directions.opposite[tileTangent],
-			world
-		) + (Directions.isDiagonal(tangent) ? 45 : 0);
-		let newTangent = Directions.opposite[tangent];
-		for(let i = 0; i < angle; i += 45) {
-			newTangent = Directions.rotateCounterclockwise45[newTangent];
-		}
-		return new Surface(
-			point.surface.start.subtract(Vector.gridUnit(newTangent)),
-			Directions.rotateCounterclockwise[newTangent]
 		);
 	}
 }
