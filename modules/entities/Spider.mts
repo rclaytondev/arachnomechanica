@@ -248,20 +248,7 @@ export class Spider {
 		return point;
 	}
 	moveBasepoint(amount: number, world: World) {
-		this.basepoint!.distance += amount * (this.movement === "clockwise" ? 1 : -1);
-		while(this.basepoint!.distance > this.basepoint!.surface.length()) {
-			this.basepoint = new PointOnSurface(
-				this.nextSurfaceCW(world),
-				this.basepoint!.distance - this.basepoint!.surface.length()
-			)
-		}
-		while(this.basepoint!.distance < 0) {
-			const nextSurface = this.nextSurfaceCCW(world);
-			this.basepoint = new PointOnSurface(
-				nextSurface,
-				nextSurface.length() + this.basepoint!.distance
-			);
-		}
+		this.basepoint = this.moveAlongSurface(this.basepoint!, amount * (this.movement === "clockwise" ? 1 : -1), world);
 	}
 	smoothedNormal(world: World) {
 		if(this.basepoint!.distance < SpiderData.TURN_WALL_DURATION) {
