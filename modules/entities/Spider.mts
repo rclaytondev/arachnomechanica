@@ -173,9 +173,11 @@ export class SpiderLeg {
 		const attachment = this.attachment(spider);
 		const position = this.position(spider, world);
 		const joint = this.jointPosition(spider, position);
-		canvasIO.ctx.strokeStyle = "green";
-		canvasIO.strokeLine(attachment.x, attachment.y, joint.x, joint.y);
-		canvasIO.strokeLine(joint.x, joint.y, position.x, position.y);
+		canvasIO.ctx.strokeStyle = "black";
+		canvasIO.ctx.lineWidth = 5;
+		canvasIO.linePointedness = 2;
+		canvasIO.pointedLine(attachment.x, attachment.y, joint.x, joint.y);
+		canvasIO.pointedLine(joint.x, joint.y, position.x, position.y);
 	}
 	displayDebug(canvasIO: CanvasIO) {
 		// Unimplemented
@@ -205,29 +207,29 @@ export class Spider {
 	initializeLegs() {
 		return [
 			new SpiderLeg(
-				40,
-				new Vector(-15, 20),
-				20,
-				40
+				SpiderData.LEG_1.LENGTH,
+				SpiderData.LEG_1.ATTACHMENT.reflectX(),
+				SpiderData.LEG_1.MIN_DISTANCE,
+				SpiderData.LEG_1.MAX_DISTANCE
 			),
 			new SpiderLeg(
-				40,
-				new Vector(15, 20),
-				20,
-				40
+				SpiderData.LEG_1.LENGTH,
+				SpiderData.LEG_1.ATTACHMENT,
+				SpiderData.LEG_1.MIN_DISTANCE,
+				SpiderData.LEG_1.MAX_DISTANCE
 			),
 
 			new SpiderLeg(
-				60,
-				new Vector(-25, 0),
-				40,
-				70
+				SpiderData.LEG_2.LENGTH,
+				SpiderData.LEG_2.ATTACHMENT.reflectX(),
+				SpiderData.LEG_2.MIN_DISTANCE,
+				SpiderData.LEG_2.MAX_DISTANCE
 			),
 			new SpiderLeg(
-				60,
-				new Vector(25, 0),
-				40,
-				70
+				SpiderData.LEG_2.LENGTH,
+				SpiderData.LEG_2.ATTACHMENT,
+				SpiderData.LEG_2.MIN_DISTANCE,
+				SpiderData.LEG_2.MAX_DISTANCE
 			)
 		];
 	}
@@ -249,6 +251,8 @@ export class Spider {
 		}
 	}
 	displayDebug(canvasIO: CanvasIO) {
+		if(!DEBUG_SETTINGS.SPIDER_VISUALIZATION) { return; }
+
 		if(this.basepoint) {
 			canvasIO.ctx.fillStyle = "red";
 			canvasIO.ctx.strokeStyle = "red";

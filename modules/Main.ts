@@ -50,9 +50,9 @@ for(let i = 0; i < CORNER_SIZE; i ++) {
 }
 
 let frameCount = 0;
-const FRAMERATE = 10;
+const FRAMERATE = 60;
 const world = new World(false);
-world.tiles.fillRect(new Rectangle(0, 1, 10, 10), new SolidTile("solid", "tower"));
+world.tiles.fillRect(new Rectangle(0, 1, 4, 4), new SolidTile("solid", "tower"));
 // world.tiles.set(new Vector(4, 0), new SolidTile("slope-floor-right", "tower"));
 // world.tiles.set(new Vector(5, -1), new SolidTile("slope-floor-right", "tower"));
 const spider = new Spider(new Vector(75, 25));

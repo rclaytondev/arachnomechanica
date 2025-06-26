@@ -444,5 +444,18 @@ export class SpiderData {
 	static ANGULAR_SPEED = 0.2;
 	static TURN_WALL_DISTANCE = 10;
 	static TURN_WALL_DURATION = 20;
-	static LEG_SPEED = 6;
+	static LEG_SPEED = 3;
+
+	static LEG_1 = {
+		LENGTH: 30,
+		ATTACHMENT: new Vector(13, 17),
+		MIN_DISTANCE: 30,
+		MAX_DISTANCE: 50,
+	};
+	static LEG_2 = {
+		LENGTH: 40,
+		ATTACHMENT: new Vector(25, 0),
+		MIN_DISTANCE: 40,
+		MAX_DISTANCE: 70,
+	};
 }
