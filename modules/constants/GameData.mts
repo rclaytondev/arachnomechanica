@@ -458,4 +458,17 @@ export class SpiderData {
 		MIN_DISTANCE: 40,
 		MAX_DISTANCE: 70,
 	};
+
+	static NUM_EYES = 3;
+	static EYE_DISTANCE = 8;
+	static EYE_SIZE = 5;
+	static EYE_COLOR = "rgb(200, 128, 0)";
+
+	static GLOW_SIZE = 100;
+	static GLOW_INTENSITY = 0.4;
+	static GLOW_COLOR = {
+		red: 255,
+		green: 255,
+		blue: 255,
+	};
 }

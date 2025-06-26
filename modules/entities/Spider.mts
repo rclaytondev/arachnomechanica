@@ -236,6 +236,7 @@ export class Spider {
 
 	display(canvasIO: CanvasIO, world: World) {
 		this.displayBody(canvasIO);
+		this.displayEyes(canvasIO);
 		this.displayLegs(canvasIO, world);
 	}
 	displayBody(canvasIO: CanvasIO) {
@@ -247,10 +248,27 @@ export class Spider {
 		canvasIO.fillRegularPoly(new Vector(0, 0), SpiderData.SIZE / 2, 6);
 		canvasIO.ctx.restore();
 	}
+	displayEyes(canvasIO: CanvasIO) {
+		const center = this.physicsObject.hitbox().center();
+		for(let angle = 0; angle < 360; angle += 360 / SpiderData.NUM_EYES) {
+			const position = new Vector(0, -SpiderData.EYE_DISTANCE).rotate(angle + MathUtils.toDegrees(this.angle));
+			canvasIO.ctx.fillStyle = SpiderData.EYE_COLOR;
+			canvasIO.fillDiamond(center.x + position.x, center.y + position.y, SpiderData.EYE_SIZE);
+		}
+	}
 	displayLegs(canvasIO: CanvasIO, world: World) {
 		for(const leg of this.legs) {
 			leg.display(this, canvasIO, world);
 		}
+	}
+	displayGlowEffect(canvasIO: CanvasIO) {
+		const center = this.physicsObject.hitbox().center();
+		GameUtils.glowCircle(
+			center.x, center.y,
+			SpiderData.GLOW_SIZE, SpiderData.GLOW_INTENSITY,
+			canvasIO,
+			SpiderData.GLOW_COLOR.red, SpiderData.GLOW_COLOR.green, SpiderData.GLOW_COLOR.blue
+		);
 	}
 	displayDebug(canvasIO: CanvasIO) {
 		if(!DEBUG_SETTINGS.SPIDER_VISUALIZATION) { return; }
