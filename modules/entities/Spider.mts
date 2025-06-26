@@ -105,6 +105,25 @@ export class PointOnSurface {
 	position() {
 		return this.surface.start.multiply(WorldData.TILE_SIZE).add(this.surface.tangentVectorCW().multiply(this.distance));
 	}
+	
+	moveAlongSurface(amount: number, world: World) {
+		let point = this.copy();
+		point.distance += amount;
+		while(point.distance > point.surface.length()) {
+			point = new PointOnSurface(
+				point.surface.nextSurfaceCW(world),
+				point.distance - point.surface.length()
+			);
+		}
+		while(point.distance < 0) {
+			const nextSurface = point.surface.nextSurfaceCCW(world);
+			point = new PointOnSurface(
+				nextSurface,
+				nextSurface.length() + point.distance
+			);
+		}
+		return point;
+	}
 
 	copy() {
 		return new PointOnSurface(this.surface.copy(), this.distance);
@@ -139,7 +158,7 @@ export class SpiderLeg {
 		this.distance = GameUtils.moveTowards(this.distance, this.destination, SpiderData.LEG_SPEED);
 	}
 	position(spider: Spider, world: World) {
-		return spider.moveAlongSurface(spider.basepoint!, this.distance, world).position();
+		return spider.basepoint!.moveAlongSurface(this.distance, world).position();
 	}
 
 	display(spider: Spider, canvasIO: CanvasIO, world: World) {
@@ -266,26 +285,8 @@ export class Spider {
 			world
 		);
 	}
-	moveAlongSurface(point: PointOnSurface, amount: number, world: World) {
-		point = point.copy();
-		point.distance += amount;
-		while(point.distance > point.surface.length()) {
-			point = new PointOnSurface(
-				point.surface.nextSurfaceCW(world),
-				point.distance - point.surface.length()
-			);
-		}
-		while(point.distance < 0) {
-			const nextSurface = point.surface.nextSurfaceCCW(world);
-			point = new PointOnSurface(
-				nextSurface,
-				nextSurface.length() + point.distance
-			);
-		}
-		return point;
-	}
 	moveBasepoint(amount: number, world: World) {
-		this.basepoint = this.moveAlongSurface(this.basepoint!, amount * (this.movement === "clockwise" ? 1 : -1), world);
+		this.basepoint = this.basepoint!.moveAlongSurface(amount * (this.movement === "clockwise" ? 1 : -1), world);
 	}
 	smoothedNormal(world: World) {
 		if(this.basepoint!.distance < SpiderData.TURN_WALL_DURATION) {
