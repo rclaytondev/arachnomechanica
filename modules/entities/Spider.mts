@@ -235,6 +235,10 @@ export class Spider {
 	}
 
 	display(canvasIO: CanvasIO, world: World) {
+		this.displayBody(canvasIO);
+		this.displayLegs(canvasIO, world);
+	}
+	displayBody(canvasIO: CanvasIO) {
 		canvasIO.ctx.save();
 		const position = this.physicsObject.hitbox().center();
 		canvasIO.ctx.translate(position.x, position.y);
@@ -242,8 +246,6 @@ export class Spider {
 		canvasIO.ctx.fillStyle = SpiderData.COLOR;
 		canvasIO.fillRegularPoly(new Vector(0, 0), SpiderData.SIZE / 2, 6);
 		canvasIO.ctx.restore();
-
-		this.displayLegs(canvasIO, world);
 	}
 	displayLegs(canvasIO: CanvasIO, world: World) {
 		for(const leg of this.legs) {
