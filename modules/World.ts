@@ -26,13 +26,13 @@ import { SolidTile } from "./tiles/SolidTile.mjs";
 import { StoneTile } from "./tiles/StoneTile.mjs";
 import { WorldGenerator } from "./level-generator/WorldGenerator.mjs";
 import { Utils } from "../utils-ts/modules/Utils.mjs";
-import { Spider } from "./entities/Spider.mjs";
+import { Spider, SpiderProjectile } from "./entities/Spider.mjs";
 
 export type TileEntity = SolidTile | Gate | LaserBlock | SpikeballBlock;
 export type Tile = (typeof WorldData.STRING_TILE_TYPES)[number] | TileEntity;
 export type Slope = (typeof WorldData.SLOPES)[number];
 export type TileWithPosition = { x: number, y: number, tile: Tile };
-export type Entity = Lizard | Spikeball | Portal | Humanoid | Spider;
+export type Entity = Lizard | Spikeball | Portal | Humanoid | Spider | SpiderProjectile;
 
 export class World {
 	tiles: Grid<Tile> = new Grid("empty");

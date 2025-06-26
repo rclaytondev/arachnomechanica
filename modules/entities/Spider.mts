@@ -8,6 +8,7 @@ import { Utils } from "../../utils-ts/modules/Utils.mjs";
 import { DEBUG_SETTINGS } from "../constants/DebugSettings.mjs";
 import { SpiderData, WorldData } from "../constants/GameData.mjs";
 import { GameUtils } from "../game-utilities/GameUtils.mjs";
+import { Particle } from "../game-utilities/Particle.mjs";
 import { PhysicsObject } from "../game-utilities/PhysicsObject.mjs";
 import { frameCount } from "../Main.js";
 import { TowerTile } from "../tiles/TowerTile.mjs";
@@ -362,5 +363,32 @@ export class Spider {
 			0, SpiderData.TURN_WALL_DURATION,
 			SpiderData.TURN_WALL_DISTANCE, 0
 		);
+	}
+}
+
+export class SpiderProjectile {
+	physicsObject: PhysicsObject;
+	velocity: Vector;
+	dead: boolean = false;
+	
+	constructor(position: Vector, velocity: Vector) {
+		this.physicsObject = new PhysicsObject(position.floor(), Rectangle.square(0, 0, 1));
+		this.velocity = velocity;
+	}
+
+	update(world: World, canvasIO: CanvasIO) {
+		this.physicsObject.move(this.velocity, world, () => this.explode());
+
+		world.addParticle(new Particle(
+			this.physicsObject.hitbox().center(),
+			new Vector(0, 0),
+			SpiderData.PROJECTILE_PARTICLE_SETTINGS
+		), canvasIO);
+	}
+
+	display() { }
+
+	explode() {
+		this.dead = true;
 	}
 }

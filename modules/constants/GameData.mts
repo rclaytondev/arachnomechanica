@@ -471,4 +471,13 @@ export class SpiderData {
 		green: 255,
 		blue: 255,
 	};
+
+	static PROJECTILE_PARTICLE_SETTINGS: ParticleSettings = {
+		color: { red: 255, green: 128, blue: 0 },
+		size: { min: 15, max: 20 },
+		shape: 3,
+		glowSize: 30,
+		glowIntensity: 1/8,
+		sizeDecay: 0.2
+	};
 }
