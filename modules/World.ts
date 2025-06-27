@@ -476,26 +476,27 @@ export class World {
 		}
 		return result;
 	}
-	entityIntersectionDistance(position: Vector, direction: Vector) {
+	entityIntersectionDistance(position: Vector, direction: Vector, collides: (entity: Entity) => boolean = () => true) {
 		let result = Infinity;
 		for(const entity of this.entities) {
+			if(!collides(entity)) { continue; }
 			for(const hitbox of ("hitboxes" in entity) ? entity.hitboxes() : []) {
 				result = Math.min(result, GameUtils.rayIntersectsRectangle(position, direction, hitbox));
 			}
 		}
 		return result;
 	}
-	lineIntersectionDistance(position: Vector, direction: Vector, maxDistance: number, ignoredTiles: Tile[] = []) {
+	lineIntersectionDistance(position: Vector, direction: Vector, maxDistance: number, ignoredTiles: Tile[] = [], collides: (entity: Entity) => boolean = () => true) {
 		return Math.min(
 			this.tileIntersectionDistance(position, direction, maxDistance, ignoredTiles),
-			this.entityIntersectionDistance(position, direction)
+			this.entityIntersectionDistance(position, direction, collides)
 		);
 	}
-	hasLineOfSight(position: Vector, rectangle: Rectangle) {
+	hasLineOfSight(position: Vector, rectangle: Rectangle, collides: (entity: Entity) => boolean) {
 		const center = rectangle.center();
 		const direction = center.subtract(position);
 		const distance = GameUtils.rayIntersectsRectangle(position, direction, rectangle);
-		return distance <= this.lineIntersectionDistance(position, direction, distance);
+		return distance <= this.lineIntersectionDistance(position, direction, distance, [], collides);
 	}
 
 

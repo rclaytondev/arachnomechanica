@@ -272,7 +272,7 @@ export class Humanoid {
 			}
 		}
 
-		if(world.hasLineOfSight(this.physicsObject.hitbox().center(), world.player.physicsObject.hitbox())) {
+		if(world.hasLineOfSight(this.physicsObject.hitbox().center(), world.player.physicsObject.hitbox(), (obj) => obj !== this)) {
 			this.beginArming(world);
 		}
 	}

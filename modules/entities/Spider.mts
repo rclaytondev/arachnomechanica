@@ -12,7 +12,7 @@ import { Particle } from "../game-utilities/Particle.mjs";
 import { PhysicsObject } from "../game-utilities/PhysicsObject.mjs";
 import { frameCount } from "../Main.js";
 import { TowerTile } from "../tiles/TowerTile.mjs";
-import { World } from "../World";
+import { Entity, World } from "../World";
 
 export class Surface {
 	start: Vector;
@@ -205,6 +205,7 @@ export class Spider {
 			position.subtract(SpiderData.HITBOX_SIZE / 2, SpiderData.HITBOX_SIZE / 2).floor(),
 			new Rectangle(0, 0, SpiderData.HITBOX_SIZE, SpiderData.HITBOX_SIZE)
 		);
+		this.physicsObject.collides = (obj) => obj !== this;
 		this.legs = this.initializeLegs();
 	}
 	initializeLegs() {
@@ -315,7 +316,8 @@ export class Spider {
 		const center = this.physicsObject.hitbox().center();
 		const up = new Vector(0, -1).rotate(MathUtils.toDegrees(-this.angle)).multiply(20);
 		const player = world.player.physicsObject.hitbox();
-		const hasLineOfSight = world.hasLineOfSight(center.add(up), player) && world.hasLineOfSight(center.subtract(up), player);
+		const collides = (obj: Entity) => obj !== this;
+		const hasLineOfSight = world.hasLineOfSight(center.add(up), player, collides) && world.hasLineOfSight(center.subtract(up), player, collides);
 		if(!hasLineOfSight) {
 			this.hasProjectile = true;
 		}
@@ -329,6 +331,7 @@ export class Spider {
 		const player = world.player.physicsObject.hitbox().center();
 		const velocity = player.subtract(center).normalize().multiply(SpiderData.PROJECTILE_SPEED);
 		const projectile = new SpiderProjectile(center, velocity);
+		projectile.physicsObject.collides = (obj) => obj !== this;
 		world.entities.push(projectile);
 	}
 
@@ -340,7 +343,8 @@ export class Spider {
 		const newPosition = newCenter.subtract(SpiderData.HITBOX_SIZE / 2, SpiderData.HITBOX_SIZE / 2);
 		this.physicsObject.move(
 			newPosition.subtract(this.physicsObject.positionFloat()),
-			world
+			world,
+			() => this.switchDirection()
 		);
 	}
 	moveBasepoint(amount: number, world: World) {
@@ -401,6 +405,13 @@ export class Spider {
 		const center = this.physicsObject.hitbox().center();
 		const projectile = new SpiderProjectile(center, new Vector(0, 0));
 		projectile.explode(world, canvasIO);
+	}
+
+	hitboxes() {
+		return [this.physicsObject.hitbox()];
+	}
+	switchDirection() {
+		this.movement = (this.movement === "clockwise") ? "counterclockwise" : "clockwise";
 	}
 }
 
