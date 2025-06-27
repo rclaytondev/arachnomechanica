@@ -313,8 +313,9 @@ export class Spider {
 	}
 	checkProjectile(world: World) {
 		const center = this.physicsObject.hitbox().center();
+		const up = new Vector(0, -1).rotate(MathUtils.toDegrees(-this.angle)).multiply(20);
 		const player = world.player.physicsObject.hitbox();
-		if(world.hasLineOfSight(center, player) && this.hasProjectile) {
+		if(world.hasLineOfSight(center.add(up), player) && world.hasLineOfSight(center.subtract(up), player) && this.hasProjectile) {
 			this.shootProjectile(world);
 			this.hasProjectile = false;
 		}
