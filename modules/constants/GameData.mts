@@ -497,4 +497,5 @@ export class SpiderData {
 		opacityDecay: { min: 0.015, max: 0.085 },
 		colorVariance: 40
 	};
+	static PROJECTILE_SPEED = 15;
 }

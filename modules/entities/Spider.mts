@@ -196,6 +196,7 @@ export class Spider {
 	basepoint: PointOnSurface | null = null;
 	angle: number = 0;
 	dead: boolean = false;
+	hasProjectile: boolean = true;
 
 	legs: SpiderLeg[];
 
@@ -299,6 +300,7 @@ export class Spider {
 		this.move(SpiderData.SPEED, world);
 		this.updateAngle();
 		this.updateLegs(world);
+		this.checkProjectile(world);
 	}
 	updateAngle() {
 		const targetAngle = Math.PI / 2 - (this.basepoint ? Directions.angle[this.basepoint.surface.outwardNormal] : 0);
@@ -308,6 +310,21 @@ export class Spider {
 		for(const leg of this.legs) {
 			leg.update();
 		}
+	}
+	checkProjectile(world: World) {
+		const center = this.physicsObject.hitbox().center();
+		const player = world.player.physicsObject.hitbox();
+		if(world.hasLineOfSight(center, player) && this.hasProjectile) {
+			this.shootProjectile(world);
+			this.hasProjectile = false;
+		}
+	}
+	shootProjectile(world: World) {
+		const center = this.physicsObject.hitbox().center();
+		const player = world.player.physicsObject.hitbox().center();
+		const velocity = player.subtract(center).normalize().multiply(SpiderData.PROJECTILE_SPEED);
+		const projectile = new SpiderProjectile(center, velocity);
+		world.entities.push(projectile);
 	}
 
 	move(amount: number, world: World) {

@@ -53,14 +53,14 @@ let frameCount = 0;
 const FRAMERATE = 60;
 const world = new World(false);
 world.tiles.fillRect(new Rectangle(-5, -5, 10, 20), new SolidTile("solid", "tower"));
-world.tiles.fillRect(new Rectangle(-4, -4, 8, 8), "empty");
-const spider = new Spider(new Vector(75, 25));
+world.tiles.fillRect(new Rectangle(-4, -4, 9, 8), "empty");
+world.tiles.fillRect(new Rectangle(5, -1, 9, 8), new SolidTile("solid", "tower"));
+const spider = new Spider(new Vector(350, 400));
 // const spider = new Spider(new Vector(75, 125));
 spider.movement = "counterclockwise";
-spider.basepoint = new PointOnSurface(new Surface(new Vector(1, 4), "up"), 0);
+spider.basepoint = new PointOnSurface(new Surface(new Vector(6, 7), "down"), 0);
 // spider.basepoint = new PointOnSurface(new Surface(new Vector(2, 2), "down"), 25);
 world.entities.push(spider);
-world.entities.push(new SpiderProjectile(new Vector(0, -100), new Vector(0, 6)));
 
 export class Main {
 	// static screen: World | RoomEditor = new World(true).initializeGeneration();
