@@ -1,4 +1,4 @@
-import { CanvasIO } from "../../utils-ts/modules/CanvasIO.mjs";
+import { canvasIO, CanvasIO } from "../../utils-ts/modules/CanvasIO.mjs";
 import { Direction, Directions } from "../../utils-ts/modules/geometry/Direction.mjs";
 import { Vector } from "../../utils-ts/modules/geometry/Vector.mjs";
 import { MathUtils } from "../../utils-ts/modules/math/MathUtils.mjs";
@@ -183,7 +183,7 @@ export class Lizard {
 		this.updateJoints();
 		this.updateHeadAngle();
 		this.updateFire(world, canvasIO);
-		this.updateHurtbox(world);
+		this.updateHurtbox(world, canvasIO);
 	}
 	updateLegs() {
 		if(this.waitingTimer < 0) {
@@ -333,7 +333,7 @@ export class Lizard {
 			(tile instanceof Gate && tile.openness >= 1)
 		);
 	}
-	updateHurtbox(world: World) {
+	updateHurtbox(world: World, canvasIO: CanvasIO) {
 		if(this.hurtboxSize === 0) { return; }
 		const hurtbox = this.hurtbox();
 		for(const { position, tile } of world.getTilesAt(hurtbox)) {
@@ -341,14 +341,7 @@ export class Lizard {
 				world.destroyTile(position);
 			}
 		}
-		if(world.player.physicsObject.hitbox().intersects(hurtbox)) {
-			world.player.damage();
-		}
-		for(const entity of world.entities) {
-			if(entity instanceof Lizard) {
-				entity.damage(this.hurtbox());
-			}
-		}
+		world.damage(hurtbox, canvasIO);
 	}
 	checkForPlayer(world: World) {
 		this.checkForPlayerFire(world);

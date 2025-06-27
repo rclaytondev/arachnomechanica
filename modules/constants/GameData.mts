@@ -480,4 +480,21 @@ export class SpiderData {
 		glowIntensity: 1/8,
 		sizeDecay: 0.2
 	};
+	static PROJECTILE_EXPLOSION = {
+		VISUAL_RADIUS: 150,
+		DAMAGE_RADIUS: 150 * Math.SQRT1_2,
+		DESTRUCTION_RADIUS: 55,
+		PARTICLE_DENSITY: 20,
+		PARTICLE_VELOCITY: 5,
+		SCREEN_SHAKE_INTENSITY: 30,
+		SCREEN_SHAKE_TIME: 7,
+	};
+	static PROJECTILE_EXPLOSION_SETTINGS: ParticleSettings = {
+		color: { red: 255, green: 128, blue: 0 },
+		size: { min: 10, max: 15 },
+		shape: 3,
+		sizeDecay: 0.3,
+		opacityDecay: { min: 0.015, max: 0.085 },
+		colorVariance: 40
+	};
 }

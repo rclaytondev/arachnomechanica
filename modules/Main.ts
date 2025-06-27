@@ -52,15 +52,15 @@ for(let i = 0; i < CORNER_SIZE; i ++) {
 let frameCount = 0;
 const FRAMERATE = 60;
 const world = new World(false);
-world.tiles.fillRect(new Rectangle(-5, -5, 10, 10), new SolidTile("solid", "tower"));
+world.tiles.fillRect(new Rectangle(-5, -5, 10, 20), new SolidTile("solid", "tower"));
 world.tiles.fillRect(new Rectangle(-4, -4, 8, 8), "empty");
 const spider = new Spider(new Vector(75, 25));
 // const spider = new Spider(new Vector(75, 125));
 spider.movement = "counterclockwise";
-spider.basepoint = new PointOnSurface(new Surface(new Vector(1, 4), "up"), 25);
+spider.basepoint = new PointOnSurface(new Surface(new Vector(1, 4), "up"), 0);
 // spider.basepoint = new PointOnSurface(new Surface(new Vector(2, 2), "down"), 25);
 world.entities.push(spider);
-world.entities.push(new SpiderProjectile(new Vector(150, 50), new Vector(-6, 0)));
+world.entities.push(new SpiderProjectile(new Vector(0, -100), new Vector(0, 6)));
 
 export class Main {
 	// static screen: World | RoomEditor = new World(true).initializeGeneration();

@@ -533,6 +533,16 @@ export class World {
 			this.particles.push(particle);
 		}
 	}
+	damage(hurtbox: Rectangle, canvasIO: CanvasIO) {
+		if(this.player.physicsObject.hitbox().intersects(hurtbox)) {
+			this.player.damage();
+		}
+		for(const entity of this.entities) {
+			if("damage" in entity) {
+				entity.damage(hurtbox, this, canvasIO);
+			}
+		}
+	}
 
 	static isTile(value: unknown): value is Tile {
 		return (typeof value === "string" && (WorldData.STRING_TILE_TYPES as readonly string[]).includes(value))

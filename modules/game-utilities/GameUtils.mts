@@ -105,6 +105,11 @@ export class GameUtils {
 		}
 		throw new Error("Unexpected: unreachable code reached in weightedRandom.");
 	}
+	static randomInCircle(centerX: number, centerY: number, radius: number) {
+		const angle = GameUtils.random(0, 360);
+		const distance = Math.sqrt(Math.random()) * radius;
+		return new Vector(centerX, centerY).add(new Vector(0, distance).rotate(angle));
+	}
 
 	static pastKeys: { [ key: string ]: boolean } = {};
 

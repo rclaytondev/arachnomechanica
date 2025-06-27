@@ -1,4 +1,4 @@
-import { CanvasIO } from "../../utils-ts/modules/CanvasIO.mjs";
+import { canvasIO, CanvasIO } from "../../utils-ts/modules/CanvasIO.mjs";
 import { Diagonal, Direction, Directions } from "../../utils-ts/modules/geometry/Direction.mjs";
 import { Line } from "../../utils-ts/modules/geometry/Line.mjs";
 import { Rectangle } from "../../utils-ts/modules/geometry/Rectangle.mjs";
@@ -195,6 +195,7 @@ export class Spider {
 	movement: "clockwise" | "counterclockwise" = "clockwise";
 	basepoint: PointOnSurface | null = null;
 	angle: number = 0;
+	dead: boolean = false;
 
 	legs: SpiderLeg[];
 
@@ -364,6 +365,21 @@ export class Spider {
 			SpiderData.TURN_WALL_DISTANCE, 0
 		);
 	}
+
+	damage(hurtbox: Rectangle, world: World, canvasIO: CanvasIO) {
+		if(!hurtbox.intersects(this.physicsObject.hitbox())) { return; }
+
+		const deadBefore = this.dead;
+		this.dead = true;
+		if(!deadBefore) {
+			this.explode(world, canvasIO);
+		}
+	}
+	explode(world: World, canvasIO: CanvasIO) {
+		const center = this.physicsObject.hitbox().center();
+		const projectile = new SpiderProjectile(center, new Vector(0, 0));
+		projectile.explode(world, canvasIO);
+	}
 }
 
 export class SpiderProjectile {
@@ -377,18 +393,61 @@ export class SpiderProjectile {
 	}
 
 	update(world: World, canvasIO: CanvasIO) {
-		this.physicsObject.move(this.velocity, world, () => this.explode());
+		this.physicsObject.move(this.velocity, world, () => this.explode(world, canvasIO));
 
 		world.addParticle(new Particle(
 			this.physicsObject.hitbox().center(),
 			new Vector(0, 0),
 			SpiderData.PROJECTILE_PARTICLE_SETTINGS
 		), canvasIO);
+
+		if(this.physicsObject.hitbox().intersects(world.player.physicsObject.hitbox())) {
+			this.explode(world, canvasIO);
+		}
 	}
 
 	display() { }
 
-	explode() {
+	explode(world: World, canvasIO: CanvasIO) {
 		this.dead = true;
+
+		world.screenShakeTimer = SpiderData.PROJECTILE_EXPLOSION.SCREEN_SHAKE_TIME;
+		world.screenShakeIntensity = SpiderData.PROJECTILE_EXPLOSION.SCREEN_SHAKE_INTENSITY;
+
+		this.destroyTiles(world);
+		this.addExplosionParticles(world, canvasIO);
+		this.explosionDamage(world, canvasIO);
+	}
+	destroyTiles(world: World) {
+		const center = this.physicsObject.hitbox().center();
+		const tileExplosion = Rectangle.fromCenter(
+			center.x, center.y,
+			SpiderData.PROJECTILE_EXPLOSION.DESTRUCTION_RADIUS * 2,
+			SpiderData.PROJECTILE_EXPLOSION.DESTRUCTION_RADIUS * 2
+		);
+		for(const { position } of world.getTilesAt(tileExplosion)) {
+			world.destroyTile(position);
+		}
+	}
+	addExplosionParticles(world: World, canvasIO: CanvasIO) {
+		const center = this.physicsObject.hitbox().center();
+		const area = Math.PI * SpiderData.PROJECTILE_EXPLOSION.VISUAL_RADIUS ** 2;
+		const numParticles = Math.floor(area / (WorldData.TILE_SIZE ** 2) * SpiderData.PROJECTILE_EXPLOSION.PARTICLE_DENSITY);
+		for(let i = 0; i < numParticles; i ++) {
+			const position = GameUtils.randomInCircle(center.x, center.y, SpiderData.PROJECTILE_EXPLOSION.VISUAL_RADIUS);
+			world.addParticle(new Particle(
+				position,
+				new Vector(0, 0),
+				SpiderData.PROJECTILE_EXPLOSION_SETTINGS
+			), canvasIO);
+		}
+	}
+	explosionDamage(world: World, canvasIO: CanvasIO) {
+		const center = this.physicsObject.hitbox().center();
+		world.damage(Rectangle.fromCenter(
+			center.x, center.y,
+			2 * SpiderData.PROJECTILE_EXPLOSION.DAMAGE_RADIUS,
+			2 * SpiderData.PROJECTILE_EXPLOSION.DAMAGE_RADIUS
+		), canvasIO);
 	}
 }
