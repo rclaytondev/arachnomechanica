@@ -297,7 +297,7 @@ export class Spider {
 	}
 
 	update(world: World) {
-		this.move(SpiderData.SPEED, world);
+		this.move(this.hasProjectile ? SpiderData.SPEED : SpiderData.FAST_SPEED, world);
 		this.updateAngle();
 		this.updateLegs(world);
 		this.checkProjectile(world);
@@ -315,7 +315,11 @@ export class Spider {
 		const center = this.physicsObject.hitbox().center();
 		const up = new Vector(0, -1).rotate(MathUtils.toDegrees(-this.angle)).multiply(20);
 		const player = world.player.physicsObject.hitbox();
-		if(world.hasLineOfSight(center.add(up), player) && world.hasLineOfSight(center.subtract(up), player) && this.hasProjectile) {
+		const hasLineOfSight = world.hasLineOfSight(center.add(up), player) && world.hasLineOfSight(center.subtract(up), player);
+		if(!hasLineOfSight) {
+			this.hasProjectile = true;
+		}
+		if(hasLineOfSight && this.hasProjectile) {
 			this.shootProjectile(world);
 			this.hasProjectile = false;
 		}

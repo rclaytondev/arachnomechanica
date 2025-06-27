@@ -441,6 +441,7 @@ export class SpiderData {
 	static HITBOX_SIZE = WorldData.TILE_SIZE * 0.6;
 	static COLOR = "black";
 	static SPEED = 3;
+	static FAST_SPEED = 8;
 	static ANGULAR_SPEED = 0.2;
 	static TURN_WALL_DISTANCE = 10;
 	static TURN_WALL_DURATION = 20;
