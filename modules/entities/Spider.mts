@@ -32,11 +32,10 @@ export class Surface {
 	nextSurfaceCW(world: World) {
 		const tangent = this.tangentDirectionCW();
 		const tileTangent = Directions.isDirection(tangent) ? tangent : Directions.rotateClockwise45[tangent];
-		const angle = TowerTile.angle(
+		const angle = world.angle(
 			this.tilePosition(),
 			Directions.rotateCounterclockwise[tileTangent],
-				tileTangent,
-			world
+			tileTangent
 		) + (Directions.isDiagonal(tangent) ? 45 : 0);
 		let newTangent = Directions.opposite[tangent];
 		for(let i = 0; i < angle; i += 45) {
@@ -50,11 +49,10 @@ export class Surface {
 	nextSurfaceCCW(world: World) {
 		const tangent = this.tangentDirectionCW();
 		const tileTangent = Directions.isDirection(tangent) ? tangent : Directions.rotateCounterclockwise45[tangent];
-		const angle = TowerTile.angle(
+		const angle = world.angle(
 			this.tilePosition(),
 			Directions.rotateCounterclockwise[tileTangent],
-			Directions.opposite[tileTangent],
-			world
+			Directions.opposite[tileTangent]
 		) + (Directions.isDiagonal(tangent) ? 45 : 0);
 		let newTangent = Directions.opposite[tangent];
 		for(let i = 0; i < angle; i += 45) {

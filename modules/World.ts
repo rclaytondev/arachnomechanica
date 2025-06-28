@@ -396,8 +396,8 @@ export class World {
 		const tile = this.tiles.get(tilePosition);
 		const adjacent = this.tiles.get(adjacentPosition);
 		if(
-			TowerTile.isSolidOrSlope(tile, direction)
-			|| TowerTile.isSolidOrSlope(adjacent, Directions.opposite[direction])
+			World.isSolidOrSlope(tile, direction)
+			|| World.isSolidOrSlope(adjacent, Directions.opposite[direction])
 		) { return true; }
 
 		for(const position of [tilePosition, adjacentPosition]) {
@@ -499,6 +499,39 @@ export class World {
 		return distance <= this.lineIntersectionDistance(position, direction, distance, [], collides);
 	}
 
+	angle(position: Vector, adjacentDirection: Direction, perpendicularDirection: Direction, empty: boolean = true) {
+		/* Returns the angle before encountering a solid/empty, when first moving in `adjacentDirection` and then in `perpendicularDirection` and then in a circle after that. */
+		const tile = this.tiles.get(position);
+		const adjacent = this.tiles.get(position.add(Vector.unit(adjacentDirection)));
+		const diagonal = this.tiles.get(position.add(Vector.unit(adjacentDirection)).add(Vector.unit(perpendicularDirection)));
+		const perpendicular = this.tiles.get(position.add(Vector.unit(perpendicularDirection)));
+		if(World.isSolidOrSlope(adjacent, Directions.opposite[adjacentDirection]) === empty) {
+			return 0;
+		}
+		if(World.isSolidOrSlope(adjacent, perpendicularDirection) === empty) {
+			return 45;
+		}
+		if(World.isSolidOrSlope(diagonal, Directions.opposite[perpendicularDirection]) === empty) {
+			return 90;
+		}
+		if(World.isSolidOrSlope(diagonal, Directions.opposite[adjacentDirection]) === empty) {
+			return 135;
+		}
+		if(World.isSolidOrSlope(perpendicular, adjacentDirection) === empty) {
+			return 180;
+		}
+		if(World.isSolidOrSlope(perpendicular, Directions.opposite[perpendicularDirection]) === empty) {
+			return 225;
+		}
+		if(World.isSolidOrSlope(tile, perpendicularDirection) === empty) {
+			return 270;
+		}
+		if(World.isSolidOrSlope(tile, adjacentDirection) === empty) {
+			return 315;
+		}
+		return 360;
+	}
+
 
 	destroyTile(position: Vector) {
 		const tile = this.tiles.get(position);
@@ -590,5 +623,17 @@ export class World {
 		else {
 			throw new Error("Cannot reflect tile.");
 		}
+	}
+	static isSolidOrSlope(tile: Tile, direction: Direction) {
+		if(tile instanceof SolidTile && World.isSlope(tile.shape)) {
+			const edges = ({
+				"slope-floor-left": ["left", "down"],
+				"slope-floor-right": ["right", "down"],
+				"slope-ceiling-left": ["left", "up"],
+				"slope-ceiling-right": ["right", "up"]
+			} as const)[tile.shape];
+			return (edges as readonly Direction[]).includes(direction);
+		}
+		return tile instanceof SolidTile && tile.shape === "solid";
 	}
 }
