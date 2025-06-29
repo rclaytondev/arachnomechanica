@@ -73,6 +73,9 @@ export class GameUtils {
 			+ GameUtils.signedModularDistance(point1.y, point2.y, height) ** 2
 		);
 	}
+	static taxicabDistance(point1: Vector, point2: Vector) {
+		return MathUtils.dist(point1.x, point2.x) + MathUtils.dist(point1.y, point2.y);
+	}
 	static diagonalAngle(direction1: Direction, direction2: Direction) {
 		if((direction1 === "right" && direction2 === "up") || (direction1 === "up" && direction2 === "right")) {
 			return Math.PI / 4;

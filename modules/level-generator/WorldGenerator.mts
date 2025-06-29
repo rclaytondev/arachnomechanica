@@ -26,6 +26,7 @@ export class WorldGenerator {
 		this.connectRandomRooms();
 		this.pruneConnections();
 		this.addRooms(world);
+		world.entitySpawner.generateChunk(chunkPosition, world);
 	}
 
 	initializeChunk() {

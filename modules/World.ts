@@ -27,6 +27,7 @@ import { StoneTile } from "./tiles/StoneTile.mjs";
 import { WorldGenerator } from "./level-generator/WorldGenerator.mjs";
 import { Utils } from "../utils-ts/modules/Utils.mjs";
 import { Spider, SpiderProjectile } from "./entities/Spider.mjs";
+import { EntitySpawner } from "./level-generator/EntitySpawner.mjs";
 
 export type TileEntity = SolidTile | Gate | LaserBlock | SpikeballBlock;
 export type Tile = (typeof WorldData.STRING_TILE_TYPES)[number] | TileEntity;
@@ -45,8 +46,10 @@ export class World {
 	screenShakeIntensity: number = 0;
 	camera: Vector = new Vector(0, 0);
 	levels: number = 0;
+	
 	worldGenerator: WorldGenerator = new WorldGenerator();
 	enableGeneration: boolean;
+	entitySpawner: EntitySpawner = new EntitySpawner();
 
 	player: Player = new Player();
 

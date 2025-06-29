@@ -49,6 +49,10 @@ export class LevelGeneratorData {
 	static CHUNK_SIZE = 6;
 	static INTERIOR_CONNECTIONS = 2;
 	static BOUNDARY_CONNECTIONS = Math.floor( 1/2 * ((LevelGeneratorData.CHUNK_SIZE + 1) + LevelGeneratorData.INTERIOR_CONNECTIONS / (LevelGeneratorData.CHUNK_SIZE - 1)) - 1);
+
+	static REGION_CHUNK_SIZE = 5;
+	static REGIONS_PER_CHUNK = 1;
+	static REGION_EVENNESS = 7;
 };
 
 export class PlayerData {
