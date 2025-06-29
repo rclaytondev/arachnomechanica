@@ -27,15 +27,15 @@ export class SkyBackground {
 
 	initialize(canvasIO: CanvasIO) {
 		const amount = canvasIO.canvas.width * canvasIO.canvas.height * BackgroundData.STAR_DENSITY;
-		for(let i = 0; i < amount; i ++) {
-			const next = GameUtils.randomEvenlySpaced(
-				canvasIO.boundingBox(),
-				this.stars,
-				BackgroundData.STAR_EVENNESS,
-				"float",
-				() => new Vector(GameUtils.random(0, canvasIO.canvas.width), GameUtils.random(0, 1) ** 5 * canvasIO.canvas.height)
-			);
-			this.stars.push(next);
-		}
+		this.stars = GameUtils.randomEvenlySpaced({
+			generate: () => new Vector(
+				GameUtils.random(0, canvasIO.canvas.width),
+				GameUtils.random(0, 1) ** 5 * canvasIO.canvas.height
+			),
+			amount: amount,
+			trials: BackgroundData.STAR_EVENNESS,
+			previousPoints: this.stars,
+			metric: Vector.dist
+		});
 	}
 }

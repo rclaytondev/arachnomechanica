@@ -9,28 +9,22 @@ import { World } from "../World";
 import { SolidTile } from "./SolidTile.mjs";
 
 export class StoneTile {
-	static distanceSq(point1: Vector, point2: Vector) {
-		return (
-			GameUtils.signedModularDistance(point1.x, point2.x, WorldData.STONE_PATTERN_WIDTH) ** 2
-			+ GameUtils.signedModularDistance(point1.y, point2.y, WorldData.STONE_PATTERN_HEIGHT) ** 2
-		);
+	static distance(v1: Vector, v2: Vector) {
+		return GameUtils.toroidalDistance(v1, v2, WorldData.STONE_PATTERN_WIDTH, WorldData.STONE_PATTERN_HEIGHT);
 	}
 	static initializePoints() {
-		const points: Vector[] = [];
-		while(points.length < WorldData.STONE_PATTERN_WIDTH * WorldData.STONE_PATTERN_HEIGHT * WorldData.STONE_LINE_AMOUNT) {
-			const candidates = new Array(WorldData.STONE_LINE_EVENNESS).fill(0).map(v => new Vector(
-				GameUtils.random(0, WorldData.STONE_PATTERN_WIDTH),
-				GameUtils.random(0, WorldData.STONE_PATTERN_HEIGHT)
-			));
-			points.push(Utils.maxValue(candidates, c => Math.min(...points.map(p => StoneTile.distanceSq(p, c)))));
-		}
-		return points;
+		return GameUtils.randomEvenlySpaced({
+			generate: () => GameUtils.randomInRect(new Rectangle(0, 0, WorldData.STONE_PATTERN_WIDTH, WorldData.STONE_PATTERN_HEIGHT)),
+			metric: StoneTile.distance,
+			amount: WorldData.STONE_PATTERN_WIDTH * WorldData.STONE_PATTERN_HEIGHT * WorldData.STONE_LINE_AMOUNT,
+			trials: WorldData.STONE_LINE_EVENNESS
+		});
 	}
 	static initializeLines() {
 		const points = StoneTile.initializePoints();
 		const lines = [];
 		for(const point of points) {
-			const others = points.filter(p => p !== point).sort((a, b) => StoneTile.distanceSq(a, point) - StoneTile.distanceSq(b, point));
+			const others = points.filter(p => p !== point).sort((a, b) => StoneTile.distance(a, point) - StoneTile.distance(b, point));
 			for(const otherPoint of others.slice(0, WorldData.STONE_CONNECTIONS)) {
 				const closestX = Utils.minValue(
 					[otherPoint.x, otherPoint.x - WorldData.STONE_PATTERN_WIDTH, otherPoint.x + WorldData.STONE_PATTERN_WIDTH],

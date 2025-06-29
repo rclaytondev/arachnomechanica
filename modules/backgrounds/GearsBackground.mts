@@ -112,17 +112,12 @@ class GearLayer {
 			let attempts = 0;
 			while(!spawned) {
 				attempts ++;
-				const positions = [];
-				for(let j = 0; j < info.evenness; j ++) {
-					positions.push(new Vector(
-						GameUtils.randomInt(0, BackgroundData.BACKGROUND_REPEAT_SIZE),
-						GameUtils.randomInt(0, BackgroundData.BACKGROUND_REPEAT_SIZE)
-					));
-				}
-				const position = Utils.maxValue(positions, point => Math.min(...gears.map(gear => 
-					GameUtils.signedModularDistance(point.x, gear.position.x, BackgroundData.BACKGROUND_REPEAT_SIZE) ** 2
-					+ GameUtils.signedModularDistance(point.y, gear.position.y, BackgroundData.BACKGROUND_REPEAT_SIZE) ** 2
-				)));
+				const [position] = GameUtils.randomEvenlySpaced({
+					generate: () => GameUtils.randomInRect(Rectangle.square(0, 0, BackgroundData.BACKGROUND_REPEAT_SIZE), GameUtils.randomInt),
+					metric: (v1, v2) => GameUtils.toroidalDistance(v1, v2, BackgroundData.BACKGROUND_REPEAT_SIZE),
+					amount: 1,
+					trials: info.evenness
+				});
 				const gear = new BackgroundGear(
 					position,
 					GameUtils.random(info.minSize,  info.maxSize),

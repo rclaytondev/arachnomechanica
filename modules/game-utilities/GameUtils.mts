@@ -7,6 +7,14 @@ import { Utils } from "../../utils-ts/modules/Utils.mjs";
 import { World } from "../World";
 import { Particle, ParticleSettings } from "./Particle.mjs";
 
+type RandomEvenlySpacedOptions<T> = {
+	generate: () => T,
+	metric: (v1: T, v2: T) => number,
+	amount: number,
+	trials: number,
+	previousPoints?: T[]
+};
+
 export class GameUtils {
 	static moveTowards(value: number, target: number, speed: number) {
 		if(value < target) {
@@ -59,6 +67,12 @@ export class GameUtils {
 			num2 - modulo - num1
 		], Math.abs);
 	}
+	static toroidalDistance(point1: Vector, point2: Vector, width: number, height: number = width) {
+		return Math.sqrt(
+			GameUtils.signedModularDistance(point1.x, point2.x, width) ** 2
+			+ GameUtils.signedModularDistance(point1.y, point2.y, height) ** 2
+		);
+	}
 	static diagonalAngle(direction1: Direction, direction2: Direction) {
 		if((direction1 === "right" && direction2 === "up") || (direction1 === "up" && direction2 === "right")) {
 			return Math.PI / 4;
@@ -110,31 +124,29 @@ export class GameUtils {
 		const distance = Math.sqrt(Math.random()) * radius;
 		return new Vector(centerX, centerY).add(new Vector(0, distance).rotate(angle));
 	}
+	static randomInRect(rectangle: Rectangle, random: (min: number, max: number) => number = GameUtils.random) {
+		return new Vector(
+			random(rectangle.left(), rectangle.right()),
+			random(rectangle.top(), rectangle.bottom()),
+		);
+	}
 
 	static pastKeys: { [ key: string ]: boolean } = {};
 
-	static randomEvenlySpaced(region: Rectangle, previousPoints: Vector[], numTrials: number, type: "int" | "float" = "float", randomGenerator?: () => Vector) {
-		/* Implements Mitchell's Best-Candidate Algorithm. */
-		const random = (type === "int") ? GameUtils.randomInt : GameUtils.random;
-		const randomPoint = randomGenerator ?? (() => new Vector(
-			random(region.left(), region.right()),
-			random(region.top(), region.bottom())
-		));
-		if(previousPoints.length === 0) { return randomPoint(); }
-		const points = new Array(numTrials).fill(0).map(randomPoint);
-		return Utils.maxValue(points, point => Utils.minOutput(previousPoints, p => Vector.dist(point, p)));
-	}
-	static randomEvenlySpacedNumbers(min: number, max: number, numTrials: number, previousValues: number[]) {
-		if(previousValues.length === 0) {
-			return GameUtils.random(min, max);
-		}
-		const values = new Array(numTrials).fill(0).map(_ => GameUtils.random(min, max));
-		return Utils.maxValue(values, value => Utils.minOutput(previousValues, v => MathUtils.dist(value, v)));
-	}
-	static allRandomlyEvenlySpacedNumbers(min: number, max: number, amount: number, evenness: number) {
-		const result: number[] = [];
-		while(result.length < amount) {
-			result.push(GameUtils.randomEvenlySpacedNumbers(min, max, evenness, result));
+	static randomEvenlySpaced<T>(options: RandomEvenlySpacedOptions<T>) {
+		const result: T[] = [];
+		while(result.length < options.amount) {
+			const candidates = new Array(options.trials).fill(0).map(options.generate);
+			const previous = [...result, ...(options.previousPoints ?? [])];
+			if(previous.length === 0) {
+				result.push(candidates[0]);
+			}
+			else {
+				result.push(Utils.maxValue(
+					candidates,
+					point => Utils.minOutput(previous, p => options.metric(point, p)))
+				);
+			}
 		}
 		return result;
 	}
@@ -179,7 +191,12 @@ export class GameUtils {
 		return gradient;
 	}
 	static shatterParticles(display: (canvasIO: CanvasIO) => void, world: World, position: Vector, pieces: number, maxVelocity: number, canvasIO: CanvasIO, angleEvenness: number, settings: ParticleSettings) {
-		const angles = GameUtils.allRandomlyEvenlySpacedNumbers(0, 2 * Math.PI, pieces - 1, angleEvenness).sort((a, b) => a - b);
+		const angles = GameUtils.randomEvenlySpaced({
+			generate: () => GameUtils.random(0, 2 * Math.PI),
+			metric: MathUtils.dist,
+			amount: pieces - 1,
+			trials: angleEvenness
+		}).sort((a, b) => a - b);
 
 		for(const [i, angle] of [0, ...angles, 2 * Math.PI].entries()) {
 			const next = angles[i + 1];
