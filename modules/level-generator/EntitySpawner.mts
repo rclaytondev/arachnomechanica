@@ -3,8 +3,9 @@ import { Rectangle } from "../../utils-ts/modules/geometry/Rectangle.mjs";
 import { Vector } from "../../utils-ts/modules/geometry/Vector.mjs";
 import { Grid } from "../../utils-ts/modules/Grid.mjs";
 import { Utils } from "../../utils-ts/modules/Utils.mjs";
-import { LaserBlockData, LevelGeneratorData, LizardData, RoomData, SpikeballBlockData, WorldData } from "../constants/GameData.mjs";
+import { LaserBlockData, LevelGeneratorData, LizardData, RoomData, SpiderData, SpikeballBlockData, WorldData } from "../constants/GameData.mjs";
 import { Lizard } from "../entities/Lizard.js";
+import { PointOnSurface, Spider, Surface } from "../entities/Spider.mjs";
 import { GameUtils } from "../game-utilities/GameUtils.mjs";
 import { Gate } from "../tiles/Gate.mjs";
 import { LaserBlock } from "../tiles/LaserBlock.mjs";
@@ -85,6 +86,9 @@ export class EntitySpawner {
 		if(region.features.includes("lizards")) {
 			this.spawnLizards(rooms, world);
 		}
+		if(region.features.includes("spiders")) {
+			this.spawnSpiders(rooms, world);
+		}
 	}
 
 	
@@ -114,6 +118,10 @@ export class EntitySpawner {
 			return tile instanceof SolidTile && tile.shape === "solid";
 		},
 		replaceEmpty: (position: Vector, world: World) => world.tiles.get(position) === "empty",
+		solidAdjacent: (position: Vector, world: World) => Directions.DIRECTIONS.some(direction => {
+			const tile = world.tiles.get(position.add(Vector.unit(direction)));
+			return tile instanceof SolidTile && tile.shape === "solid";
+		}),
 		atLeast2Empty: (position: Vector, world: World) => (
 			Directions.DIRECTIONS.filter(d => world.tiles.get(position.add(Vector.unit(d))) === "empty").length >= 2
 		),
@@ -218,6 +226,36 @@ export class EntitySpawner {
 						LizardData.SPEED
 					));
 				}
+			},
+			world
+		)
+	}
+	spawnSpiders(rooms: Vector[], world: World) {
+		this.spawnEntitiesInRooms(
+			rooms.length * SpiderData.SPIDERS_PER_ROOM,
+			SpiderData.SPAWN_EVENNESS,
+			rooms,
+			[
+				EntitySpawner.spawnRequirements.replaceEmpty,
+				EntitySpawner.spawnRequirements.solidAdjacent,
+			],
+			(position: Vector, world: World) => {
+				const direction = Directions.DIRECTIONS.find(dir => {
+					const tile = world.tiles.get(position.add(Vector.unit(dir)));
+					return tile instanceof SolidTile && tile.shape === "solid";
+				})!;
+				const spider = new Spider(position.add(1/2, 1/2).multiply(WorldData.TILE_SIZE));
+				const surfacePoint = {
+					"left": position,
+					"right": position.add(1, 0),
+					"up": position,
+					"down": position.add(0, 1)
+				}[direction];
+				spider.basepoint = new PointOnSurface(
+					new Surface(surfacePoint, Directions.opposite[direction]),
+					WorldData.TILE_SIZE / 2
+				);
+				world.entities.push(spider);
 			},
 			world
 		)

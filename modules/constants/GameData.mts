@@ -504,4 +504,7 @@ export class SpiderData {
 		colorVariance: 40
 	};
 	static PROJECTILE_SPEED = 15;
+
+	static SPIDERS_PER_ROOM = 1;
+	static SPAWN_EVENNESS = 4;
 }
