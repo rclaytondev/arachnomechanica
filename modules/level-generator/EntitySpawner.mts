@@ -3,11 +3,13 @@ import { Rectangle } from "../../utils-ts/modules/geometry/Rectangle.mjs";
 import { Vector } from "../../utils-ts/modules/geometry/Vector.mjs";
 import { Grid } from "../../utils-ts/modules/Grid.mjs";
 import { Utils } from "../../utils-ts/modules/Utils.mjs";
-import { LaserBlockData, LevelGeneratorData, RoomData, WorldData } from "../constants/GameData.mjs";
+import { LaserBlockData, LevelGeneratorData, LizardData, RoomData, SpikeballBlockData, WorldData } from "../constants/GameData.mjs";
+import { Lizard } from "../entities/Lizard.js";
 import { GameUtils } from "../game-utilities/GameUtils.mjs";
 import { Gate } from "../tiles/Gate.mjs";
 import { LaserBlock } from "../tiles/LaserBlock.mjs";
 import { SolidTile } from "../tiles/SolidTile.mjs";
+import { SpikeballBlock } from "../tiles/SpikeballBlock.mjs";
 import { World } from "../World";
 
 type Feature = "lizards" | "spiders" | "lasers" | "spikeballs";
@@ -77,10 +79,16 @@ export class EntitySpawner {
 		if(region.features.includes("lasers")) {
 			this.spawnLasers(rooms, world);
 		}
+		if(region.features.includes("spikeballs")) {
+			this.spawnSpikeballBlocks(rooms, world);
+		}
+		if(region.features.includes("lizards")) {
+			this.spawnLizards(rooms, world);
+		}
 	}
 
 	
-	spawnTraps(amount: number, evenness: number, rooms: Vector[], requirements: ((position: Vector, world: World) => boolean)[], spawn: (position: Vector, world: World) => void, world: World) {
+	spawnEntitiesInRooms(amount: number, evenness: number, rooms: Vector[], requirements: ((position: Vector, world: World) => boolean)[], spawn: (position: Vector, world: World) => void, world: World) {
 		const positions = rooms.flatMap(r => Rectangle.square(r.x * RoomData.SIZE, r.y * RoomData.SIZE, RoomData.SIZE).squares());
 		let possiblePositions = positions.filter(position => requirements.every(r => r(position, world)));
 		let spawnedPositions: Vector[] = [];
@@ -105,6 +113,7 @@ export class EntitySpawner {
 			const tile = world.tiles.get(position);
 			return tile instanceof SolidTile && tile.shape === "solid";
 		},
+		replaceEmpty: (position: Vector, world: World) => world.tiles.get(position) === "empty",
 		atLeast2Empty: (position: Vector, world: World) => (
 			Directions.DIRECTIONS.filter(d => world.tiles.get(position.add(Vector.unit(d))) === "empty").length >= 2
 		),
@@ -147,7 +156,7 @@ export class EntitySpawner {
 		}
 	};
 	spawnLasers(rooms: Vector[], world: World) {
-		this.spawnTraps(
+		this.spawnEntitiesInRooms(
 			rooms.length * LaserBlockData.LASERS_PER_ROOM,
 			LaserBlockData.SPAWN_EVENNESS,
 			rooms,
@@ -164,6 +173,51 @@ export class EntitySpawner {
 					GameUtils.random(LaserBlockData.MIN_SPEED, LaserBlockData.MAX_SPEED) * (Math.random() < 0.5 ? -1 : 1),
 					GameUtils.random(0, 2 * Math.PI)
 				));
+			},
+			world
+		)
+	}
+	spawnSpikeballBlocks(rooms: Vector[], world: World) {
+		this.spawnEntitiesInRooms(
+			rooms.length * SpikeballBlockData.SPIKEBALLS_PER_ROOM,
+			SpikeballBlockData.SPAWN_EVENNESS,
+			rooms,
+			[
+				EntitySpawner.spawnRequirements.replaceSolid,
+				EntitySpawner.spawnRequirements.noAdjacentGates,
+				EntitySpawner.spawnRequirements.atLeast3RectEmpty,
+				SpikeballBlock.canSpawn,
+			],
+			(position: Vector, world: World) => {
+				world.addTile(position, new SpikeballBlock(Utils.randomItem(SpikeballBlockData.PATTERNS)));
+			},
+			world
+		);
+	}
+	spawnLizards(rooms: Vector[], world: World) {
+		this.spawnEntitiesInRooms(
+			rooms.length * LizardData.LIZARDS_PER_ROOM,
+			LizardData.SPAWN_EVENNESS,
+			rooms,
+			[EntitySpawner.spawnRequirements.replaceEmpty],
+			(position: Vector, world: World) => {
+				const direction = Utils.randomItem(Directions.DIRECTIONS);
+				let distance = 0;
+				for(; distance < LizardData.MAX_LENGTH; distance ++) {
+					const empty = world.tiles.get(position.add(Vector.unit(direction).multiply(distance))) === "empty";
+					if(!empty) {
+						distance --;
+						break;
+					}
+				}
+				if(distance >= LizardData.MIN_LENGTH) {
+					world.entities.push(new Lizard(
+						position.add(1/2, 1/2).multiply(WorldData.TILE_SIZE),
+						direction,
+						GameUtils.random(LizardData.MIN_LENGTH, distance) * WorldData.TILE_SIZE,
+						LizardData.SPEED
+					));
+				}
 			},
 			world
 		)
