@@ -63,7 +63,7 @@ spider.basepoint = new PointOnSurface(new Surface(new Vector(10, -1), "up"), 0);
 world.entities.push(spider);
 
 export class Main {
-	static screen: World | RoomEditor = new World(false).initializeGeneration();
+	static screen: World | RoomEditor = new World(true).initializeGeneration();
 	// static screen: World | RoomEditor = new RoomEditor();
 	// static screen: World | RoomEditor = world;
 

@@ -93,7 +93,7 @@ export class EntitySpawner {
 
 	
 	spawnEntitiesInRooms(amount: number, evenness: number, rooms: Vector[], requirements: ((position: Vector, world: World) => boolean)[], spawn: (position: Vector, world: World) => void, world: World) {
-		const positions = rooms.flatMap(r => Rectangle.square(r.x * RoomData.SIZE, r.y * RoomData.SIZE, RoomData.SIZE).squares());
+		const positions = rooms.flatMap(r => Rectangle.square(r.x * RoomData.SIZE + 1, r.y * RoomData.SIZE + 1, RoomData.SIZE - 2).squares());
 		let possiblePositions = positions.filter(position => requirements.every(r => r(position, world)));
 		let spawnedPositions: Vector[] = [];
 		while(spawnedPositions.length < amount && possiblePositions.length > 0) {
