@@ -431,6 +431,8 @@ export class Lizard {
 	}
 	damage(rectangle: Rectangle) {
 		const length = this.roundedLengthAfterDamage(rectangle);;
+		if(length < (LizardData.MIN_LENGTH + 1/2) * WorldData.TILE_SIZE) { debugger; }
+		this.roundedLengthAfterDamage(rectangle);
 		if(length < (LizardData.MIN_LENGTH + 1/2) * WorldData.TILE_SIZE) {
 			this.dead = true;
 		}

@@ -222,7 +222,7 @@ export class EntitySpawner {
 					world.entities.push(new Lizard(
 						position.add(1/2, 1/2).multiply(WorldData.TILE_SIZE),
 						direction,
-						GameUtils.random(LizardData.MIN_LENGTH, distance) * WorldData.TILE_SIZE,
+						(GameUtils.randomInt(LizardData.MIN_LENGTH, distance) + 1/2) * WorldData.TILE_SIZE,
 						LizardData.SPEED
 					));
 				}
