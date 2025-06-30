@@ -2,6 +2,7 @@ import { CanvasIO } from "../../utils-ts/modules/CanvasIO.mjs";
 import { Direction, Directions } from "../../utils-ts/modules/geometry/Direction.mjs";
 import { Rectangle } from "../../utils-ts/modules/geometry/Rectangle.mjs";
 import { Vector } from "../../utils-ts/modules/geometry/Vector.mjs";
+import { HashSet } from "../../utils-ts/modules/HashSet.mjs";
 import { MathUtils } from "../../utils-ts/modules/math/MathUtils.mjs";
 import { Utils } from "../../utils-ts/modules/Utils.mjs";
 import { World } from "../World";
@@ -257,18 +258,19 @@ export class GameUtils {
 		return Infinity;
 	}
 
-	static reachableNodes<T>(startNode: T, neighbors: (node: T) => T[], equals: (n1: T, n2: T) => boolean = (n1, n2) => n1 === n2) {
-		const visited: T[] = [];
+	static reachableNodes<T>(startNode: T, neighbors: (node: T) => T[], hashFunction: (value: T) => string) {
+		const visited = new HashSet<T>([startNode], hashFunction);
 		const boundary = [startNode];
 		while(boundary.length !== 0) {
 			const node = boundary.pop()!;
 			for(const neighbor of neighbors(node)) {
-				if(![...visited, ...boundary].some(n => equals(n, neighbor))) {
+				if(!visited.has(neighbor)) {
 					boundary.push(neighbor);
 				}
+				visited.add(neighbor);
 			}
-			visited.push(node);
+			visited.add(node);
 		}
-		return visited;
+		return [...visited];
 	}
 }

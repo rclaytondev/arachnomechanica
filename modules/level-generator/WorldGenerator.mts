@@ -163,7 +163,7 @@ export class WorldGenerator {
 			(position) => position instanceof Vector ? this.rooms.get(position)!.exits
 				.map(e => position.add(Vector.unit(e)))
 				.map(p => this.isInChunk(p) ? p : this.directionFromChunk(p)) : [],
-			(v1, v2) => v1 === v2 || (v1 instanceof Vector && v2 instanceof Vector && v1.equals(v2))
+			v => v.toString()
 		);
 		return reachable.length >= LevelGeneratorData.CHUNK_SIZE ** 2 + 4;
 	}
@@ -175,7 +175,7 @@ export class WorldGenerator {
 			const reachable = GameUtils.reachableNodes(
 				startState,
 				(state) => this.neighbors(state, backwards).filter(n => this.isEdgeInChunk(n.position!, n.exit)),
-				(s1, s2) => s1.equals(s2)
+				v => `${v.position}, ${v.exit}, ${v.toggled}`
 			);
 			if(reachable.length < edges * 2) {
 				return false;
