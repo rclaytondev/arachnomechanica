@@ -175,7 +175,7 @@ export class WorldGenerator {
 			const reachable = GameUtils.reachableNodes(
 				startState,
 				(state) => this.neighbors(state, backwards).filter(n => this.isEdgeInChunk(n.position!, n.exit)),
-				v => `${v.position}, ${v.exit}, ${v.toggled}`
+				v => v.normalize().toString(true)
 			);
 			if(reachable.length < edges * 2) {
 				return false;

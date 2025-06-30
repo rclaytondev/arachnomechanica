@@ -43,7 +43,10 @@ export class GateState {
 			this.toggled
 		);
 	}
-	toString() {
+	toString(includePosition: boolean = false) {
+		if(includePosition) {
+			return `${this.position}, ${this.exit}, ${this.toggled}`;
+		}
 		return `${this.exit}, ${this.toggled}`;
 	}
 	static traversabilityEquals(traversability1: Traversability, traversability2: Traversability) {
