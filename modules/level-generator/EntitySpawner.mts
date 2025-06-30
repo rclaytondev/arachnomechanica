@@ -96,7 +96,7 @@ export class EntitySpawner {
 		const positions = rooms.flatMap(r => Rectangle.square(r.x * RoomData.SIZE, r.y * RoomData.SIZE, RoomData.SIZE).squares());
 		let possiblePositions = positions.filter(position => requirements.every(r => r(position, world)));
 		let spawnedPositions: Vector[] = [];
-		while(spawnedPositions.length < amount) {
+		while(spawnedPositions.length < amount && possiblePositions.length > 0) {
 			const [position] = GameUtils.randomEvenlySpaced({
 				generate: () => Utils.randomItem(possiblePositions),
 				metric: Vector.dist,
