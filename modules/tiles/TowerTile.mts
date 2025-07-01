@@ -4,7 +4,7 @@ import { Vector } from "../../utils-ts/modules/geometry/Vector.mjs";
 import { MathUtils } from "../../utils-ts/modules/math/MathUtils.mjs";
 import { WorldData } from "../constants/GameData.mjs";
 import { GameUtils } from "../game-utilities/GameUtils.mjs";
-import { Slope, World } from "../World.js";
+import { Slope, World } from "../world/World.js";
 
 export class TowerTile {
 	static tileGlowGradient: CanvasGradient | null = null;

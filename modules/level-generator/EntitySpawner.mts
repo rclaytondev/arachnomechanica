@@ -11,7 +11,7 @@ import { Gate } from "../tiles/Gate.mjs";
 import { LaserBlock } from "../tiles/LaserBlock.mjs";
 import { SolidTile } from "../tiles/SolidTile.mjs";
 import { SpikeballBlock } from "../tiles/SpikeballBlock.mjs";
-import { World } from "../World";
+import { World } from "../world/World.js";
 
 type Feature = "lizards" | "spiders" | "lasers" | "spikeballs";
 

@@ -9,7 +9,7 @@ import { SpiderData, WorldData } from "../constants/GameData.mjs";
 import { GameUtils } from "../game-utilities/GameUtils.mjs";
 import { Particle } from "../game-utilities/Particle.mjs";
 import { PhysicsObject } from "../game-utilities/PhysicsObject.mjs";
-import { Entity, World } from "../World";
+import { Entity, World } from "../world/World";
 
 export class Surface {
 	start: Vector;

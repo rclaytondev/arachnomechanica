@@ -6,7 +6,7 @@ import { GameUtils } from "./game-utilities/GameUtils.mjs";
 import { Room } from "./level-generator/Room.mjs";
 import { RoomEditor } from "./RoomEditor.mjs";
 import { Rooms, ROOMS } from "./level-generator/Rooms.mjs";
-import { World } from "./World.js";
+import { World } from "./world/World.js";
 import { Rectangle } from "../utils-ts/modules/geometry/Rectangle.mjs";
 import { SolidTile } from "./tiles/SolidTile.mjs";
 import { PointOnSurface, Spider, Surface } from "./entities/Spider.mjs";

@@ -7,7 +7,7 @@ import { DEBUG_SETTINGS } from "../constants/DebugSettings.mjs";
 import { HumanoidData, PlayerData } from "../constants/GameData.mjs";
 import { GameUtils } from "../game-utilities/GameUtils.mjs";
 import { PhysicsObject } from "../game-utilities/PhysicsObject.mjs";
-import { World } from "../World";
+import { World } from "../world/World";
 
 class RotationalMotion {
 	center: () => Vector;

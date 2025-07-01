@@ -5,7 +5,7 @@ import { LaserBlockData, WorldData } from "../constants/GameData.mjs";
 import { GameUtils } from "../game-utilities/GameUtils.mjs";
 import { frameCount } from "../Main.js";
 import { Particle } from "../game-utilities/Particle.mjs";
-import { World } from "../World";
+import { World } from "../world/World.js";
 
 export class LaserBlock {
 	static glowLineGradient = GameUtils.glowLineGradient(

@@ -4,7 +4,7 @@ import { Grid } from "../../utils-ts/modules/Grid.mjs";
 import { RoomData, WorldData } from "../constants/GameData.mjs";
 import { GateState } from "./GateState.mjs";
 import { Gate } from "../tiles/Gate.mjs";
-import { Slope, World } from "../World.js";
+import { Slope, World } from "../world/World.js";
 import { Portal } from "../entities/Portal.mjs";
 import { SolidTile } from "../tiles/SolidTile.mjs";
 import { ROOMS } from "./Rooms.mjs";

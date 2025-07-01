@@ -5,7 +5,7 @@ import { MathUtils } from "../../utils-ts/modules/math/MathUtils.mjs";
 import { Utils } from "../../utils-ts/modules/Utils.mjs";
 import { WorldData } from "../constants/GameData.mjs";
 import { GameUtils } from "../game-utilities/GameUtils.mjs";
-import { World } from "../World";
+import { World } from "../world/World";
 import { SolidTile } from "./SolidTile.mjs";
 
 export class StoneTile {

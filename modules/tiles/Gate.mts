@@ -6,7 +6,7 @@ import { GateData, WorldData } from "../constants/GameData.mjs";
 import { Lizard } from "../entities/Lizard.js";
 import { GameUtils } from "../game-utilities/GameUtils.mjs";
 import { Player } from "../Player.mjs";
-import { World } from "../World.js";
+import { World } from "../world/World.js";
 
 export class Gate {
 	static cooldown = 0;

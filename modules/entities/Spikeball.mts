@@ -4,7 +4,7 @@ import { Vector } from "../../utils-ts/modules/geometry/Vector.mjs";
 import { SpikeballData, WorldData } from "../constants/GameData.mjs";
 import { GameUtils } from "../game-utilities/GameUtils.mjs";
 import { PhysicsObject } from "../game-utilities/PhysicsObject.mjs";
-import { Entity, Tile, World } from "../World.js";
+import { Entity, Tile, World } from "../world/World.js";
 
 export class Spikeball {
 	static glowGradient = GameUtils.glowCircleGradient(
