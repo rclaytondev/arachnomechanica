@@ -145,4 +145,7 @@ export class Spikeball {
 		const center = this.physicsObject.hitbox().center();
 		return rectangle.distanceTo(center);
 	}
+	boundingBox() {
+		return this.physicsObject.hitbox();
+	}
 }

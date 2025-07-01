@@ -46,6 +46,7 @@ export class WorldData {
 	static ENTITY_UPDATE_DISTANCE = 2000;
 	static GLOW_RENDER_DISTANCE = 200;
 	static ENTITY_RENDER_DISTANCE = 200;
+	static ENTITY_CHUNK_SIZE = 12 * 50;
 }
 
 export class LevelGeneratorData {

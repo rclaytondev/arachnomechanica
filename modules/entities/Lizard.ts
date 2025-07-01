@@ -469,7 +469,7 @@ export class Lizard {
 				World.isSlopeTile(tile)
 			) { return true; }
 		}
-		if(world.entities.some(entity => "hitboxes" in entity && entity.hitboxes().some(b => b.intersects(lookaheadRectangle)))) {
+		if([...world.allEntities()].some(entity => "hitboxes" in entity && entity.hitboxes().some(b => b.intersects(lookaheadRectangle)))) {
 			return true;
 		}
 		return false;
@@ -555,5 +555,10 @@ export class Lizard {
 		const [tail] = this.getPointOnBody(this.length);
 		const joints = this.joints.map(j => j.position);
 		return Math.min(...[this.position, ...joints, tail].map(p => rect.distanceTo(p)));
+	}
+	boundingBox() {
+		const [tail] = this.getPointOnBody(this.length);
+		const joints = this.joints.map(j => j.position);
+		return Rectangle.boundingBox([this.position, ...joints, tail]);
 	}
 }

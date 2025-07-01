@@ -329,7 +329,7 @@ export class Spider {
 		const acceleration = direction.multiply(SpiderData.PROJECTILE_ACCELERATION);
 		const projectile = new SpiderProjectile(center, velocity, acceleration);
 		projectile.physicsObject.collides = (obj) => obj !== this;
-		world.entities.push(projectile);
+		world.addEntity(projectile);
 	}
 
 	move(amount: number, world: World) {
@@ -415,6 +415,9 @@ export class Spider {
 		const center = this.physicsObject.hitbox().center();
 		return rectangle.distanceTo(center);
 	}
+	boundingBox() {
+		return this.physicsObject.hitbox();
+	}
 }
 
 export class SpiderProjectile {
@@ -492,5 +495,8 @@ export class SpiderProjectile {
 	distanceFrom(rectangle: Rectangle) {
 		const center = this.physicsObject.hitbox().center();
 		return rectangle.distanceTo(center);
+	}
+	boundingBox() {
+		return this.physicsObject.hitbox();
 	}
 }

@@ -62,4 +62,12 @@ export class Portal {
 	distanceFrom(rectangle: Rectangle) {
 		return rectangle.distanceTo(this.position);
 	}
+	boundingBox() {
+		return new Rectangle(
+			this.position.x - PortalData.WIDTH / 2,
+			this.position.y - PortalData.HITBOX_HEIGHT,
+			PortalData.WIDTH,
+			PortalData.HITBOX_HEIGHT,
+		);
+	}
 }

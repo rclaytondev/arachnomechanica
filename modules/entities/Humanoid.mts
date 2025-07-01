@@ -440,4 +440,7 @@ export class Humanoid {
 		const center = this.physicsObject.hitbox().center();
 		return rectangle.distanceTo(center);
 	}
+	boundingBox() {
+		return Rectangle.boundingBox(this.parts.map(p => p.physicsObject.hitbox().center()));
+	}
 }

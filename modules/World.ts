@@ -36,7 +36,7 @@ export type Entity = Lizard | Spikeball | Portal | Humanoid | Spider | SpiderPro
 
 export class World {
 	tiles: Grid<Tile> = new Grid("empty");
-	entities: Entity[] = [];
+	entities: Grid<Set<Entity> | null> = new Grid(null);
 	tileEntities: { position: Vector, tile: TileEntity }[] = [];
 	particles: Particle[] = [];
 	gearsBackground: GearsBackground = GearsBackground.generate();
@@ -125,7 +125,7 @@ export class World {
 	}
 	displayGlowEffects(canvasIO: CanvasIO, visibleRegion: Rectangle) {
 		const entityRegion = visibleRegion.scale(WorldData.TILE_SIZE);
-		for(const entity of this.entities) {
+		for(const entity of this.allEntities()) {
 			if("displayGlowEffect" in entity && entity.distanceFrom(entityRegion) < WorldData.GLOW_RENDER_DISTANCE) {
 				entity.displayGlowEffect(canvasIO);
 			}
@@ -215,7 +215,7 @@ export class World {
 		}
 	}
 	displayEntities(canvasIO: CanvasIO, entityRegion: Rectangle) {
-		for(const entity of this.entities) {
+		for(const entity of this.allEntities()) {
 			if(entity.distanceFrom(entityRegion) < WorldData.ENTITY_RENDER_DISTANCE) {
 				entity.display(canvasIO, this);
 			}
@@ -235,7 +235,7 @@ export class World {
 		canvasIO.ctx.fillText(coordinates.toString(), canvasIO.mouse.position.x, canvasIO.mouse.position.y);
 	}
 	displayDebugInfo(canvasIO: CanvasIO) {
-		for(const entity of this.entities) {
+		for(const entity of this.allEntities()) {
 			if("displayHitbox" in entity) {
 				entity.displayHitbox(canvasIO);
 			}
@@ -258,12 +258,16 @@ export class World {
 		this.checkWorldGeneration();
 	}
 	updateEntities(canvasIO: CanvasIO, entityRegion: Rectangle) {
-		for(const entity of this.entities) {
+		for(const entity of this.allEntities()) {
 			if(entity.distanceFrom(entityRegion) < WorldData.ENTITY_UPDATE_DISTANCE) {
 				entity.update(this, canvasIO);
 			}
 		}
-		this.entities = this.entities.filter(c => !("dead" in c) || !c.dead);
+		for(const entity of this.allEntities()) {
+			if("dead" in entity && entity.dead) {
+				this.removeEntity(entity);
+			}
+		}
 	}
 	updateTiles(canvasIO: CanvasIO) {
 		for(const { tile, position } of this.tileEntities) {
@@ -378,7 +382,7 @@ export class World {
 	}
 	collidingEntities(rectangle: Rectangle, collides: (object: { x: number, y: number, tile: Tile } | Entity) => boolean = () => true) {
 		const solids = [];
-		for(const entity of this.entities) {
+		for(const entity of this.allEntities()) {
 			if(collides(entity) && "hitboxes" in entity && entity.hitboxes().some(b => rectangle.intersects(b))) {
 				solids.push(entity);
 			}
@@ -485,7 +489,7 @@ export class World {
 	}
 	entityIntersectionDistance(position: Vector, direction: Vector, collides: (entity: Entity) => boolean = () => true) {
 		let result = Infinity;
-		for(const entity of this.entities) {
+		for(const entity of this.allEntities()) {
 			if(!collides(entity)) { continue; }
 			for(const hitbox of ("hitboxes" in entity) ? entity.hitboxes() : []) {
 				result = Math.min(result, GameUtils.rayIntersectsRectangle(position, direction, hitbox));
@@ -574,11 +578,47 @@ export class World {
 			this.particles.push(particle);
 		}
 	}
+	entityGridPositions(rectangle: Rectangle) {
+		return Rectangle.fromBounds(
+			Math.floor(rectangle.left() / WorldData.ENTITY_CHUNK_SIZE),
+			Math.ceil(rectangle.right() / WorldData.ENTITY_CHUNK_SIZE),
+			Math.floor(rectangle.top() / WorldData.ENTITY_CHUNK_SIZE),
+			Math.ceil(rectangle.bottom() / WorldData.ENTITY_CHUNK_SIZE),
+		);
+	}
+	addEntity(entity: Entity) {
+		const positions = this.entityGridPositions(entity.boundingBox());
+		for(const position of positions.squares()){
+			const entities = this.entities.get(position);
+			if(entities) {
+				entities.add(entity);
+			}
+			else {
+				this.entities.set(position, new Set([entity]));
+			}
+		}
+	}
+	removeEntity(entity: Entity) {
+		const positions = this.entityGridPositions(entity.boundingBox());
+		for(const position of positions.squares()) {
+			const entities = this.entities.get(position);
+			if(entities) {
+				entities.delete(entity);
+				if(entities.size === 0) {
+					this.entities.set(position, null);
+				}
+			}
+		}
+	}
+	allEntities() {
+		const values = [...this.entities.values()].filter(v => v != null);
+		return Utils.union(...values);
+	}
 	damage(hurtbox: Rectangle, canvasIO: CanvasIO) {
 		if(this.player.physicsObject.hitbox().intersects(hurtbox)) {
 			this.player.damage();
 		}
-		for(const entity of this.entities) {
+		for(const entity of this.allEntities()) {
 			if("damage" in entity) {
 				entity.damage(hurtbox, this, canvasIO);
 			}

@@ -151,7 +151,7 @@ export class SpikeballBlock {
 			new Vector(x, y).add(Vector.unit(yDirection)),
 		);
 		this.spikeballs.push(spikeball);
-		world.entities.push(spikeball);
+		world.addEntity(spikeball);
 	}
 
 	copy() {
