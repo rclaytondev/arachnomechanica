@@ -506,8 +506,9 @@ export class SpiderData {
 		opacityDecay: { min: 0.015, max: 0.085 },
 		colorVariance: 40,
 	};
-	static PROJECTILE_SPEED = 15;
+	static PROJECTILE_SPEED = 5.5;
+	static PROJECTILE_ACCELERATION = 0.07;
 
-	static SPIDERS_PER_ROOM = 1;
+	static SPIDERS_PER_ROOM = 0.5;
 	static SPAWN_EVENNESS = 4;
 }

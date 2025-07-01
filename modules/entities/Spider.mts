@@ -324,8 +324,10 @@ export class Spider {
 	shootProjectile(world: World) {
 		const center = this.physicsObject.hitbox().center();
 		const player = world.player.physicsObject.hitbox().center();
-		const velocity = player.subtract(center).normalize().multiply(SpiderData.PROJECTILE_SPEED);
-		const projectile = new SpiderProjectile(center, velocity);
+		const direction = player.subtract(center).normalize();
+		const velocity = direction.multiply(SpiderData.PROJECTILE_SPEED);
+		const acceleration = direction.multiply(SpiderData.PROJECTILE_ACCELERATION);
+		const projectile = new SpiderProjectile(center, velocity, acceleration);
 		projectile.physicsObject.collides = (obj) => obj !== this;
 		world.entities.push(projectile);
 	}
@@ -398,7 +400,7 @@ export class Spider {
 	}
 	explode(world: World, canvasIO: CanvasIO) {
 		const center = this.physicsObject.hitbox().center();
-		const projectile = new SpiderProjectile(center, new Vector(0, 0));
+		const projectile = new SpiderProjectile(center, new Vector(0, 0), new Vector(0, 0));
 		projectile.explode(world, canvasIO);
 	}
 
@@ -418,14 +420,17 @@ export class Spider {
 export class SpiderProjectile {
 	physicsObject: PhysicsObject;
 	velocity: Vector;
+	acceleration: Vector;
 	dead: boolean = false;
 
-	constructor(position: Vector, velocity: Vector) {
+	constructor(position: Vector, velocity: Vector, acceleration: Vector) {
 		this.physicsObject = new PhysicsObject(position.floor(), Rectangle.square(0, 0, 1));
 		this.velocity = velocity;
+		this.acceleration = acceleration;
 	}
 
 	update(world: World, canvasIO: CanvasIO) {
+		this.velocity = this.velocity.add(this.acceleration);
 		this.physicsObject.move(this.velocity, world, () => this.explode(world, canvasIO));
 
 		world.addParticle(new Particle(
