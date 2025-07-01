@@ -17,7 +17,7 @@ export class StoneTile {
 			generate: () => GameUtils.randomInRect(new Rectangle(0, 0, WorldData.STONE_PATTERN_WIDTH, WorldData.STONE_PATTERN_HEIGHT)),
 			metric: StoneTile.distance,
 			amount: WorldData.STONE_PATTERN_WIDTH * WorldData.STONE_PATTERN_HEIGHT * WorldData.STONE_LINE_AMOUNT,
-			trials: WorldData.STONE_LINE_EVENNESS
+			trials: WorldData.STONE_LINE_EVENNESS,
 		});
 	}
 	static initializeLines() {
@@ -28,11 +28,11 @@ export class StoneTile {
 			for(const otherPoint of others.slice(0, WorldData.STONE_CONNECTIONS)) {
 				const closestX = Utils.minValue(
 					[otherPoint.x, otherPoint.x - WorldData.STONE_PATTERN_WIDTH, otherPoint.x + WorldData.STONE_PATTERN_WIDTH],
-					x => MathUtils.dist(x, point.x)
+					x => MathUtils.dist(x, point.x),
 				);
 				const closestY = Utils.minValue(
 					[otherPoint.y, otherPoint.y - WorldData.STONE_PATTERN_HEIGHT, otherPoint.y + WorldData.STONE_PATTERN_HEIGHT],
-					y => MathUtils.dist(y, point.y)
+					y => MathUtils.dist(y, point.y),
 				);
 				lines.push({ point1: point, point2: new Vector(closestX, closestY) });
 			}
@@ -40,7 +40,7 @@ export class StoneTile {
 		return lines;
 	}
 	static linesImage: HTMLCanvasElement | null = null;
-	static initializeLinesImage()  {
+	static initializeLinesImage() {
 		if(StoneTile.linesImage) {
 			return StoneTile.linesImage;
 		}
@@ -55,7 +55,7 @@ export class StoneTile {
 		for(const { point1, point2 } of lines) {
 			canvasIO.pointedLine(
 				point1.x - box.left(), point1.y - box.top(),
-				point2.x - box.left(), point2.y - box.top()
+				point2.x - box.left(), point2.y - box.top(),
 			);
 		}
 		StoneTile.linesImage = canvasIO.canvas;
@@ -77,15 +77,15 @@ export class StoneTile {
 
 		const patternRegion = visibleRegion.scale(
 			WorldData.TILE_SIZE / WorldData.STONE_PATTERN_WIDTH,
-			WorldData.TILE_SIZE / WorldData.STONE_PATTERN_HEIGHT
+			WorldData.TILE_SIZE / WorldData.STONE_PATTERN_HEIGHT,
 		);
 		for(let x = Math.floor(patternRegion.left() - 1); x < patternRegion.right(); x ++) {
 			for(let y = Math.floor(patternRegion.top() - 1); y < patternRegion.bottom(); y ++) {
 				canvasIO.ctx.drawImage(
 					StoneTile.initializeLinesImage(),
 					x * WorldData.STONE_PATTERN_WIDTH,
-					y * WorldData.STONE_PATTERN_HEIGHT
-				)
+					y * WorldData.STONE_PATTERN_HEIGHT,
+				);
 			}
 		}
 		canvasIO.ctx.restore();

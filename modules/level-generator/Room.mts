@@ -4,10 +4,9 @@ import { Grid } from "../../utils-ts/modules/Grid.mjs";
 import { RoomData, WorldData } from "../constants/GameData.mjs";
 import { GateState } from "./GateState.mjs";
 import { Gate } from "../tiles/Gate.mjs";
-import { Slope, Tile, World } from "../World.js";
+import { Slope, World } from "../World.js";
 import { Portal } from "../entities/Portal.mjs";
 import { SolidTile } from "../tiles/SolidTile.mjs";
-import { RoomPlaceholder } from "./RoomPlaceholder.mjs";
 import { ROOMS } from "./Rooms.mjs";
 
 export type Traversability = { start: GateState, end: GateState }[];
@@ -83,10 +82,10 @@ export class Room {
 			[],
 			this.entities.map(e => e.reflect()),
 			(exits) => this.canSpawnWithExits(exits.map(e => Directions.reflectX[e])),
-			this.traversability.map(({ start, end }) => ({ 
+			this.traversability.map(({ start, end }) => ({
 				start: new GateState(null, Directions.reflectX[start.exit], start.toggled),
-				end: new GateState(null, Directions.reflectX[end.exit], end.toggled)
-			}))
+				end: new GateState(null, Directions.reflectX[end.exit], end.toggled),
+			})),
 		);
 		for(let x = 0; x < RoomData.SIZE; x ++) {
 			for(let y = 0; y < RoomData.SIZE; y ++) {
@@ -109,7 +108,7 @@ export class Room {
 			this.exitTiles.map(v => v),
 			this.entities.map(v => v.copy()),
 			this.canSpawnWithExits,
-			this.traversability.map(({ start, end }) => ({ start: start.copy(), end: end.copy() }))
+			this.traversability.map(({ start, end }) => ({ start: start.copy(), end: end.copy() })),
 		);
 	}
 	equals(room: Room) {
@@ -137,7 +136,7 @@ export class Room {
 		}
 		copy.traversability = copy.traversability.map(({ start, end }) => ({
 			start: new GateState(start.position, start.exit, !start.toggled),
-			end: new GateState(end.position, end.exit, !end.toggled)
+			end: new GateState(end.position, end.exit, !end.toggled),
 		}));
 		return copy;
 	}
@@ -147,13 +146,13 @@ export class Room {
 			{ start: new GateState(null, exit1, false), end: new GateState(null, exit2, false) },
 			{ start: new GateState(null, exit1, true), end: new GateState(null, exit2, true) },
 			{ start: new GateState(null, exit2, false), end: new GateState(null, exit1, false) },
-			{ start: new GateState(null, exit2, true), end: new GateState(null, exit1, true) }
+			{ start: new GateState(null, exit2, true), end: new GateState(null, exit1, true) },
 		];
 	}
 	static onewayGatelessPath(exit1: Direction, exit2: Direction) {
 		return [
 			{ start: new GateState(null, exit1, false), end: new GateState(null, exit2, false) },
-			{ start: new GateState(null, exit1, true), end: new GateState(null, exit2, true) }
+			{ start: new GateState(null, exit1, true), end: new GateState(null, exit2, true) },
 		];
 	}
 	static gatePath(exit1: Direction, exit2: Direction, open: boolean) {
@@ -162,7 +161,7 @@ export class Room {
 		}
 		return [
 			{ start: new GateState(null, exit1, !open), end: new GateState(null, exit2, open) },
-			{ start: new GateState(null, exit2, !open), end: new GateState(null, exit1, open) }
+			{ start: new GateState(null, exit2, !open), end: new GateState(null, exit1, open) },
 		];
 	}
 	static doubleGatePath(exit1: Direction, exit2: Direction) {

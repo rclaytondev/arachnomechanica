@@ -2,8 +2,7 @@ import { CanvasIO } from "../../utils-ts/modules/CanvasIO.mjs";
 import { Vector } from "../../utils-ts/modules/geometry/Vector.mjs";
 import { MathUtils } from "../../utils-ts/modules/math/MathUtils.mjs";
 import { WorldData } from "../constants/GameData.mjs";
-import { Slope, World } from "../World";
-import { TowerTile } from "./TowerTile.mjs";
+import { Slope } from "../World";
 
 export class SolidTile {
 	readonly shape: "solid" | Slope;
@@ -24,9 +23,9 @@ export class SolidTile {
 	addToPath(position: Vector, canvasIO: CanvasIO) {
 		if(this.shape === "solid") {
 			canvasIO.ctx.rect(
-				position.x * WorldData.TILE_SIZE - 1, 
-				position.y * WorldData.TILE_SIZE - 1, 
-				WorldData.TILE_SIZE + 2, WorldData.TILE_SIZE + 2
+				position.x * WorldData.TILE_SIZE - 1,
+				position.y * WorldData.TILE_SIZE - 1,
+				WorldData.TILE_SIZE + 2, WorldData.TILE_SIZE + 2,
 			);
 		}
 		else {

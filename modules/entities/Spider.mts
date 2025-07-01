@@ -1,17 +1,14 @@
-import { canvasIO, CanvasIO } from "../../utils-ts/modules/CanvasIO.mjs";
+import { CanvasIO } from "../../utils-ts/modules/CanvasIO.mjs";
 import { Diagonal, Direction, Directions } from "../../utils-ts/modules/geometry/Direction.mjs";
 import { Line } from "../../utils-ts/modules/geometry/Line.mjs";
 import { Rectangle } from "../../utils-ts/modules/geometry/Rectangle.mjs";
 import { Vector } from "../../utils-ts/modules/geometry/Vector.mjs";
 import { MathUtils } from "../../utils-ts/modules/math/MathUtils.mjs";
-import { Utils } from "../../utils-ts/modules/Utils.mjs";
 import { DEBUG_SETTINGS } from "../constants/DebugSettings.mjs";
 import { SpiderData, WorldData } from "../constants/GameData.mjs";
 import { GameUtils } from "../game-utilities/GameUtils.mjs";
 import { Particle } from "../game-utilities/Particle.mjs";
 import { PhysicsObject } from "../game-utilities/PhysicsObject.mjs";
-import { frameCount } from "../Main.js";
-import { TowerTile } from "../tiles/TowerTile.mjs";
 import { Entity, World } from "../World";
 
 export class Surface {
@@ -35,7 +32,7 @@ export class Surface {
 		const angle = world.angle(
 			this.tilePosition(),
 			Directions.rotateCounterclockwise[tileTangent],
-			tileTangent
+			tileTangent,
 		) + (Directions.isDiagonal(tangent) ? 45 : 0);
 		let newTangent = Directions.opposite[tangent];
 		for(let i = 0; i < angle; i += 45) {
@@ -43,7 +40,7 @@ export class Surface {
 		}
 		return new Surface(
 			this.end(),
-			Directions.rotateCounterclockwise[newTangent]
+			Directions.rotateCounterclockwise[newTangent],
 		);
 	}
 	nextSurfaceCCW(world: World) {
@@ -52,7 +49,7 @@ export class Surface {
 		const angle = world.angle(
 			this.tilePosition(),
 			Directions.rotateCounterclockwise[tileTangent],
-			Directions.opposite[tileTangent]
+			Directions.opposite[tileTangent],
 		) + (Directions.isDiagonal(tangent) ? 45 : 0);
 		let newTangent = Directions.opposite[tangent];
 		for(let i = 0; i < angle; i += 45) {
@@ -60,7 +57,7 @@ export class Surface {
 		}
 		return new Surface(
 			this.start.subtract(Vector.gridUnit(newTangent)),
-			Directions.rotateCounterclockwise[newTangent]
+			Directions.rotateCounterclockwise[newTangent],
 		);
 	}
 
@@ -73,7 +70,7 @@ export class Surface {
 			"left": this.start.add(-1, -1),
 			"down-left": this.start.add(-1, 0),
 			"down": this.start.add(-1, 0),
-			"down-right": this.start
+			"down-right": this.start,
 		};
 		return positions[this.tangentDirectionCW()];
 	}
@@ -104,21 +101,21 @@ export class PointOnSurface {
 	position() {
 		return this.surface.start.multiply(WorldData.TILE_SIZE).add(this.surface.tangentVectorCW().multiply(this.distance));
 	}
-	
+
 	moveAlongSurface(amount: number, world: World) {
 		let point = this.copy();
 		point.distance += amount;
 		while(point.distance > point.surface.length()) {
 			point = new PointOnSurface(
 				point.surface.nextSurfaceCW(world),
-				point.distance - point.surface.length()
+				point.distance - point.surface.length(),
 			);
 		}
 		while(point.distance < 0) {
 			const nextSurface = point.surface.nextSurfaceCCW(world);
 			point = new PointOnSurface(
 				nextSurface,
-				nextSurface.length() + point.distance
+				nextSurface.length() + point.distance,
 			);
 		}
 		return point;
@@ -178,7 +175,7 @@ export class SpiderLeg {
 		canvasIO.pointedLine(attachment.x, attachment.y, joint.x, joint.y);
 		canvasIO.pointedLine(joint.x, joint.y, position.x, position.y);
 	}
-	displayDebug(canvasIO: CanvasIO) {
+	displayDebug() {
 		// Unimplemented
 	}
 
@@ -201,7 +198,7 @@ export class Spider {
 	constructor(position: Vector) {
 		this.physicsObject = new PhysicsObject(
 			position.subtract(SpiderData.HITBOX_SIZE / 2, SpiderData.HITBOX_SIZE / 2).floor(),
-			new Rectangle(0, 0, SpiderData.HITBOX_SIZE, SpiderData.HITBOX_SIZE)
+			new Rectangle(0, 0, SpiderData.HITBOX_SIZE, SpiderData.HITBOX_SIZE),
 		);
 		this.physicsObject.collides = (obj) => obj !== this;
 		this.legs = this.initializeLegs();
@@ -212,27 +209,27 @@ export class Spider {
 				SpiderData.LEG_1.LENGTH,
 				SpiderData.LEG_1.ATTACHMENT.reflectX(),
 				SpiderData.LEG_1.MIN_DISTANCE,
-				SpiderData.LEG_1.MAX_DISTANCE
+				SpiderData.LEG_1.MAX_DISTANCE,
 			),
 			new SpiderLeg(
 				SpiderData.LEG_1.LENGTH,
 				SpiderData.LEG_1.ATTACHMENT,
 				SpiderData.LEG_1.MIN_DISTANCE,
-				SpiderData.LEG_1.MAX_DISTANCE
+				SpiderData.LEG_1.MAX_DISTANCE,
 			),
 
 			new SpiderLeg(
 				SpiderData.LEG_2.LENGTH,
 				SpiderData.LEG_2.ATTACHMENT.reflectX(),
 				SpiderData.LEG_2.MIN_DISTANCE,
-				SpiderData.LEG_2.MAX_DISTANCE
+				SpiderData.LEG_2.MAX_DISTANCE,
 			),
 			new SpiderLeg(
 				SpiderData.LEG_2.LENGTH,
 				SpiderData.LEG_2.ATTACHMENT,
 				SpiderData.LEG_2.MIN_DISTANCE,
-				SpiderData.LEG_2.MAX_DISTANCE
-			)
+				SpiderData.LEG_2.MAX_DISTANCE,
+			),
 		];
 	}
 
@@ -269,7 +266,7 @@ export class Spider {
 			center.x, center.y,
 			SpiderData.GLOW_SIZE, SpiderData.GLOW_INTENSITY,
 			canvasIO,
-			SpiderData.GLOW_COLOR.red, SpiderData.GLOW_COLOR.green, SpiderData.GLOW_COLOR.blue
+			SpiderData.GLOW_COLOR.red, SpiderData.GLOW_COLOR.green, SpiderData.GLOW_COLOR.blue,
 		);
 	}
 	displayDebug(canvasIO: CanvasIO) {
@@ -291,21 +288,21 @@ export class Spider {
 		canvasIO.strokeRect(this.physicsObject.hitbox());
 
 		for(const leg of this.legs) {
-			leg.displayDebug(canvasIO);
+			leg.displayDebug();
 		}
 	}
 
 	update(world: World) {
 		this.move(this.hasProjectile ? SpiderData.SPEED : SpiderData.FAST_SPEED, world);
 		this.updateAngle();
-		this.updateLegs(world);
+		this.updateLegs();
 		this.checkProjectile(world);
 	}
 	updateAngle() {
 		const targetAngle = Math.PI / 2 - (this.basepoint ? Directions.angle[this.basepoint.surface.outwardNormal] : 0);
 		this.angle = GameUtils.moveAngleTowards(this.angle, targetAngle, SpiderData.ANGULAR_SPEED);
 	}
-	updateLegs(world: World) {
+	updateLegs() {
 		for(const leg of this.legs) {
 			leg.update();
 		}
@@ -342,7 +339,7 @@ export class Spider {
 		this.physicsObject.move(
 			newPosition.subtract(this.physicsObject.positionFloat()),
 			world,
-			() => this.switchDirection()
+			() => this.switchDirection(),
 		);
 	}
 	moveBasepoint(amount: number, world: World) {
@@ -356,7 +353,7 @@ export class Spider {
 			const lerpedAngle = GameUtils.lerpAngle(
 				this.basepoint!.distance,
 				-SpiderData.TURN_WALL_DURATION, SpiderData.TURN_WALL_DURATION,
-				nextAngle, angle
+				nextAngle, angle,
 			);
 			return new Vector(Math.cos(lerpedAngle), -Math.sin(lerpedAngle));
 		}
@@ -367,7 +364,7 @@ export class Spider {
 			const lerpedAngle = GameUtils.lerpAngle(
 				this.basepoint!.distance - this.basepoint!.surface.length(),
 				-SpiderData.TURN_WALL_DURATION, SpiderData.TURN_WALL_DURATION,
-				angle, nextAngle
+				angle, nextAngle,
 			);
 			return new Vector(Math.cos(lerpedAngle), -Math.sin(lerpedAngle));
 		}
@@ -378,7 +375,7 @@ export class Spider {
 		const nextSurfaceCCW = this.basepoint!.surface.nextSurfaceCCW(world);
 		const distanceToTurn = Math.min(
 			nextSurfaceCCW.outwardNormal === this.basepoint!.surface.outwardNormal ? Infinity : this.basepoint!.distance,
-			nextSurfaceCW.outwardNormal === this.basepoint!.surface.outwardNormal ? Infinity : this.basepoint!.surface.length() - this.basepoint!.distance
+			nextSurfaceCW.outwardNormal === this.basepoint!.surface.outwardNormal ? Infinity : this.basepoint!.surface.length() - this.basepoint!.distance,
 		);
 		if(distanceToTurn > SpiderData.TURN_WALL_DURATION) {
 			return SpiderData.SIZE / 2;
@@ -386,7 +383,7 @@ export class Spider {
 		return SpiderData.SIZE / 2 + GameUtils.lerp(
 			distanceToTurn,
 			0, SpiderData.TURN_WALL_DURATION,
-			SpiderData.TURN_WALL_DISTANCE, 0
+			SpiderData.TURN_WALL_DISTANCE, 0,
 		);
 	}
 
@@ -417,7 +414,7 @@ export class SpiderProjectile {
 	physicsObject: PhysicsObject;
 	velocity: Vector;
 	dead: boolean = false;
-	
+
 	constructor(position: Vector, velocity: Vector) {
 		this.physicsObject = new PhysicsObject(position.floor(), Rectangle.square(0, 0, 1));
 		this.velocity = velocity;
@@ -429,7 +426,7 @@ export class SpiderProjectile {
 		world.addParticle(new Particle(
 			this.physicsObject.hitbox().center(),
 			new Vector(0, 0),
-			SpiderData.PROJECTILE_PARTICLE_SETTINGS
+			SpiderData.PROJECTILE_PARTICLE_SETTINGS,
 		), canvasIO);
 
 		if(this.physicsObject.hitbox().intersects(world.player.physicsObject.hitbox())) {
@@ -454,7 +451,7 @@ export class SpiderProjectile {
 		const tileExplosion = Rectangle.fromCenter(
 			center.x, center.y,
 			SpiderData.PROJECTILE_EXPLOSION.DESTRUCTION_RADIUS * 2,
-			SpiderData.PROJECTILE_EXPLOSION.DESTRUCTION_RADIUS * 2
+			SpiderData.PROJECTILE_EXPLOSION.DESTRUCTION_RADIUS * 2,
 		);
 		for(const { position } of world.getTilesAt(tileExplosion)) {
 			world.destroyTile(position);
@@ -469,7 +466,7 @@ export class SpiderProjectile {
 			world.addParticle(new Particle(
 				position,
 				new Vector(0, 0),
-				SpiderData.PROJECTILE_EXPLOSION_SETTINGS
+				SpiderData.PROJECTILE_EXPLOSION_SETTINGS,
 			), canvasIO);
 		}
 	}
@@ -478,7 +475,7 @@ export class SpiderProjectile {
 		world.damage(Rectangle.fromCenter(
 			center.x, center.y,
 			2 * SpiderData.PROJECTILE_EXPLOSION.DAMAGE_RADIUS,
-			2 * SpiderData.PROJECTILE_EXPLOSION.DAMAGE_RADIUS
+			2 * SpiderData.PROJECTILE_EXPLOSION.DAMAGE_RADIUS,
 		), canvasIO);
 	}
 }

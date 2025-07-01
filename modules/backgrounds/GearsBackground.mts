@@ -2,8 +2,7 @@ import { CanvasIO } from "../../utils-ts/modules/CanvasIO.mjs";
 import { Rectangle } from "../../utils-ts/modules/geometry/Rectangle.mjs";
 import { Vector } from "../../utils-ts/modules/geometry/Vector.mjs";
 import { MathUtils } from "../../utils-ts/modules/math/MathUtils.mjs";
-import { Utils } from "../../utils-ts/modules/Utils.mjs";
-import { BackgroundData, BackgroundGearLayerData, LevelGeneratorData, RoomData, WorldData } from "../constants/GameData.mjs";
+import { BackgroundData, BackgroundGearLayerData } from "../constants/GameData.mjs";
 import { GameUtils } from "../game-utilities/GameUtils.mjs";
 import { frameCount } from "../Main.js";
 
@@ -93,7 +92,7 @@ class GearLayer {
 		for(const gear of this.gears) {
 			const repeatedPosition = new Vector(
 				cameraPosition.x + GameUtils.signedModularDistance(cameraPosition.x, gear.position.x, BackgroundData.BACKGROUND_REPEAT_SIZE),
-				cameraPosition.y + GameUtils.signedModularDistance(cameraPosition.y, gear.position.y, BackgroundData.BACKGROUND_REPEAT_SIZE)
+				cameraPosition.y + GameUtils.signedModularDistance(cameraPosition.y, gear.position.y, BackgroundData.BACKGROUND_REPEAT_SIZE),
 			);
 			const position = repeatedPosition.subtract(cameraPosition).multiply(this.parallax).add(canvasIO.canvas.width / 2, canvasIO.canvas.height / 2);
 			if(BackgroundGear.isVisible(position, gear.size, canvasIO)) {
@@ -106,7 +105,6 @@ class GearLayer {
 	static generate(info: BackgroundGearLayerData) {
 		const gears: BackgroundGear[] = [];
 		const numGears = BackgroundData.BACKGROUND_REPEAT_SIZE ** 2 * info.density;
-		const region = Rectangle.square(0, 0, BackgroundData.BACKGROUND_REPEAT_SIZE);
 		for(let i = 0; i < numGears; i ++) {
 			let spawned = false;
 			let attempts = 0;
@@ -116,16 +114,16 @@ class GearLayer {
 					generate: () => GameUtils.randomInRect(Rectangle.square(0, 0, BackgroundData.BACKGROUND_REPEAT_SIZE), GameUtils.randomInt),
 					metric: (v1, v2) => GameUtils.toroidalDistance(v1, v2, BackgroundData.BACKGROUND_REPEAT_SIZE),
 					amount: 1,
-					trials: info.evenness
+					trials: info.evenness,
 				});
 				const gear = new BackgroundGear(
 					position,
-					GameUtils.random(info.minSize,  info.maxSize),
+					GameUtils.random(info.minSize, info.maxSize),
 					GameUtils.randomInt(info.minTeeth, info.maxTeeth),
 					GameUtils.random(info.minInnerRadius, info.maxInnerRadius),
 					GameUtils.random(info.minSpeed, info.maxSpeed) * (Math.random() < 0.5 ? 1 : -1),
 					info.color,
-					GameUtils.randomInt(0, 360)
+					GameUtils.randomInt(0, 360),
 				);
 				if(!gears.some(g => g.intersects(gear, info.parallax))) {
 					gears.push(gear);

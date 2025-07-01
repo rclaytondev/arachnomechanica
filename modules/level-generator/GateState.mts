@@ -19,7 +19,7 @@ export class GateState {
 			return new GateState(
 				this.position.add(Vector.unit(this.exit)),
 				Directions.opposite[this.exit],
-				this.toggled
+				this.toggled,
 			);
 		}
 		return this;
@@ -40,7 +40,7 @@ export class GateState {
 		return new GateState(
 			(this.position ?? new Vector(0, 0)).add(amount),
 			this.exit,
-			this.toggled
+			this.toggled,
 		);
 	}
 	toString(includePosition: boolean = false) {
@@ -52,7 +52,7 @@ export class GateState {
 	static traversabilityEquals(traversability1: Traversability, traversability2: Traversability) {
 		return Utils.setEquals(
 			traversability1.map(({ start, end }) => `(${start.toString()}), (${end.toString()})`),
-			traversability2.map(({ start, end }) => `(${start.toString()}), (${end.toString()})`)
+			traversability2.map(({ start, end }) => `(${start.toString()}), (${end.toString()})`),
 		);
 	}
 	static deduplicateTraversability(traversability: Traversability) {

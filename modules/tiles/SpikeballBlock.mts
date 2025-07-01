@@ -10,7 +10,7 @@ export class SpikeballBlock {
 	static glowGradient = GameUtils.glowCircleGradient(
 		0, 0, SpikeballBlockData.GLOW_SIZE,
 		SpikeballBlockData.GLOW_INTENSITY,
-		SpikeballData.ACCENT_COLOR.red, SpikeballData.ACCENT_COLOR.green, SpikeballData.ACCENT_COLOR.blue
+		SpikeballData.ACCENT_COLOR.red, SpikeballData.ACCENT_COLOR.green, SpikeballData.ACCENT_COLOR.blue,
 	);
 
 	timeUntilSpawn: number = 0;
@@ -26,7 +26,7 @@ export class SpikeballBlock {
 		"up-left": 0,
 		"up-right": 0,
 		"down-left": 0,
-		"down-right": 0
+		"down-right": 0,
 	};
 
 	constructor(pattern: SpikeballPattern) {
@@ -40,9 +40,9 @@ export class SpikeballBlock {
 		canvasIO.fillCircle(0, 0, SpikeballBlockData.GLOW_SIZE);
 		canvasIO.ctx.restore();
 	}
-	display(canvasIO: CanvasIO, x: number, y:  number) {
+	display(canvasIO: CanvasIO, x: number, y: number) {
 		const center = new Vector(x + 1/2, y + 1/2).multiply(WorldData.TILE_SIZE);
-		
+
 		for(const direction of Directions.DIAGONALS) {
 			canvasIO.ctx.save();
 			canvasIO.ctx.translate(center.x, center.y);
@@ -50,7 +50,7 @@ export class SpikeballBlock {
 			canvasIO.ctx.fillStyle = SpikeballBlockData.BARREL_COLOR;
 			canvasIO.ctx.fillRect(
 				-WorldData.TILE_SIZE / 2, -WorldData.TILE_SIZE / 2 - SpikeballBlockData.BARREL_LENGTH,
-				WorldData.TILE_SIZE, WorldData.TILE_SIZE / 2 + SpikeballBlockData.BARREL_LENGTH
+				WorldData.TILE_SIZE, WorldData.TILE_SIZE / 2 + SpikeballBlockData.BARREL_LENGTH,
 			);
 			canvasIO.ctx.restore();
 		}
@@ -61,7 +61,7 @@ export class SpikeballBlock {
 			canvasIO.rotateTo("up", direction);
 
 
-			
+
 			const openness = this.doors[direction];
 			canvasIO.ctx.strokeStyle = `rgb(${SpikeballData.ACCENT_COLOR.red}, ${SpikeballData.ACCENT_COLOR.green}, ${SpikeballData.ACCENT_COLOR.blue})`;
 			canvasIO.ctx.fillStyle = `rgb(${SpikeballData.ACCENT_COLOR.red}, ${SpikeballData.ACCENT_COLOR.green}, ${SpikeballData.ACCENT_COLOR.blue})`;
@@ -72,11 +72,11 @@ export class SpikeballBlock {
 			canvasIO.ctx.fillStyle = SpikeballBlockData.DOOR_COLOR;
 			canvasIO.ctx.fillRect(
 				-WorldData.TILE_SIZE / 2, -WorldData.TILE_SIZE / 2 - SpikeballBlockData.BARREL_DOOR_LENGTH,
-				WorldData.TILE_SIZE / 2 - openness, SpikeballBlockData.DOOR_HEIGHT
+				WorldData.TILE_SIZE / 2 - openness, SpikeballBlockData.DOOR_HEIGHT,
 			);
 			canvasIO.ctx.fillRect(
 				openness, -WorldData.TILE_SIZE / 2 - SpikeballBlockData.BARREL_DOOR_LENGTH,
-				WorldData.TILE_SIZE / 2 - openness, SpikeballBlockData.DOOR_HEIGHT
+				WorldData.TILE_SIZE / 2 - openness, SpikeballBlockData.DOOR_HEIGHT,
 			);
 			canvasIO.ctx.restore();
 			// debugger;
@@ -99,7 +99,7 @@ export class SpikeballBlock {
 		for(const xDirection of ["left", "right"] as const) {
 			for(const yDirection of ["up", "down"] as const) {
 				const patternStep = this.pattern[this.patternStep];
-				const direction = yDirection + "-" + xDirection as "up-left" | "up-right" | "down-left" | "down-right";
+				const direction = `${yDirection}-${xDirection}` as "up-left" | "up-right" | "down-left" | "down-right";
 				const open = (
 					this.timeUntilSpawn < SpikeballBlockData.DOOR_OPENING_TIME
 					&& patternStep.some(p => p[0] === xDirection && p[1] === yDirection)
@@ -143,7 +143,7 @@ export class SpikeballBlock {
 	spawnSpikeball(x: number, y: number, xDirection: Direction, yDirection: Direction, world: World) {
 		const spikeball = new Spikeball(
 			new Vector(x + 1/2, y + 1/2).multiply(WorldData.TILE_SIZE).subtract(SpikeballData.RADIUS, SpikeballData.RADIUS),
-			Vector.unit(xDirection).add(Vector.unit(yDirection)).multiply(SpikeballData.SPEED)
+			Vector.unit(xDirection).add(Vector.unit(yDirection)).multiply(SpikeballData.SPEED),
 		);
 		spikeball.ignoredTiles.push(
 			new Vector(x, y),

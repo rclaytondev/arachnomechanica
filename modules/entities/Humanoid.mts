@@ -1,5 +1,4 @@
 import { CanvasIO } from "../../utils-ts/modules/CanvasIO.mjs";
-import { Direction, Directions } from "../../utils-ts/modules/geometry/Direction.mjs";
 import { Rectangle } from "../../utils-ts/modules/geometry/Rectangle.mjs";
 import { Vector } from "../../utils-ts/modules/geometry/Vector.mjs";
 import { MathUtils } from "../../utils-ts/modules/math/MathUtils.mjs";
@@ -47,7 +46,7 @@ class RotationalMotion {
 			() => this.center(),
 			-this.angularVelocity,
 			this.parts,
-			this.age
+			this.age,
 		);
 	}
 
@@ -55,9 +54,9 @@ class RotationalMotion {
 		const distance = GameUtils.signedAngleDistance(part.angle, angle);
 		return new RotationalMotion(
 			() => part.center(),
-			distance /  duration,
+			distance / duration,
 			[part],
-			duration
+			duration,
 		);
 	}
 }
@@ -89,7 +88,7 @@ class LinearMotion {
 		return new LinearMotion(
 			destination.subtract(part[mode]()).divide(duration),
 			[part],
-			duration
+			duration,
 		);
 	}
 }
@@ -104,7 +103,7 @@ export class HumanoidPart {
 	constructor(position: Vector, angle: number, width: number, length: number) {
 		this.physicsObject = new PhysicsObject(
 			position.subtract(1, 1),
-			new Rectangle(0, 0, 2, 2)
+			new Rectangle(0, 0, 2, 2),
 		);
 		this.angle = angle;
 		this.width = width;
@@ -120,7 +119,7 @@ export class HumanoidPart {
 		canvasIO.fillPoly(
 			-this.width / 2, this.length,
 			0, 0,
-			this.width / 2, this.length
+			this.width / 2, this.length,
 		);
 		canvasIO.ctx.restore();
 	}
@@ -142,19 +141,19 @@ export class HumanoidPart {
 	copy() {
 		return new HumanoidPart(
 			this.physicsObject.hitbox().center(),
-			this.angle, this.width, this.length
+			this.angle, this.width, this.length,
 		);
 	}
 	reflect() {
 		return new HumanoidPart(
 			this.physicsObject.hitbox().center().reflectX(),
-			-this.angle, this.width, this.length
+			-this.angle, this.width, this.length,
 		);
 	}
 	translate(amount: Vector) {
 		return new HumanoidPart(
 			this.physicsObject.hitbox().center().add(amount),
-			this.angle, this.width, this.length
+			this.angle, this.width, this.length,
 		);
 	}
 }
@@ -167,7 +166,7 @@ export class Humanoid {
 	timer: number = 0;
 	backwards: boolean = false;
 	reformPosition: Vector | null = null;
-	
+
 	head: HumanoidPart;
 	body: HumanoidPart;
 	leftArm: HumanoidPart;
@@ -179,7 +178,7 @@ export class Humanoid {
 
 	constructor(position: Vector) {
 		this.physicsObject = new PhysicsObject(position, new Rectangle(0, 0, HumanoidData.HITBOX_WIDTH, HumanoidData.HITBOX_HEIGHT));
-		
+
 		const center = this.physicsObject.hitbox().center();
 		this.head = HumanoidData.HEAD.translate(center);
 		this.body = HumanoidData.BODY.translate(center);
@@ -232,17 +231,15 @@ export class Humanoid {
 	walk(world: World) {
 		this.physicsObject.moveX(
 			this.body.center().x - this.physicsObject.hitbox().center().x,
-			(direction: Direction) => {
-				this.turnAround();
-			},
-			world
+			() => this.turnAround(),
+			world,
 		);
 		if(!this.backwards && this.motions.every(m => m.timeLeft < 0)) {
 			if(this.walkingMode === "lift") {
 				this.motions = this.stepDown(this.direction);
 				this.walkingMode = "step-down";
 			}
-			else if(this.walkingMode ===  "step-down") {
+			else if(this.walkingMode === "step-down") {
 				this.motions = this.stepTogether(this.direction);
 				this.walkingMode = "step-together";
 			}
@@ -303,7 +300,7 @@ export class Humanoid {
 		this.motions.push(LinearMotion.translateToPosition(
 			part,
 			part.center().add(new Vector(HumanoidData.MAX_SHOT_DISTANCE, 0).rotate(-90 + MathUtils.toDegrees(part.angle))),
-			HumanoidData.MAX_SHOT_DISTANCE / HumanoidData.PROJECTILE_SPEED
+			HumanoidData.MAX_SHOT_DISTANCE / HumanoidData.PROJECTILE_SPEED,
 		));
 		part.shot = true;
 		part.physicsObject.collides = () => true;
@@ -325,7 +322,7 @@ export class Humanoid {
 				part,
 				defaultHumanoid[partID].center().add(this.reformPosition),
 				HumanoidData.REFORM_TIME,
-				"center"
+				"center",
 			));
 		}
 	}
@@ -380,15 +377,14 @@ export class Humanoid {
 	}
 
 	liftLegForStep(direction: "left" | "right") {
-		const opposite = (direction === "left") ? "right" : "left";
 		const angleMultiplier = (direction === "right") ? 1 : -1;
 		return [
 			new RotationalMotion(
 				/* lift leg to take a step */
 				() => this.getLeg(direction).tip(),
-				-HumanoidData.LEG_LIFT_AMOUNT  / HumanoidData.WALK_PHASE_1_DURATION * angleMultiplier,
+				-HumanoidData.LEG_LIFT_AMOUNT / HumanoidData.WALK_PHASE_1_DURATION * angleMultiplier,
 				[this.getLeg(direction)],
-				HumanoidData.WALK_PHASE_1_DURATION
+				HumanoidData.WALK_PHASE_1_DURATION,
 			),
 		];
 	}
@@ -401,16 +397,16 @@ export class Humanoid {
 				() => this.getLeg(opposite).base(),
 				HumanoidData.LEG_LIFT_AMOUNT / HumanoidData.WALK_PHASE_2_DURATION * angleMultiplier,
 				this.parts,
-				HumanoidData.WALK_PHASE_2_DURATION
+				HumanoidData.WALK_PHASE_2_DURATION,
 			),
 			new RotationalMotion(
 				/* keep upper body vertical */
 				() => this.getLeg(opposite).tip(),
 				-HumanoidData.LEG_LIFT_AMOUNT / HumanoidData.WALK_PHASE_2_DURATION * angleMultiplier,
 				[this.getLeg(direction), this.body, this.leftArm, this.rightArm, this.head],
-				HumanoidData.WALK_PHASE_2_DURATION
-			)
-		]
+				HumanoidData.WALK_PHASE_2_DURATION,
+			),
+		];
 	}
 	stepTogether(direction: "left" | "right") {
 		const opposite = (direction === "left") ? "right" : "left";
@@ -421,21 +417,21 @@ export class Humanoid {
 				() => this.getLeg(direction).base(),
 				HumanoidData.LEG_LIFT_AMOUNT / HumanoidData.WALK_PHASE_3_DURATION * angleMultiplier,
 				this.parts,
-				HumanoidData.WALK_PHASE_3_DURATION
+				HumanoidData.WALK_PHASE_3_DURATION,
 			),
 			new RotationalMotion(
 				/* keep the body vertical while moving */
 				() => this.getLeg(direction).tip(),
 				-HumanoidData.LEG_LIFT_AMOUNT / HumanoidData.WALK_PHASE_3_DURATION * angleMultiplier,
 				[this.body, this.getLeg(opposite), this.leftArm, this.rightArm, this.head],
-				HumanoidData.WALK_PHASE_3_DURATION
+				HumanoidData.WALK_PHASE_3_DURATION,
 			),
 			new RotationalMotion(
 				/* bring the back leg forward */
 				() => this.getLeg(opposite).tip(),
 				-HumanoidData.LEG_LIFT_AMOUNT / HumanoidData.WALK_PHASE_3_DURATION * angleMultiplier,
 				[this.getLeg(opposite)],
-				HumanoidData.WALK_PHASE_3_DURATION
+				HumanoidData.WALK_PHASE_3_DURATION,
 			),
 		];
 	}

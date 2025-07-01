@@ -10,7 +10,7 @@ export class Spikeball {
 	static glowGradient = GameUtils.glowCircleGradient(
 		0, 0, SpikeballData.GLOW_SIZE,
 		SpikeballData.GLOW_INTENSITY,
-		SpikeballData.ACCENT_COLOR.red, SpikeballData.ACCENT_COLOR.green, SpikeballData.ACCENT_COLOR.blue
+		SpikeballData.ACCENT_COLOR.red, SpikeballData.ACCENT_COLOR.green, SpikeballData.ACCENT_COLOR.blue,
 	);
 	physicsObject: PhysicsObject;
 	angle: number = 0;
@@ -18,11 +18,11 @@ export class Spikeball {
 	age: number = 0;
 	bounces: number = SpikeballData.BOUNCES;
 	dead: boolean = false;
-	
+
 	constructor(position: Vector, velocity: Vector) {
 		this.physicsObject = new PhysicsObject(
 			position,
-			new Rectangle(0, 0, 2 * SpikeballData.RADIUS, 2 * SpikeballData.RADIUS)
+			new Rectangle(0, 0, 2 * SpikeballData.RADIUS, 2 * SpikeballData.RADIUS),
 		);
 		this.physicsObject.velocity = velocity;
 		this.physicsObject.collides = (object) => this.collides(object);
@@ -90,7 +90,7 @@ export class Spikeball {
 				}
 				this.physicsObject.velocity.x = -this.physicsObject.velocity.x;
 			},
-			world
+			world,
 		);
 		this.physicsObject.moveY(
 			this.physicsObject.velocity.y,
@@ -104,7 +104,7 @@ export class Spikeball {
 				}
 				this.physicsObject.velocity.y = -this.physicsObject.velocity.y;
 			},
-			world
+			world,
 		);
 		if(this.bounces < 0) {
 			this.dead = true;
@@ -126,15 +126,15 @@ export class Spikeball {
 			SpikeballData.SHATTER_PARTICLE_SPEED,
 			canvasIO,
 			SpikeballData.SHATTER_ANGLE_EVENNESS,
-			SpikeballData.SHATTER_PARTICLE_SETTINGS
+			SpikeballData.SHATTER_PARTICLE_SETTINGS,
 		);
 	}
 
 	hurtbox() {
 		const center = this.physicsObject.hitbox().center();
 		return new Rectangle(
-			center.x - SpikeballData.HURTBOX_SIZE / 2, center.y - SpikeballData.HURTBOX_SIZE /  2,
-			SpikeballData.HURTBOX_SIZE, SpikeballData.HURTBOX_SIZE
+			center.x - SpikeballData.HURTBOX_SIZE / 2, center.y - SpikeballData.HURTBOX_SIZE / 2,
+			SpikeballData.HURTBOX_SIZE, SpikeballData.HURTBOX_SIZE,
 		);
 	}
 	hitboxes() {

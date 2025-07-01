@@ -85,7 +85,7 @@ export class PhysicsObject {
 
 		if(
 			Directions.isHorizontal(direction)
-			&& (slopeMode  ===  "push" || slopeMode === "slide")
+			&& (slopeMode === "push" || slopeMode === "slide")
 			&& world.onSlope(this.hitbox(), `slope-floor-${direction}`)
 		) {
 			return offset.add(0, -1);

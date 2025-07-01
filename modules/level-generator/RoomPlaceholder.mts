@@ -1,6 +1,5 @@
 import { Direction } from "../../utils-ts/modules/geometry/Direction.mjs";
-import { Vector } from "../../utils-ts/modules/geometry/Vector.mjs";
-import { Room, Traversability } from "./Room.mjs";
+import { Room } from "./Room.mjs";
 
 export class RoomPlaceholder {
 	exits: Direction[];

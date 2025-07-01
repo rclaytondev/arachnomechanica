@@ -10,7 +10,7 @@ import { World } from "../World.js";
 
 export class Gate {
 	static cooldown = 0;
-	
+
 	direction: Direction; // which way the gate moves when closing
 	openness: number;
 	playerSide: "positive" | "negative" = "positive";
@@ -31,25 +31,25 @@ export class Gate {
 		if(this.direction === "down") {
 			return new Rectangle(
 				x * WorldData.TILE_SIZE, y * WorldData.TILE_SIZE,
-				WorldData.TILE_SIZE, closedness * WorldData.TILE_SIZE
+				WorldData.TILE_SIZE, closedness * WorldData.TILE_SIZE,
 			);
 		}
 		else if(this.direction === "up") {
 			return new Rectangle(
 				x * WorldData.TILE_SIZE, (y + 1 - closedness) * WorldData.TILE_SIZE,
-				WorldData.TILE_SIZE, closedness * WorldData.TILE_SIZE
+				WorldData.TILE_SIZE, closedness * WorldData.TILE_SIZE,
 			);
 		}
 		else if(this.direction === "left") {
 			return new Rectangle(
 				(x + 1 - closedness) * WorldData.TILE_SIZE, y * WorldData.TILE_SIZE,
-				closedness * WorldData.TILE_SIZE, WorldData.TILE_SIZE
-			)
+				closedness * WorldData.TILE_SIZE, WorldData.TILE_SIZE,
+			);
 		}
 		else {
 			return new Rectangle(
 				x * WorldData.TILE_SIZE, y * WorldData.TILE_SIZE,
-				closedness * WorldData.TILE_SIZE, WorldData.TILE_SIZE
+				closedness * WorldData.TILE_SIZE, WorldData.TILE_SIZE,
 			);
 		}
 	}
@@ -65,7 +65,7 @@ export class Gate {
 			this.initialized = true;
 		}
 		this.checkPlayer(world, x, y);
-		let closed = this.openness === 0;
+		const closed = this.openness === 0;
 		this.openness = GameUtils.moveTowards(this.openness, this.open ? 1 : 0, GateData.SPEED);
 		if(!closed && this.openness === 0) {
 			world.screenShakeTimer = GateData.SCREEN_SHAKE_TIME;
@@ -106,18 +106,18 @@ export class Gate {
 			: (hitbox.right() >= (x + 1 - GateData.HITBOX_SIZE) * WorldData.TILE_SIZE && hitbox.left() <= (x + GateData.HITBOX_SIZE) * WorldData.TILE_SIZE)
 		);
 
-		
+
 		const newSide = this.getPlayerSide(world, x, y);
 		const adjacentGate = world.tiles.get(Vector.unit(
 			(Directions.isVertical(this.direction))
-			? (newSide === "negative" ? "left" : "right")
-			: (newSide === "negative" ? "up" : "down")
+				? (newSide === "negative" ? "left" : "right")
+				: (newSide === "negative" ? "up" : "down"),
 		).add(x, y)) instanceof Gate;
 		if(newSide !== this.playerSide && sameRowOrColumn && Gate.cooldown <= 0 && !adjacentGate) {
 			Gate.toggleAll(world);
 			Gate.cooldown = 1 / GateData.SPEED;
 		}
-		this.playerSide  = newSide;
+		this.playerSide = newSide;
 	}
 	static toggleAll(world: World) {
 		for(const tile of world.tiles.values()) {

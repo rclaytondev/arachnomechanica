@@ -1,7 +1,6 @@
-import { canvasIO, CanvasIO } from "../utils-ts/modules/CanvasIO.mjs";
+import { CanvasIO } from "../utils-ts/modules/CanvasIO.mjs";
 import { Diagonal, Direction, Directions } from "../utils-ts/modules/geometry/Direction.mjs";
 import { Vector } from "../utils-ts/modules/geometry/Vector.mjs";
-import { Grid } from "../utils-ts/modules/Grid.mjs";
 import { Room, RoomTile } from "./level-generator/Room.mjs";
 import { DEBUG_SETTINGS } from "./constants/DebugSettings.mjs";
 import { Gate } from "./tiles/Gate.mjs";
@@ -129,6 +128,7 @@ export class RoomEditor {
 		const index = ROOMS.indexOf(this.room);
 		if(index < ROOMS.length - 1) {
 			this.loadRoom(ROOMS[index + 1]);
+			// eslint-disable-next-line no-console
 			console.log(`loaded room ${index + 1} (${ROOMS[index + 1].name}) in the editor`);
 		}
 	}
@@ -136,14 +136,15 @@ export class RoomEditor {
 		const index = ROOMS.indexOf(this.room);
 		if(index > 0) {
 			this.loadRoom(ROOMS[index - 1]);
+			// eslint-disable-next-line no-console
 			console.log(`loaded room ${index - 1} (${ROOMS[index - 1].name}) in the editor`);
 		}
 	}
 
 	display(canvasIO: CanvasIO) {
 		this.world.display(
-			canvasIO, 
-			new Rectangle(0, 0, canvasIO.canvas.width / WorldData.TILE_SIZE, canvasIO.canvas.height / WorldData.TILE_SIZE)
+			canvasIO,
+			new Rectangle(0, 0, canvasIO.canvas.width / WorldData.TILE_SIZE, canvasIO.canvas.height / WorldData.TILE_SIZE),
 		);
 		this.displayHoveredTile(canvasIO);
 		this.displayExits(canvasIO);
@@ -151,7 +152,7 @@ export class RoomEditor {
 		this.displayInfo(canvasIO);
 	}
 
-	
+
 	displayHoveredTile(canvasIO: CanvasIO) {
 		const position = this.world.getTileCoordinates(canvasIO.mouse.position).multiply(WorldData.TILE_SIZE);
 		canvasIO.ctx.strokeStyle = DEBUG_SETTINGS.HOVERED_TILE_COLOR;
@@ -161,7 +162,7 @@ export class RoomEditor {
 		canvasIO.drawArrow(
 			position.add(1/2, 1/2).multiply(WorldData.TILE_SIZE),
 			WorldData.TILE_SIZE / 3,
-			direction
+			direction,
 		);
 	}
 	displayExits(canvasIO: CanvasIO) {
@@ -217,6 +218,7 @@ export class RoomEditor {
 			}
 		}
 		result += "],";
+		// eslint-disable-next-line no-console
 		console.log(result);
 	}
 }

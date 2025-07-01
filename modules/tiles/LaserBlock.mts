@@ -1,30 +1,27 @@
 import { CanvasIO } from "../../utils-ts/modules/CanvasIO.mjs";
-import { Directions } from "../../utils-ts/modules/geometry/Direction.mjs";
 import { Rectangle } from "../../utils-ts/modules/geometry/Rectangle.mjs";
 import { Vector } from "../../utils-ts/modules/geometry/Vector.mjs";
-import { MathUtils } from "../../utils-ts/modules/math/MathUtils.mjs";
 import { LaserBlockData, WorldData } from "../constants/GameData.mjs";
 import { GameUtils } from "../game-utilities/GameUtils.mjs";
 import { frameCount } from "../Main.js";
 import { Particle } from "../game-utilities/Particle.mjs";
 import { World } from "../World";
-import { Gate } from "./Gate.mjs";
 
 export class LaserBlock {
 	static glowLineGradient = GameUtils.glowLineGradient(
 		0, 0, 0, -LaserBlockData.LASER_GLOW_SIZE,
-		LaserBlockData.LASER_GLOW_INTENSITY, 
-		LaserBlockData.LASER_COLOR.red, LaserBlockData.LASER_COLOR.green, LaserBlockData.LASER_COLOR.blue
+		LaserBlockData.LASER_GLOW_INTENSITY,
+		LaserBlockData.LASER_COLOR.red, LaserBlockData.LASER_COLOR.green, LaserBlockData.LASER_COLOR.blue,
 	);
 	static glowLineGradient2 = GameUtils.glowLineGradient(
 		0, 0, 0, LaserBlockData.LASER_GLOW_SIZE,
-		LaserBlockData.LASER_GLOW_INTENSITY, 
-		LaserBlockData.LASER_COLOR.red, LaserBlockData.LASER_COLOR.green, LaserBlockData.LASER_COLOR.blue
+		LaserBlockData.LASER_GLOW_INTENSITY,
+		LaserBlockData.LASER_COLOR.red, LaserBlockData.LASER_COLOR.green, LaserBlockData.LASER_COLOR.blue,
 	);
 	static circleGradient = GameUtils.glowCircleGradient(
 		0, 0,
 		LaserBlockData.LASER_GLOW_SIZE, LaserBlockData.LASER_GLOW_INTENSITY,
-		LaserBlockData.LASER_COLOR.red, LaserBlockData.LASER_COLOR.green, LaserBlockData.LASER_COLOR.blue
+		LaserBlockData.LASER_COLOR.red, LaserBlockData.LASER_COLOR.green, LaserBlockData.LASER_COLOR.blue,
 	);
 
 	lasers: number;
@@ -47,7 +44,7 @@ export class LaserBlock {
 		canvasIO.ctx.fillStyle = LaserBlockData.COLOR;
 		canvasIO.ctx.fillRect(x * WorldData.TILE_SIZE, y * WorldData.TILE_SIZE, WorldData.TILE_SIZE, WorldData.TILE_SIZE);
 	}
-	displayLasers(canvasIO: CanvasIO, x: number, y: number, world: World) {
+	displayLasers(canvasIO: CanvasIO, x: number, y: number) {
 		canvasIO.ctx.lineWidth = LaserBlockData.LASER_THICKNESS;
 		const center = new Vector(x + 1/2, y + 1/2).multiply(WorldData.TILE_SIZE);
 		for(const [i, angle] of this.angles().entries()) {
@@ -60,10 +57,9 @@ export class LaserBlock {
 			canvasIO.ctx.restore();
 		}
 	}
-	displayLaserGlow(canvasIO: CanvasIO, x: number, y: number, world: World) {
+	displayLaserGlow(canvasIO: CanvasIO, x: number, y: number) {
 		const center = new Vector(x + 1/2, y + 1/2).multiply(WorldData.TILE_SIZE);
 		for(const [i, angle] of this.angles().entries()) {
-			const direction = new Vector(Math.cos(angle), Math.sin(angle));
 			const distance = this.lengths[i];
 			canvasIO.ctx.save();
 			canvasIO.ctx.translate(center.x, center.y);
@@ -87,14 +83,14 @@ export class LaserBlock {
 			canvasIO.strokeLine(
 				center.x, center.y,
 				center.x + direction.x * LaserBlockData.BARREL_LENGTH,
-				center.y + direction.y * LaserBlockData.BARREL_LENGTH
-			)
+				center.y + direction.y * LaserBlockData.BARREL_LENGTH,
+			);
 		}
 	}
 
 	update(world: World, x: number, y: number, canvasIO: CanvasIO) {
 		this.angle += this.speed;
-		
+
 		const player = world.player.physicsObject.hitbox();
 		for(const [i, direction] of this.directions().entries()) {
 			const length = this.endpointDistance(new Vector(x, y), direction, world, canvasIO.boundingBox());
@@ -108,7 +104,7 @@ export class LaserBlock {
 						GameUtils.random(-LaserBlockData.PARTICLE_SPEED, LaserBlockData.PARTICLE_SPEED),
 						GameUtils.random(-LaserBlockData.PARTICLE_SPEED, LaserBlockData.PARTICLE_SPEED),
 					),
-					LaserBlockData.PARTICLE_INFO
+					LaserBlockData.PARTICLE_INFO,
 				), canvasIO);
 			}
 			if(this.intersectsBox(new Vector(x, y), direction, player, length)) {
@@ -135,7 +131,7 @@ export class LaserBlock {
 		const onscreenPosition = position.add(1/2, 1/2).multiply(WorldData.TILE_SIZE);
 		return GameUtils.rayIntersectsRectangle(
 			onscreenPosition, direction,
-			box
+			box,
 		) < length;
 	}
 	endpointDistance(position: Vector, direction: Vector, world: World, screenSize: Rectangle) {
@@ -159,7 +155,7 @@ export class LaserBlock {
 			position,
 			player.subtract(center),
 			world.player.physicsObject.hitbox(),
-			distance
+			distance,
 		);
 		world.tiles.set(position, previousTile);
 		return result;

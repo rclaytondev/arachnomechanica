@@ -1,4 +1,4 @@
-import { canvasIO, CanvasIO } from "../../utils-ts/modules/CanvasIO.mjs";
+import { CanvasIO } from "../../utils-ts/modules/CanvasIO.mjs";
 import { Direction, Directions } from "../../utils-ts/modules/geometry/Direction.mjs";
 import { Vector } from "../../utils-ts/modules/geometry/Vector.mjs";
 import { MathUtils } from "../../utils-ts/modules/math/MathUtils.mjs";
@@ -6,10 +6,9 @@ import { Utils } from "../../utils-ts/modules/Utils.mjs";
 import { GameUtils } from "../game-utilities/GameUtils.mjs";
 import { DEBUG_SETTINGS } from "../constants/DebugSettings.mjs";
 import { Tile, World } from "../World.js";
-import { frameCount } from "../Main.js";
 import { Rectangle } from "../../utils-ts/modules/geometry/Rectangle.mjs";
 import { Gate } from "../tiles/Gate.mjs";
-import { Particle, ParticleSettings } from "../game-utilities/Particle.mjs";
+import { Particle } from "../game-utilities/Particle.mjs";
 import { LizardData, WorldData } from "../constants/GameData.mjs";
 import { LaserBlock } from "../tiles/LaserBlock.mjs";
 import { SpikeballBlock } from "../tiles/SpikeballBlock.mjs";
@@ -92,7 +91,7 @@ export class Lizard {
 				distanceBefore,
 				distanceBefore + LizardData.LEG_ROTATION_START,
 				GameUtils.diagonalAngle(directionBefore, previousDirection),
-				angleBefore
+				angleBefore,
 			);
 		}
 		else if(distance > distanceAfter - LizardData.LEG_ROTATION_END && jointAfter !== "tail") {
@@ -101,7 +100,7 @@ export class Lizard {
 				distanceAfter - LizardData.LEG_ROTATION_END,
 				distanceAfter,
 				angleBefore,
-				GameUtils.diagonalAngle(directionBefore, jointAfter.direction)
+				GameUtils.diagonalAngle(directionBefore, jointAfter.direction),
 			);
 		}
 		else {
@@ -199,8 +198,8 @@ export class Lizard {
 	updateMouth() {
 		if(this.waitingTimer < 0) {
 			this.mouthAngle = GameUtils.moveTowards(
-				this.mouthAngle, this.mouthDestination, 
-				(this.mouthAngle < this.mouthDestination) ? LizardData.MOUTH_SPEED_OPENING : LizardData.MOUTH_SPEED_CLOSING
+				this.mouthAngle, this.mouthDestination,
+				(this.mouthAngle < this.mouthDestination) ? LizardData.MOUTH_SPEED_OPENING : LizardData.MOUTH_SPEED_CLOSING,
 			);
 		}
 		if(this.mouthAngle <= 0) { this.mouthDestination = LizardData.MAX_MOUTH_ANGLE; }
@@ -222,7 +221,7 @@ export class Lizard {
 			else if(!obstructedClockwise && obstructedCounterclockwise) {
 				this.turn(clockwise);
 			}
-			else if(!obstructedCounterclockwise && obstructedClockwise)  {
+			else if(!obstructedCounterclockwise && obstructedClockwise) {
 				this.turn(counterclockwise);
 			}
 			else {
@@ -263,7 +262,7 @@ export class Lizard {
 	updateHeadAngle() {
 		const minValue = Utils.minValue(
 			[this.headAngle, this.headAngle - 2 * Math.PI, this.headAngle + 2 * Math.PI],
-			angle => MathUtils.dist(angle, this.targetHeadAngle)
+			angle => MathUtils.dist(angle, this.targetHeadAngle),
 		);
 		this.headAngle = GameUtils.moveTowards(minValue, this.targetHeadAngle, LizardData.HEAD_ROTATION_SPEED);
 
@@ -276,13 +275,13 @@ export class Lizard {
 		if(Directions.isHorizontal(this.direction)) {
 			return new Vector(
 				speed * (this.direction === "left" ? -1 : 1),
-				crossSpeed
+				crossSpeed,
 			);
 		}
 		else {
 			return new Vector(
 				crossSpeed,
-				speed * (this.direction === "up" ?  -1 : 1)
+				speed * (this.direction === "up" ? -1 : 1),
 			);
 		}
 	}
@@ -305,25 +304,25 @@ export class Lizard {
 		if(this.direction === "left") {
 			return new Rectangle(
 				this.position.x - size - LizardData.HURTBOX_OFFSET, this.position.y - LizardData.HURTBOX_WIDTH / 2,
-				Math.max(0, size - LizardData.HURTBOX_OFFSET), LizardData.HURTBOX_WIDTH
+				Math.max(0, size - LizardData.HURTBOX_OFFSET), LizardData.HURTBOX_WIDTH,
 			);
 		}
 		else if(this.direction === "right") {
 			return new Rectangle(
 				this.position.x + LizardData.HURTBOX_OFFSET, this.position.y - LizardData.HURTBOX_WIDTH / 2,
-				Math.max(0, size - LizardData.HURTBOX_OFFSET), LizardData.HURTBOX_WIDTH
+				Math.max(0, size - LizardData.HURTBOX_OFFSET), LizardData.HURTBOX_WIDTH,
 			);
 		}
 		else if(this.direction === "up") {
 			return new Rectangle(
 				this.position.x - LizardData.HURTBOX_WIDTH / 2, this.position.y - size - LizardData.HURTBOX_OFFSET,
-				LizardData.HURTBOX_WIDTH, Math.max(0, size - LizardData.HURTBOX_OFFSET)
+				LizardData.HURTBOX_WIDTH, Math.max(0, size - LizardData.HURTBOX_OFFSET),
 			);
 		}
 		else {
 			return new Rectangle(
 				this.position.x - LizardData.HURTBOX_WIDTH / 2, this.position.y + LizardData.HURTBOX_OFFSET,
-				LizardData.HURTBOX_WIDTH, Math.max(0,size - LizardData.HURTBOX_OFFSET)
+				LizardData.HURTBOX_WIDTH, Math.max(0,size - LizardData.HURTBOX_OFFSET),
 			);
 		}
 	}
@@ -364,16 +363,16 @@ export class Lizard {
 			player.bottom() > this.position.y - LizardData.PLAYER_DETECTION_WIDTH / 2 &&
 			player.top() < this.position.y + LizardData.PLAYER_DETECTION_WIDTH / 2 &&
 			!this.isObstructed(
-				world, xDirection, LizardData.LOOKAHEAD_DISTANCE, 
-				Math.min(MathUtils.dist(lookaheadPoint.x, player.left()), MathUtils.dist(lookaheadPoint.x, player.right()))
+				world, xDirection, LizardData.LOOKAHEAD_DISTANCE,
+				Math.min(MathUtils.dist(lookaheadPoint.x, player.left()), MathUtils.dist(lookaheadPoint.x, player.right())),
 			)
 		) { nextTurn = xDirection; }
 		else if(
-			player.right() > this.position.x - LizardData.PLAYER_DETECTION_WIDTH / 2 && 
+			player.right() > this.position.x - LizardData.PLAYER_DETECTION_WIDTH / 2 &&
 			player.left() < this.position.x + LizardData.PLAYER_DETECTION_WIDTH / 2 &&
 			!this.isObstructed(
 				world, yDirection, LizardData.LOOKAHEAD_DISTANCE,
-				Math.min(MathUtils.dist(lookaheadPoint.y, player.top()), MathUtils.dist(lookaheadPoint.y, player.bottom()))
+				Math.min(MathUtils.dist(lookaheadPoint.y, player.top()), MathUtils.dist(lookaheadPoint.y, player.bottom())),
 			)
 		) { nextTurn = yDirection; }
 		if(nextTurn !== null && nextTurn !== Directions.opposite[this.direction]) {
@@ -392,7 +391,7 @@ export class Lizard {
 			this.nextTurn = null;
 		}
 	}
-	startFire(duration: number = LizardData.FIRE_DURATION) {
+	startFire() {
 		if(this.fireTimer < 0) {
 			this.hurtboxSize = 0;
 		}
@@ -431,7 +430,6 @@ export class Lizard {
 	}
 	damage(rectangle: Rectangle) {
 		const length = this.roundedLengthAfterDamage(rectangle);;
-		if(length < (LizardData.MIN_LENGTH + 1/2) * WorldData.TILE_SIZE) { debugger; }
 		this.roundedLengthAfterDamage(rectangle);
 		if(length < (LizardData.MIN_LENGTH + 1/2) * WorldData.TILE_SIZE) {
 			this.dead = true;
@@ -450,13 +448,13 @@ export class Lizard {
 		if(Directions.isHorizontal(direction)) {
 			return new Rectangle(
 				point.x - (direction === "left" ? length : 0), point.y - LizardData.LOOKAHEAD_WIDTH / 2,
-				length, LizardData.LOOKAHEAD_WIDTH
+				length, LizardData.LOOKAHEAD_WIDTH,
 			);
 		}
 		else {
 			return new Rectangle(
 				point.x - LizardData.LOOKAHEAD_WIDTH / 2, point.y - (direction === "up" ? length : 0),
-				LizardData.LOOKAHEAD_WIDTH, length
+				LizardData.LOOKAHEAD_WIDTH, length,
 			);
 		}
 	}
@@ -476,15 +474,15 @@ export class Lizard {
 		}
 		return false;
 	}
-	getPointOnBody(distance: number): [Vector, Direction, Joint | "head",  Joint | "tail", number, number] {
+	getPointOnBody(distance: number): [Vector, Direction, Joint | "head", Joint | "tail", number, number] {
 		if(this.joints.length === 0 || distance < Vector.dist(this.position, this.joints[0].position)) {
 			return [
-				this.position.subtract(Vector.unit(this.direction).multiply(distance)), 
+				this.position.subtract(Vector.unit(this.direction).multiply(distance)),
 				this.direction,
 				"head",
 				this.joints[0] ?? "tail",
 				0,
-				this.joints.length === 0 ? this.length : Vector.dist(this.position, this.joints[0].position)
+				this.joints.length === 0 ? this.length : Vector.dist(this.position, this.joints[0].position),
 			];
 		}
 		let length = Vector.dist(this.position, this.joints[0].position);
@@ -501,7 +499,7 @@ export class Lizard {
 					joint,
 					next,
 					lastLength,
-					length
+					length,
 				];
 			}
 			lastLength = length;
@@ -513,7 +511,7 @@ export class Lizard {
 			last,
 			"tail",
 			length,
-			this.length
+			this.length,
 		];
 	}
 
@@ -523,7 +521,7 @@ export class Lizard {
 				point1.x - LizardData.HITBOX_WIDTH / 2,
 				point1.x + LizardData.HITBOX_WIDTH / 2,
 				Math.min(point1.y, point2.y) - LizardData.HITBOX_WIDTH / 2,
-				Math.max(point1.y, point2.y) + LizardData.HITBOX_WIDTH / 2
+				Math.max(point1.y, point2.y) + LizardData.HITBOX_WIDTH / 2,
 			);
 		}
 		else {
@@ -531,7 +529,7 @@ export class Lizard {
 				Math.min(point1.x, point2.x) - LizardData.HITBOX_WIDTH / 2,
 				Math.max(point1.x, point2.x) + LizardData.HITBOX_WIDTH / 2,
 				point1.y - LizardData.HITBOX_WIDTH / 2,
-				point1.y + LizardData.HITBOX_WIDTH / 2
+				point1.y + LizardData.HITBOX_WIDTH / 2,
 			);
 		}
 	}

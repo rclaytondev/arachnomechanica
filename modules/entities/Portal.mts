@@ -20,23 +20,24 @@ export class Portal {
 		}
 
 		if(world.player.physicsObject.hitbox().intersects(this.teleportHitbox())) {
+			// eslint-disable-next-line no-console
 			console.log("Portal teleportation is currently unimplemented.");
 		}
 	}
 	teleportHitbox() {
 		return new Rectangle(
 			this.position.x - PortalData.HITBOX_WIDTH / 2, this.position.y - PortalData.HITBOX_HEIGHT,
-			PortalData.HITBOX_WIDTH, PortalData.HITBOX_HEIGHT
+			PortalData.HITBOX_WIDTH, PortalData.HITBOX_HEIGHT,
 		);
 	}
 	addLine(world: World, canvasIO: CanvasIO) {
 		world.addParticle(new Particle(
 			new Vector(
 				this.position.x + GameUtils.random(-PortalData.LINE_SPAWN_WIDTH / 2, PortalData.LINE_SPAWN_WIDTH / 2),
-				this.position.y
+				this.position.y,
 			),
 			new Vector(0, -PortalData.LINE_SPEED),
-			PortalData.PARTICLE_SETTINGS
+			PortalData.PARTICLE_SETTINGS,
 		), canvasIO);
 	}
 
@@ -44,7 +45,7 @@ export class Portal {
 		canvasIO.ctx.fillStyle = PortalData.COLOR;
 		canvasIO.ctx.fillRect(
 			this.position.x - PortalData.WIDTH / 2, this.position.y - PortalData.BASE_HEIGHT,
-			PortalData.WIDTH, PortalData.BASE_HEIGHT
+			PortalData.WIDTH, PortalData.BASE_HEIGHT,
 		);
 	}
 

@@ -20,6 +20,6 @@ export const DEBUG_SETTINGS = {
 		ENABLED: false,
 		GRID_SIZE: 100,
 		BORDER_SIZE: 10,
-		GRID_COLOR: "rgb(0, 128, 255)"
+		GRID_COLOR: "rgb(0, 128, 255)",
 	},
 };

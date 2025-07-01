@@ -4,19 +4,18 @@ import { Vector } from "../../utils-ts/modules/geometry/Vector.mjs";
 import { MathUtils } from "../../utils-ts/modules/math/MathUtils.mjs";
 import { WorldData } from "../constants/GameData.mjs";
 import { GameUtils } from "../game-utilities/GameUtils.mjs";
-import { Slope, Tile, World } from "../World.js";
-import { SolidTile } from "./SolidTile.mjs";
+import { Slope, World } from "../World.js";
 
 export class TowerTile {
 	static tileGlowGradient: CanvasGradient | null = null;
 	static diagonalGlowGradient: CanvasGradient | null = null;
-	
+
 	static getTileGlowGradent() {
 		if(this.tileGlowGradient) { return this.tileGlowGradient; }
 		this.tileGlowGradient = GameUtils.glowLineGradient(
-			0, 0, 0, -WorldData.TILE_GLOW_SIZE, 
+			0, 0, 0, -WorldData.TILE_GLOW_SIZE,
 			WorldData.TILE_GLOW_INTENSITY,
-			WorldData.TILE_GLOW_COLOR.red, WorldData.TILE_GLOW_COLOR.green, WorldData.TILE_GLOW_COLOR.blue
+			WorldData.TILE_GLOW_COLOR.red, WorldData.TILE_GLOW_COLOR.green, WorldData.TILE_GLOW_COLOR.blue,
 		);
 		return this.tileGlowGradient;
 	}
@@ -25,11 +24,11 @@ export class TowerTile {
 		this.diagonalGlowGradient = GameUtils.glowCircleGradient(
 			0, 0, WorldData.TILE_GLOW_SIZE,
 			WorldData.TILE_GLOW_INTENSITY,
-			WorldData.TILE_GLOW_COLOR.red, WorldData.TILE_GLOW_COLOR.green, WorldData.TILE_GLOW_COLOR.blue
+			WorldData.TILE_GLOW_COLOR.red, WorldData.TILE_GLOW_COLOR.green, WorldData.TILE_GLOW_COLOR.blue,
 		);
 		return this.diagonalGlowGradient;
 	}
-	
+
 	static displaySlopedAccent(position: Vector, canvasIO: CanvasIO, tile: Slope, world: World) {
 		const inwardNormal = {
 			"slope-floor-left": new Vector(-1, 1),
@@ -44,7 +43,7 @@ export class TowerTile {
 			"slope-floor-left": ["left", "up"],
 			"slope-floor-right": ["down", "left"],
 			"slope-ceiling-left": ["up", "right"],
-			"slope-ceiling-right": ["right", "down"]
+			"slope-ceiling-right": ["right", "down"],
 		} as const)[tile];
 		const distance1 = this.getSlopeAccentLength(position, adjacentDirection1, perpendicularDirection1, world);
 
@@ -52,11 +51,11 @@ export class TowerTile {
 			"slope-floor-left": ["down", "right"],
 			"slope-floor-right": ["right", "up"],
 			"slope-ceiling-left": ["left", "down"],
-			"slope-ceiling-right": ["up", "left"]
+			"slope-ceiling-right": ["up", "left"],
 		} as const)[tile];
 		const distance2 = this.getSlopeAccentLength(position, adjacentDirection2, perpendicularDirection2, world);
 
-		
+
 		const endpoint1 = center.add(inwardNormal.multiply(WorldData.TILE_ACCENT_INSET / Math.SQRT2)).add(tangent.normalize().multiply(distance1));
 		const endpoint2 = center.add(inwardNormal.multiply(WorldData.TILE_ACCENT_INSET / Math.SQRT2)).subtract(tangent.normalize().multiply(distance2));
 
@@ -84,7 +83,7 @@ export class TowerTile {
 			90: WorldData.TILE_SIZE / Math.SQRT2 - WorldData.TILE_ACCENT_INSET / 2,
 			135: WorldData.TILE_SIZE * Math.SQRT2 / 2,
 			180: WorldData.TILE_SIZE / Math.SQRT2 + WorldData.TILE_ACCENT_INSET * (Math.SQRT2 - 1),
-			225: WorldData.TILE_SIZE / Math.SQRT2 + WorldData.TILE_ACCENT_INSET
+			225: WorldData.TILE_SIZE / Math.SQRT2 + WorldData.TILE_ACCENT_INSET,
 		} as { [key: number]: number } )[angle] ?? defaultLength;
 	}
 	static getAccentLength(position: Vector, side: Direction, direction: Direction, world: World): number {
@@ -95,7 +94,7 @@ export class TowerTile {
 			45: WorldData.TILE_SIZE / 2 - WorldData.TILE_ACCENT_INSET * (Math.SQRT2 - 1),
 			90: WorldData.TILE_SIZE / 2,
 			135: WorldData.TILE_SIZE / 2 + WorldData.TILE_ACCENT_INSET * (Math.SQRT2 - 1),
-			180: WorldData.TILE_SIZE / 2 + WorldData.TILE_ACCENT_INSET
+			180: WorldData.TILE_SIZE / 2 + WorldData.TILE_ACCENT_INSET,
 		} as { [ key: number]: number } )[angle] ?? defaultLength;
 	}
 	static displayTileAccent(position: Vector, canvasIO: CanvasIO, world: World) {
@@ -107,14 +106,14 @@ export class TowerTile {
 		for(const side of Directions.DIRECTIONS) {
 			const adjacentTile = world.tiles.get(position.add(Vector.unit(side)));
 			if(World.isSolidOrSlope(adjacentTile, Directions.opposite[side])) { continue; }
-			
+
 			const edgeCenter = center.add(Vector.unit(side).multiply(WorldData.TILE_ACCENT_RADIUS));
 			for(const direction of [Directions.rotateClockwise[side], Directions.rotateCounterclockwise[side]] as Direction[]) {
 				const length = this.getAccentLength(position, side, direction, world);
 				canvasIO.strokeLine(
 					edgeCenter.x, edgeCenter.y,
 					edgeCenter.x + Vector.unit(direction).x * length,
-					edgeCenter.y + Vector.unit(direction).y * length
+					edgeCenter.y + Vector.unit(direction).y * length,
 				);
 			}
 		}
@@ -189,7 +188,7 @@ export class TowerTile {
 		canvasIO.ctx.globalCompositeOperation = "lighter";
 		canvasIO.ctx.fillRect(
 			-WorldData.TILE_SIZE * Math.SQRT2 / 2, -WorldData.TILE_GLOW_SIZE,
-			WorldData.TILE_SIZE * Math.SQRT2, WorldData.TILE_GLOW_SIZE
+			WorldData.TILE_SIZE * Math.SQRT2, WorldData.TILE_GLOW_SIZE,
 		);
 		canvasIO.ctx.restore();
 	}
@@ -210,7 +209,7 @@ export class TowerTile {
 			"slope-ceiling-right": [
 				["down", "right", 135, position.add(1, 1).multiply(WorldData.TILE_SIZE), false],
 				["left", "up", 135, position.multiply(WorldData.TILE_SIZE), true],
-			]
+			],
 		} as const)[slope];
 		for(const [adjacentDirection, perpendicularDirection, startAngle, corner, clockwise] of data) {
 			const angle = 45 + world.angle(position, adjacentDirection, perpendicularDirection);
@@ -221,7 +220,7 @@ export class TowerTile {
 					canvasIO,
 					MathUtils.toRadians(clockwise ? startAngle : startAngle - 45),
 					MathUtils.toRadians(clockwise ? startAngle + 45 : startAngle),
-					WorldData.TILE_GLOW_COLOR.red, WorldData.TILE_GLOW_COLOR.green, WorldData.TILE_GLOW_COLOR.blue
+					WorldData.TILE_GLOW_COLOR.red, WorldData.TILE_GLOW_COLOR.green, WorldData.TILE_GLOW_COLOR.blue,
 				);
 				GameUtils.glowArc(
 					corner.x, corner.y,
@@ -229,7 +228,7 @@ export class TowerTile {
 					canvasIO,
 					MathUtils.toRadians(clockwise ? startAngle - 90 : startAngle + 45),
 					MathUtils.toRadians(clockwise ? startAngle - 45 : startAngle + 90),
-					WorldData.TILE_GLOW_COLOR.red, WorldData.TILE_GLOW_COLOR.green, WorldData.TILE_GLOW_COLOR.blue
+					WorldData.TILE_GLOW_COLOR.red, WorldData.TILE_GLOW_COLOR.green, WorldData.TILE_GLOW_COLOR.blue,
 				);
 			}
 
@@ -241,7 +240,7 @@ export class TowerTile {
 				canvasIO,
 				clockwise ? MathUtils.toRadians(startAngle) : MathUtils.toRadians(startAngle - (angle - 180)),
 				clockwise ? MathUtils.toRadians(startAngle + (angle - 180)) : MathUtils.toRadians(startAngle),
-				WorldData.TILE_GLOW_COLOR.red, WorldData.TILE_GLOW_COLOR.green, WorldData.TILE_GLOW_COLOR.blue
+				WorldData.TILE_GLOW_COLOR.red, WorldData.TILE_GLOW_COLOR.green, WorldData.TILE_GLOW_COLOR.blue,
 			);
 		}
 
@@ -255,13 +254,13 @@ export class TowerTile {
 		TowerTile.displayTileGlow(position, canvasIO, world, [cornerSide], true);
 	}
 
-	
+
 	static slopeEdges(tile: Slope) {
 		return ({
 			"slope-floor-left": ["left", "down"],
 			"slope-floor-right": ["right", "down"],
 			"slope-ceiling-left": ["left", "up"],
-			"slope-ceiling-right": ["right", "up"]
+			"slope-ceiling-right": ["right", "up"],
 		} as const)[tile];
 	}
 }

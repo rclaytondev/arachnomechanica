@@ -1,8 +1,7 @@
 import { Vector } from "../../utils-ts/modules/geometry/Vector.mjs";
 import { ParticleSettings } from "../game-utilities/Particle.mjs";
-import { Room, Traversability } from "../level-generator/Room.mjs";
+import { Traversability } from "../level-generator/Room.mjs";
 import { GateState } from "../level-generator/GateState.mjs";
-import { World } from "../World";
 import { Rectangle } from "../../utils-ts/modules/geometry/Rectangle.mjs";
 import { Direction } from "../../utils-ts/modules/geometry/Direction.mjs";
 import { HumanoidPart } from "../entities/Humanoid.mjs";
@@ -12,7 +11,7 @@ export class WorldData {
 	static TILE_SIZE = 50;
 	static TILE_COLORS = {
 		"tower": "rgb(30, 30, 30)",
-		"stone": "rgb(59, 67, 70)"
+		"stone": "rgb(59, 67, 70)",
 	};
 	static TILE_ACCENT_COLOR = "rgb(100, 180, 255)";
 	static TILE_ACCENT_RADIUS = WorldData.TILE_SIZE * 0.35;
@@ -24,7 +23,7 @@ export class WorldData {
 	static TILE_GLOW_COLOR = {
 		red: 100,
 		green: 180,
-		blue: 255
+		blue: 255,
 	};
 
 	static PLATFORM_THICKNESS = WorldData.TILE_SIZE * 0.1;
@@ -95,7 +94,7 @@ export class RoomData {
 			new GateState(null, "up", true),
 			new GateState(null, "up", false),
 			new GateState(null, "down", true),
-			new GateState(null, "down", false)
+			new GateState(null, "down", false),
 		];
 		for(const state1 of states) {
 			for(const state2 of states.filter(s => s !== state1)) {
@@ -134,8 +133,8 @@ export class LaserBlockData {
 	static LASER_COLOR = {
 		red: 0,
 		green: 200,
-		blue: 0
-	}
+		blue: 0,
+	};
 	static LASER_THICKNESS = 5;
 	static LASER_GLOW_SIZE = 100;
 	static LASER_GLOW_INTENSITY = 0.5;
@@ -154,7 +153,7 @@ export class LaserBlockData {
 		opacityDecay: 1/120,
 		sizeDecay: 1/20,
 		glowIntensity: 1/8,
-		glowSize: 30
+		glowSize: 30,
 	};
 	static PARTICLE_SPEED = 0.1;
 
@@ -188,7 +187,7 @@ export class LizardData {
 		size: WorldData.TILE_SIZE * 0.2,
 		shape: 3,
 		glowSize: 30,
-		glowIntensity: 1/8
+		glowIntensity: 1/8,
 	};
 	static PARTICLES_PER_FRAME = 2;
 	static PARTICLE_SPEED = LizardData.SPEED + 6;
@@ -254,7 +253,7 @@ export class BackgroundData {
 	static SKY_BACKGROUND_COLORS = [
 		{ color: "rgb(30, 20, 50)", y: 0 },
 		{ color: "rgb(75, 40, 100)", y: 0.5 },
-		{ color: "rgb(50, 64, 128)", y: 1 }
+		{ color: "rgb(50, 64, 128)", y: 1 },
 	];
 	static STAR_DENSITY = 0.0001;
 	static STAR_EVENNESS = 6;
@@ -275,8 +274,8 @@ export class BackgroundData {
 			maxTeeth: 8,
 			minInnerRadius: 0.8,
 			maxInnerRadius: 0.8,
-			blur: 6
-		}
+			blur: 6,
+		},
 	];
 }
 export class SpikeballData {
@@ -285,7 +284,7 @@ export class SpikeballData {
 	static ACCENT_COLOR = {
 		red: 0,
 		green: 128,
-		blue: 128
+		blue: 128,
 	};
 	static ACCENT_THICKNESS = 2;
 	static ACCENT_RADIUS_MULTIPLIER = 0.7;
@@ -310,7 +309,7 @@ export class SpikeballData {
 		size: 1,
 		opacityDecay: 1/15,
 		rotationalVelocity: { min: -0.1, max: 0.1 },
-		gravity: 0.2
+		gravity: 0.2,
 	};
 }
 
@@ -329,10 +328,10 @@ export class SpikeballBlockData {
 			],
 			[
 				["left", "down"],
-				["right", "up"]
-			]
-		]
-	]
+				["right", "up"],
+			],
+		],
+	];
 	static BOUNCES_LEFT_BEFORE_SPAWN = 1;
 
 	static DOOR_COLOR = "rgb(50, 50, 50)";
@@ -369,7 +368,7 @@ export class PortalData {
 		solid: false,
 		rotation: Math.PI / 2,
 		opacityDecay: { min: 1/60, max: 1/40 },
-		thickness: 2
+		thickness: 2,
 	};
 }
 
@@ -414,8 +413,8 @@ export class HumanoidData {
 		new Vector(-4, 15),
 		MathUtils.toRadians(0),
 		10,
-		30
-	)
+		30,
+	);
 
 	static ARMING_CIRCLE_RADIUS = 50;
 	static ARMING_CIRCLE_Y = 0;
@@ -424,20 +423,20 @@ export class HumanoidData {
 		body: new Vector(0, HumanoidData.ARMING_CIRCLE_Y),
 		leftArm: new Vector(
 			HumanoidData.ARMING_CIRCLE_RADIUS * Math.cos(MathUtils.toRadians(90 + 360/5)),
-			HumanoidData.ARMING_CIRCLE_RADIUS * -Math.sin(MathUtils.toRadians(90 + 360/5)) + HumanoidData.ARMING_CIRCLE_Y
+			HumanoidData.ARMING_CIRCLE_RADIUS * -Math.sin(MathUtils.toRadians(90 + 360/5)) + HumanoidData.ARMING_CIRCLE_Y,
 		),
 		rightArm: new Vector(
 			HumanoidData.ARMING_CIRCLE_RADIUS * Math.cos(MathUtils.toRadians(90 - 360/5)),
-			HumanoidData.ARMING_CIRCLE_RADIUS * -Math.sin(MathUtils.toRadians(90 - 360/5)) + HumanoidData.ARMING_CIRCLE_Y
+			HumanoidData.ARMING_CIRCLE_RADIUS * -Math.sin(MathUtils.toRadians(90 - 360/5)) + HumanoidData.ARMING_CIRCLE_Y,
 		),
 		leftLeg: new Vector(
 			HumanoidData.ARMING_CIRCLE_RADIUS * Math.cos(MathUtils.toRadians(90 + 2 * 360/5)),
-			HumanoidData.ARMING_CIRCLE_RADIUS * -Math.sin(MathUtils.toRadians(90 + 2 * 360/5)) + HumanoidData.ARMING_CIRCLE_Y
+			HumanoidData.ARMING_CIRCLE_RADIUS * -Math.sin(MathUtils.toRadians(90 + 2 * 360/5)) + HumanoidData.ARMING_CIRCLE_Y,
 		),
 		rightLeg: new Vector(
 			HumanoidData.ARMING_CIRCLE_RADIUS * Math.cos(MathUtils.toRadians(90 - 2 * 360/5)),
-			HumanoidData.ARMING_CIRCLE_RADIUS * -Math.sin(MathUtils.toRadians(90 - 2 * 360/5)) + HumanoidData.ARMING_CIRCLE_Y
-		)
+			HumanoidData.ARMING_CIRCLE_RADIUS * -Math.sin(MathUtils.toRadians(90 - 2 * 360/5)) + HumanoidData.ARMING_CIRCLE_Y,
+		),
 	};
 }
 
@@ -484,7 +483,7 @@ export class SpiderData {
 		shape: 3,
 		glowSize: 30,
 		glowIntensity: 1/8,
-		sizeDecay: 0.2
+		sizeDecay: 0.2,
 	};
 	static PROJECTILE_EXPLOSION = {
 		VISUAL_RADIUS: 150,
@@ -501,7 +500,7 @@ export class SpiderData {
 		shape: 3,
 		sizeDecay: 0.3,
 		opacityDecay: { min: 0.015, max: 0.085 },
-		colorVariance: 40
+		colorVariance: 40,
 	};
 	static PROJECTILE_SPEED = 15;
 

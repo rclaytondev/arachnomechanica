@@ -6,7 +6,7 @@ type Range = { min: number, max: number };
 export type ParticleSettings = {
 	color: { red: number, green: number, blue: number };
 	size: number | Range;
-	
+
 	opacity?: number | Range;
 	opacityDecay?: number | Range;
 	shape?: "circle" | number | ((canvasIO: CanvasIO) => void);

@@ -2,7 +2,7 @@ import { CanvasIO } from "../utils-ts/modules/CanvasIO.mjs";
 import { Rectangle } from "../utils-ts/modules/geometry/Rectangle.mjs";
 import { Vector } from "../utils-ts/modules/geometry/Vector.mjs";
 import { MathUtils } from "../utils-ts/modules/math/MathUtils.mjs";
-import { PlayerData, WorldData } from "./constants/GameData.mjs";
+import { PlayerData } from "./constants/GameData.mjs";
 import { Spikeball } from "./entities/Spikeball.mjs";
 import { GameUtils } from "./game-utilities/GameUtils.mjs";
 import { PhysicsObject } from "./game-utilities/PhysicsObject.mjs";
@@ -10,8 +10,8 @@ import { Entity, Tile, World } from "./World.js";
 
 export class Player {
 	physicsObject: PhysicsObject = new PhysicsObject(
-		new Vector(0, -50), 
-		new Rectangle(0, 0, PlayerData.HITBOX_WIDTH, PlayerData.HITBOX_HEIGHT)
+		new Vector(0, -50),
+		new Rectangle(0, 0, PlayerData.HITBOX_WIDTH, PlayerData.HITBOX_HEIGHT),
 	);
 	hasDoubleJump: boolean = false;
 	dead: boolean = false;
@@ -35,7 +35,7 @@ export class Player {
 		canvasIO.ctx.fillRect(
 			PlayerData.ENERGY_BAR.x, PlayerData.ENERGY_BAR.y,
 			this.energy / PlayerData.MAX_ENERGY * PlayerData.ENERGY_BAR.width,
-			PlayerData.ENERGY_BAR.height
+			PlayerData.ENERGY_BAR.height,
 		);
 	}
 
@@ -77,7 +77,7 @@ export class Player {
 			const directionX = canvasIO.keys.ArrowLeft ? -1 : (canvasIO.keys.ArrowRight ? 1 : 0);
 			const directionY = canvasIO.keys.ArrowUp ? -1 : (canvasIO.keys.ArrowDown ? 1 : 0);
 			if(directionX !== 0 || directionY !== 0) {
-				this.teleport(new Vector(directionX, directionY), world, canvasIO);
+				this.teleport(new Vector(directionX, directionY), world);
 				this.energy -= PlayerData.TELEPORT_COST;
 			}
 		}
@@ -89,7 +89,7 @@ export class Player {
 		this.dead = true;
 	}
 
-	teleport(direction: Vector, world: World, canvasIO: CanvasIO) {
+	teleport(direction: Vector, world: World) {
 		let box = this.physicsObject.hitbox();
 		while(!world.isInSolid(box)) {
 			box = box.translate(direction);

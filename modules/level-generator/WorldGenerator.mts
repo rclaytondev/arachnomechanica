@@ -97,10 +97,10 @@ export class WorldGenerator {
 		const lessConnectiveRooms = Utils.groupBy(
 			ROOMS.filter(r => (
 				r.canSpawnWithExits(roomPlaceholder.exits)
-				&& Room.connectivity(r.traversability, roomPlaceholder.exits) < connectivity)
+				&& Room.connectivity(r.traversability, roomPlaceholder.exits) < connectivity),
 			),
-			r => Room.connectivity(r.traversability, roomPlaceholder.exits)
-		)
+			r => Room.connectivity(r.traversability, roomPlaceholder.exits),
+		);
 		while(lessConnectiveRooms.size > 0) {
 			const room = Utils.randomItem(lessConnectiveRooms.get(Math.min(...lessConnectiveRooms.keys()))!);
 			roomPlaceholder.room = room;
@@ -109,7 +109,7 @@ export class WorldGenerator {
 				const group = lessConnectiveRooms.get(connectedness)!;
 				lessConnectiveRooms.set(connectedness, group.filter(r => !Utils.isSubset(
 					Room.filterTraversability(r.traversability, roomPlaceholder.exits).map(s => `${s.end}, ${s.start}`),
-					Room.filterTraversability(room.traversability, roomPlaceholder.exits).map(s => `${s.end}, ${s.start}`)
+					Room.filterTraversability(room.traversability, roomPlaceholder.exits).map(s => `${s.end}, ${s.start}`),
 				)));
 				if(lessConnectiveRooms.get(connectedness)!.length === 0) {
 					lessConnectiveRooms.delete(connectedness);
@@ -163,7 +163,7 @@ export class WorldGenerator {
 			(position) => position instanceof Vector ? this.rooms.get(position)!.exits
 				.map(e => position.add(Vector.unit(e)))
 				.map(p => this.isInChunk(p) ? p : this.directionFromChunk(p)) : [],
-			v => v.toString()
+			v => v.toString(),
 		);
 		return reachable.length >= LevelGeneratorData.CHUNK_SIZE ** 2 + 4;
 	}
@@ -175,7 +175,7 @@ export class WorldGenerator {
 			const reachable = GameUtils.reachableNodes(
 				startState,
 				(state) => this.neighbors(state, backwards).filter(n => this.isEdgeInChunk(n.position!, n.exit)),
-				v => v.normalize().toString(true)
+				v => v.normalize().toString(true),
 			);
 			if(reachable.length < edges * 2) {
 				return false;
@@ -190,12 +190,12 @@ export class WorldGenerator {
 		const result = [];
 		const positions = [
 			state.position,
-			state.position.add(Vector.unit(state.exit))
+			state.position.add(Vector.unit(state.exit)),
 		];
 		for(const position of positions) {
 			const room = this.rooms.get(position);
 			if(!room) { continue; }
-			for(let { start, end } of room.room.traversability) {
+			for(const { start, end } of room.room.traversability) {
 				if(!room.exits.includes(start.exit) || !room.exits.includes(end.exit)) { continue; }
 				if(!backwards && start.translate(position).equals(state)) {
 					result.push(end.translate(position));
@@ -209,12 +209,12 @@ export class WorldGenerator {
 	}
 	connectedEdges(chunkPosition: Vector = this.currentChunk) {
 		return this.edgesInChunk(chunkPosition).filter(
-			({ position, direction }) => this.rooms.get(position)?.exits.includes(direction)
+			({ position, direction }) => this.rooms.get(position)?.exits.includes(direction),
 		);
 	}
 	unconnectedEdges(chunkPosition: Vector = this.currentChunk) {
 		return this.edgesInChunk(chunkPosition).filter(
-			({ position, direction }) => !(this.rooms.get(position)?.exits.includes(direction))
+			({ position, direction }) => !(this.rooms.get(position)?.exits.includes(direction)),
 		);
 	}
 
@@ -290,6 +290,7 @@ export class WorldGenerator {
 			canvasIO.strokeLine(i, 0, i, canvasIO.canvas.height);
 		}
 		if(pauseDebugger) {
+			// eslint-disable-next-line no-debugger
 			debugger;
 		}
 	}
@@ -320,7 +321,7 @@ export class WorldGenerator {
 			position.x + DEBUG_SETTINGS.GENERATOR_VISUALIZATION.GRID_SIZE - DEBUG_SETTINGS.GENERATOR_VISUALIZATION.BORDER_SIZE,
 			position.y + DEBUG_SETTINGS.GENERATOR_VISUALIZATION.GRID_SIZE - DEBUG_SETTINGS.GENERATOR_VISUALIZATION.BORDER_SIZE,
 			DEBUG_SETTINGS.GENERATOR_VISUALIZATION.BORDER_SIZE,
-			DEBUG_SETTINGS.GENERATOR_VISUALIZATION.BORDER_SIZE
+			DEBUG_SETTINGS.GENERATOR_VISUALIZATION.BORDER_SIZE,
 		);
 	}
 	visualizeRoom(canvasIO: CanvasIO, roomPlaceholder: RoomPlaceholder, position: Vector) {
@@ -337,8 +338,8 @@ export class WorldGenerator {
 			canvasIO.fillSquare(
 				DEBUG_SETTINGS.GENERATOR_VISUALIZATION.GRID_SIZE * (position.x + tilePosition.x / RoomData.SIZE),
 				DEBUG_SETTINGS.GENERATOR_VISUALIZATION.GRID_SIZE * (position.y + tilePosition.y / RoomData.SIZE),
-				DEBUG_SETTINGS.GENERATOR_VISUALIZATION.GRID_SIZE / RoomData.SIZE
-			)
+				DEBUG_SETTINGS.GENERATOR_VISUALIZATION.GRID_SIZE / RoomData.SIZE,
+			);
 		}
 	}
 }

@@ -1,6 +1,5 @@
 import { Direction } from "../../utils-ts/modules/geometry/Direction.mjs";
 import { Vector } from "../../utils-ts/modules/geometry/Vector.mjs";
-import { Grid } from "../../utils-ts/modules/Grid.mjs";
 import { RoomData } from "../constants/GameData.mjs";
 import { GateState } from "./GateState.mjs";
 import { Room } from "./Room.mjs";
@@ -80,7 +79,7 @@ export class Rooms {
 				],
 				[
 				],
-				() => true
+				() => true,
 			),
 			new Room(
 				"empty-room",
@@ -160,7 +159,7 @@ export class Rooms {
 				],
 				[
 				],
-				(exits: Direction[]) => !exits.includes("up") && !exits.includes("down")
+				(exits: Direction[]) => !exits.includes("up") && !exits.includes("down"),
 			),
 			new Room(
 				"platform-over-pit",
@@ -265,7 +264,7 @@ export class Rooms {
 					{ x: 8, y: 3, direction: "up" },
 				],
 				[],
-				(exits: Direction[]) => exits.includes("down") && !exits.includes("up")
+				(exits: Direction[]) => exits.includes("down") && !exits.includes("up"),
 			),
 			new Room(
 				"vertical-chute",
@@ -372,7 +371,7 @@ export class Rooms {
 				],
 				[
 				],
-				(exits: Direction[]) => exits.includes("up") && exits.includes("down") && !exits.includes("right")
+				(exits: Direction[]) => exits.includes("up") && exits.includes("down") && !exits.includes("right"),
 			),
 			new Room(
 				"hallway-gates",
@@ -485,11 +484,11 @@ export class Rooms {
 				(exits: Direction[]) => exits.includes("left") && exits.includes("right") && !exits.includes("up") && !exits.includes("down"),
 				[
 					...Room.gatePath("left", "right", true),
-					...Room.gatePath("left", "right", false)
-				]
+					...Room.gatePath("left", "right", false),
+				],
 			),
 			new Room(
-				"tunnels", 
+				"tunnels",
 				[
 					{ x: 0, y: 0, type: "solid" },
 					{ x: 1, y: 0, type: "solid" },
@@ -555,10 +554,10 @@ export class Rooms {
 					{ x: 7, y: 0, direction: "up" },
 				],
 				[],
-				(exits: Direction[]) => !exits.includes("up") && !exits.includes("down")
+				(exits: Direction[]) => !exits.includes("up") && !exits.includes("down"),
 			),
 			new Room(
-				"tunnels-2", 
+				"tunnels-2",
 				[
 					{ x: 0, y: 0, type: "solid" },
 					{ x: 1, y: 0, type: "solid" },
@@ -632,7 +631,7 @@ export class Rooms {
 					{ x: 8, y: 11, direction: "down" },
 				],
 				[],
-				() => true
+				() => true,
 			),
 			new Room(
 				"tunnels-and-gates",
@@ -713,8 +712,8 @@ export class Rooms {
 				Room.getTraversability([
 					...Room.gatePath("left", "right", true),
 					...Room.gatePath("left", "right", false),
-					...Room.doubleGatePath("right", "left")
-				])
+					...Room.doubleGatePath("right", "left"),
+				]),
 			),
 			new Room(
 				"vertical-gate-contraption",
@@ -803,7 +802,7 @@ export class Rooms {
 					...Room.onewayGatelessPath("down", "up"),
 					...Room.gatePath("up", "up", false),
 					...Room.doubleGatePath("up", "down"),
-		]		)
+				]		),
 			),
 			new Room(
 				"the-maze",
@@ -901,7 +900,7 @@ export class Rooms {
 				],
 				[
 				],
-				(exits: Direction[]) => exits.includes("up") && exits.includes("right") && !exits.includes("left")
+				(exits: Direction[]) => exits.includes("up") && exits.includes("right") && !exits.includes("left"),
 			),
 			new Room(
 				"gate-contraption",
@@ -1010,8 +1009,8 @@ export class Rooms {
 					...Room.onewayGatelessPath("down", "left"),
 					...Room.gatePath("up", "up", false),
 					...Room.gatePath("up", "right", true),
-					...Room.gatePath("up", "left", true)
-				])
+					...Room.gatePath("up", "left", true),
+				]),
 			),
 			new Room(
 				"the-tomb",
@@ -1108,8 +1107,8 @@ export class Rooms {
 					...Room.gatelessPath("left", "right"),
 					...Room.onewayGatelessPath("down", "left"),
 					...Room.gatePath("down", "left", true),
-					...Room.gatePath("up", "left", false)
-				])
+					...Room.gatePath("up", "left", false),
+				]),
 			),
 			new Room(
 				// This particular room is very important for level generation because it is maximally connected.
@@ -1209,7 +1208,7 @@ export class Rooms {
 				[
 				],
 				() => true,
-				RoomData.ALL_TRAVERSABILITY
+				RoomData.ALL_TRAVERSABILITY,
 			),
 			new Room(
 				"gate-hallway",
@@ -1340,7 +1339,7 @@ export class Rooms {
 				[
 				],
 				(exits: Direction[]) => exits.includes("left") && exits.includes("right") && !exits.includes("up") && !exits.includes("down"),
-				Room.gatePath("left", "right", true)
+				Room.gatePath("left", "right", true),
 			),
 			new Room(
 				"partial-control-room",
@@ -1448,8 +1447,8 @@ export class Rooms {
 					...Room.onewayGatelessPath("up", "left"),
 					...Room.gatelessPath("left", "right"),
 					...Room.gatelessPath("left", "down"),
-					...Room.gatePath("left", "left", false)
-				])
+					...Room.gatePath("left", "left", false),
+				]),
 			),
 			new Room(
 				"gate-junction",
@@ -1589,7 +1588,7 @@ export class Rooms {
 					{ start: new GateState(null, "up", false), end: new GateState(null, "right", false) },
 					{ start: new GateState(null, "up", false), end: new GateState(null, "left", false) },
 					{ start: new GateState(null, "up", false), end: new GateState(null, "down", false) },
-				]
+				],
 			),
 			new Room(
 				"sloped-gate-junction",
@@ -1730,7 +1729,7 @@ export class Rooms {
 					{ start: new GateState(null, "up", false), end: new GateState(null, "right", false) },
 					{ start: new GateState(null, "up", false), end: new GateState(null, "left", false) },
 					{ start: new GateState(null, "up", false), end: new GateState(null, "down", false) },
-				]
+				],
 			),
 			new Room(
 				"vertical-gate",
@@ -1847,8 +1846,8 @@ export class Rooms {
 				(exits: Direction[]) => exits.includes("up") && exits.includes("down") && !exits.includes("right"),
 				Room.getTraversability([
 					...Room.gatelessPath("left", "down"),
-					...Room.gatePath("down", "up", true)
-				])
+					...Room.gatePath("down", "up", true),
+				]),
 			),
 			new Room(
 				"diagonal-connectors",
@@ -1970,7 +1969,7 @@ export class Rooms {
 				[
 					...Room.gatelessPath("left", "up"),
 					...Room.gatelessPath("right", "down"),
-				]
+				],
 			),
 			new Room(
 				"half-junction",
@@ -2127,8 +2126,8 @@ export class Rooms {
 				Room.getTraversability([
 					...Room.gatelessPath("up", "down"),
 					...Room.gatePath("left", "down", true),
-					...Room.gatePath("right", "down", true)
-				])
+					...Room.gatePath("right", "down", true),
+				]),
 			),
 			new Room(
 				"gate-contraption-simplified",
@@ -2248,12 +2247,12 @@ export class Rooms {
 				],
 				[
 				],
-				(exits: Direction[])  => exits.includes("left") && exits.includes("right") && exits.includes("up"),
+				(exits: Direction[]) => exits.includes("left") && exits.includes("right") && exits.includes("up"),
 				Room.getTraversability([
 					...Room.onewayGatelessPath("down", "up"),
-					...Room.gatePath("left", "up",  true),
-					...Room.gatePath("right", "up",  true)
-				])
+					...Room.gatePath("left", "up", true),
+					...Room.gatePath("right", "up", true),
+				]),
 			),
 			new Room(
 				"small-gate-junction",
@@ -2411,7 +2410,7 @@ export class Rooms {
 
 					{ start: new GateState(null, "up", false), end: new GateState(null, "right", false) },
 					{ start: new GateState(null, "up", false), end: new GateState(null, "left", false) },
-				]
+				],
 			),
 			new Room(
 				"small-gate-junction-with-slopes",
@@ -2576,7 +2575,7 @@ export class Rooms {
 
 					{ start: new GateState(null, "up", false), end: new GateState(null, "right", false) },
 					{ start: new GateState(null, "up", false), end: new GateState(null, "left", false) },
-				]
+				],
 			),
 			new Room(
 				"control-room-junction-2",
@@ -2675,7 +2674,7 @@ export class Rooms {
 				[
 				],
 				() => true,
-				RoomData.ALL_TRAVERSABILITY
+				RoomData.ALL_TRAVERSABILITY,
 			),
 			new Room(
 				"two-double-gate-hallways",
@@ -2788,7 +2787,7 @@ export class Rooms {
 					...Room.doubleGatePath("left", "right"),
 					...Room.gatePath("left", "up", false),
 					...Room.gatePath("right", "up", true),
-				])
+				]),
 			),
 			new Room(
 				"double-gate-hallway",
@@ -2926,7 +2925,7 @@ export class Rooms {
 				],
 				[],
 				(exits: Direction[]) => exits.includes("left") && exits.includes("right") && !exits.includes("up") && !exits.includes("down"),
-				Room.doubleGatePath("left", "right")
+				Room.doubleGatePath("left", "right"),
 			),
 			new Room(
 				"elevator",
@@ -3069,8 +3068,8 @@ export class Rooms {
 				Room.getTraversability([
 					...Room.gatelessPath("left", "right"),
 					...Room.gatePath("left", "up",true),
-					...Room.doubleGatePath("down", "left")
-				])
+					...Room.doubleGatePath("down", "left"),
+				]),
 			),
 			new Room(
 				"elevator-asymmetrical",
@@ -3213,8 +3212,8 @@ export class Rooms {
 				Room.getTraversability([
 					...Room.gatePath("left", "down", true),
 					...Room.gatePath("left", "right", false),
-					...Room.gatePath("right", "up", true)
-				])
+					...Room.gatePath("right", "up", true),
+				]),
 			),
 			new Room(
 				"tunnels-3",
@@ -3346,8 +3345,8 @@ export class Rooms {
 					...Room.onewayGatelessPath("right", "up"),
 					...Room.onewayGatelessPath("down", "up"),
 					...Room.onewayGatelessPath("up", "left"),
-					...Room.gatePath("left", "down", false)
-				])
+					...Room.gatePath("left", "down", false),
+				]),
 			),
 			new Room(
 				"five-platforms",
@@ -3422,7 +3421,7 @@ export class Rooms {
 				[
 				],
 				(exits: Direction[]) => exits.includes("up"),
-				RoomData.NO_GATE_TRAVERSABILITY
+				RoomData.NO_GATE_TRAVERSABILITY,
 			),
 			new Room(
 				"two-platforms-asymmetrical",
@@ -3493,7 +3492,7 @@ export class Rooms {
 				[
 				],
 				(exits: Direction[]) => exits.includes("up"),
-				RoomData.NO_GATE_TRAVERSABILITY
+				RoomData.NO_GATE_TRAVERSABILITY,
 			),
 			new Room(
 				"control-room-junction-3",
@@ -3573,8 +3572,8 @@ export class Rooms {
 				],
 				[
 				],
-				(exits: Direction[]) => true,
-				RoomData.ALL_TRAVERSABILITY
+				() => true,
+				RoomData.ALL_TRAVERSABILITY,
 			),
 			new Room(
 				"control-room-T-junction",
@@ -3677,7 +3676,7 @@ export class Rooms {
 				[],
 				(exits: Direction[]) => !exits.includes("up") && exits.length >= 2,
 				RoomData.ALL_TRAVERSABILITY,
-				3
+				3,
 			),
 			new Room(
 				"comb",
@@ -3755,8 +3754,8 @@ export class Rooms {
 				],
 				[
 				],
-				(exits: Direction[]) => true,
-				RoomData.NO_GATE_TRAVERSABILITY
+				() => true,
+				RoomData.NO_GATE_TRAVERSABILITY,
 			),
 			new Room(
 				"gate-platforms",
@@ -3884,7 +3883,7 @@ export class Rooms {
 					{ start: new GateState(null, "up", true), end: new GateState(null, "down", true) },
 					{ start: new GateState(null, "up", false), end: new GateState(null, "down", false) },
 					{ start: new GateState(null, "down", true), end: new GateState(null, "up", true) },
-				]
+				],
 			),
 			new Room(
 				"funnel",
@@ -3970,7 +3969,7 @@ export class Rooms {
 				],
 				[
 				],
-				(exits: Direction[]) => exits.includes("up") && exits.includes("down")
+				(exits: Direction[]) => exits.includes("up") && exits.includes("down"),
 			),
 			new Room(
 				"two-platforms-asymmetrical-2",
@@ -4065,7 +4064,7 @@ export class Rooms {
 				],
 				[
 				],
-				(exits: Direction[]) => exits.length >= 2 && exits.includes("up")
+				(exits: Direction[]) => exits.length >= 2 && exits.includes("up"),
 			),
 			new Room(
 				"one-platform",
@@ -4134,7 +4133,7 @@ export class Rooms {
 					{ x: 7, y: 11, direction: "down" },
 				],
 				[],
-				(exits: Direction[]) => !exits.includes("up")
+				(exits: Direction[]) => !exits.includes("up"),
 			),
 			new Room(
 				"wide-vertical-room",
@@ -4225,7 +4224,7 @@ export class Rooms {
 				],
 				[
 				],
-				(exits: Direction[]) => !exits.includes("left")
+				(exits: Direction[]) => !exits.includes("left"),
 			),
 			new Room(
 				"hallway-and-empty",
@@ -4335,13 +4334,13 @@ export class Rooms {
 				(exits: Direction[]) => exits.includes("up") && exits.includes("left") && !exits.includes("down"),
 				Room.getTraversability([
 					...Room.gatelessPath("left", "up"),
-					{ start: new GateState(null, "right", false), end: new GateState(null, "left", true) }
-				])
+					{ start: new GateState(null, "right", false), end: new GateState(null, "left", true) },
+				]),
 			),
 			new Room(
 				"level-exit",
 				[
-				{ x: 0, y: 0, type: "solid" },
+					{ x: 0, y: 0, type: "solid" },
 					{ x: 11, y: 0, type: "solid" },
 					{ x: 0, y: 11, type: "solid" },
 					{ x: 11, y: 11, type: "solid" },
@@ -4442,7 +4441,7 @@ export class Rooms {
 					new Portal(new Vector(300,350)),
 				],
 				(exits: Direction[]) => !exits.includes("up"),
-				RoomData.NO_GATE_TRAVERSABILITY
+				RoomData.NO_GATE_TRAVERSABILITY,
 			),
 			new Room(
 				"two-slanted-platforms",
@@ -4515,7 +4514,7 @@ export class Rooms {
 					{ x: 6, y: 11, direction: "down" },
 				],
 				[],
-				(exits: Direction[]) => (exits.includes("left") || exits.includes("right")) && !exits.includes("up")
+				(exits: Direction[]) => (exits.includes("left") || exits.includes("right")) && !exits.includes("up"),
 			),
 			new Room(
 				"platform-with-edges",
@@ -4601,8 +4600,8 @@ export class Rooms {
 				(exits: Direction[]) => !exits.includes("down") && exits.length >= 2,
 				Room.getTraversability([
 					...Room.gatelessPath("left", "right"),
-					...Room.onewayGatelessPath("left", "up")
-				])
+					...Room.onewayGatelessPath("left", "up"),
+				]),
 			),
 			new Room(
 				"diagonal",
@@ -4682,12 +4681,12 @@ export class Rooms {
 				],
 				[
 				],
-				(exits: Direction[]) => true,
+				() => true,
 				Room.getTraversability([
 					...Room.gatelessPath("left", "right"),
 					...Room.gatelessPath("left", "down"),
-					...Room.onewayGatelessPath("up", "left")
-				])
+					...Room.onewayGatelessPath("up", "left"),
+				]),
 			),
 			new Room(
 				"totem-pole",
@@ -4769,7 +4768,7 @@ export class Rooms {
 				],
 				[
 				],
-				(exits: Direction[]) => !exits.includes("down")
+				(exits: Direction[]) => !exits.includes("down"),
 			),
 			new Room(
 				"asymmetrical-half-junction",
@@ -4856,7 +4855,7 @@ export class Rooms {
 					...Room.gatelessPath("up", "right"),
 					...Room.gatelessPath("right", "down"),
 					...Room.gatePath("up", "down", true),
-				])
+				]),
 			),
 			new Room(
 				"vertical-gate-2",
@@ -4966,7 +4965,7 @@ export class Rooms {
 				],
 				[
 				],
-				(exits: Direction[]) => exits.includes("up") && !exits.includes("left") && exits.includes("right")
+				(exits: Direction[]) => exits.includes("up") && !exits.includes("left") && exits.includes("right"),
 			),
 			new Room(
 				"vertical-gates",
@@ -5053,8 +5052,8 @@ export class Rooms {
 				Room.getTraversability([
 					...Room.gatePath("up", "down", true),
 					...Room.gatePath("up", "down", false),
-					...Room.doubleGatePath("up", "down")
-				])
+					...Room.doubleGatePath("up", "down"),
+				]),
 			),
 			new Room(
 				"one-way-vertical-shaft",
@@ -5153,8 +5152,8 @@ export class Rooms {
 				[
 				],
 				(exits: Direction[]) => exits.includes("up") && exits.includes("down") && !exits.includes("left") && !exits.includes("right"),
-				Room.onewayGatelessPath("up", "down")
-			)
+				Room.onewayGatelessPath("up", "down"),
+			),
 		];
 	}
 }

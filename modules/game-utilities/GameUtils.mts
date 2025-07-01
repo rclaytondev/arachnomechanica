@@ -40,7 +40,7 @@ export class GameUtils {
 		/* As `value` moves from `min1` to `max1`, the output will move from `min2` to `max2`, taking the shorter path around the circle. */
 		const closest = Utils.minValue(
 			[max2, max2 + 2 * Math.PI, max2 - 2 * Math.PI],
-			n => MathUtils.dist(min2, n)
+			n => MathUtils.dist(min2, n),
 		);
 		return GameUtils.lerp(value, min1, max1, min2, closest);
 	}
@@ -49,7 +49,7 @@ export class GameUtils {
 		target = MathUtils.generalizedModulo(target, 2 * Math.PI);
 		const closest = Utils.minValue(
 			[target, target + 2 * Math.PI, target - 2 * Math.PI],
-			n => MathUtils.dist(angle, n)
+			n => MathUtils.dist(angle, n),
 		);
 		return GameUtils.moveTowards(angle, closest, speed);
 	}
@@ -65,13 +65,13 @@ export class GameUtils {
 		return Utils.minValue([
 			num2 - num1,
 			num2 + modulo - num1,
-			num2 - modulo - num1
+			num2 - modulo - num1,
 		], Math.abs);
 	}
 	static toroidalDistance(point1: Vector, point2: Vector, width: number, height: number = width) {
 		return Math.sqrt(
 			GameUtils.signedModularDistance(point1.x, point2.x, width) ** 2
-			+ GameUtils.signedModularDistance(point1.y, point2.y, height) ** 2
+			+ GameUtils.signedModularDistance(point1.y, point2.y, height) ** 2,
 		);
 	}
 	static taxicabDistance(point1: Vector, point2: Vector) {
@@ -148,15 +148,15 @@ export class GameUtils {
 			else {
 				result.push(Utils.maxValue(
 					candidates,
-					point => Utils.minOutput(previous, p => options.metric(point, p)))
+					point => Utils.minOutput(previous, p => options.metric(point, p))),
 				);
 			}
 		}
 		return result;
 	}
-	
+
 	static hexColor(red: number, green: number, blue: number, alpha: number) {
-		return "#" + red.toString(16).padStart(2, "0") + green.toString(16).padStart(2, "0") + blue.toString(16).padStart(2, "0") + alpha.toString(16).padStart(2, "0");
+		return `#${red.toString(16).padStart(2, "0")}${green.toString(16).padStart(2, "0")}${blue.toString(16).padStart(2, "0")}${alpha.toString(16).padStart(2, "0")}`;
 	}
 	static glowCircle(x: number, y: number, size: number, intensity: number, canvasIO: CanvasIO, red: number = 255, green: number = 255, blue: number = 255) {
 		const gradient = GameUtils.glowCircleGradient(x, y, size, intensity, red, green, blue);
@@ -199,7 +199,7 @@ export class GameUtils {
 			generate: () => GameUtils.random(0, 2 * Math.PI),
 			metric: MathUtils.dist,
 			amount: pieces - 1,
-			trials: angleEvenness
+			trials: angleEvenness,
 		}).sort((a, b) => a - b);
 
 		for(const [i, angle] of [0, ...angles, 2 * Math.PI].entries()) {
@@ -244,7 +244,7 @@ export class GameUtils {
 			GameUtils.rayIntersectsHSegment(rayStart, rayDirection, rectangle.top(), rectangle.left(), rectangle.right()),
 			GameUtils.rayIntersectsHSegment(rayStart, rayDirection, rectangle.bottom(), rectangle.left(), rectangle.right()),
 			GameUtils.rayIntersectsVSegment(rayStart, rayDirection, rectangle.left(), rectangle.top(), rectangle.bottom()),
-			GameUtils.rayIntersectsVSegment(rayStart, rayDirection, rectangle.right(), rectangle.top(), rectangle.bottom())
+			GameUtils.rayIntersectsVSegment(rayStart, rayDirection, rectangle.right(), rectangle.top(), rectangle.bottom()),
 		);
 	}
 	static rayIntersectsSegment(rayStart: Vector, rayDirection: Vector, endpoint1: Vector, endpoint2: Vector) {

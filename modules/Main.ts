@@ -1,23 +1,15 @@
 import { CanvasIO, canvasIO } from "../utils-ts/modules/CanvasIO.mjs";
 import { Vector } from "../utils-ts/modules/geometry/Vector.mjs";
 import { DEBUG_SETTINGS } from "./constants/DebugSettings.mjs";
-import { LaserBlockData, LizardData, PlayerData, RoomData, SpikeballBlockData } from "./constants/GameData.mjs";
-import { Lizard } from "./entities/Lizard.js";
+import {PlayerData, RoomData } from "./constants/GameData.mjs";
 import { GameUtils } from "./game-utilities/GameUtils.mjs";
 import { Room } from "./level-generator/Room.mjs";
 import { RoomEditor } from "./RoomEditor.mjs";
 import { Rooms, ROOMS } from "./level-generator/Rooms.mjs";
-import { Gate } from "./tiles/Gate.mjs";
 import { World } from "./World.js";
-import { LaserBlock } from "./tiles/LaserBlock.mjs";
-import { Spikeball } from "./entities/Spikeball.mjs";
-import { SpikeballBlock } from "./tiles/SpikeballBlock.mjs";
 import { Rectangle } from "../utils-ts/modules/geometry/Rectangle.mjs";
-import { Portal } from "./entities/Portal.mjs";
-import { Humanoid } from "./entities/Humanoid.mjs";
 import { SolidTile } from "./tiles/SolidTile.mjs";
-import { WorldGenerator } from "./level-generator/WorldGenerator.mjs";
-import { PointOnSurface, Spider, SpiderProjectile, Surface } from "./entities/Spider.mjs";
+import { PointOnSurface, Spider, Surface } from "./entities/Spider.mjs";
 
 const recordedRNG: number[] = [];
 let rngOverrideIndex = 0;
@@ -76,6 +68,7 @@ export class Main {
 
 		Object.assign(GameUtils.pastKeys, canvasIO.keys);
 		if(DEBUG_SETTINGS.PRINT_RNG_KEY !== null && canvasIO.keys[DEBUG_SETTINGS.PRINT_RNG_KEY]) {
+			// eslint-disable-next-line no-console
 			console.log(recordedRNG.join(", "));
 		}
 		Main.updateFading();
@@ -113,16 +106,20 @@ if(Main.screen instanceof RoomEditor) {
 	if(!room) {
 		throw new Error(`Room "${DEBUG_SETTINGS.EDITOR_ROOM}" does not exist.`);
 	}
+	// eslint-disable-next-line no-console
 	console.log(`loaded room ${room.name} in the editor`);
 	Main.screen = new RoomEditor(room);
 }
 
 if(DEBUG_SETTINGS.GENERATOR_VISUALIZATION.ENABLED && Main.screen instanceof World) {
+	// eslint-disable-next-line no-console
 	console.time("generating chunk");
 	const debugWorld = new World(false);
 	debugWorld.worldGenerator.generateChunk(new Vector(0, 0), debugWorld);
 	debugWorld.worldGenerator.visualize(canvasIO!, false);
+	// eslint-disable-next-line no-console
 	console.timeEnd("generating chunk");
+	// eslint-disable-next-line no-debugger
 	debugger;
 }
 

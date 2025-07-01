@@ -1,5 +1,5 @@
 import { CanvasIO } from "../utils-ts/modules/CanvasIO.mjs";
-import { Diagonal, Direction, Directions } from "../utils-ts/modules/geometry/Direction.mjs";
+import { Direction, Directions } from "../utils-ts/modules/geometry/Direction.mjs";
 import { Rectangle } from "../utils-ts/modules/geometry/Rectangle.mjs";
 import { Vector } from "../utils-ts/modules/geometry/Vector.mjs";
 import { Grid } from "../utils-ts/modules/Grid.mjs";
@@ -8,7 +8,6 @@ import { Main } from "./Main.js";
 import { DEBUG_SETTINGS } from "./constants/DebugSettings.mjs";
 import { Particle } from "./game-utilities/Particle.mjs";
 import { Player } from "./Player.mjs";
-import { Room } from "./level-generator/Room.mjs";
 import { Gate } from "./tiles/Gate.mjs";
 import { GearsBackground } from "./backgrounds/GearsBackground.mjs";
 import { SkyBackground } from "./backgrounds/SkyBackground.mjs";
@@ -46,7 +45,7 @@ export class World {
 	screenShakeIntensity: number = 0;
 	camera: Vector = new Vector(0, 0);
 	levels: number = 0;
-	
+
 	worldGenerator: WorldGenerator = new WorldGenerator();
 	enableGeneration: boolean;
 	entitySpawner: EntitySpawner = new EntitySpawner();
@@ -71,7 +70,7 @@ export class World {
 			}
 		}
 		const tile = Utils.randomItem(emptyTiles);
-		this.player.physicsObject.positionInt = tile.multiply(WorldData.TILE_SIZE)
+		this.player.physicsObject.positionInt = tile.multiply(WorldData.TILE_SIZE);
 		this.camera = this.player.physicsObject.hitbox().center();
 	}
 
@@ -121,7 +120,7 @@ export class World {
 			Math.floor(center.x - (canvasIO.canvas.width / 2 / WorldData.TILE_SIZE)),
 			Math.ceil(center.x + (canvasIO.canvas.width / 2 / WorldData.TILE_SIZE)),
 			Math.floor(center.y - (canvasIO.canvas.height / 2 / WorldData.TILE_SIZE)),
-			Math.ceil(center.y + (canvasIO.canvas.height / 2 / WorldData.TILE_SIZE))
+			Math.ceil(center.y + (canvasIO.canvas.height / 2 / WorldData.TILE_SIZE)),
 		);
 	}
 	displayGlowEffects(canvasIO: CanvasIO, visibleRegion: Rectangle) {
@@ -144,7 +143,7 @@ export class World {
 		}
 		for(const { tile, position } of this.tileEntities) {
 			if(tile instanceof LaserBlock) {
-				tile.displayLaserGlow(canvasIO, position.x, position.y, this);
+				tile.displayLaserGlow(canvasIO, position.x, position.y);
 			}
 			else if(tile instanceof SpikeballBlock) {
 				tile.displayGlow(canvasIO, position.x, position.y);
@@ -168,7 +167,7 @@ export class World {
 	displayLasers(canvasIO: CanvasIO) {
 		for(const { tile, position } of this.tileEntities) {
 			if(tile instanceof LaserBlock) {
-				tile.displayLasers(canvasIO, position.x, position.y, this);
+				tile.displayLasers(canvasIO, position.x, position.y);
 			}
 		}
 	}
@@ -185,7 +184,7 @@ export class World {
 					canvasIO.ctx.fillRect(
 						x * WorldData.TILE_SIZE,
 						y * WorldData.TILE_SIZE,
-						WorldData.TILE_SIZE, WorldData.PLATFORM_THICKNESS
+						WorldData.TILE_SIZE, WorldData.PLATFORM_THICKNESS,
 					);
 				}
 				else if(typeof tile !== "string" && "display" in tile && !(tile instanceof LaserBlock)) {
@@ -299,15 +298,14 @@ export class World {
 	}
 	getTileCoordinates(onscreenPosition: Vector) {
 		return new Vector(
-			Math.floor(onscreenPosition.x / WorldData.TILE_SIZE), 
-			Math.floor(onscreenPosition.y / WorldData.TILE_SIZE)
+			Math.floor(onscreenPosition.x / WorldData.TILE_SIZE),
+			Math.floor(onscreenPosition.y / WorldData.TILE_SIZE),
 		);
 	}
 	getTileAt(onscreenPosition: Vector) {
 		return this.tiles.get(this.getTileCoordinates(onscreenPosition));
 	}
 	*getTilesAt(rectangle: Rectangle) {
-		const tiles = [];
 		const left = this.getTileX(rectangle.left());
 		const right = this.getTileX(rectangle.right() - 1);
 		const top = this.getTileY(rectangle.top());
@@ -347,11 +345,11 @@ export class World {
 			"slope-floor-right": "bottom-right",
 			"slope-floor-left": "bottom-left",
 			"slope-ceiling-right": "bottom-right",
-			"slope-ceiling-left": "bottom-left"
+			"slope-ceiling-left": "bottom-left",
 		} as const)[slope]);
 		const position = new Vector(
 			(slope === "slope-floor-left" || slope === "slope-ceiling-left") ? Math.ceil(corner.x / WorldData.TILE_SIZE) - 1 : Math.floor(corner.x / WorldData.TILE_SIZE),
-			Math.ceil(corner.y / WorldData.TILE_SIZE) - 1
+			Math.ceil(corner.y / WorldData.TILE_SIZE) - 1,
 		);
 		const tile = this.tiles.get(position);
 		return tile instanceof SolidTile && tile.shape === slope && this.slopeIntersectionDistance(rectangle, position, slope) === 0;
@@ -419,7 +417,7 @@ export class World {
 		const bottom = this.camera.y + screenSize.height / 2;
 		return Math.min(
 			GameUtils.rayIntersectsVSegment(position, direction, direction.x >= 0 ? right : left, top, bottom),
-			GameUtils.rayIntersectsHSegment(position, direction, direction.y >= 0 ? bottom : top, left, right)
+			GameUtils.rayIntersectsHSegment(position, direction, direction.y >= 0 ? bottom : top, left, right),
 		);
 	}
 	slopeLineIntersectionDistance(position: Vector, direction: Vector, tilePosition: Vector) {
@@ -444,12 +442,12 @@ export class World {
 			const distance = GameUtils.rayIntersectsVertical(
 				position,
 				direction,
-				x * WorldData.TILE_SIZE
+				x * WorldData.TILE_SIZE,
 			);
 			const intersection = position.add(direction.multiply(distance));
 			const slopeIntersection = this.slopeLineIntersectionDistance(
 				position, direction,
-				new Vector(x + (direction.x >= 0 ? -1 : 0), Math.floor(intersection.y / WorldData.TILE_SIZE))
+				new Vector(x + (direction.x >= 0 ? -1 : 0), Math.floor(intersection.y / WorldData.TILE_SIZE)),
 			);
 			result = Math.min(result, slopeIntersection);
 			if(this.isBoundarySolid(intersection, direction.x >= 0 ? "right" : "left", ignoredTiles)) {
@@ -463,12 +461,12 @@ export class World {
 			const distance = GameUtils.rayIntersectsHorizontal(
 				position,
 				direction,
-				y * WorldData.TILE_SIZE
+				y * WorldData.TILE_SIZE,
 			);
 			const intersection = position.add(direction.multiply(distance));
 			const slopeIntersection = this.slopeLineIntersectionDistance(
 				position, direction,
-				new Vector(Math.floor(intersection.x / WorldData.TILE_SIZE), y + (direction.y >= 0 ? -1 : 0))
+				new Vector(Math.floor(intersection.x / WorldData.TILE_SIZE), y + (direction.y >= 0 ? -1 : 0)),
 			);
 			result = Math.min(result, slopeIntersection);
 			if(this.isBoundarySolid(intersection, direction.y >= 0 ? "down" : "up", ignoredTiles)) {
@@ -492,7 +490,7 @@ export class World {
 	lineIntersectionDistance(position: Vector, direction: Vector, maxDistance: number, ignoredTiles: Tile[] = [], collides: (entity: Entity) => boolean = () => true) {
 		return Math.min(
 			this.tileIntersectionDistance(position, direction, maxDistance, ignoredTiles),
-			this.entityIntersectionDistance(position, direction, collides)
+			this.entityIntersectionDistance(position, direction, collides),
 		);
 	}
 	hasLineOfSight(position: Vector, rectangle: Rectangle, collides: (entity: Entity) => boolean) {
@@ -587,10 +585,10 @@ export class World {
 			|| World.isTileEntity(value);
 	}
 	static isSlope(value: string): value is (typeof WorldData.SLOPES)[number] {
-		return WorldData.SLOPES.includes(value  as any);
+		return (WorldData.SLOPES as readonly unknown[]).includes(value);
 	}
 	static isSlopeTile(value: unknown): value is SolidTile & { shape: Slope } {
-		return value instanceof SolidTile && WorldData.SLOPES.includes(value.shape as any);
+		return value instanceof SolidTile && (WorldData.SLOPES as readonly unknown[]).includes(value.shape);
 	}
 	static isTileEntity(value: unknown): value is TileEntity {
 		return value instanceof Gate || value instanceof LaserBlock || value instanceof SpikeballBlock;
@@ -611,7 +609,7 @@ export class World {
 				"slope-floor-left": "slope-floor-right",
 				"slope-floor-right": "slope-floor-left",
 				"slope-ceiling-left": "slope-ceiling-right",
-				"slope-ceiling-right": "slope-ceiling-left"
+				"slope-ceiling-right": "slope-ceiling-left",
 			};
 			return new SolidTile(reflections[tile.shape], tile.texture);
 		}
@@ -633,7 +631,7 @@ export class World {
 				"slope-floor-left": ["left", "down"],
 				"slope-floor-right": ["right", "down"],
 				"slope-ceiling-left": ["left", "up"],
-				"slope-ceiling-right": ["right", "up"]
+				"slope-ceiling-right": ["right", "up"],
 			} as const)[tile.shape];
 			return (edges as readonly Direction[]).includes(direction);
 		}

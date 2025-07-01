@@ -23,7 +23,7 @@ export class WorldRegion {
 	static randomFeatures(): Feature[] {
 		return GameUtils.randomPermutation([...WorldRegion.FEATURES]).slice(0, 2);
 	}
-	
+
 	constructor(position: Vector, features: Feature[]) {
 		this.position = position;
 		this.features = features;
@@ -51,12 +51,12 @@ export class EntitySpawner {
 		const points = GameUtils.randomEvenlySpaced({
 			generate: () => GameUtils.randomInRect(
 				Rectangle.square(roomPosition.x, roomPosition.y, LevelGeneratorData.REGION_CHUNK_SIZE * LevelGeneratorData.CHUNK_SIZE - 1),
-				GameUtils.randomInt
+				GameUtils.randomInt,
 			),
 			metric: Vector.dist,
 			amount: LevelGeneratorData.REGION_CHUNK_SIZE ** 2 * LevelGeneratorData.REGIONS_PER_CHUNK,
 			trials: LevelGeneratorData.REGION_EVENNESS,
-			previousPoints: regionChunk.adjacentVectors().map(v => this.regionChunks.get(v)).flatMap(r => r ? r : []).map(r => r.position)
+			previousPoints: regionChunk.adjacentVectors().map(v => this.regionChunks.get(v)).flatMap(r => r ? r : []).map(r => r.position),
 		});
 		this.regionChunks.set(regionChunk, points.map(p => new WorldRegion(p, WorldRegion.randomFeatures())));
 	}
@@ -64,13 +64,13 @@ export class EntitySpawner {
 		const rectangle = Rectangle.square(
 			chunkPosition.x * LevelGeneratorData.CHUNK_SIZE,
 			chunkPosition.y * LevelGeneratorData.CHUNK_SIZE,
-			LevelGeneratorData.CHUNK_SIZE
+			LevelGeneratorData.CHUNK_SIZE,
 		);
 		const regionChunk = chunkPosition.divide(LevelGeneratorData.REGION_CHUNK_SIZE).floor();
 		const allRegions = [regionChunk, ...regionChunk.adjacentVectors()].flatMap(v => this.regionChunks.get(v)!);
 		const regions = Utils.groupBy(
 			rectangle.squares(),
-			roomPosition  => Utils.minValue(allRegions, r => GameUtils.taxicabDistance(r.position, roomPosition))
+			roomPosition => Utils.minValue(allRegions, r => GameUtils.taxicabDistance(r.position, roomPosition)),
 		);
 		for(const [region, rooms] of regions.entries()) {
 			this.spawnEntitiesInRegion(region, rooms, world);
@@ -91,18 +91,18 @@ export class EntitySpawner {
 		}
 	}
 
-	
+
 	spawnEntitiesInRooms(amount: number, evenness: number, rooms: Vector[], requirements: ((position: Vector, world: World) => boolean)[], spawn: (position: Vector, world: World) => void, world: World) {
 		const positions = rooms.flatMap(r => Rectangle.square(r.x * RoomData.SIZE + 1, r.y * RoomData.SIZE + 1, RoomData.SIZE - 2).squares());
 		let possiblePositions = positions.filter(position => requirements.every(r => r(position, world)));
-		let spawnedPositions: Vector[] = [];
+		const spawnedPositions: Vector[] = [];
 		while(spawnedPositions.length < amount && possiblePositions.length > 0) {
 			const [position] = GameUtils.randomEvenlySpaced({
 				generate: () => Utils.randomItem(possiblePositions),
 				metric: Vector.dist,
 				amount: 1,
 				trials: evenness,
-				previousPoints: spawnedPositions
+				previousPoints: spawnedPositions,
 			});
 			spawnedPositions.push(position);
 			spawn(position, world);
@@ -161,7 +161,7 @@ export class EntitySpawner {
 		},
 		notOnFloor: (position: Vector, world: World) => {
 			return world.tiles.get(position.add(0, -1)) !== "empty";
-		}
+		},
 	};
 	spawnLasers(rooms: Vector[], world: World) {
 		this.spawnEntitiesInRooms(
@@ -173,17 +173,17 @@ export class EntitySpawner {
 				EntitySpawner.spawnRequirements.atLeast2Empty,
 				EntitySpawner.spawnRequirements.noAdjacentGates,
 				EntitySpawner.spawnRequirements.notOnFloor,
-				LaserBlock.canSpawn
+				LaserBlock.canSpawn,
 			],
 			(position, world) => {
 				world.addTile(position, new LaserBlock(
 					LaserBlockData.BEAMS_PER_BLOCK,
 					GameUtils.random(LaserBlockData.MIN_SPEED, LaserBlockData.MAX_SPEED) * (Math.random() < 0.5 ? -1 : 1),
-					GameUtils.random(0, 2 * Math.PI)
+					GameUtils.random(0, 2 * Math.PI),
 				));
 			},
-			world
-		)
+			world,
+		);
 	}
 	spawnSpikeballBlocks(rooms: Vector[], world: World) {
 		this.spawnEntitiesInRooms(
@@ -199,7 +199,7 @@ export class EntitySpawner {
 			(position: Vector, world: World) => {
 				world.addTile(position, new SpikeballBlock(Utils.randomItem(SpikeballBlockData.PATTERNS)));
 			},
-			world
+			world,
 		);
 	}
 	spawnLizards(rooms: Vector[], world: World) {
@@ -223,12 +223,12 @@ export class EntitySpawner {
 						position.add(1/2, 1/2).multiply(WorldData.TILE_SIZE),
 						direction,
 						(GameUtils.randomInt(LizardData.MIN_LENGTH, distance) + 1/2) * WorldData.TILE_SIZE,
-						LizardData.SPEED
+						LizardData.SPEED,
 					));
 				}
 			},
-			world
-		)
+			world,
+		);
 	}
 	spawnSpiders(rooms: Vector[], world: World) {
 		this.spawnEntitiesInRooms(
@@ -249,15 +249,15 @@ export class EntitySpawner {
 					"left": position,
 					"right": position.add(1, 0),
 					"up": position,
-					"down": position.add(0, 1)
+					"down": position.add(0, 1),
 				}[direction];
 				spider.basepoint = new PointOnSurface(
 					new Surface(surfacePoint, Directions.opposite[direction]),
-					WorldData.TILE_SIZE / 2
+					WorldData.TILE_SIZE / 2,
 				);
 				world.entities.push(spider);
 			},
-			world
-		)
+			world,
+		);
 	}
 }
