@@ -87,7 +87,7 @@ export class World {
 			this.player.display(canvasIO);
 		}
 		this.displayParticles(canvasIO);
-		this.displayEntities(canvasIO);
+		this.displayEntities(canvasIO, visibleRegion.scale(WorldData.TILE_SIZE));
 		this.displayTiles(canvasIO, visibleRegion);
 		this.displaytTileAccents(canvasIO, visibleRegion);
 		this.displayDebugInfo(canvasIO);
@@ -124,8 +124,9 @@ export class World {
 		);
 	}
 	displayGlowEffects(canvasIO: CanvasIO, visibleRegion: Rectangle) {
+		const entityRegion = visibleRegion.scale(WorldData.TILE_SIZE);
 		for(const entity of this.entities) {
-			if("displayGlowEffect" in entity) {
+			if("displayGlowEffect" in entity && entity.distanceFrom(entityRegion) < WorldData.GLOW_RENDER_DISTANCE) {
 				entity.displayGlowEffect(canvasIO);
 			}
 		}
@@ -142,10 +143,11 @@ export class World {
 			}
 		}
 		for(const { tile, position } of this.tileEntities) {
+			const distance = Vector.dist(position.multiply(WorldData.TILE_SIZE), this.camera);
 			if(tile instanceof LaserBlock) {
 				tile.displayLaserGlow(canvasIO, position.x, position.y);
 			}
-			else if(tile instanceof SpikeballBlock) {
+			else if(tile instanceof SpikeballBlock && distance < WorldData.GLOW_RENDER_DISTANCE) {
 				tile.displayGlow(canvasIO, position.x, position.y);
 			}
 		}
@@ -212,9 +214,11 @@ export class World {
 			}
 		}
 	}
-	displayEntities(canvasIO: CanvasIO) {
+	displayEntities(canvasIO: CanvasIO, entityRegion: Rectangle) {
 		for(const entity of this.entities) {
-			entity.display(canvasIO, this);
+			if(entity.distanceFrom(entityRegion) < WorldData.ENTITY_RENDER_DISTANCE) {
+				entity.display(canvasIO, this);
+			}
 		}
 	}
 	displayParticles(canvasIO: CanvasIO) {
@@ -244,8 +248,8 @@ export class World {
 		}
 	}
 
-	update(canvasIO: CanvasIO) {
-		this.updateEntities(canvasIO);
+	update(canvasIO: CanvasIO, visibleRegion: Rectangle = this.visibleRegion(canvasIO)) {
+		this.updateEntities(canvasIO, visibleRegion.scale(WorldData.TILE_SIZE));
 		this.player.update(this, canvasIO);
 		this.updateTiles(canvasIO);
 		this.updateParticles();
@@ -253,9 +257,11 @@ export class World {
 		this.updateCamera();
 		this.checkWorldGeneration();
 	}
-	updateEntities(canvasIO: CanvasIO) {
+	updateEntities(canvasIO: CanvasIO, entityRegion: Rectangle) {
 		for(const entity of this.entities) {
-			entity.update(this, canvasIO);
+			if(entity.distanceFrom(entityRegion) < WorldData.ENTITY_UPDATE_DISTANCE) {
+				entity.update(this, canvasIO);
+			}
 		}
 		this.entities = this.entities.filter(c => !("dead" in c) || !c.dead);
 	}

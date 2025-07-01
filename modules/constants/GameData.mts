@@ -42,6 +42,10 @@ export class WorldData {
 	static STONE_CONNECTIONS = 3;
 	static STONE_LINE_COLOR = "rgb(64, 71, 74)";
 	static STONE_LINE_THICKNESS = 10;
+
+	static ENTITY_UPDATE_DISTANCE = 2000;
+	static GLOW_RENDER_DISTANCE = 200;
+	static ENTITY_RENDER_DISTANCE = 200;
 }
 
 export class LevelGeneratorData {

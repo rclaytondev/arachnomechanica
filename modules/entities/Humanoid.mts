@@ -435,4 +435,9 @@ export class Humanoid {
 			),
 		];
 	}
+
+	distanceFrom(rectangle: Rectangle) {
+		const center = this.physicsObject.hitbox().center();
+		return rectangle.distanceTo(center);
+	}
 }

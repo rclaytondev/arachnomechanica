@@ -58,4 +58,8 @@ export class Portal {
 	copy() {
 		return new Portal(this.position.clone());
 	}
+
+	distanceFrom(rectangle: Rectangle) {
+		return rectangle.distanceTo(this.position);
+	}
 }
