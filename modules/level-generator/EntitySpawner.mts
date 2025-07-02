@@ -220,7 +220,7 @@ export class EntitySpawner {
 					}
 				}
 				if(distance >= LizardData.MIN_LENGTH) {
-					world.addEntity(new Lizard(
+					world.entities.addEntity(new Lizard(
 						position.add(1/2, 1/2).multiply(WorldData.TILE_SIZE),
 						direction,
 						(GameUtils.randomInt(LizardData.MIN_LENGTH, distance) + 1/2) * WorldData.TILE_SIZE,
@@ -256,7 +256,7 @@ export class EntitySpawner {
 					new Surface(surfacePoint, Directions.opposite[direction]),
 					WorldData.TILE_SIZE / 2,
 				);
-				world.addEntity(spider);
+				world.entities.addEntity(spider);
 			},
 			world,
 		);

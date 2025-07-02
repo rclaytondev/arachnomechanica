@@ -26,7 +26,7 @@ export class RoomEditor {
 			this.world.tiles.set(position, tile);
 		}
 		for(const entity of this.room.entities) {
-			this.world.addEntity(entity);
+			this.world.entities.addEntity(entity);
 		}
 	}
 
@@ -68,7 +68,7 @@ export class RoomEditor {
 				const portalPosition = this.getPortalPosition(position);
 				if(!this.room.entities.some(p => p.position.equals(portalPosition))) {
 					this.room.entities.push(new Portal(portalPosition));
-					this.world.addEntity(new Portal(portalPosition));
+					this.world.entities.addEntity(new Portal(portalPosition));
 				}
 			}
 			else if(this.mode === "slope" && Directions.isDiagonal(this.direction)) {
@@ -91,9 +91,9 @@ export class RoomEditor {
 			else {
 				const portalPosition = this.getPortalPosition(position);
 				this.room.entities = this.room.entities.filter(e => !e.position.equals(portalPosition));
-				for(const entity of this.world.allEntities()) {
+				for(const entity of this.world.entities.allEntities()) {
 					if(entity instanceof Portal && entity.position.equals(portalPosition)) {
-						this.world.removeEntity(entity);
+						this.world.entities.removeEntity(entity);
 					}
 				}
 			}

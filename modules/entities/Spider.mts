@@ -329,7 +329,7 @@ export class Spider {
 		const acceleration = direction.multiply(SpiderData.PROJECTILE_ACCELERATION);
 		const projectile = new SpiderProjectile(center, velocity, acceleration);
 		projectile.physicsObject.collides = (obj) => obj !== this;
-		world.addEntity(projectile);
+		world.entities.addEntity(projectile);
 	}
 
 	move(amount: number, world: World) {

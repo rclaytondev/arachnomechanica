@@ -67,7 +67,7 @@ export class Room {
 			}
 		}
 		for(const entity of this.entities) {
-			world.addEntity(entity.translate(position.multiply(WorldData.TILE_SIZE)));
+			world.entities.addEntity(entity.translate(position.multiply(WorldData.TILE_SIZE)));
 		}
 	}
 

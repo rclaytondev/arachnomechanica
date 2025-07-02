@@ -52,7 +52,7 @@ const spider = new Spider(new Vector(500, -125));
 spider.movement = "counterclockwise";
 spider.basepoint = new PointOnSurface(new Surface(new Vector(10, -1), "up"), 0);
 // spider.basepoint = new PointOnSurface(new Surface(new Vector(2, 2), "down"), 25);
-world.addEntity(spider);
+world.entities.addEntity(spider);
 
 export class Main {
 	// static screen: World | RoomEditor = new World(true).initializeGeneration();
