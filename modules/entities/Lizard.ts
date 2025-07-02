@@ -172,6 +172,7 @@ export class Lizard {
 	update(world: World, canvasIO: CanvasIO) {
 		if(this.waitingTimer < 0) {
 			this.position = this.position.add(Vector.unit(this.direction).multiply(this.speed));
+			world.entities.moveEntity(this);
 		}
 		this.waitingTimer --;
 

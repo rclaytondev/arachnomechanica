@@ -6,6 +6,7 @@ import { WorldData } from "../constants/GameData.mjs";
 import { Entity } from "./World";
 
 export class Entities {
+	positions: Map<Entity, Vector[]> = new Map();
 	entities: Grid<Set<Entity> | null> = new Grid(null);
 
 
@@ -18,16 +19,30 @@ export class Entities {
 		);
 	}
 	addEntity(entity: Entity) {
-		const positions = this.entityGridPositions(entity.boundingBox());
-		for(const position of positions.squares()) {
+		const positions = this.entityGridPositions(entity.boundingBox()).squares();
+		for(const position of positions) {
 			this.addEntityToGrid(entity, position);
 		}
+		this.positions.set(entity, positions);
+	}
+	moveEntity(entity: Entity) {
+		const positions = this.entityGridPositions(entity.boundingBox()).squares();
+		for(const position of positions) {
+			this.addEntityToGrid(entity, position);
+		}
+		for(const position of this.positions.get(entity) ?? []) {
+			if(!positions.some(p => p.equals(position))) {
+				this.removeEntityFromGrid(entity, position);
+			}
+		}
+		this.positions.set(entity, positions);
 	}
 	removeEntity(entity: Entity) {
 		const positions = this.entityGridPositions(entity.boundingBox());
 		for(const position of positions.squares()) {
 			this.removeEntityFromGrid(entity, position);
 		}
+		this.positions.delete(entity);
 	}
 	allEntities() {
 		const values = [...this.entities.values()].filter(v => v != null);

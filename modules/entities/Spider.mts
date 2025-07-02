@@ -343,6 +343,7 @@ export class Spider {
 			world,
 			() => this.switchDirection(),
 		);
+		world.entities.moveEntity(this);
 	}
 	moveBasepoint(amount: number, world: World) {
 		this.basepoint = this.basepoint!.moveAlongSurface(amount * (this.movement === "clockwise" ? 1 : -1), world);
@@ -435,6 +436,7 @@ export class SpiderProjectile {
 	update(world: World, canvasIO: CanvasIO) {
 		this.velocity = this.velocity.add(this.acceleration);
 		this.physicsObject.move(this.velocity, world, () => this.explode(world, canvasIO));
+		world.entities.moveEntity(this);
 
 		world.addParticle(new Particle(
 			this.physicsObject.hitbox().center(),

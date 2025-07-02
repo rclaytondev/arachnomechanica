@@ -106,6 +106,7 @@ export class Spikeball {
 			},
 			world,
 		);
+		world.entities.moveEntity(this);
 		if(this.bounces < 0) {
 			this.dead = true;
 			this.die(world, canvasIO);

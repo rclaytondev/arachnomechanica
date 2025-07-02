@@ -227,6 +227,7 @@ export class Humanoid {
 			this.motions = this.liftLegForStep(this.direction);
 			this.enterMode("walking");
 		}
+		world.entities.moveEntity(this);
 	}
 	walk(world: World) {
 		this.physicsObject.moveX(
