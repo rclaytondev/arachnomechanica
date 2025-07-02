@@ -378,7 +378,7 @@ export class World {
 	}
 	collidingEntities(rectangle: Rectangle, collides: (object: { x: number, y: number, tile: Tile } | Entity) => boolean = () => true) {
 		const solids = [];
-		for(const entity of this.entities.allEntities()) {
+		for(const entity of this.entities.entitiesIntersecting(rectangle)) {
 			if(collides(entity) && "hitboxes" in entity && entity.hitboxes().some(b => rectangle.intersects(b))) {
 				solids.push(entity);
 			}
@@ -580,7 +580,7 @@ export class World {
 		if(this.player.physicsObject.hitbox().intersects(hurtbox)) {
 			this.player.damage();
 		}
-		for(const entity of this.entities.allEntities()) {
+		for(const entity of this.entities.entitiesIntersecting(hurtbox)) {
 			if("damage" in entity) {
 				entity.damage(hurtbox, this, canvasIO);
 			}

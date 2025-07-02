@@ -469,7 +469,8 @@ export class Lizard {
 				World.isSlopeTile(tile)
 			) { return true; }
 		}
-		if([...world.entities.allEntities()].some(entity => "hitboxes" in entity && entity.hitboxes().some(b => b.intersects(lookaheadRectangle)))) {
+		const entities = [...world.entities.entitiesIntersecting(lookaheadRectangle)];
+		if(entities.some(entity => "hitboxes" in entity && entity.hitboxes().some(b => b.intersects(lookaheadRectangle)))) {
 			return true;
 		}
 		return false;
