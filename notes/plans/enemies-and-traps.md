@@ -1,6 +1,7 @@
 # List of Ideas
 ## Enemy Ideas
 - [x] Lizard enemy that moves in a straight line and turns left or right when it hits a wall or sees the player, and breathes fire if you're in front of it
+	- [ ] Boss idea: occasionally the player can find a room with several unlit braziers of fire. If the player lights them all (using the lizard's fire-breathing attack, or the spider's fireball, or the player's items), a giant lizard boss spawns.
 - [ ] Spider enemy that crawls along walls, floors, and ceilings, always moving in the same direction, and attacks you in some way.
 	- Idea 1: when it sees you, it shoots a projectile, and then runs away (perhaps only until its attack recharges).
 		- This idea is really good, but ideally the player should have a reason to chase after it, in order to make it running away more interesting.
@@ -50,7 +51,7 @@
 	- This would be better in an area with a moderately open layout and no toggle gates.
 - [ ] Device that launches homing rockets at you if you're nearby
 - [ ] Device that shoots a laser that moves in a straight line orthogonally and splits into two lasers in perpendicular directions when it hits a wall, up to 2 times
-- [ ] Trapped floor (mulltiple tiles wide): if you stand on it, the ceiling collapses on you (and stays on the floor when collapsed, like falling tiles in Minecraft)
+- [ ] Trapped floor (multiple tiles wide): if you stand on it, the ceiling collapses on you (and stays on the floor when collapsed, like falling tiles in Minecraft)
 
 ## Unfinished Trap Ideas
 - [ ] Liquids? (Seems hard)
@@ -66,30 +67,3 @@
 - [ ] Portals? (They're cool)
 - [ ] Ladders? (not sure... too much like Spelunky) (ok, that's dumb, ladders are just a basic concept in games)
 - [ ] Blocks such that when you step on one of them, all others extend/retract (kind of similar to gates so they should go in an area without gates)
-
-# Combining Enemies, Traps, and Locations
-Level design requirements for creatures:
-- Lizards: indoors + few other enemies
-- Spider: indoors + some space
-- Bird: lots of space
-- Walker: lots of horizontal platforms
-- Four-legged creature: lots of horizontal platforms
-- Triangle-person: lots of space + ideally indoors
-
-Grouping idea 1:
-- Tower: lizards + lasers
-- Islands: birds + triangle humanoids
-- Compound: walker + tetrapod
-- Chasm: spider + spikeballs
-- City: ???
-- Cave: ???
-
-Grouping idea 2:
-- Tower: lizards + lasers
-- Islands: birds + rocket launcher
-- Compound: humanoid + spikeballs
-- Chasm: spider
-
-Ideas:
-- They don't all have to have non-overlapping enemies / traps. It could be like when I considered making it randomly choose 2 when generating levels for the tower, except here I would only do the combinations that work well together.
-- I could have more than 2 types of things per region. The only reason that didn't work well in the tower was because I already had 2 that were very complicated and very dangerous (lizards + lasers).

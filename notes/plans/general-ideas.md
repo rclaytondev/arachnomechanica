@@ -22,6 +22,3 @@ Optional ideas:
 - **Non-random progression items?** (note that this is still compatible with random progression items):
 	- `+` This is better if I don't have many item ideas: you can unlock each one after reaching a certain point, like in Hollow Knight.
 	- `+` This allows for good control over progression.
-- **Climbing a tower?**: I came up with this idea for a reason I've now forgotten.
-	- `+` It looks cool.
-	- `-` If you can leave the tower, I feel compelled to put a unique secret area for each level you can exit from (like how you can find more advanced secret regions in Noita if you leave the main path later). But the tower is too tall: all the regions would end up being floating islands.

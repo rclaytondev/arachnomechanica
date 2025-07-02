@@ -89,6 +89,15 @@ Idea: whenever the player moves, it uses energy. When the player runs out of ene
 | Ranged Weapon                            | Maybe                 | Probably not                              | No                                                       |
 | Drill (breaks blocks)                    | Maybe                 | Probably not; definitely not if unlimited | Yes? - decrease cost                                     |
 
+
+Single-use items that can be thrown to create something in the world:
+- Items themed around fire/lasers/electricity, which could drop from enemies:
+	- Flamethrower: after being thrown, it emits fire on the left/right side when that side is obstructed by an entity or tile. Also it explodes if destroyed.
+	- Drill: after being thrown, it repeatedly destroys the block underneath it, digging downward until it stops after a certain length of time.
+	- Laser: after being placed on the ground, it flies upward a few tiles and then shoots a laser left and right once.
+- Barrier: after being thrown, it expands vertically, forming a wall that blocks off enemies from getting to you.
+- Decoy: after being thrown, enemies seek/attack the decoy instead of the player.
+
 ## Notes About Items
 - I now don't think I actually need a starting item that lets you break blocks: if the lizards softlock you, you should always be able to get out of it since that means there will be a lizard in the room and you can use them to break the walls and escape.
 - I think I will limit the player to 2 items that activate on a key press, because they can only conveniently press so many keys on their keyboard. (For example, Dead Cells has too many buttons to press conveniently, which is annoying, so I should avoid that).
