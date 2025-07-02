@@ -483,9 +483,11 @@ export class World {
 		}
 		return result;
 	}
-	entityIntersectionDistance(position: Vector, direction: Vector, collides: (entity: Entity) => boolean = () => true) {
+	entityIntersectionDistance(position: Vector, direction: Vector, collides: (entity: Entity) => boolean = () => true, maxLength: number) {
 		let result = Infinity;
-		for(const entity of this.entities.allEntities()) {
+		const furthestEndpoint = position.add(direction.multiply(maxLength));
+		const rectangle = Rectangle.fromOppositeCorners(position, furthestEndpoint);
+		for(const entity of this.entities.entitiesIntersecting(rectangle)) {
 			if(!collides(entity)) { continue; }
 			for(const hitbox of ("hitboxes" in entity) ? entity.hitboxes() : []) {
 				result = Math.min(result, GameUtils.rayIntersectsRectangle(position, direction, hitbox));
@@ -496,7 +498,7 @@ export class World {
 	lineIntersectionDistance(position: Vector, direction: Vector, maxDistance: number, ignoredTiles: Tile[] = [], collides: (entity: Entity) => boolean = () => true) {
 		return Math.min(
 			this.tileIntersectionDistance(position, direction, maxDistance, ignoredTiles),
-			this.entityIntersectionDistance(position, direction, collides),
+			this.entityIntersectionDistance(position, direction, collides, maxDistance),
 		);
 	}
 	hasLineOfSight(position: Vector, rectangle: Rectangle, collides: (entity: Entity) => boolean) {

@@ -51,6 +51,10 @@ export class Entities {
 		const values = [...this.entities.values()].filter(v => v != null);
 		return Utils.union(...values);
 	}
+	entitiesIntersecting(rectangle: Rectangle) {
+		const positions = [...this.entityGridPositions(rectangle).squares()];
+		return new Set(positions.flatMap(v => [...(this.entities.get(v) ?? [])]));
+	}
 
 	private addEntityToGrid(entity: Entity, gridSquare: Vector) {
 		const entities = this.entities.get(gridSquare);
