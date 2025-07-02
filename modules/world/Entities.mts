@@ -1,4 +1,5 @@
 import { Rectangle } from "../../utils-ts/modules/geometry/Rectangle.mjs";
+import { Vector } from "../../utils-ts/modules/geometry/Vector.mjs";
 import { Grid } from "../../utils-ts/modules/Grid.mjs";
 import { Utils } from "../../utils-ts/modules/Utils.mjs";
 import { WorldData } from "../constants/GameData.mjs";
@@ -18,30 +19,37 @@ export class Entities {
 	}
 	addEntity(entity: Entity) {
 		const positions = this.entityGridPositions(entity.boundingBox());
-		for(const position of positions.squares()){
-			const entities = this.entities.get(position);
-			if(entities) {
-				entities.add(entity);
-			}
-			else {
-				this.entities.set(position, new Set([entity]));
-			}
+		for(const position of positions.squares()) {
+			this.addEntityToGrid(entity, position);
 		}
 	}
 	removeEntity(entity: Entity) {
 		const positions = this.entityGridPositions(entity.boundingBox());
 		for(const position of positions.squares()) {
-			const entities = this.entities.get(position);
-			if(entities) {
-				entities.delete(entity);
-				if(entities.size === 0) {
-					this.entities.set(position, null);
-				}
-			}
+			this.removeEntityFromGrid(entity, position);
 		}
 	}
 	allEntities() {
 		const values = [...this.entities.values()].filter(v => v != null);
 		return Utils.union(...values);
+	}
+
+	private addEntityToGrid(entity: Entity, gridSquare: Vector) {
+		const entities = this.entities.get(gridSquare);
+		if(entities) {
+			entities.add(entity);
+		}
+		else {
+			this.entities.set(gridSquare, new Set([entity]));
+		}
+	}
+	private removeEntityFromGrid(entity: Entity, gridSquare: Vector) {
+		const entities = this.entities.get(gridSquare);
+		if(entities) {
+			entities.delete(entity);
+			if(entities.size === 0) {
+				this.entities.set(gridSquare, null);
+			}
+		}
 	}
 }
