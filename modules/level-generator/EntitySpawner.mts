@@ -21,7 +21,6 @@ export class WorldRegion {
 
 	static FEATURES = ["lizards", "spiders", "lasers", "spikeballs"] as const;
 	static randomFeatures(): Feature[] {
-		return ["spiders"];
 		return GameUtils.randomPermutation([...WorldRegion.FEATURES]).slice(0, 2);
 	}
 
