@@ -130,7 +130,7 @@ export class Gate {
 		const box = this.getPhysicsBox(x, y);
 		for(const entity of world.entities.allEntities()) {
 			if(entity instanceof Lizard) {
-				entity.damage(box);
+				entity.damage(box, world);
 			}
 		}
 	}

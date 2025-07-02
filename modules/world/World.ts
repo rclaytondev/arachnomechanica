@@ -264,11 +264,6 @@ export class World {
 				entity.update(this, canvasIO);
 			}
 		}
-		for(const entity of this.entities.allEntities()) {
-			if("dead" in entity && entity.dead) {
-				this.entities.removeEntity(entity);
-			}
-		}
 	}
 	updateTiles(canvasIO: CanvasIO) {
 		for(const { tile, position } of this.tileEntities) {

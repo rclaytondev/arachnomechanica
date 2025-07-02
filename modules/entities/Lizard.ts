@@ -30,7 +30,6 @@ export class Lizard {
 	nextTurn: Direction | null = null;
 	legPosition: number = 0;
 	legDestination: number = LizardData.LEG_MAX;
-	dead: boolean = false;
 	mouthAngle: number = 0;
 	mouthDestination: number = LizardData.MAX_MOUTH_ANGLE;
 	waitingTimer: number = -1;
@@ -429,11 +428,11 @@ export class Lizard {
 		const length = this.lengthAfterDamage(rectangle);
 		return (Math.floor(length / WorldData.TILE_SIZE - 1/2) + 1/2) * WorldData.TILE_SIZE;
 	}
-	damage(rectangle: Rectangle) {
+	damage(rectangle: Rectangle, world: World) {
 		const length = this.roundedLengthAfterDamage(rectangle);;
 		this.roundedLengthAfterDamage(rectangle);
 		if(length < (LizardData.MIN_LENGTH + 1/2) * WorldData.TILE_SIZE) {
-			this.dead = true;
+			world.entities.removeEntity(this);
 		}
 		else {
 			this.length = length;

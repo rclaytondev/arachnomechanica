@@ -26,6 +26,9 @@ export class Entities {
 		this.positions.set(entity, positions);
 	}
 	moveEntity(entity: Entity) {
+		if(!this.positions.has(entity)) {
+			return;
+		}
 		const positions = this.entityGridPositions(entity.boundingBox()).squares();
 		for(const position of positions) {
 			this.addEntityToGrid(entity, position);

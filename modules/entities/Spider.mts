@@ -190,7 +190,6 @@ export class Spider {
 	movement: "clockwise" | "counterclockwise" = "clockwise";
 	basepoint: PointOnSurface | null = null;
 	angle: number = 0;
-	dead: boolean = false;
 	hasProjectile: boolean = true;
 
 	legs: SpiderLeg[];
@@ -393,11 +392,8 @@ export class Spider {
 	damage(hurtbox: Rectangle, world: World, canvasIO: CanvasIO) {
 		if(!hurtbox.intersects(this.physicsObject.hitbox())) { return; }
 
-		const deadBefore = this.dead;
-		this.dead = true;
-		if(!deadBefore) {
-			this.explode(world, canvasIO);
-		}
+		world.entities.removeEntity(this);
+		this.explode(world, canvasIO);
 	}
 	explode(world: World, canvasIO: CanvasIO) {
 		const center = this.physicsObject.hitbox().center();
@@ -425,7 +421,6 @@ export class SpiderProjectile {
 	physicsObject: PhysicsObject;
 	velocity: Vector;
 	acceleration: Vector;
-	dead: boolean = false;
 
 	constructor(position: Vector, velocity: Vector, acceleration: Vector) {
 		this.physicsObject = new PhysicsObject(position.floor(), Rectangle.square(0, 0, 1));
@@ -452,8 +447,7 @@ export class SpiderProjectile {
 	display() { }
 
 	explode(world: World, canvasIO: CanvasIO) {
-		this.dead = true;
-
+		world.entities.removeEntity(this);
 		world.screenShakeTimer = SpiderData.PROJECTILE_EXPLOSION.SCREEN_SHAKE_TIME;
 		world.screenShakeIntensity = SpiderData.PROJECTILE_EXPLOSION.SCREEN_SHAKE_INTENSITY;
 

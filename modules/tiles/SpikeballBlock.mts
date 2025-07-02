@@ -93,7 +93,6 @@ export class SpikeballBlock {
 			this.timeUntilSpawn = SpikeballBlockData.SPAWN_FREQUENCY;
 			this.timeSinceSpawn = 0;
 		}
-		this.spikeballs = this.spikeballs.filter(s => !s.dead);
 
 
 		for(const xDirection of ["left", "right"] as const) {

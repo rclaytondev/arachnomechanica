@@ -17,7 +17,6 @@ export class Spikeball {
 	ignoredTiles: Vector[] = [];
 	age: number = 0;
 	bounces: number = SpikeballData.BOUNCES;
-	dead: boolean = false;
 
 	constructor(position: Vector, velocity: Vector) {
 		this.physicsObject = new PhysicsObject(
@@ -108,7 +107,7 @@ export class Spikeball {
 		);
 		world.entities.moveEntity(this);
 		if(this.bounces < 0) {
-			this.dead = true;
+			world.entities.removeEntity(this);
 			this.die(world, canvasIO);
 		}
 		this.angle += SpikeballData.ROTATION_SPEED;
