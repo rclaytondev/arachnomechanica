@@ -91,6 +91,15 @@ export class LaserBlock {
 	update(world: World, x: number, y: number, canvasIO: CanvasIO) {
 		this.angle += this.speed;
 
+		if(world.visibleRegion(canvasIO).distanceTo(new Vector(x, y)) * WorldData.TILE_SIZE < LaserBlockData.UPDATE_DISTANCE) {
+			this.updateLengths(world, x, y, canvasIO);
+		}
+
+		if(canvasIO.keys.KeyZ && !GameUtils.pastKeys.KeyZ) {
+			this.speed = -this.speed;
+		}
+	}
+	updateLengths(world: World, x: number, y: number, canvasIO: CanvasIO) {
 		const player = world.player.physicsObject.hitbox();
 		for(const [i, direction] of this.directions().entries()) {
 			const length = this.endpointDistance(new Vector(x, y), direction, world, canvasIO.boundingBox());
@@ -110,10 +119,6 @@ export class LaserBlock {
 			if(this.intersectsBox(new Vector(x, y), direction, player, length)) {
 				world.player.damage();
 			}
-		}
-
-		if(canvasIO.keys.KeyZ && !GameUtils.pastKeys.KeyZ) {
-			this.speed = -this.speed;
 		}
 	}
 

@@ -172,6 +172,8 @@ export class LaserBlockData {
 	static MAX_SPEED = 0.01;
 	static MAX_LENGTH = 300;
 	static BEAMS_PER_BLOCK = 2;
+
+	static UPDATE_DISTANCE = LaserBlockData.MAX_LENGTH + (LaserBlockData.MAX_LENGTH / LaserBlockData.LASER_LINEAR_SPEED) * PlayerData.MAX_X_VELOCITY;
 }
 
 export class LizardData {
