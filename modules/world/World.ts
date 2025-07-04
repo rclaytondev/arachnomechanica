@@ -33,11 +33,11 @@ export type TileEntity = SolidTile | Gate | LaserBlock | SpikeballBlock;
 export type Tile = (typeof WorldData.STRING_TILE_TYPES)[number] | TileEntity;
 export type Slope = (typeof WorldData.SLOPES)[number];
 export type TileWithPosition = { x: number, y: number, tile: Tile };
+export type TileEntityWithPosition = { x: number, y: number, tile: TileEntity };
 export type Entity = Lizard | Spikeball | Portal | Humanoid | Spider | SpiderProjectile;
 
 export class World {
 	tiles: Grid<Tile> = new Grid("empty");
-	tileEntities: { position: Vector, tile: TileEntity }[] = [];
 	entities: Entities = new Entities();
 	particles: Particle[] = [];
 	gearsBackground: GearsBackground = GearsBackground.generate();
@@ -143,13 +143,13 @@ export class World {
 				}
 			}
 		}
-		for(const { tile, position } of this.tileEntities) {
-			const distance = Vector.dist(position.multiply(WorldData.TILE_SIZE), this.camera);
+		for(const { tile, x, y } of this.entities.allTileEntities()) {
+			const distance = Vector.dist(new Vector(x, y).multiply(WorldData.TILE_SIZE), this.camera);
 			if(tile instanceof LaserBlock) {
-				tile.displayLaserGlow(canvasIO, position.x, position.y);
+				tile.displayLaserGlow(canvasIO, x, y);
 			}
 			else if(tile instanceof SpikeballBlock && distance < WorldData.GLOW_RENDER_DISTANCE) {
-				tile.displayGlow(canvasIO, position.x, position.y);
+				tile.displayGlow(canvasIO, x, y);
 			}
 		}
 
@@ -168,9 +168,9 @@ export class World {
 		}
 	}
 	displayLasers(canvasIO: CanvasIO) {
-		for(const { tile, position } of this.tileEntities) {
+		for(const { tile, x, y } of this.entities.allTileEntities()) {
 			if(tile instanceof LaserBlock) {
-				tile.displayLasers(canvasIO, position.x, position.y);
+				tile.displayLasers(canvasIO, x, y);
 			}
 		}
 	}
@@ -266,9 +266,9 @@ export class World {
 		}
 	}
 	updateTiles(canvasIO: CanvasIO) {
-		for(const { tile, position } of this.tileEntities) {
+		for(const { tile, x, y } of this.entities.allTileEntities()) {
 			if("update" in tile) {
-				tile.update(this, position.x, position.y, canvasIO);
+				tile.update(this, x, y, canvasIO);
 			}
 		}
 		Gate.cooldown --;
@@ -556,13 +556,13 @@ export class World {
 			}
 		}
 		if(World.isTileEntity(tile)) {
-			this.tileEntities = this.tileEntities.filter(t => t.tile !== tile);
+			this.entities.removeTileEntity(position);
 		}
 	}
 	addTile(position: Vector, tile: Tile) {
 		this.tiles.set(position, tile);
 		if(World.isTileEntity(tile)) {
-			this.tileEntities.push({ position, tile });
+			this.entities.addTileEntity(tile, position);
 		}
 	}
 	addParticle(particle: Particle, canvasIO: CanvasIO) {

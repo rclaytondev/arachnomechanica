@@ -3,11 +3,12 @@ import { Vector } from "../../utils-ts/modules/geometry/Vector.mjs";
 import { Grid } from "../../utils-ts/modules/Grid.mjs";
 import { Utils } from "../../utils-ts/modules/Utils.mjs";
 import { WorldData } from "../constants/GameData.mjs";
-import { Entity } from "./World";
+import { Entity, TileEntity, TileEntityWithPosition } from "./World";
 
 export class Entities {
 	positions: Map<Entity, Vector[]> = new Map();
 	entities: Grid<Set<Entity> | null> = new Grid(null);
+	tileEntities: Grid<Grid<TileEntity | null> | null> = new Grid(null);
 
 
 	entityGridPositions(rectangle: Rectangle) {
@@ -71,6 +72,34 @@ export class Entities {
 			entities.delete(entity);
 			if(entities.size === 0) {
 				this.entities.set(gridSquare, null);
+			}
+		}
+	}
+
+	allTileEntities(): Set<TileEntityWithPosition> {
+		const grids = [...this.tileEntities.values()].filter(v => v != null);
+		const tiles = grids.flatMap(grid => [...grid.entries()]).map(([tile, position]) => ({ x: position.x, y: position.y, tile }));
+		return new Set(tiles.filter(t => t.tile != null) as TileEntityWithPosition[]);
+	}
+	addTileEntity(tile: TileEntity, position: Vector) {
+		const gridPosition = position.divide(WorldData.TILE_CHUNK_SIZE).floor();
+		const grid = this.tileEntities.get(gridPosition);
+		if(grid) {
+			grid.set(position, tile);
+		}
+		else {
+			const newGrid = new Grid<TileEntity | null>(null);
+			newGrid.set(position, tile);
+			this.tileEntities.set(gridPosition, newGrid);
+		}
+	}
+	removeTileEntity(position: Vector) {
+		const gridPosition = position.divide(WorldData.TILE_CHUNK_SIZE).floor();
+		const grid = this.tileEntities.get(gridPosition);
+		if(grid) {
+			grid.set(position, null);
+			if(grid.numValues() === 0) {
+				this.tileEntities.set(gridPosition, null);
 			}
 		}
 	}
