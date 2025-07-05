@@ -88,7 +88,7 @@ export class World {
 			this.player.display(canvasIO);
 		}
 		this.displayParticles(canvasIO);
-		this.displayEntities(canvasIO, visibleTileRegion.scale(WorldData.TILE_SIZE));
+		this.displayEntities(canvasIO);
 		this.displayTiles(canvasIO, visibleTileRegion);
 		this.displaytTileAccents(canvasIO, visibleTileRegion);
 		this.displayDebugInfo(canvasIO);
@@ -133,9 +133,9 @@ export class World {
 		);
 	}
 	displayGlowEffects(canvasIO: CanvasIO, visibleTileRegion: Rectangle) {
-		const entityRegion = visibleTileRegion.scale(WorldData.TILE_SIZE);
-		for(const entity of this.entities.allEntities()) {
-			if("displayGlowEffect" in entity && entity.distanceFrom(entityRegion) < WorldData.GLOW_RENDER_DISTANCE) {
+		const entityRegion = this.visibleRegion(canvasIO, WorldData.GLOW_RENDER_DISTANCE);
+		for(const entity of this.entities.entitiesIntersecting(entityRegion)) {
+			if("displayGlowEffect" in entity) {
 				entity.displayGlowEffect(canvasIO);
 			}
 		}
@@ -223,11 +223,10 @@ export class World {
 			}
 		}
 	}
-	displayEntities(canvasIO: CanvasIO, entityRegion: Rectangle) {
-		for(const entity of this.entities.allEntities()) {
-			if(entity.distanceFrom(entityRegion) < WorldData.ENTITY_RENDER_DISTANCE) {
-				entity.display(canvasIO, this);
-			}
+	displayEntities(canvasIO: CanvasIO) {
+		const region = this.visibleRegion(canvasIO, WorldData.ENTITY_RENDER_DISTANCE);
+		for(const entity of this.entities.entitiesIntersecting(region)) {
+			entity.display(canvasIO, this);
 		}
 	}
 	displayParticles(canvasIO: CanvasIO) {
@@ -244,7 +243,8 @@ export class World {
 		canvasIO.ctx.fillText(coordinates.toString(), canvasIO.mouse.position.x, canvasIO.mouse.position.y);
 	}
 	displayDebugInfo(canvasIO: CanvasIO) {
-		for(const entity of this.entities.allEntities()) {
+		const region = this.visibleRegion(canvasIO, WorldData.ENTITY_RENDER_DISTANCE);
+		for(const entity of this.entities.entitiesIntersecting(region)) {
 			if("displayHitbox" in entity) {
 				entity.displayHitbox(canvasIO);
 			}
@@ -257,8 +257,8 @@ export class World {
 		}
 	}
 
-	update(canvasIO: CanvasIO, visibleTileRegion: Rectangle = this.visibleTileRegion(canvasIO)) {
-		this.updateEntities(canvasIO, visibleTileRegion.scale(WorldData.TILE_SIZE));
+	update(canvasIO: CanvasIO) {
+		this.updateEntities(canvasIO);
 		this.player.update(this, canvasIO);
 		this.updateTiles(canvasIO);
 		this.updateParticles();
@@ -266,11 +266,10 @@ export class World {
 		this.updateCamera();
 		this.checkWorldGeneration();
 	}
-	updateEntities(canvasIO: CanvasIO, entityRegion: Rectangle) {
-		for(const entity of this.entities.allEntities()) {
-			if(entity.distanceFrom(entityRegion) < WorldData.ENTITY_UPDATE_DISTANCE) {
-				entity.update(this, canvasIO);
-			}
+	updateEntities(canvasIO: CanvasIO) {
+		const region = this.visibleRegion(canvasIO, WorldData.ENTITY_UPDATE_DISTANCE);
+		for(const entity of this.entities.entitiesIntersecting(region)) {
+			entity.update(this, canvasIO);
 		}
 	}
 	updateTiles(canvasIO: CanvasIO) {

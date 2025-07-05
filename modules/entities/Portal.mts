@@ -59,9 +59,6 @@ export class Portal {
 		return new Portal(this.position.clone());
 	}
 
-	distanceFrom(rectangle: Rectangle) {
-		return rectangle.distanceTo(this.position);
-	}
 	boundingBox() {
 		return new Rectangle(
 			this.position.x - PortalData.WIDTH / 2,

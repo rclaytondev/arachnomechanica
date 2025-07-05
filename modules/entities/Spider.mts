@@ -408,10 +408,6 @@ export class Spider {
 		this.movement = (this.movement === "clockwise") ? "counterclockwise" : "clockwise";
 	}
 
-	distanceFrom(rectangle: Rectangle) {
-		const center = this.physicsObject.hitbox().center();
-		return rectangle.distanceTo(center);
-	}
 	boundingBox() {
 		return this.physicsObject.hitbox();
 	}
@@ -488,10 +484,6 @@ export class SpiderProjectile {
 		), canvasIO);
 	}
 
-	distanceFrom(rectangle: Rectangle) {
-		const center = this.physicsObject.hitbox().center();
-		return rectangle.distanceTo(center);
-	}
 	boundingBox() {
 		return this.physicsObject.hitbox();
 	}

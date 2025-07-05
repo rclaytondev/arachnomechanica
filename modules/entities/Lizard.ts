@@ -552,11 +552,6 @@ export class Lizard {
 		);
 	}
 
-	distanceFrom(rect: Rectangle) {
-		const [tail] = this.getPointOnBody(this.length);
-		const joints = this.joints.map(j => j.position);
-		return Math.min(...[this.position, ...joints, tail].map(p => rect.distanceTo(p)));
-	}
 	boundingBox() {
 		const [tail] = this.getPointOnBody(this.length);
 		const joints = this.joints.map(j => j.position);
