@@ -91,7 +91,7 @@ export class LaserBlock {
 	update(world: World, x: number, y: number, canvasIO: CanvasIO) {
 		this.angle += this.speed;
 
-		if(world.visibleRegion(canvasIO).distanceTo(new Vector(x, y)) * WorldData.TILE_SIZE < LaserBlockData.UPDATE_DISTANCE) {
+		if(world.visibleTileRegion(canvasIO).distanceTo(new Vector(x, y)) * WorldData.TILE_SIZE < LaserBlockData.UPDATE_DISTANCE) {
 			this.updateLengths(world, x, y, canvasIO);
 		}
 

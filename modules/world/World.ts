@@ -75,22 +75,22 @@ export class World {
 		this.camera = this.player.physicsObject.hitbox().center();
 	}
 
-	display(canvasIO: CanvasIO, visibleRegion: Rectangle = this.visibleRegion(canvasIO)) {
+	display(canvasIO: CanvasIO, visibleTileRegion: Rectangle = this.visibleTileRegion(canvasIO)) {
 		this.displayBackground(canvasIO);
 		canvasIO.ctx.save();
 		this.applyScreenShake(canvasIO);
 		const translation = this.translationToCamera(canvasIO);
 		canvasIO.ctx.translate(translation.x, translation.y);
-		this.displayGlowEffects(canvasIO, visibleRegion);
-		this.displayLaserBlocks(canvasIO, visibleRegion);
+		this.displayGlowEffects(canvasIO, visibleTileRegion);
+		this.displayLaserBlocks(canvasIO, visibleTileRegion);
 		this.displayLasers(canvasIO);
 		if(!this.player.dead) {
 			this.player.display(canvasIO);
 		}
 		this.displayParticles(canvasIO);
-		this.displayEntities(canvasIO, visibleRegion.scale(WorldData.TILE_SIZE));
-		this.displayTiles(canvasIO, visibleRegion);
-		this.displaytTileAccents(canvasIO, visibleRegion);
+		this.displayEntities(canvasIO, visibleTileRegion.scale(WorldData.TILE_SIZE));
+		this.displayTiles(canvasIO, visibleTileRegion);
+		this.displaytTileAccents(canvasIO, visibleTileRegion);
 		this.displayDebugInfo(canvasIO);
 		canvasIO.ctx.restore();
 		this.player.displayEnergyBar(canvasIO);
@@ -115,7 +115,15 @@ export class World {
 	translationToCamera(canvasIO: CanvasIO) {
 		return new Vector(canvasIO.canvas.width / 2 - this.camera.x, canvasIO.canvas.height / 2 - this.camera.y);
 	}
-	visibleRegion(canvasIO: CanvasIO) {
+	visibleRegion(canvasIO: CanvasIO, offscreenAmount: number) {
+		return Rectangle.fromBounds(
+			this.camera.x - canvasIO.canvas.width / 2 - offscreenAmount,
+			this.camera.x + canvasIO.canvas.width / 2 + offscreenAmount,
+			this.camera.y - canvasIO.canvas.height / 2 - offscreenAmount,
+			this.camera.y + canvasIO.canvas.height / 2 + offscreenAmount,
+		);
+	}
+	visibleTileRegion(canvasIO: CanvasIO) {
 		const center = this.camera.divide(WorldData.TILE_SIZE);
 		return Rectangle.fromBounds(
 			Math.floor(center.x - (canvasIO.canvas.width / 2 / WorldData.TILE_SIZE)),
@@ -124,15 +132,15 @@ export class World {
 			Math.ceil(center.y + (canvasIO.canvas.height / 2 / WorldData.TILE_SIZE)),
 		);
 	}
-	displayGlowEffects(canvasIO: CanvasIO, visibleRegion: Rectangle) {
-		const entityRegion = visibleRegion.scale(WorldData.TILE_SIZE);
+	displayGlowEffects(canvasIO: CanvasIO, visibleTileRegion: Rectangle) {
+		const entityRegion = visibleTileRegion.scale(WorldData.TILE_SIZE);
 		for(const entity of this.entities.allEntities()) {
 			if("displayGlowEffect" in entity && entity.distanceFrom(entityRegion) < WorldData.GLOW_RENDER_DISTANCE) {
 				entity.displayGlowEffect(canvasIO);
 			}
 		}
-		for(let x = visibleRegion.left(); x < visibleRegion.right(); x ++) {
-			for(let y = visibleRegion.top(); y < visibleRegion.bottom(); y ++) {
+		for(let x = visibleTileRegion.left(); x < visibleTileRegion.right(); x ++) {
+			for(let y = visibleTileRegion.top(); y < visibleTileRegion.bottom(); y ++) {
 				const position = new Vector(x, y);
 				const tile = this.tiles.get(position);
 				if(tile instanceof SolidTile && tile.shape === "solid" && tile.texture === "tower") {
@@ -157,9 +165,9 @@ export class World {
 			particle.displayGlow(canvasIO);
 		}
 	}
-	displayLaserBlocks(canvasIO: CanvasIO, visibleRegion: Rectangle) {
-		for(let x = visibleRegion.left(); x < visibleRegion.right(); x ++) {
-			for(let y = visibleRegion.top(); y < visibleRegion.bottom(); y ++) {
+	displayLaserBlocks(canvasIO: CanvasIO, visibleTileRegion: Rectangle) {
+		for(let x = visibleTileRegion.left(); x < visibleTileRegion.right(); x ++) {
+			for(let y = visibleTileRegion.top(); y < visibleTileRegion.bottom(); y ++) {
 				const tile = this.tiles.get(x, y);
 				if(tile instanceof LaserBlock) {
 					tile.display(canvasIO, x, y);
@@ -249,8 +257,8 @@ export class World {
 		}
 	}
 
-	update(canvasIO: CanvasIO, visibleRegion: Rectangle = this.visibleRegion(canvasIO)) {
-		this.updateEntities(canvasIO, visibleRegion.scale(WorldData.TILE_SIZE));
+	update(canvasIO: CanvasIO, visibleTileRegion: Rectangle = this.visibleTileRegion(canvasIO)) {
+		this.updateEntities(canvasIO, visibleTileRegion.scale(WorldData.TILE_SIZE));
 		this.player.update(this, canvasIO);
 		this.updateTiles(canvasIO);
 		this.updateParticles();
