@@ -129,8 +129,7 @@ export class Room {
 			const tile = copy.tiles.get(position);
 			if(tile instanceof Gate) {
 				const gateCopy = tile.copy();
-				gateCopy.open = !gateCopy.open;
-				gateCopy.openness = 1 - gateCopy.openness;
+				gateCopy.toggled = !gateCopy.toggled;
 				copy.tiles.set(position, gateCopy);
 			}
 		}

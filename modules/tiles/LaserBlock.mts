@@ -24,20 +24,33 @@ export class LaserBlock {
 		LaserBlockData.LASER_COLOR.red, LaserBlockData.LASER_COLOR.green, LaserBlockData.LASER_COLOR.blue,
 	);
 
+	static angleTimer = 0;
+	static direction: 1 | -1 = 1;
+	static update(canvasIO: CanvasIO) {
+		LaserBlock.angleTimer += LaserBlock.direction;
+		if(canvasIO.keys.KeyZ && !GameUtils.pastKeys.KeyZ) {
+			LaserBlock.direction = (LaserBlock.direction === 1) ? -1 : 1;
+		}
+	}
+
 	lasers: number;
 	speed: number;
-	angle: number;
+	startAngle: number;
 	lengths: number[];
 
-	constructor(lasers: number, speed: number, angle: number) {
+	get angle() {
+		return this.startAngle + LaserBlock.angleTimer * this.speed;
+	}
+
+	constructor(lasers: number, speed: number, startAngle: number) {
 		this.lasers = lasers;
 		this.speed = speed;
-		this.angle = angle;
+		this.startAngle = startAngle;
 		this.lengths = new Array(lasers).fill(0);
 	}
 
 	copy() {
-		return new LaserBlock(this.lasers, this.speed, this.angle);
+		return new LaserBlock(this.lasers, this.speed, this.startAngle);
 	}
 
 	display(canvasIO: CanvasIO, x: number, y: number) {
@@ -89,14 +102,8 @@ export class LaserBlock {
 	}
 
 	update(world: World, x: number, y: number, canvasIO: CanvasIO) {
-		this.angle += this.speed;
-
 		if(world.visibleTileRegion(canvasIO).distanceTo(new Vector(x, y)) * WorldData.TILE_SIZE < LaserBlockData.UPDATE_DISTANCE) {
 			this.updateLengths(world, x, y, canvasIO);
-		}
-
-		if(canvasIO.keys.KeyZ && !GameUtils.pastKeys.KeyZ) {
-			this.speed = -this.speed;
 		}
 	}
 	updateLengths(world: World, x: number, y: number, canvasIO: CanvasIO) {

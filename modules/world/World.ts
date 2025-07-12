@@ -278,7 +278,8 @@ export class World {
 				tile.update(this, x, y, canvasIO);
 			}
 		}
-		Gate.cooldown --;
+		Gate.update(this);
+		LaserBlock.update(canvasIO);
 	}
 	updateParticles() {
 		for(const particle of this.particles) {
