@@ -123,13 +123,13 @@ export class World {
 			this.camera.y + canvasIO.canvas.height / 2 + offscreenAmount,
 		);
 	}
-	visibleTileRegion(canvasIO: CanvasIO) {
+	visibleTileRegion(canvasIO: CanvasIO, offscreenTiles: number = 0) {
 		const center = this.camera.divide(WorldData.TILE_SIZE);
 		return Rectangle.fromBounds(
-			Math.floor(center.x - (canvasIO.canvas.width / 2 / WorldData.TILE_SIZE)),
-			Math.ceil(center.x + (canvasIO.canvas.width / 2 / WorldData.TILE_SIZE)),
-			Math.floor(center.y - (canvasIO.canvas.height / 2 / WorldData.TILE_SIZE)),
-			Math.ceil(center.y + (canvasIO.canvas.height / 2 / WorldData.TILE_SIZE)),
+			Math.floor(center.x - (canvasIO.canvas.width / 2 / WorldData.TILE_SIZE)) - offscreenTiles,
+			Math.ceil(center.x + (canvasIO.canvas.width / 2 / WorldData.TILE_SIZE)) + offscreenTiles,
+			Math.floor(center.y - (canvasIO.canvas.height / 2 / WorldData.TILE_SIZE)) - offscreenTiles,
+			Math.ceil(center.y + (canvasIO.canvas.height / 2 / WorldData.TILE_SIZE)) + offscreenTiles,
 		);
 	}
 	displayGlowEffects(canvasIO: CanvasIO, visibleTileRegion: Rectangle) {
@@ -273,7 +273,8 @@ export class World {
 		}
 	}
 	updateTiles(canvasIO: CanvasIO) {
-		for(const { tile, x, y } of this.entities.allTileEntities()) {
+		const region = this.visibleTileRegion(canvasIO, WorldData.TILE_UPDATE_DISTANCE);
+		for(const { tile, x, y } of this.entities.tileEntitiesIntersecting(region)) {
 			if("update" in tile) {
 				tile.update(this, x, y, canvasIO);
 			}

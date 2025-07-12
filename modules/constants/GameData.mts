@@ -48,6 +48,7 @@ export class WorldData {
 	static ENTITY_RENDER_DISTANCE = 200;
 	static ENTITY_CHUNK_SIZE = 12 * 50;
 	static TILE_CHUNK_SIZE = 12;
+	static TILE_UPDATE_DISTANCE = 40;
 }
 
 export class LevelGeneratorData {

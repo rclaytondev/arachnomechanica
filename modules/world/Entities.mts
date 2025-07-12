@@ -103,4 +103,18 @@ export class Entities {
 			}
 		}
 	}
+	tileEntityGridPositions(tileRectangle: Rectangle) {
+		return Rectangle.fromBounds(
+			Math.floor(tileRectangle.left() / WorldData.TILE_CHUNK_SIZE),
+			Math.ceil(tileRectangle.right() / WorldData.TILE_CHUNK_SIZE),
+			Math.floor(tileRectangle.top() / WorldData.TILE_CHUNK_SIZE),
+			Math.ceil(tileRectangle.bottom() / WorldData.TILE_CHUNK_SIZE),
+		);
+	}
+	tileEntitiesIntersecting(tileRectangle: Rectangle) {
+		const positions = [...this.tileEntityGridPositions(tileRectangle).squares()];
+		const grids = positions.map(position => this.tileEntities.get(position) ?? null).filter(v => v != null);
+		const tiles = grids.flatMap(grid => [...grid.entries()]).map(([tile, position]) => ({ x: position.x, y: position.y, tile }));
+		return new Set(tiles.filter(t => t.tile != null) as TileEntityWithPosition[]);
+	}
 }
