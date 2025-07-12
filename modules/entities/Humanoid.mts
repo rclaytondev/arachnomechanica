@@ -7,7 +7,7 @@ import { DEBUG_SETTINGS } from "../constants/DebugSettings.mjs";
 import { HumanoidData, PlayerData } from "../constants/GameData.mjs";
 import { GameUtils } from "../game-utilities/GameUtils.mjs";
 import { PhysicsObject } from "../game-utilities/PhysicsObject.mjs";
-import { World } from "../World";
+import { World } from "../world/World";
 
 class RotationalMotion {
 	center: () => Vector;
@@ -227,6 +227,7 @@ export class Humanoid {
 			this.motions = this.liftLegForStep(this.direction);
 			this.enterMode("walking");
 		}
+		world.entities.moveEntity(this);
 	}
 	walk(world: World) {
 		this.physicsObject.moveX(
@@ -436,8 +437,7 @@ export class Humanoid {
 		];
 	}
 
-	distanceFrom(rectangle: Rectangle) {
-		const center = this.physicsObject.hitbox().center();
-		return rectangle.distanceTo(center);
+	boundingBox() {
+		return Rectangle.boundingBox(this.parts.map(p => p.physicsObject.hitbox().center()));
 	}
 }

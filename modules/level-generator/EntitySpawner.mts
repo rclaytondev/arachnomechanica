@@ -11,7 +11,7 @@ import { Gate } from "../tiles/Gate.mjs";
 import { LaserBlock } from "../tiles/LaserBlock.mjs";
 import { SolidTile } from "../tiles/SolidTile.mjs";
 import { SpikeballBlock } from "../tiles/SpikeballBlock.mjs";
-import { World } from "../World";
+import { World } from "../world/World.js";
 
 type Feature = "lizards" | "spiders" | "lasers" | "spikeballs";
 
@@ -219,7 +219,7 @@ export class EntitySpawner {
 					}
 				}
 				if(distance >= LizardData.MIN_LENGTH) {
-					world.entities.push(new Lizard(
+					world.entities.addEntity(new Lizard(
 						position.add(1/2, 1/2).multiply(WorldData.TILE_SIZE),
 						direction,
 						(GameUtils.randomInt(LizardData.MIN_LENGTH, distance) + 1/2) * WorldData.TILE_SIZE,
@@ -255,7 +255,7 @@ export class EntitySpawner {
 					new Surface(surfacePoint, Directions.opposite[direction]),
 					WorldData.TILE_SIZE / 2,
 				);
-				world.entities.push(spider);
+				world.entities.addEntity(spider);
 			},
 			world,
 		);

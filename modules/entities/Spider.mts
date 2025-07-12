@@ -9,7 +9,7 @@ import { SpiderData, WorldData } from "../constants/GameData.mjs";
 import { GameUtils } from "../game-utilities/GameUtils.mjs";
 import { Particle } from "../game-utilities/Particle.mjs";
 import { PhysicsObject } from "../game-utilities/PhysicsObject.mjs";
-import { Entity, World } from "../World";
+import { Entity, World } from "../world/World";
 
 export class Surface {
 	start: Vector;
@@ -190,7 +190,6 @@ export class Spider {
 	movement: "clockwise" | "counterclockwise" = "clockwise";
 	basepoint: PointOnSurface | null = null;
 	angle: number = 0;
-	dead: boolean = false;
 	hasProjectile: boolean = true;
 
 	legs: SpiderLeg[];
@@ -329,7 +328,7 @@ export class Spider {
 		const acceleration = direction.multiply(SpiderData.PROJECTILE_ACCELERATION);
 		const projectile = new SpiderProjectile(center, velocity, acceleration);
 		projectile.physicsObject.collides = (obj) => obj !== this;
-		world.entities.push(projectile);
+		world.entities.addEntity(projectile);
 	}
 
 	move(amount: number, world: World) {
@@ -343,6 +342,7 @@ export class Spider {
 			world,
 			() => this.switchDirection(),
 		);
+		world.entities.moveEntity(this);
 	}
 	moveBasepoint(amount: number, world: World) {
 		this.basepoint = this.basepoint!.moveAlongSurface(amount * (this.movement === "clockwise" ? 1 : -1), world);
@@ -392,11 +392,8 @@ export class Spider {
 	damage(hurtbox: Rectangle, world: World, canvasIO: CanvasIO) {
 		if(!hurtbox.intersects(this.physicsObject.hitbox())) { return; }
 
-		const deadBefore = this.dead;
-		this.dead = true;
-		if(!deadBefore) {
-			this.explode(world, canvasIO);
-		}
+		world.entities.removeEntity(this);
+		this.explode(world, canvasIO);
 	}
 	explode(world: World, canvasIO: CanvasIO) {
 		const center = this.physicsObject.hitbox().center();
@@ -411,9 +408,8 @@ export class Spider {
 		this.movement = (this.movement === "clockwise") ? "counterclockwise" : "clockwise";
 	}
 
-	distanceFrom(rectangle: Rectangle) {
-		const center = this.physicsObject.hitbox().center();
-		return rectangle.distanceTo(center);
+	boundingBox() {
+		return this.physicsObject.hitbox();
 	}
 }
 
@@ -421,7 +417,6 @@ export class SpiderProjectile {
 	physicsObject: PhysicsObject;
 	velocity: Vector;
 	acceleration: Vector;
-	dead: boolean = false;
 
 	constructor(position: Vector, velocity: Vector, acceleration: Vector) {
 		this.physicsObject = new PhysicsObject(position.floor(), Rectangle.square(0, 0, 1));
@@ -432,6 +427,7 @@ export class SpiderProjectile {
 	update(world: World, canvasIO: CanvasIO) {
 		this.velocity = this.velocity.add(this.acceleration);
 		this.physicsObject.move(this.velocity, world, () => this.explode(world, canvasIO));
+		world.entities.moveEntity(this);
 
 		world.addParticle(new Particle(
 			this.physicsObject.hitbox().center(),
@@ -447,8 +443,7 @@ export class SpiderProjectile {
 	display() { }
 
 	explode(world: World, canvasIO: CanvasIO) {
-		this.dead = true;
-
+		world.entities.removeEntity(this);
 		world.screenShakeTimer = SpiderData.PROJECTILE_EXPLOSION.SCREEN_SHAKE_TIME;
 		world.screenShakeIntensity = SpiderData.PROJECTILE_EXPLOSION.SCREEN_SHAKE_INTENSITY;
 
@@ -489,8 +484,7 @@ export class SpiderProjectile {
 		), canvasIO);
 	}
 
-	distanceFrom(rectangle: Rectangle) {
-		const center = this.physicsObject.hitbox().center();
-		return rectangle.distanceTo(center);
+	boundingBox() {
+		return this.physicsObject.hitbox();
 	}
 }

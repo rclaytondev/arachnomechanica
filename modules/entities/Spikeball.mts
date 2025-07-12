@@ -4,7 +4,7 @@ import { Vector } from "../../utils-ts/modules/geometry/Vector.mjs";
 import { SpikeballData, WorldData } from "../constants/GameData.mjs";
 import { GameUtils } from "../game-utilities/GameUtils.mjs";
 import { PhysicsObject } from "../game-utilities/PhysicsObject.mjs";
-import { Entity, Tile, World } from "../World.js";
+import { Entity, Tile, World } from "../world/World.js";
 
 export class Spikeball {
 	static glowGradient = GameUtils.glowCircleGradient(
@@ -17,7 +17,6 @@ export class Spikeball {
 	ignoredTiles: Vector[] = [];
 	age: number = 0;
 	bounces: number = SpikeballData.BOUNCES;
-	dead: boolean = false;
 
 	constructor(position: Vector, velocity: Vector) {
 		this.physicsObject = new PhysicsObject(
@@ -106,8 +105,9 @@ export class Spikeball {
 			},
 			world,
 		);
+		world.entities.moveEntity(this);
 		if(this.bounces < 0) {
-			this.dead = true;
+			world.entities.removeEntity(this);
 			this.die(world, canvasIO);
 		}
 		this.angle += SpikeballData.ROTATION_SPEED;
@@ -141,8 +141,7 @@ export class Spikeball {
 		return [this.physicsObject.hitbox()];
 	}
 
-	distanceFrom(rectangle: Rectangle) {
-		const center = this.physicsObject.hitbox().center();
-		return rectangle.distanceTo(center);
+	boundingBox() {
+		return this.physicsObject.hitbox();
 	}
 }

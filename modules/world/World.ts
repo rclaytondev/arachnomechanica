@@ -1,43 +1,44 @@
-import { CanvasIO } from "../utils-ts/modules/CanvasIO.mjs";
-import { Direction, Directions } from "../utils-ts/modules/geometry/Direction.mjs";
-import { Rectangle } from "../utils-ts/modules/geometry/Rectangle.mjs";
-import { Vector } from "../utils-ts/modules/geometry/Vector.mjs";
-import { Grid } from "../utils-ts/modules/Grid.mjs";
-import { BackgroundData, LevelGeneratorData, PlayerData, RoomData, WorldData } from "./constants/GameData.mjs";
-import { Main } from "./Main.js";
-import { DEBUG_SETTINGS } from "./constants/DebugSettings.mjs";
-import { Particle } from "./game-utilities/Particle.mjs";
-import { Player } from "./Player.mjs";
-import { Gate } from "./tiles/Gate.mjs";
-import { GearsBackground } from "./backgrounds/GearsBackground.mjs";
-import { SkyBackground } from "./backgrounds/SkyBackground.mjs";
-import { GameUtils } from "./game-utilities/GameUtils.mjs";
-import { LaserBlock } from "./tiles/LaserBlock.mjs";
-import { Lizard } from "./entities/Lizard.js";
-import { Spikeball } from "./entities/Spikeball.mjs";
-import { SpikeballBlock } from "./tiles/SpikeballBlock.mjs";
-import { Portal } from "./entities/Portal.mjs";
-import { MathUtils } from "../utils-ts/modules/math/MathUtils.mjs";
-import { Humanoid } from "./entities/Humanoid.mjs";
-import { RoomEditor } from "./RoomEditor.mjs";
-import { TowerTile } from "./tiles/TowerTile.mjs";
-import { SolidTile } from "./tiles/SolidTile.mjs";
-import { StoneTile } from "./tiles/StoneTile.mjs";
-import { WorldGenerator } from "./level-generator/WorldGenerator.mjs";
-import { Utils } from "../utils-ts/modules/Utils.mjs";
-import { Spider, SpiderProjectile } from "./entities/Spider.mjs";
-import { EntitySpawner } from "./level-generator/EntitySpawner.mjs";
+import { CanvasIO } from "../../utils-ts/modules/CanvasIO.mjs";
+import { Direction, Directions } from "../../utils-ts/modules/geometry/Direction.mjs";
+import { Rectangle } from "../../utils-ts/modules/geometry/Rectangle.mjs";
+import { Vector } from "../../utils-ts/modules/geometry/Vector.mjs";
+import { Grid } from "../../utils-ts/modules/Grid.mjs";
+import { BackgroundData, LevelGeneratorData, PlayerData, RoomData, WorldData } from "../constants/GameData.mjs";
+import { Main } from "../Main.js";
+import { DEBUG_SETTINGS } from "../constants/DebugSettings.mjs";
+import { Particle } from "../game-utilities/Particle.mjs";
+import { Player } from "../Player.mjs";
+import { Gate } from "../tiles/Gate.mjs";
+import { GearsBackground } from "../backgrounds/GearsBackground.mjs";
+import { SkyBackground } from "../backgrounds/SkyBackground.mjs";
+import { GameUtils } from "../game-utilities/GameUtils.mjs";
+import { LaserBlock } from "../tiles/LaserBlock.mjs";
+import { Lizard } from "../entities/Lizard.js";
+import { Spikeball } from "../entities/Spikeball.mjs";
+import { SpikeballBlock } from "../tiles/SpikeballBlock.mjs";
+import { Portal } from "../entities/Portal.mjs";
+import { MathUtils } from "../../utils-ts/modules/math/MathUtils.mjs";
+import { Humanoid } from "../entities/Humanoid.mjs";
+import { RoomEditor } from "../RoomEditor.mjs";
+import { TowerTile } from "../tiles/TowerTile.mjs";
+import { SolidTile } from "../tiles/SolidTile.mjs";
+import { StoneTile } from "../tiles/StoneTile.mjs";
+import { WorldGenerator } from "../level-generator/WorldGenerator.mjs";
+import { Utils } from "../../utils-ts/modules/Utils.mjs";
+import { Spider, SpiderProjectile } from "../entities/Spider.mjs";
+import { EntitySpawner } from "../level-generator/EntitySpawner.mjs";
+import { Entities } from "./Entities.mjs";
 
 export type TileEntity = SolidTile | Gate | LaserBlock | SpikeballBlock;
 export type Tile = (typeof WorldData.STRING_TILE_TYPES)[number] | TileEntity;
 export type Slope = (typeof WorldData.SLOPES)[number];
 export type TileWithPosition = { x: number, y: number, tile: Tile };
+export type TileEntityWithPosition = { x: number, y: number, tile: TileEntity };
 export type Entity = Lizard | Spikeball | Portal | Humanoid | Spider | SpiderProjectile;
 
 export class World {
 	tiles: Grid<Tile> = new Grid("empty");
-	entities: Entity[] = [];
-	tileEntities: { position: Vector, tile: TileEntity }[] = [];
+	entities: Entities = new Entities();
 	particles: Particle[] = [];
 	gearsBackground: GearsBackground = GearsBackground.generate();
 	skyBackground: SkyBackground = new SkyBackground();
@@ -74,22 +75,22 @@ export class World {
 		this.camera = this.player.physicsObject.hitbox().center();
 	}
 
-	display(canvasIO: CanvasIO, visibleRegion: Rectangle = this.visibleRegion(canvasIO)) {
+	display(canvasIO: CanvasIO, visibleTileRegion: Rectangle = this.visibleTileRegion(canvasIO)) {
 		this.displayBackground(canvasIO);
 		canvasIO.ctx.save();
 		this.applyScreenShake(canvasIO);
 		const translation = this.translationToCamera(canvasIO);
 		canvasIO.ctx.translate(translation.x, translation.y);
-		this.displayGlowEffects(canvasIO, visibleRegion);
-		this.displayLaserBlocks(canvasIO, visibleRegion);
+		this.displayGlowEffects(canvasIO, visibleTileRegion);
+		this.displayLaserBlocks(canvasIO, visibleTileRegion);
 		this.displayLasers(canvasIO);
 		if(!this.player.dead) {
 			this.player.display(canvasIO);
 		}
 		this.displayParticles(canvasIO);
-		this.displayEntities(canvasIO, visibleRegion.scale(WorldData.TILE_SIZE));
-		this.displayTiles(canvasIO, visibleRegion);
-		this.displaytTileAccents(canvasIO, visibleRegion);
+		this.displayEntities(canvasIO);
+		this.displayTiles(canvasIO, visibleTileRegion);
+		this.displaytTileAccents(canvasIO, visibleTileRegion);
 		this.displayDebugInfo(canvasIO);
 		canvasIO.ctx.restore();
 		this.player.displayEnergyBar(canvasIO);
@@ -114,24 +115,32 @@ export class World {
 	translationToCamera(canvasIO: CanvasIO) {
 		return new Vector(canvasIO.canvas.width / 2 - this.camera.x, canvasIO.canvas.height / 2 - this.camera.y);
 	}
-	visibleRegion(canvasIO: CanvasIO) {
-		const center = this.camera.divide(WorldData.TILE_SIZE);
+	visibleRegion(canvasIO: CanvasIO, offscreenAmount: number) {
 		return Rectangle.fromBounds(
-			Math.floor(center.x - (canvasIO.canvas.width / 2 / WorldData.TILE_SIZE)),
-			Math.ceil(center.x + (canvasIO.canvas.width / 2 / WorldData.TILE_SIZE)),
-			Math.floor(center.y - (canvasIO.canvas.height / 2 / WorldData.TILE_SIZE)),
-			Math.ceil(center.y + (canvasIO.canvas.height / 2 / WorldData.TILE_SIZE)),
+			this.camera.x - canvasIO.canvas.width / 2 - offscreenAmount,
+			this.camera.x + canvasIO.canvas.width / 2 + offscreenAmount,
+			this.camera.y - canvasIO.canvas.height / 2 - offscreenAmount,
+			this.camera.y + canvasIO.canvas.height / 2 + offscreenAmount,
 		);
 	}
-	displayGlowEffects(canvasIO: CanvasIO, visibleRegion: Rectangle) {
-		const entityRegion = visibleRegion.scale(WorldData.TILE_SIZE);
-		for(const entity of this.entities) {
-			if("displayGlowEffect" in entity && entity.distanceFrom(entityRegion) < WorldData.GLOW_RENDER_DISTANCE) {
+	visibleTileRegion(canvasIO: CanvasIO, offscreenTiles: number = 0) {
+		const center = this.camera.divide(WorldData.TILE_SIZE);
+		return Rectangle.fromBounds(
+			Math.floor(center.x - (canvasIO.canvas.width / 2 / WorldData.TILE_SIZE)) - offscreenTiles,
+			Math.ceil(center.x + (canvasIO.canvas.width / 2 / WorldData.TILE_SIZE)) + offscreenTiles,
+			Math.floor(center.y - (canvasIO.canvas.height / 2 / WorldData.TILE_SIZE)) - offscreenTiles,
+			Math.ceil(center.y + (canvasIO.canvas.height / 2 / WorldData.TILE_SIZE)) + offscreenTiles,
+		);
+	}
+	displayGlowEffects(canvasIO: CanvasIO, visibleTileRegion: Rectangle) {
+		const entityRegion = this.visibleRegion(canvasIO, WorldData.GLOW_RENDER_DISTANCE);
+		for(const entity of this.entities.entitiesIntersecting(entityRegion)) {
+			if("displayGlowEffect" in entity) {
 				entity.displayGlowEffect(canvasIO);
 			}
 		}
-		for(let x = visibleRegion.left(); x < visibleRegion.right(); x ++) {
-			for(let y = visibleRegion.top(); y < visibleRegion.bottom(); y ++) {
+		for(let x = visibleTileRegion.left(); x < visibleTileRegion.right(); x ++) {
+			for(let y = visibleTileRegion.top(); y < visibleTileRegion.bottom(); y ++) {
 				const position = new Vector(x, y);
 				const tile = this.tiles.get(position);
 				if(tile instanceof SolidTile && tile.shape === "solid" && tile.texture === "tower") {
@@ -142,13 +151,13 @@ export class World {
 				}
 			}
 		}
-		for(const { tile, position } of this.tileEntities) {
-			const distance = Vector.dist(position.multiply(WorldData.TILE_SIZE), this.camera);
+		for(const { tile, x, y } of this.entities.allTileEntities()) {
+			const distance = Vector.dist(new Vector(x, y).multiply(WorldData.TILE_SIZE), this.camera);
 			if(tile instanceof LaserBlock) {
-				tile.displayLaserGlow(canvasIO, position.x, position.y);
+				tile.displayLaserGlow(canvasIO, x, y);
 			}
 			else if(tile instanceof SpikeballBlock && distance < WorldData.GLOW_RENDER_DISTANCE) {
-				tile.displayGlow(canvasIO, position.x, position.y);
+				tile.displayGlow(canvasIO, x, y);
 			}
 		}
 
@@ -156,9 +165,9 @@ export class World {
 			particle.displayGlow(canvasIO);
 		}
 	}
-	displayLaserBlocks(canvasIO: CanvasIO, visibleRegion: Rectangle) {
-		for(let x = visibleRegion.left(); x < visibleRegion.right(); x ++) {
-			for(let y = visibleRegion.top(); y < visibleRegion.bottom(); y ++) {
+	displayLaserBlocks(canvasIO: CanvasIO, visibleTileRegion: Rectangle) {
+		for(let x = visibleTileRegion.left(); x < visibleTileRegion.right(); x ++) {
+			for(let y = visibleTileRegion.top(); y < visibleTileRegion.bottom(); y ++) {
 				const tile = this.tiles.get(x, y);
 				if(tile instanceof LaserBlock) {
 					tile.display(canvasIO, x, y);
@@ -167,9 +176,9 @@ export class World {
 		}
 	}
 	displayLasers(canvasIO: CanvasIO) {
-		for(const { tile, position } of this.tileEntities) {
+		for(const { tile, x, y } of this.entities.allTileEntities()) {
 			if(tile instanceof LaserBlock) {
-				tile.displayLasers(canvasIO, position.x, position.y);
+				tile.displayLasers(canvasIO, x, y);
 			}
 		}
 	}
@@ -214,11 +223,10 @@ export class World {
 			}
 		}
 	}
-	displayEntities(canvasIO: CanvasIO, entityRegion: Rectangle) {
-		for(const entity of this.entities) {
-			if(entity.distanceFrom(entityRegion) < WorldData.ENTITY_RENDER_DISTANCE) {
-				entity.display(canvasIO, this);
-			}
+	displayEntities(canvasIO: CanvasIO) {
+		const region = this.visibleRegion(canvasIO, WorldData.ENTITY_RENDER_DISTANCE);
+		for(const entity of this.entities.entitiesIntersecting(region)) {
+			entity.display(canvasIO, this);
 		}
 	}
 	displayParticles(canvasIO: CanvasIO) {
@@ -235,7 +243,8 @@ export class World {
 		canvasIO.ctx.fillText(coordinates.toString(), canvasIO.mouse.position.x, canvasIO.mouse.position.y);
 	}
 	displayDebugInfo(canvasIO: CanvasIO) {
-		for(const entity of this.entities) {
+		const region = this.visibleRegion(canvasIO, WorldData.ENTITY_RENDER_DISTANCE);
+		for(const entity of this.entities.entitiesIntersecting(region)) {
 			if("displayHitbox" in entity) {
 				entity.displayHitbox(canvasIO);
 			}
@@ -248,8 +257,8 @@ export class World {
 		}
 	}
 
-	update(canvasIO: CanvasIO, visibleRegion: Rectangle = this.visibleRegion(canvasIO)) {
-		this.updateEntities(canvasIO, visibleRegion.scale(WorldData.TILE_SIZE));
+	update(canvasIO: CanvasIO) {
+		this.updateEntities(canvasIO);
 		this.player.update(this, canvasIO);
 		this.updateTiles(canvasIO);
 		this.updateParticles();
@@ -257,21 +266,21 @@ export class World {
 		this.updateCamera();
 		this.checkWorldGeneration();
 	}
-	updateEntities(canvasIO: CanvasIO, entityRegion: Rectangle) {
-		for(const entity of this.entities) {
-			if(entity.distanceFrom(entityRegion) < WorldData.ENTITY_UPDATE_DISTANCE) {
-				entity.update(this, canvasIO);
-			}
+	updateEntities(canvasIO: CanvasIO) {
+		const region = this.visibleRegion(canvasIO, WorldData.ENTITY_UPDATE_DISTANCE);
+		for(const entity of this.entities.entitiesIntersecting(region)) {
+			entity.update(this, canvasIO);
 		}
-		this.entities = this.entities.filter(c => !("dead" in c) || !c.dead);
 	}
 	updateTiles(canvasIO: CanvasIO) {
-		for(const { tile, position } of this.tileEntities) {
+		const region = this.visibleTileRegion(canvasIO, WorldData.TILE_UPDATE_DISTANCE);
+		for(const { tile, x, y } of this.entities.tileEntitiesIntersecting(region)) {
 			if("update" in tile) {
-				tile.update(this, position.x, position.y, canvasIO);
+				tile.update(this, x, y, canvasIO);
 			}
 		}
-		Gate.cooldown --;
+		Gate.update(this);
+		LaserBlock.update(canvasIO);
 	}
 	updateParticles() {
 		for(const particle of this.particles) {
@@ -378,7 +387,7 @@ export class World {
 	}
 	collidingEntities(rectangle: Rectangle, collides: (object: { x: number, y: number, tile: Tile } | Entity) => boolean = () => true) {
 		const solids = [];
-		for(const entity of this.entities) {
+		for(const entity of this.entities.entitiesIntersecting(rectangle)) {
 			if(collides(entity) && "hitboxes" in entity && entity.hitboxes().some(b => rectangle.intersects(b))) {
 				solids.push(entity);
 			}
@@ -483,9 +492,11 @@ export class World {
 		}
 		return result;
 	}
-	entityIntersectionDistance(position: Vector, direction: Vector, collides: (entity: Entity) => boolean = () => true) {
+	entityIntersectionDistance(position: Vector, direction: Vector, collides: (entity: Entity) => boolean = () => true, maxLength: number) {
 		let result = Infinity;
-		for(const entity of this.entities) {
+		const furthestEndpoint = position.add(direction.multiply(maxLength));
+		const rectangle = Rectangle.fromOppositeCorners(position, furthestEndpoint);
+		for(const entity of this.entities.entitiesIntersecting(rectangle)) {
 			if(!collides(entity)) { continue; }
 			for(const hitbox of ("hitboxes" in entity) ? entity.hitboxes() : []) {
 				result = Math.min(result, GameUtils.rayIntersectsRectangle(position, direction, hitbox));
@@ -496,7 +507,7 @@ export class World {
 	lineIntersectionDistance(position: Vector, direction: Vector, maxDistance: number, ignoredTiles: Tile[] = [], collides: (entity: Entity) => boolean = () => true) {
 		return Math.min(
 			this.tileIntersectionDistance(position, direction, maxDistance, ignoredTiles),
-			this.entityIntersectionDistance(position, direction, collides),
+			this.entityIntersectionDistance(position, direction, collides, maxDistance),
 		);
 	}
 	hasLineOfSight(position: Vector, rectangle: Rectangle, collides: (entity: Entity) => boolean) {
@@ -554,13 +565,13 @@ export class World {
 			}
 		}
 		if(World.isTileEntity(tile)) {
-			this.tileEntities = this.tileEntities.filter(t => t.tile !== tile);
+			this.entities.removeTileEntity(position);
 		}
 	}
 	addTile(position: Vector, tile: Tile) {
 		this.tiles.set(position, tile);
 		if(World.isTileEntity(tile)) {
-			this.tileEntities.push({ position, tile });
+			this.entities.addTileEntity(tile, position);
 		}
 	}
 	addParticle(particle: Particle, canvasIO: CanvasIO) {
@@ -578,7 +589,7 @@ export class World {
 		if(this.player.physicsObject.hitbox().intersects(hurtbox)) {
 			this.player.damage();
 		}
-		for(const entity of this.entities) {
+		for(const entity of this.entities.entitiesIntersecting(hurtbox)) {
 			if("damage" in entity) {
 				entity.damage(hurtbox, this, canvasIO);
 			}

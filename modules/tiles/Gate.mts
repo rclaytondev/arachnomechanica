@@ -3,26 +3,42 @@ import { Direction, Directions } from "../../utils-ts/modules/geometry/Direction
 import { Rectangle } from "../../utils-ts/modules/geometry/Rectangle.mjs";
 import { Vector } from "../../utils-ts/modules/geometry/Vector.mjs";
 import { GateData, WorldData } from "../constants/GameData.mjs";
-import { Lizard } from "../entities/Lizard.js";
 import { GameUtils } from "../game-utilities/GameUtils.mjs";
+import { frameCount } from "../Main.js";
 import { Player } from "../Player.mjs";
-import { World } from "../World.js";
+import { World } from "../world/World.js";
 
 export class Gate {
 	static cooldown = 0;
+	static open = false;
+	static openness = 0;
 
-	direction: Direction; // which way the gate moves when closing
-	openness: number;
-	playerSide: "positive" | "negative" = "positive";
-	open: boolean = closed;
-	initialized: boolean = false;
-
-	constructor(direction: Direction, open: boolean) {
-		this.direction = direction;
-		this.open = open;
-		this.openness = open ? 1 : 0;
+	static update(world: World) {
+		const closedBefore = Gate.openness === 0;
+		Gate.openness = GameUtils.moveTowards(Gate.openness, Gate.open ? 1 : 0, GateData.SPEED);
+		if(Gate.openness === 0 && !closedBefore) {
+			world.screenShakeTimer = GateData.SCREEN_SHAKE_TIME;
+			world.screenShakeIntensity = GateData.SCREEN_SHAKE_INTENSITY;
+		}
+		Gate.cooldown --;
 	}
 
+	direction: Direction; // which way the gate moves when closing
+	playerSide: "positive" | "negative" = "positive";
+	toggled: boolean = false;
+	lastFrameUpdated: number = -Infinity;
+
+	constructor(direction: Direction, toggled: boolean) {
+		this.direction = direction;
+		this.toggled = toggled;
+	}
+
+	get open() {
+		return this.toggled ? !Gate.open : Gate.open;
+	}
+	get openness() {
+		return this.toggled ? 1 - Gate.openness : Gate.openness;
+	}
 	get closedness() {
 		return 1 - this.openness;
 	}
@@ -59,18 +75,15 @@ export class Gate {
 		canvasIO.ctx.fillStyle = GateData.COLOR;
 		canvasIO.fillRect(box);
 	}
-	update(world: World, x: number, y: number) {
-		if(!this.initialized) {
+	update(world: World, x: number, y: number, canvasIO: CanvasIO) {
+		if(this.lastFrameUpdated !== frameCount - 1) {
 			this.initialize(world.player, x, y);
-			this.initialized = true;
 		}
+		this.lastFrameUpdated = frameCount;
 		this.checkPlayer(world, x, y);
 		const closed = this.openness === 0;
-		this.openness = GameUtils.moveTowards(this.openness, this.open ? 1 : 0, GateData.SPEED);
 		if(!closed && this.openness === 0) {
-			world.screenShakeTimer = GateData.SCREEN_SHAKE_TIME;
-			world.screenShakeIntensity = GateData.SCREEN_SHAKE_INTENSITY;
-			this.destroyOverlapping(world, x, y);
+			world.damage(this.getPhysicsBox(x, y), canvasIO);
 		}
 	}
 	adjacentGates(world: World, x: number, y: number, direction: Direction) {
@@ -114,25 +127,13 @@ export class Gate {
 				: (newSide === "negative" ? "up" : "down"),
 		).add(x, y)) instanceof Gate;
 		if(newSide !== this.playerSide && sameRowOrColumn && Gate.cooldown <= 0 && !adjacentGate) {
-			Gate.toggleAll(world);
+			Gate.toggleAll();
 			Gate.cooldown = 1 / GateData.SPEED;
 		}
 		this.playerSide = newSide;
 	}
-	static toggleAll(world: World) {
-		for(const tile of world.tiles.values()) {
-			if(tile instanceof Gate) {
-				tile.open = !tile.open;
-			}
-		}
-	}
-	destroyOverlapping(world: World, x: number, y: number) {
-		const box = this.getPhysicsBox(x, y);
-		for(const entity of world.entities) {
-			if(entity instanceof Lizard) {
-				entity.damage(box);
-			}
-		}
+	static toggleAll() {
+		Gate.open = !Gate.open;
 	}
 
 	initialize(player: Player, x: number, y: number) {
@@ -146,10 +147,9 @@ export class Gate {
 		}
 	}
 	copy() {
-		const result = new Gate(this.direction, this.open);
-		result.openness = this.openness;
+		const result = new Gate(this.direction, this.toggled);
 		result.playerSide = this.playerSide;
-		result.initialized = this.initialized;
+		result.lastFrameUpdated = this.lastFrameUpdated;
 		return result;
 	}
 }

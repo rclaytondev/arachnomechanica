@@ -5,7 +5,7 @@ import { PortalData, RoomData, WorldData } from "../constants/GameData.mjs";
 import { GameUtils } from "../game-utilities/GameUtils.mjs";
 import { Particle } from "../game-utilities/Particle.mjs";
 import { frameCount } from "../Main.js";
-import { World } from "../World";
+import { World } from "../world/World.js";
 
 export class Portal {
 	position: Vector;
@@ -59,7 +59,12 @@ export class Portal {
 		return new Portal(this.position.clone());
 	}
 
-	distanceFrom(rectangle: Rectangle) {
-		return rectangle.distanceTo(this.position);
+	boundingBox() {
+		return new Rectangle(
+			this.position.x - PortalData.WIDTH / 2,
+			this.position.y - PortalData.HITBOX_HEIGHT,
+			PortalData.WIDTH,
+			PortalData.HITBOX_HEIGHT,
+		);
 	}
 }

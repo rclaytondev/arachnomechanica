@@ -4,7 +4,7 @@ import { Vector } from "../utils-ts/modules/geometry/Vector.mjs";
 import { Room, RoomTile } from "./level-generator/Room.mjs";
 import { DEBUG_SETTINGS } from "./constants/DebugSettings.mjs";
 import { Gate } from "./tiles/Gate.mjs";
-import { Tile, World } from "./World.js";
+import { Tile, World } from "./world/World.js";
 import { PortalData, WorldData } from "./constants/GameData.mjs";
 import { Rectangle } from "../utils-ts/modules/geometry/Rectangle.mjs";
 import { ROOMS } from "./level-generator/Rooms.mjs";
@@ -25,7 +25,9 @@ export class RoomEditor {
 		for(const [tile, position] of this.room.tiles.entries()) {
 			this.world.tiles.set(position, tile);
 		}
-		this.world.entities = [...this.world.entities, ...this.room.entities];
+		for(const entity of this.room.entities) {
+			this.world.entities.addEntity(entity);
+		}
 	}
 
 
@@ -66,7 +68,7 @@ export class RoomEditor {
 				const portalPosition = this.getPortalPosition(position);
 				if(!this.room.entities.some(p => p.position.equals(portalPosition))) {
 					this.room.entities.push(new Portal(portalPosition));
-					this.world.entities.push(new Portal(portalPosition));
+					this.world.entities.addEntity(new Portal(portalPosition));
 				}
 			}
 			else if(this.mode === "slope" && Directions.isDiagonal(this.direction)) {
@@ -89,7 +91,11 @@ export class RoomEditor {
 			else {
 				const portalPosition = this.getPortalPosition(position);
 				this.room.entities = this.room.entities.filter(e => !e.position.equals(portalPosition));
-				this.world.entities = this.world.entities.filter(e => !(e instanceof Portal) || !e.position.equals(portalPosition));
+				for(const entity of this.world.entities.allEntities()) {
+					if(entity instanceof Portal && entity.position.equals(portalPosition)) {
+						this.world.entities.removeEntity(entity);
+					}
+				}
 			}
 		}
 	}

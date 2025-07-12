@@ -46,6 +46,9 @@ export class WorldData {
 	static ENTITY_UPDATE_DISTANCE = 2000;
 	static GLOW_RENDER_DISTANCE = 200;
 	static ENTITY_RENDER_DISTANCE = 200;
+	static ENTITY_CHUNK_SIZE = 12 * 50;
+	static TILE_CHUNK_SIZE = 12;
+	static TILE_UPDATE_DISTANCE = 40;
 }
 
 export class LevelGeneratorData {
@@ -171,6 +174,8 @@ export class LaserBlockData {
 	static MAX_SPEED = 0.01;
 	static MAX_LENGTH = 300;
 	static BEAMS_PER_BLOCK = 2;
+
+	static UPDATE_DISTANCE = LaserBlockData.MAX_LENGTH + (LaserBlockData.MAX_LENGTH / LaserBlockData.LASER_LINEAR_SPEED) * PlayerData.MAX_X_VELOCITY;
 }
 
 export class LizardData {

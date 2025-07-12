@@ -2,7 +2,7 @@ import { Direction, Directions } from "../../utils-ts/modules/geometry/Direction
 import { Rectangle } from "../../utils-ts/modules/geometry/Rectangle.mjs";
 import { Vector } from "../../utils-ts/modules/geometry/Vector.mjs";
 import { WorldData } from "../constants/GameData.mjs";
-import { Entity, Tile, TileWithPosition, World } from "../World.js";
+import { Entity, Tile, TileWithPosition, World } from "../world/World.js";
 
 export class PhysicsObject {
 	positionInt: Vector;

@@ -4,7 +4,7 @@ import { Grid } from "../../utils-ts/modules/Grid.mjs";
 import { RoomData, WorldData } from "../constants/GameData.mjs";
 import { GateState } from "./GateState.mjs";
 import { Gate } from "../tiles/Gate.mjs";
-import { Slope, World } from "../World.js";
+import { Slope, World } from "../world/World.js";
 import { Portal } from "../entities/Portal.mjs";
 import { SolidTile } from "../tiles/SolidTile.mjs";
 import { ROOMS } from "./Rooms.mjs";
@@ -67,7 +67,7 @@ export class Room {
 			}
 		}
 		for(const entity of this.entities) {
-			world.entities.push(entity.translate(position.multiply(WorldData.TILE_SIZE)));
+			world.entities.addEntity(entity.translate(position.multiply(WorldData.TILE_SIZE)));
 		}
 	}
 
@@ -129,8 +129,7 @@ export class Room {
 			const tile = copy.tiles.get(position);
 			if(tile instanceof Gate) {
 				const gateCopy = tile.copy();
-				gateCopy.open = !gateCopy.open;
-				gateCopy.openness = 1 - gateCopy.openness;
+				gateCopy.toggled = !gateCopy.toggled;
 				copy.tiles.set(position, gateCopy);
 			}
 		}

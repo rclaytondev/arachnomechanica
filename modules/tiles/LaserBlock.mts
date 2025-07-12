@@ -5,7 +5,7 @@ import { LaserBlockData, WorldData } from "../constants/GameData.mjs";
 import { GameUtils } from "../game-utilities/GameUtils.mjs";
 import { frameCount } from "../Main.js";
 import { Particle } from "../game-utilities/Particle.mjs";
-import { World } from "../World";
+import { World } from "../world/World.js";
 
 export class LaserBlock {
 	static glowLineGradient = GameUtils.glowLineGradient(
@@ -24,20 +24,33 @@ export class LaserBlock {
 		LaserBlockData.LASER_COLOR.red, LaserBlockData.LASER_COLOR.green, LaserBlockData.LASER_COLOR.blue,
 	);
 
+	static angleTimer = 0;
+	static direction: 1 | -1 = 1;
+	static update(canvasIO: CanvasIO) {
+		LaserBlock.angleTimer += LaserBlock.direction;
+		if(canvasIO.keys.KeyZ && !GameUtils.pastKeys.KeyZ) {
+			LaserBlock.direction = (LaserBlock.direction === 1) ? -1 : 1;
+		}
+	}
+
 	lasers: number;
 	speed: number;
-	angle: number;
+	startAngle: number;
 	lengths: number[];
 
-	constructor(lasers: number, speed: number, angle: number) {
+	get angle() {
+		return this.startAngle + LaserBlock.angleTimer * this.speed;
+	}
+
+	constructor(lasers: number, speed: number, startAngle: number) {
 		this.lasers = lasers;
 		this.speed = speed;
-		this.angle = angle;
+		this.startAngle = startAngle;
 		this.lengths = new Array(lasers).fill(0);
 	}
 
 	copy() {
-		return new LaserBlock(this.lasers, this.speed, this.angle);
+		return new LaserBlock(this.lasers, this.speed, this.startAngle);
 	}
 
 	display(canvasIO: CanvasIO, x: number, y: number) {
@@ -89,8 +102,11 @@ export class LaserBlock {
 	}
 
 	update(world: World, x: number, y: number, canvasIO: CanvasIO) {
-		this.angle += this.speed;
-
+		if(world.visibleTileRegion(canvasIO).distanceTo(new Vector(x, y)) * WorldData.TILE_SIZE < LaserBlockData.UPDATE_DISTANCE) {
+			this.updateLengths(world, x, y, canvasIO);
+		}
+	}
+	updateLengths(world: World, x: number, y: number, canvasIO: CanvasIO) {
 		const player = world.player.physicsObject.hitbox();
 		for(const [i, direction] of this.directions().entries()) {
 			const length = this.endpointDistance(new Vector(x, y), direction, world, canvasIO.boundingBox());
@@ -110,10 +126,6 @@ export class LaserBlock {
 			if(this.intersectsBox(new Vector(x, y), direction, player, length)) {
 				world.player.damage();
 			}
-		}
-
-		if(canvasIO.keys.KeyZ && !GameUtils.pastKeys.KeyZ) {
-			this.speed = -this.speed;
 		}
 	}
 

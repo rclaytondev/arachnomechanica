@@ -5,7 +5,7 @@ import { MathUtils } from "../../utils-ts/modules/math/MathUtils.mjs";
 import { Utils } from "../../utils-ts/modules/Utils.mjs";
 import { GameUtils } from "../game-utilities/GameUtils.mjs";
 import { DEBUG_SETTINGS } from "../constants/DebugSettings.mjs";
-import { Tile, World } from "../World.js";
+import { Tile, World } from "../world/World.js";
 import { Rectangle } from "../../utils-ts/modules/geometry/Rectangle.mjs";
 import { Gate } from "../tiles/Gate.mjs";
 import { Particle } from "../game-utilities/Particle.mjs";
@@ -30,7 +30,6 @@ export class Lizard {
 	nextTurn: Direction | null = null;
 	legPosition: number = 0;
 	legDestination: number = LizardData.LEG_MAX;
-	dead: boolean = false;
 	mouthAngle: number = 0;
 	mouthDestination: number = LizardData.MAX_MOUTH_ANGLE;
 	waitingTimer: number = -1;
@@ -172,6 +171,7 @@ export class Lizard {
 	update(world: World, canvasIO: CanvasIO) {
 		if(this.waitingTimer < 0) {
 			this.position = this.position.add(Vector.unit(this.direction).multiply(this.speed));
+			world.entities.moveEntity(this);
 		}
 		this.waitingTimer --;
 
@@ -428,11 +428,11 @@ export class Lizard {
 		const length = this.lengthAfterDamage(rectangle);
 		return (Math.floor(length / WorldData.TILE_SIZE - 1/2) + 1/2) * WorldData.TILE_SIZE;
 	}
-	damage(rectangle: Rectangle) {
+	damage(rectangle: Rectangle, world: World) {
 		const length = this.roundedLengthAfterDamage(rectangle);;
 		this.roundedLengthAfterDamage(rectangle);
 		if(length < (LizardData.MIN_LENGTH + 1/2) * WorldData.TILE_SIZE) {
-			this.dead = true;
+			world.entities.removeEntity(this);
 		}
 		else {
 			this.length = length;
@@ -469,7 +469,8 @@ export class Lizard {
 				World.isSlopeTile(tile)
 			) { return true; }
 		}
-		if(world.entities.some(entity => "hitboxes" in entity && entity.hitboxes().some(b => b.intersects(lookaheadRectangle)))) {
+		const entities = [...world.entities.entitiesIntersecting(lookaheadRectangle)];
+		if(entities.some(entity => "hitboxes" in entity && entity.hitboxes().some(b => b.intersects(lookaheadRectangle)))) {
 			return true;
 		}
 		return false;
@@ -551,9 +552,9 @@ export class Lizard {
 		);
 	}
 
-	distanceFrom(rect: Rectangle) {
+	boundingBox() {
 		const [tail] = this.getPointOnBody(this.length);
 		const joints = this.joints.map(j => j.position);
-		return Math.min(...[this.position, ...joints, tail].map(p => rect.distanceTo(p)));
+		return Rectangle.boundingBox([this.position, ...joints, tail]);
 	}
 }

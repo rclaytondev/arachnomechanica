@@ -5,7 +5,7 @@ import { MathUtils } from "../../utils-ts/modules/math/MathUtils.mjs";
 import { Utils } from "../../utils-ts/modules/Utils.mjs";
 import { WorldData } from "../constants/GameData.mjs";
 import { GameUtils } from "../game-utilities/GameUtils.mjs";
-import { World } from "../World";
+import { World } from "../world/World";
 import { SolidTile } from "./SolidTile.mjs";
 
 export class StoneTile {
@@ -62,11 +62,11 @@ export class StoneTile {
 		return canvasIO.canvas;
 	}
 
-	static displayStoneTiles(world: World, canvasIO: CanvasIO, visibleRegion: Rectangle) {
+	static displayStoneTiles(world: World, canvasIO: CanvasIO, visibleTileRegion: Rectangle) {
 		canvasIO.ctx.save();
 		canvasIO.ctx.beginPath();
-		for(let x = visibleRegion.left(); x < visibleRegion.right(); x ++) {
-			for(let y = visibleRegion.top(); y < visibleRegion.bottom(); y ++) {
+		for(let x = visibleTileRegion.left(); x < visibleTileRegion.right(); x ++) {
+			for(let y = visibleTileRegion.top(); y < visibleTileRegion.bottom(); y ++) {
 				const tile = world.tiles.get(x, y);
 				if(tile instanceof SolidTile && tile.texture === "stone") {
 					tile.addToPath(new Vector(x, y), canvasIO);
@@ -75,7 +75,7 @@ export class StoneTile {
 		}
 		canvasIO.ctx.clip();
 
-		const patternRegion = visibleRegion.scale(
+		const patternRegion = visibleTileRegion.scale(
 			WorldData.TILE_SIZE / WorldData.STONE_PATTERN_WIDTH,
 			WorldData.TILE_SIZE / WorldData.STONE_PATTERN_HEIGHT,
 		);

@@ -6,7 +6,7 @@ import { GameUtils } from "./game-utilities/GameUtils.mjs";
 import { Room } from "./level-generator/Room.mjs";
 import { RoomEditor } from "./RoomEditor.mjs";
 import { Rooms, ROOMS } from "./level-generator/Rooms.mjs";
-import { World } from "./World.js";
+import { World } from "./world/World.js";
 import { Rectangle } from "../utils-ts/modules/geometry/Rectangle.mjs";
 import { SolidTile } from "./tiles/SolidTile.mjs";
 import { PointOnSurface, Spider, Surface } from "./entities/Spider.mjs";
@@ -52,7 +52,7 @@ const spider = new Spider(new Vector(500, -125));
 spider.movement = "counterclockwise";
 spider.basepoint = new PointOnSurface(new Surface(new Vector(10, -1), "up"), 0);
 // spider.basepoint = new PointOnSurface(new Surface(new Vector(2, 2), "down"), 25);
-world.entities.push(spider);
+world.entities.addEntity(spider);
 
 export class Main {
 	static screen: World | RoomEditor = new World(true).initializeGeneration();

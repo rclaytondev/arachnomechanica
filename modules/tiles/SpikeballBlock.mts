@@ -4,7 +4,7 @@ import { Vector } from "../../utils-ts/modules/geometry/Vector.mjs";
 import { SpikeballBlockData, SpikeballData, SpikeballPattern, WorldData } from "../constants/GameData.mjs";
 import { Spikeball } from "../entities/Spikeball.mjs";
 import { GameUtils } from "../game-utilities/GameUtils.mjs";
-import { World } from "../World";
+import { World } from "../world/World";
 
 export class SpikeballBlock {
 	static glowGradient = GameUtils.glowCircleGradient(
@@ -93,7 +93,6 @@ export class SpikeballBlock {
 			this.timeUntilSpawn = SpikeballBlockData.SPAWN_FREQUENCY;
 			this.timeSinceSpawn = 0;
 		}
-		this.spikeballs = this.spikeballs.filter(s => !s.dead);
 
 
 		for(const xDirection of ["left", "right"] as const) {
@@ -151,7 +150,7 @@ export class SpikeballBlock {
 			new Vector(x, y).add(Vector.unit(yDirection)),
 		);
 		this.spikeballs.push(spikeball);
-		world.entities.push(spikeball);
+		world.entities.addEntity(spikeball);
 	}
 
 	copy() {
