@@ -18,12 +18,8 @@ Things to do:
 	- [ ] Buffer inputs (so far only jump inputs make sense to buffer)
 	- [ ] Coyote time
 	- [ ] Slip past corners and preserve velocity?
-- [ ] The room `platform-with-edges` can generate in a way such that you can go up and get stuck.
-- [ ] The room `comb` (???) once generated as a starting room with no exits (but maybe it was the other adjacent room's fault...)
 - [x] Lasers can pass through blocks when facing left, it seems
 
 Refactoring:
-- [ ] Extract a method `LevelGenerator.canAdd`
-- [ ] `Lizard.getHurtbox` could be refactored
 - [ ] `PhysicsObject.moveX` and `PhysicsObject.moveY` have lots of repeated code
 - [ ] Glow effects could be managed automatically by `GameUtils` instead of having each object keep track of its gradient

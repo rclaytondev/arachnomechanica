@@ -56,13 +56,3 @@ It is connected if the following criteria are met:
 This seems good?
 
 One very small problem: the second and third requirements might be too strong; i.e. there's no (gameplay) reason to limit the path to staying in adjacent chunks. (Actually, there kind of is one: I don't want the player to have to go trekking all the way across the world to find a gate to toggle to let them go past).
-
-# Program Architecture
-What kind of data needs to be stored?
-- The `World` needs to store a `WorldGenerator` instance so that it can resume level generation.
-- The `WorldGenerator` needs to store the rooms generated (possibly in chunks) and the current chunk being generated.
-	- Advantages of using a grid of `Chunk`s, where each chunk has a grid of `Room`s or `RoomTemplate`s:
-		- It's easy to tell if an adjacent chunk has been generated or not. (But this is still easy in the other system...)
-	- Disadvantages:
-		- 
-- Like before, it may be a good idea to split `WorldGenerator` into two classes: one that handles deciding which rooms go where, and another that handles adding tiles from those rooms into the world, as well as generating margins, traps, and enemies. But this separation may be more difficult to achieve than before.

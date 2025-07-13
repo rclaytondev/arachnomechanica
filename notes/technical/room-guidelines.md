@@ -1,0 +1,12 @@
+Room Design Guidelines:
+- General guidelines:
+	- The player can jump 5 blocks, so that's the maximum height you should have.
+	- Each room should have as many exits as possible, for maximum variety.
+	- If you add lots of exit tiles (e.g. if you have a whole region that gets blocked off if an exit doesn't generate), then you should be very careful about traversability and making sure the player doesn't get stuck.
+- Horizontal exit guidelines:
+	- Left/right exits should occupy at y=8 and y=9 (down from the top), and possibly more above that. (I.e. the standard floor height is to have the first solid tile at y=10).
+- Vertical exit guidelines:
+	- Exits going down should have a platform (or equivalent) on the lowest two tiles, and at least one should be in the middle 2 tiles or on the left or right edge of the exit.
+	- At least one of the middle 2 tiles should be unobstructed 
+	- Exits going up or down should occupy at least the middle 2 tiles horizontally, and possibly more, at most the middle 6 tiles.
+	- Exits going up should have a platform on y=4 or higher.

@@ -40,9 +40,6 @@ Ways to use information:
 - You can **use information to choose one object out of many**, like choosing the Ushabti containing the Qilin in Spelunky 2, or choosing the counterclockwise cyclone in Outer Wilds.
 - You can **use information to combine several objects out of many**, like mixing potions in Noita.
 - You can **assemble pieces of a code to decode a language**, like the language in the instruction manual in Tunic. (I don't like this mechanic though).
-	- `[!]` I could make it so when you go to a new area, the name appears on screen in the unknown language and then a moment later the letters convert to ordinary letters of the alphabet. Then there could be, say, a fountain, with some symbols in the unknown language, and when you enter the code a door opens.
-	  
-	  I want this to be more of a knowledge check than a puzzle, so it should be fairly easy to figure out what to do. In particular, I should have the runes change colors to show progress on entering the code whenever the user presses a key (even one that is bound to an input). Then once they enter the wrong code, it will flash red. This should clue them into the fact that it's a code, which should then prompt them to try keys that aren't bound to any input. Then they should be able to figure out the rest from there.
 - You can **use information to dig at a certain nondescript location**, like treasure maps in Minecraft, or like the secret to the right of Snowy Depths in Noita.
 - You can **enter a sequence of directions at a particular location**, like all the Holy Cross puzzles in Tunic.
 	- If I decided to do this, I could use the up and down arrow keys, since they aren't used for much.
@@ -50,3 +47,4 @@ Ways to use information:
 - You can **enter a non-numeric code**, like the Eye coordinates in Outer Wilds.
 - You could **enter a word at a text input** (either on a menu, anywhere, or at a particular location), kind of like in Type Help or like Sofanthiel in Rain World.
 - `[!]` You can **enter a sequence of directions by going through gates** which is good because this will be tricky to do even if you know the code.
+- You can **use information to assemble tiles in a pattern**; in my game, this could be done using the tractor beam item.
