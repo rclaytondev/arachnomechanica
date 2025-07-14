@@ -476,10 +476,23 @@ export class SpiderData {
 	static NUM_EYES = 3;
 	static EYE_DISTANCE = 8;
 	static EYE_SIZE = 5;
+	// static EYE_COLOR = {
+	// 	hue: 38,
+	// 	saturation: 100,
+	// 	value: 39,
+	// };
+	// static UNLIT_EYE_COLOR = {
+	// 	hue: 30,
+	// 	saturation: 0,
+	// 	value: 35,
+	// };
 	static EYE_COLOR = "rgb(200, 128, 0)";
+	static UNLIT_EYE_COLOR = "rgb(100, 100, 100)";
 
 	static GLOW_SIZE = 100;
 	static GLOW_INTENSITY = 0.4;
+	static UNLIT_GLOW_INTENSITY = 0.1;
+	static SHOT_DELAY = 10;
 	static GLOW_COLOR = {
 		red: 255,
 		green: 255,
@@ -513,6 +526,7 @@ export class SpiderData {
 	};
 	static PROJECTILE_SPEED = 5.5;
 	static PROJECTILE_ACCELERATION = 0.07;
+	static RECHARGE_TIME = 60 * 3;
 
 	static SPIDERS_PER_ROOM = 0.5;
 	static SPAWN_EVENNESS = 4;

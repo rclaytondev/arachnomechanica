@@ -9,6 +9,7 @@ import { SpiderData, WorldData } from "../constants/GameData.mjs";
 import { GameUtils } from "../game-utilities/GameUtils.mjs";
 import { Particle } from "../game-utilities/Particle.mjs";
 import { PhysicsObject } from "../game-utilities/PhysicsObject.mjs";
+import { Player } from "../Player.mjs";
 import { Entity, World } from "../world/World";
 
 export class Surface {
@@ -190,7 +191,8 @@ export class Spider {
 	movement: "clockwise" | "counterclockwise" = "clockwise";
 	basepoint: PointOnSurface | null = null;
 	angle: number = 0;
-	hasProjectile: boolean = true;
+	rechargeTime: number = -1;
+	pauseTimer: number = -1;
 
 	legs: SpiderLeg[];
 
@@ -246,12 +248,29 @@ export class Spider {
 		canvasIO.fillRegularPoly(new Vector(0, 0), SpiderData.SIZE / 2, 6);
 		canvasIO.ctx.restore();
 	}
+	// getEyeColor() {
+	// 	const rechargeTime = Math.max(this.rechargeTime, 0);
+	// 	const hue = GameUtils.lerp(rechargeTime, 0, SpiderData.RECHARGE_TIME, SpiderData.EYE_COLOR.hue, SpiderData.UNLIT_EYE_COLOR.hue);
+	// 	const saturation = GameUtils.lerp(rechargeTime, 0, SpiderData.RECHARGE_TIME, SpiderData.EYE_COLOR.saturation, SpiderData.UNLIT_EYE_COLOR.saturation);
+	// 	const value = GameUtils.lerp(rechargeTime, 0, SpiderData.RECHARGE_TIME, SpiderData.EYE_COLOR.value, SpiderData.UNLIT_EYE_COLOR.value);
+	// 	return `hsl(${hue}, ${saturation}%, ${value}%)`;
+	// }
+	numGlowingEyes() {
+		return Math.floor(GameUtils.lerp(
+			MathUtils.constrain(this.rechargeTime, 0, SpiderData.RECHARGE_TIME),
+			0, SpiderData.RECHARGE_TIME,
+			SpiderData.NUM_EYES, 0,
+		));
+	}
 	displayEyes(canvasIO: CanvasIO) {
 		const center = this.physicsObject.hitbox().center();
+		const numGlowing = this.numGlowingEyes();
+		let count = 0;
 		for(let angle = 0; angle < 360; angle += 360 / SpiderData.NUM_EYES) {
 			const position = new Vector(0, -SpiderData.EYE_DISTANCE).rotate(angle + MathUtils.toDegrees(this.angle));
-			canvasIO.ctx.fillStyle = SpiderData.EYE_COLOR;
+			canvasIO.ctx.fillStyle = (count < numGlowing) ? SpiderData.EYE_COLOR : SpiderData.UNLIT_EYE_COLOR;
 			canvasIO.fillDiamond(center.x + position.x, center.y + position.y, SpiderData.EYE_SIZE);
+			count ++;
 		}
 	}
 	displayLegs(canvasIO: CanvasIO, world: World) {
@@ -261,9 +280,19 @@ export class Spider {
 	}
 	displayGlowEffect(canvasIO: CanvasIO) {
 		const center = this.physicsObject.hitbox().center();
+		// const glowIntensity = GameUtils.lerp(
+		// 	MathUtils.constrain(this.rechargeTime, 0, SpiderData.RECHARGE_TIME),
+		// 	0, SpiderData.RECHARGE_TIME,
+		// 	SpiderData.GLOW_INTENSITY, 0,
+		// );
+		const glowIntensity = GameUtils.lerp(
+			this.numGlowingEyes(),
+			0, SpiderData.NUM_EYES,
+			0, SpiderData.GLOW_INTENSITY,
+		);
 		GameUtils.glowCircle(
 			center.x, center.y,
-			SpiderData.GLOW_SIZE, SpiderData.GLOW_INTENSITY,
+			SpiderData.GLOW_SIZE, glowIntensity,
 			canvasIO,
 			SpiderData.GLOW_COLOR.red, SpiderData.GLOW_COLOR.green, SpiderData.GLOW_COLOR.blue,
 		);
@@ -292,7 +321,7 @@ export class Spider {
 	}
 
 	update(world: World) {
-		this.move(this.hasProjectile ? SpiderData.SPEED : SpiderData.FAST_SPEED, world);
+		this.move(this.getSpeed(), world);
 		this.updateAngle();
 		this.updateLegs();
 		this.checkProjectile(world);
@@ -302,9 +331,20 @@ export class Spider {
 		this.angle = GameUtils.moveAngleTowards(this.angle, targetAngle, SpiderData.ANGULAR_SPEED);
 	}
 	updateLegs() {
+		if(this.isPaused()) { return; }
 		for(const leg of this.legs) {
 			leg.update();
 		}
+	}
+	hasProjectile() {
+		return this.rechargeTime < 0;
+	}
+	isPaused() {
+		return this.pauseTimer >= 0;
+	}
+	getSpeed() {
+		if(this.isPaused()) { return 0; }
+		return this.hasProjectile() ? SpiderData.SPEED : SpiderData.FAST_SPEED;
 	}
 	checkProjectile(world: World) {
 		const center = this.physicsObject.hitbox().center();
@@ -313,11 +353,29 @@ export class Spider {
 		const collides = (obj: Entity) => obj !== this;
 		const hasLineOfSight = world.hasLineOfSight(center.add(up), player, collides) && world.hasLineOfSight(center.subtract(up), player, collides);
 		if(!hasLineOfSight) {
-			this.hasProjectile = true;
+			this.rechargeTime --;
 		}
-		if(hasLineOfSight && this.hasProjectile) {
+		if(hasLineOfSight) {
+			if(this.hasProjectile() && !this.isPaused()) {
+				this.pauseTimer = SpiderData.SHOT_DELAY;
+			}
+			this.rechargeTime = SpiderData.RECHARGE_TIME;
+			this.runAway(world.player);
+		}
+		this.pauseTimer --;
+		if(this.pauseTimer === 0) {
 			this.shootProjectile(world);
-			this.hasProjectile = false;
+			this.rechargeTime = SpiderData.RECHARGE_TIME;
+		}
+	}
+	runAway(player: Player) {
+		const playerCenter = player.physicsObject.hitbox().center();
+		if(!this.basepoint) { return; }
+		const distance = Vector.dist(this.basepoint.position(), playerCenter);
+		const direction = this.basepoint.surface.tangentVectorCW().multiply(this.movement === "clockwise" ? 1 : -1);
+		const nextDistance = Vector.dist(this.basepoint.position().add(direction), playerCenter);
+		if(nextDistance < distance) {
+			this.movement = (this.movement === "clockwise" ? "counterclockwise" : "clockwise");
 		}
 	}
 	shootProjectile(world: World) {

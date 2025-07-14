@@ -16,6 +16,8 @@ type RandomEvenlySpacedOptions<T> = {
 	previousPoints?: T[]
 };
 
+type Color = { red: number, green: number, blue: number };
+
 export class GameUtils {
 	static moveTowards(value: number, target: number, speed: number) {
 		if(value < target) {
@@ -215,6 +217,22 @@ export class GameUtils {
 			};
 			world.addParticle(new Particle(position, velocity, { ...settings, shape: displaySector, rotation: 0 }), canvasIO);
 		}
+	}
+	static lerpColor(value: number, min: number, max: number, color1: Color, color2: Color): Color {
+		if(value < min) {
+			return color1;
+		}
+		if(value > max) {
+			return color2;
+		}
+		return {
+			red: GameUtils.lerp(value, min, max, color1.red, color2.red),
+			green: GameUtils.lerp(value, min, max, color1.green, color2.green),
+			blue: GameUtils.lerp(value, min, max, color1.blue, color2.blue),
+		};
+	}
+	static formatColor(color: Color) {
+		return `rgb(${color.red}, ${color.green}, ${color.blue})`;
 	}
 
 	static rayIntersectsVertical(rayStart: Vector, rayDirection: Vector, verticalLineX: number) {
