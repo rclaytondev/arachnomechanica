@@ -42,8 +42,7 @@ export class Entities {
 		this.positions.set(entity, positions);
 	}
 	removeEntity(entity: Entity) {
-		const positions = this.entityGridPositions(entity.boundingBox());
-		for(const position of positions.squares()) {
+		for(const position of this.positions.get(entity) ?? []) {
 			this.removeEntityFromGrid(entity, position);
 		}
 		this.positions.delete(entity);
