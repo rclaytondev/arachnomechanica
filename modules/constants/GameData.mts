@@ -2,7 +2,6 @@ import { Vector } from "../../utils-ts/modules/geometry/Vector.mjs";
 import { ParticleSettings } from "../game-utilities/Particle.mjs";
 import { Traversability } from "../level-generator/Room.mjs";
 import { GateState } from "../level-generator/GateState.mjs";
-import { Rectangle } from "../../utils-ts/modules/geometry/Rectangle.mjs";
 import { Direction } from "../../utils-ts/modules/geometry/Direction.mjs";
 import { HumanoidPart } from "../entities/Humanoid.mjs";
 import { MathUtils } from "../../utils-ts/modules/math/MathUtils.mjs";
@@ -79,13 +78,6 @@ export class PlayerData {
 	static DEATH_RESET_DELAY = 90;
 	static FADE_SPEED = 0.03;
 	static FADE_DELAY = 30;
-
-	static MAX_ENERGY = 100;
-	static ENERGY_BAR = new Rectangle(10, 10, 200, 20);
-	static ENERGY_BAR_COLOR = "rgb(160, 160, 160)";
-	static ENERGY_COLOR = "rgb(0, 128, 255)";
-
-	static TELEPORT_COST = 20;
 }
 
 export class RoomData {

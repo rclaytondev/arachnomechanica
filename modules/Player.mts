@@ -16,7 +16,6 @@ export class Player {
 	hasDoubleJump: boolean = false;
 	dead: boolean = false;
 	timeSinceDeath: number = 0;
-	energy: number = PlayerData.MAX_ENERGY;
 
 	constructor() {
 		this.physicsObject.collides = (object: Entity | { x: number, y: number, tile: Tile }) => !(object instanceof Spikeball);
@@ -27,16 +26,6 @@ export class Player {
 		canvasIO.fillRect(this.physicsObject.hitbox());
 		const center = this.physicsObject.hitbox().center();
 		GameUtils.glowCircle(center.x, center.y, PlayerData.GLOW_SIZE, PlayerData.GLOW_INTENSITY, canvasIO);
-	}
-	displayEnergyBar(canvasIO: CanvasIO) {
-		canvasIO.ctx.fillStyle = PlayerData.ENERGY_BAR_COLOR;
-		canvasIO.fillRect(PlayerData.ENERGY_BAR);
-		canvasIO.ctx.fillStyle = PlayerData.ENERGY_COLOR;
-		canvasIO.ctx.fillRect(
-			PlayerData.ENERGY_BAR.x, PlayerData.ENERGY_BAR.y,
-			this.energy / PlayerData.MAX_ENERGY * PlayerData.ENERGY_BAR.width,
-			PlayerData.ENERGY_BAR.height,
-		);
 	}
 
 	update(world: World, canvasIO: CanvasIO) {
@@ -71,15 +60,6 @@ export class Player {
 		if(canvasIO.keys.KeyZ && !GameUtils.pastKeys.KeyZ && (onGround || this.hasDoubleJump)) {
 			this.physicsObject.velocity.y = -PlayerData.JUMP_VELOCITY;
 			this.hasDoubleJump = onGround;
-		}
-
-		if(canvasIO.keys.KeyC && !GameUtils.pastKeys.KeyC && this.energy >= PlayerData.TELEPORT_COST) {
-			const directionX = canvasIO.keys.ArrowLeft ? -1 : (canvasIO.keys.ArrowRight ? 1 : 0);
-			const directionY = canvasIO.keys.ArrowUp ? -1 : (canvasIO.keys.ArrowDown ? 1 : 0);
-			if(directionX !== 0 || directionY !== 0) {
-				this.teleport(new Vector(directionX, directionY), world);
-				this.energy -= PlayerData.TELEPORT_COST;
-			}
 		}
 	}
 	onGround(world: World) {

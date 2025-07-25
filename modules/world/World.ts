@@ -93,7 +93,6 @@ export class World {
 		this.displaytTileAccents(canvasIO, visibleTileRegion);
 		this.displayDebugInfo(canvasIO);
 		canvasIO.ctx.restore();
-		this.player.displayEnergyBar(canvasIO);
 
 		if(DEBUG_SETTINGS.SHOW_MOUSE_COORDINATES) {
 			this.displayMouseCoordinates(canvasIO);
