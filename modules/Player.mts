@@ -6,6 +6,7 @@ import { PlayerData } from "./constants/GameData.mjs";
 import { Spikeball } from "./entities/Spikeball.mjs";
 import { GameUtils } from "./game-utilities/GameUtils.mjs";
 import { PhysicsObject } from "./game-utilities/PhysicsObject.mjs";
+import { Item } from "./items/Item.mjs";
 import { Entity, Tile, World } from "./world/World.js";
 
 export class Player {
@@ -16,6 +17,9 @@ export class Player {
 	hasDoubleJump: boolean = false;
 	dead: boolean = false;
 	timeSinceDeath: number = 0;
+	facing: "left" | "right" = "left";
+
+	equippedItems: [Item | null, Item | null] = [null, null];
 
 	constructor() {
 		this.physicsObject.collides = (object: Entity | { x: number, y: number, tile: Tile }) => !(object instanceof Spikeball);
@@ -45,9 +49,11 @@ export class Player {
 	checkInputs(world: World, canvasIO: CanvasIO) {
 		if(canvasIO.keys.ArrowRight && !canvasIO.keys.ArrowLeft) {
 			this.physicsObject.velocity.x += PlayerData.HORIZONTAL_ACCELERATION;
+			this.facing = "right";
 		}
 		if(canvasIO.keys.ArrowLeft && !canvasIO.keys.ArrowRight) {
 			this.physicsObject.velocity.x -= PlayerData.HORIZONTAL_ACCELERATION;
+			this.facing = "left";
 		}
 		if(
 			(!canvasIO.keys.ArrowLeft && !canvasIO.keys.ArrowRight) ||
@@ -61,20 +67,18 @@ export class Player {
 			this.physicsObject.velocity.y = -PlayerData.JUMP_VELOCITY;
 			this.hasDoubleJump = onGround;
 		}
+
+		if(canvasIO.keys.KeyX && !GameUtils.pastKeys.KeyX) {
+			this.equippedItems[0]?.use(world, canvasIO);
+		}
+		if(canvasIO.keys.KeyC && !GameUtils.pastKeys.KeyC) {
+			this.equippedItems[1]?.use(world, canvasIO);
+		}
 	}
 	onGround(world: World) {
 		return !this.physicsObject.canMove("down", world);
 	}
 	damage() {
 		this.dead = true;
-	}
-
-	teleport(direction: Vector, world: World) {
-		let box = this.physicsObject.hitbox();
-		while(!world.isInSolid(box)) {
-			box = box.translate(direction);
-		}
-		box = box.translate(direction.multiply(-1));
-		this.physicsObject.positionInt = box.center().subtract(box.width / 2, box.height / 2);
 	}
 }
