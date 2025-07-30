@@ -1,7 +1,6 @@
 # List of Ideas
 ## Enemy Ideas
 - [x] Lizard enemy that moves in a straight line and turns left or right when it hits a wall or sees the player, and breathes fire if you're in front of it
-	- [ ] Boss idea: occasionally the player can find a room with several unlit braziers of fire. If the player lights them all (using the lizard's fire-breathing attack, or the spider's fireball, or the player's items), a giant lizard boss spawns.
 - [ ] Spider enemy that crawls along walls, floors, and ceilings, always moving in the same direction, and attacks you in some way.
 	- Idea 1: when it sees you, it shoots a projectile, and then runs away (perhaps only until its attack recharges).
 		- This idea is really good, but ideally the player should have a reason to chase after it, in order to make it running away more interesting.

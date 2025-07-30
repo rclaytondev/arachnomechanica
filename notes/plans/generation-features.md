@@ -1,0 +1,29 @@
+List of things that could generate in the world:
+- **Items**: rooms with an ordinary consumable item (or 2 items).
+	- The item would always be impossible to get to by default, so that the player would have to either exploit enemy behavior or use one of their items.
+	- Ideas for ways to make items hard to get:
+		- An item surrounded by solid walls
+		- An item in a hallway with gates before and after that lock you in
+		- An item at the bottom of a pit you can't get out of
+	- Benefits/problems with making 2 items per room:
+		- `+` This incentivizes the player to use their items more, since it is worth it to spend 1 item to get 2.
+		- `+` The player should generally get items as they explore, in order to feel like they're getting rewarded for exploration.
+		- `-` This might make it too easy to get items.
+		- `+` It might not be a problem that it lets you get lots of items: e.g. this is how it works in Spelunky where you can spend 1 bomb/rope to get 3, and it doesn't cause any problems in that game.
+- **Doors**: these would take you to a backlayer with secrets of some kind.
+	- This could be where I put the items (see above) or some of the other ideas for secrets that I have.
+	- If I make the backlayers finite in size, it could be cool to make it toroidal.
+	- I imagine the doors as being quite large because that would look cool.
+	- Some of these doors could be locked until the player does something to unlock them.
+	- Some of the places behind the doors could be very hostile, e.g. with dangerous floors or filled with toxic gas, unless the player does something to make it safe.
+- **Duplicator** (single-use stationary device): the player places an item in the duplicator and the duplicator outputs two copies of the original item.
+	- Possible idea: if the duplicator is destroyed, the original item can be retrieved, resulting in three copies total.
+- **Fire Boss**: a room with several unlit braziers of fire. When lit, a boss spawns.
+	- These could be lit by using the fire-based attacks of the lizard/spider enemies, or by using an item that emits fire.
+- **Gate Code**: a room with a sequence of directions (left/right/up/down). When the player goes through gates in that order, they get some kind of reward or progression progress.
+- **Tile Code**: a room with several tiles that look different from usual tiles, and a device that allows you to use the tractor beam infinitely (see below) if you have one. If the tiles are arranged in a certain pattern, the player gets a reward or progression progress. (This would be a form of knowledge-based progression; it could be in-run progression or across-runs progression).
+- **Locally Reusable Items**: a room with a statue or device depicting an item. While nearby, if the player uses that item, it does not get consumed (i.e. the player can use it as much as they want without running out, as long as they're nearby).
+	- Problem: this might incentivize the player to never consume their items.
+	- This could be fixed by making it so that items have a "used" / "unused" state instead of being destroyed after use. Then, if a player had already consumed an item but still has the used-up version, I could allow them to still use it if they are within range of an infinite-items device.
+- **Item Requirement**: a room with several devices depicting items. If the player uses all the items while within range, they get a reward or progression progress. (The idea is it would be like a side-quest: "collect all these items and use them here to get a reward").
+	- This is kind of boring.
