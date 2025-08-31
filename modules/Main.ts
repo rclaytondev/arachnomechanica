@@ -9,7 +9,7 @@ import { Rooms, ROOMS } from "./level-generator/Rooms.mjs";
 import { World } from "./world/World.js";
 import { Rectangle } from "../utils-ts/modules/geometry/Rectangle.mjs";
 import { SolidTile } from "./tiles/SolidTile.mjs";
-import { PointOnSurface, Spider, Surface } from "./entities/Spider.mjs";
+import { Flameturret } from "./items/Flameturret.mjs";
 
 const recordedRNG: number[] = [];
 let rngOverrideIndex = 0;
@@ -47,17 +47,18 @@ const world = new World(false);
 world.tiles.fillRect(new Rectangle(-5, -5, 10, 20), new SolidTile("solid", "tower"));
 world.tiles.fillRect(new Rectangle(-4, -4, 9, 8), "empty");
 world.tiles.fillRect(new Rectangle(5, -1, 9, 8), new SolidTile("solid", "tower"));
-const spider = new Spider(new Vector(500, -125));
+// const spider = new Spider(new Vector(500, -125));
 // const spider = new Spider(new Vector(75, 125));
-spider.movement = "counterclockwise";
-spider.basepoint = new PointOnSurface(new Surface(new Vector(10, -1), "up"), 0);
+// spider.movement = "counterclockwise";
+// spider.basepoint = new PointOnSurface(new Surface(new Vector(10, -1), "up"), 0);
 // spider.basepoint = new PointOnSurface(new Surface(new Vector(2, 2), "down"), 25);
-world.entities.addEntity(spider);
+// world.entities.addEntity(spider);
+world.player.equippedItems[0] = new Flameturret();
 
 export class Main {
-	static screen: World | RoomEditor = new World(true).initializeGeneration();
+	// static screen: World | RoomEditor = new World(true).initializeGeneration();
 	// static screen: World | RoomEditor = new RoomEditor();
-	// static screen: World | RoomEditor = world;
+	static screen: World | RoomEditor = world;
 
 	static fadingOpacity: number = 0;
 	static fadingDestination: number = 0;

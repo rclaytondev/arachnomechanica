@@ -523,3 +523,14 @@ export class SpiderData {
 	static SPIDERS_PER_ROOM = 0.5;
 	static SPAWN_EVENNESS = 4;
 }
+
+export class ItemData {
+	static DOWN_THROW_VELOCITY = new Vector(0, 5);
+	static THROW_VELOCITY = new Vector(10, -2);
+	static FRICTION_X = 0.95;
+	static THROW_OFFSET = 5;
+
+	static FLAMETURRET = {
+		SIZE: WorldData.TILE_SIZE * 0.6,
+	};
+}

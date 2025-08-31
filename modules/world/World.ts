@@ -28,13 +28,15 @@ import { Utils } from "../../utils-ts/modules/Utils.mjs";
 import { Spider, SpiderProjectile } from "../entities/Spider.mjs";
 import { EntitySpawner } from "../level-generator/EntitySpawner.mjs";
 import { Entities } from "./Entities.mjs";
+import { FlameturretEntity } from "../items/item-entities/FlameturretEntity.mjs";
 
 export type TileEntity = SolidTile | Gate | LaserBlock | SpikeballBlock;
 export type Tile = (typeof WorldData.STRING_TILE_TYPES)[number] | TileEntity;
 export type Slope = (typeof WorldData.SLOPES)[number];
 export type TileWithPosition = { x: number, y: number, tile: Tile };
 export type TileEntityWithPosition = { x: number, y: number, tile: TileEntity };
-export type Entity = Lizard | Spikeball | Portal | Humanoid | Spider | SpiderProjectile;
+export type Entity = Lizard | Spikeball | Portal | Humanoid | Spider | SpiderProjectile | ItemEntity;
+export type ItemEntity = FlameturretEntity;
 
 export class World {
 	tiles: Grid<Tile> = new Grid("empty");

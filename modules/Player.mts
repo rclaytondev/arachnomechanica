@@ -2,12 +2,12 @@ import { CanvasIO } from "../utils-ts/modules/CanvasIO.mjs";
 import { Rectangle } from "../utils-ts/modules/geometry/Rectangle.mjs";
 import { Vector } from "../utils-ts/modules/geometry/Vector.mjs";
 import { MathUtils } from "../utils-ts/modules/math/MathUtils.mjs";
-import { PlayerData } from "./constants/GameData.mjs";
+import { ItemData, PlayerData } from "./constants/GameData.mjs";
 import { Spikeball } from "./entities/Spikeball.mjs";
 import { GameUtils } from "./game-utilities/GameUtils.mjs";
 import { PhysicsObject } from "./game-utilities/PhysicsObject.mjs";
 import { Item } from "./items/Item.mjs";
-import { Entity, Tile, World } from "./world/World.js";
+import { Entity, ItemEntity, Tile, World } from "./world/World.js";
 
 export class Player {
 	physicsObject: PhysicsObject = new PhysicsObject(
@@ -80,5 +80,21 @@ export class Player {
 	}
 	damage() {
 		this.dead = true;
+	}
+
+	itemThrowVelocity(canvasIO: CanvasIO) {
+		if(canvasIO.keys.ArrowDown) {
+			return ItemData.DOWN_THROW_VELOCITY.clone();
+		}
+		return (this.facing === "left") ? ItemData.THROW_VELOCITY.reflectX() : ItemData.THROW_VELOCITY.clone();
+	}
+	throw(item: ItemEntity, world: World, canvasIO: CanvasIO) {
+		const direction = (canvasIO.keys.ArrowDown ? "down" : this.facing);
+		const size = (direction === "down" ? item.physicsObject.dimensions.height : item.physicsObject.dimensions.width);
+		item.physicsObject.setCenter(
+			this.physicsObject.hitbox().edgeCenter(direction).add(Vector.unit(direction).multiply(ItemData.THROW_OFFSET + size / 2)),
+		);
+		item.physicsObject.velocity = this.itemThrowVelocity(canvasIO);
+		world.entities.addEntity(item);
 	}
 }
