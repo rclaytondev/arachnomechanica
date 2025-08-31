@@ -5,14 +5,14 @@ import { MathUtils } from "../../utils-ts/modules/math/MathUtils.mjs";
 import { Utils } from "../../utils-ts/modules/Utils.mjs";
 import { GameUtils } from "../game-utilities/GameUtils.mjs";
 import { DEBUG_SETTINGS } from "../constants/DebugSettings.mjs";
-import { Tile, World } from "../world/World.js";
+import { World } from "../world/World.js";
 import { Rectangle } from "../../utils-ts/modules/geometry/Rectangle.mjs";
 import { Gate } from "../tiles/Gate.mjs";
-import { Particle } from "../game-utilities/Particle.mjs";
 import { LizardData, WorldData } from "../constants/GameData.mjs";
 import { LaserBlock } from "../tiles/LaserBlock.mjs";
 import { SpikeballBlock } from "../tiles/SpikeballBlock.mjs";
 import { SolidTile } from "../tiles/SolidTile.mjs";
+import { FireSpawner } from "../game-utilities/FireSpawner.mjs";
 
 type Joint = { position: Vector, direction: Direction };
 
@@ -25,14 +25,13 @@ export class Lizard {
 	speed: number;
 	headAngle: number;
 	targetHeadAngle: number;
-	fireTimer: number = 0;
-	hurtboxSize: number = 0;
 	nextTurn: Direction | null = null;
 	legPosition: number = 0;
 	legDestination: number = LizardData.LEG_MAX;
 	mouthAngle: number = 0;
 	mouthDestination: number = LizardData.MAX_MOUTH_ANGLE;
 	waitingTimer: number = -1;
+	fireSpawner: FireSpawner;
 
 	constructor(position: Vector, direction: Direction, length: number, speed: number) {
 		this.position = position;
@@ -41,6 +40,7 @@ export class Lizard {
 		this.targetHeadAngle = this.headAngle;
 		this.length = length;
 		this.speed = speed;
+		this.fireSpawner = new FireSpawner(position, direction, LizardData.FIRE);
 	}
 
 	display(canvasIO: CanvasIO) {
@@ -158,7 +158,7 @@ export class Lizard {
 			canvasIO.strokeRect(box);
 		}
 
-		const hurtbox = this.hurtbox();
+		const hurtbox = this.fireSpawner.hurtbox();
 		canvasIO.ctx.strokeStyle = DEBUG_SETTINGS.LIZARD_HURTBOX_COLOR;
 		canvasIO.strokeRect(hurtbox);
 	}
@@ -182,7 +182,7 @@ export class Lizard {
 		this.updateJoints();
 		this.updateHeadAngle();
 		this.updateFire(world, canvasIO);
-		this.updateHurtbox(world, canvasIO);
+		this.fireSpawner.updateHurtbox(world, canvasIO);
 	}
 	updateLegs() {
 		if(this.waitingTimer < 0) {
@@ -204,7 +204,7 @@ export class Lizard {
 		}
 		if(this.mouthAngle <= 0) { this.mouthDestination = LizardData.MAX_MOUTH_ANGLE; }
 		if(this.mouthAngle >= LizardData.MAX_MOUTH_ANGLE) { this.mouthDestination = 0; }
-		if(this.fireTimer > 0) {
+		if(this.fireSpawner.timeLeft > 0) {
 			this.mouthDestination = LizardData.FIRE_MOUTH_OPENNESS;
 		}
 	}
@@ -216,7 +216,7 @@ export class Lizard {
 			const obstructedCounterclockwise = this.isObstructed(world, counterclockwise, WorldData.TILE_SIZE);
 			const obstructedClockwise = this.isObstructed(world, clockwise, WorldData.TILE_SIZE);
 			if(obstructedClockwise && obstructedCounterclockwise) {
-				this.startFire();
+				this.fireSpawner.startFire(LizardData.FIRE_DURATION);
 			}
 			else if(!obstructedClockwise && obstructedCounterclockwise) {
 				this.turn(clockwise);
@@ -237,7 +237,7 @@ export class Lizard {
 			this.joints.unshift({ position: this.position.clone(), direction: this.direction });
 			this.direction = direction;
 			this.targetHeadAngle = Vector.unit(this.direction).angle();
-			this.stopFire();
+			this.fireSpawner.stopFire();
 		}
 	}
 	attemptTurn(direction: Direction, world: World) {
@@ -269,87 +269,19 @@ export class Lizard {
 		this.headAngle = MathUtils.generalizedModulo(this.headAngle, 2 * Math.PI);
 		this.targetHeadAngle = MathUtils.generalizedModulo(this.targetHeadAngle, 2 * Math.PI);
 	}
-	generateFireParticleVelocity() {
-		const speed = LizardData.PARTICLE_SPEED + GameUtils.random(-LizardData.PARTICLE_SPEED_VARIANCE, LizardData.PARTICLE_SPEED_VARIANCE);
-		const crossSpeed = GameUtils.random(-LizardData.PARTICLE_CROSS_SPEED_VARIANCE, LizardData.PARTICLE_CROSS_SPEED_VARIANCE);
-		if(Directions.isHorizontal(this.direction)) {
-			return new Vector(
-				speed * (this.direction === "left" ? -1 : 1),
-				crossSpeed,
-			);
-		}
-		else {
-			return new Vector(
-				crossSpeed,
-				speed * (this.direction === "up" ? -1 : 1),
-			);
-		}
-	}
-	generateFireParticle() {
-		return new Particle(this.position, this.generateFireParticleVelocity(), LizardData.FIRE_PARTICLES);
-	}
 	updateFire(world: World, canvasIO: CanvasIO) {
-		this.fireTimer --;
-		if(this.fireTimer > 0) {
-			for(let i = 0; i < LizardData.PARTICLES_PER_FRAME; i ++) {
-				world.addParticle(this.generateFireParticle(), canvasIO);
-			}
-			this.hurtboxSize = Math.min(this.hurtboxSize + LizardData.HURTBOX_SPEED, LizardData.MAX_HURTBOX_SIZE);
-		}
-		else {
-			this.hurtboxSize = 0;
-		}
-	}
-	hurtbox(size: number = this.hurtboxSize) {
-		if(this.direction === "left") {
-			return new Rectangle(
-				this.position.x - size - LizardData.HURTBOX_OFFSET, this.position.y - LizardData.HURTBOX_WIDTH / 2,
-				Math.max(0, size - LizardData.HURTBOX_OFFSET), LizardData.HURTBOX_WIDTH,
-			);
-		}
-		else if(this.direction === "right") {
-			return new Rectangle(
-				this.position.x + LizardData.HURTBOX_OFFSET, this.position.y - LizardData.HURTBOX_WIDTH / 2,
-				Math.max(0, size - LizardData.HURTBOX_OFFSET), LizardData.HURTBOX_WIDTH,
-			);
-		}
-		else if(this.direction === "up") {
-			return new Rectangle(
-				this.position.x - LizardData.HURTBOX_WIDTH / 2, this.position.y - size - LizardData.HURTBOX_OFFSET,
-				LizardData.HURTBOX_WIDTH, Math.max(0, size - LizardData.HURTBOX_OFFSET),
-			);
-		}
-		else {
-			return new Rectangle(
-				this.position.x - LizardData.HURTBOX_WIDTH / 2, this.position.y + LizardData.HURTBOX_OFFSET,
-				LizardData.HURTBOX_WIDTH, Math.max(0,size - LizardData.HURTBOX_OFFSET),
-			);
-		}
-	}
-	shouldDestroy(tile: Tile) {
-		return !(
-			(tile === "platform" && this.direction !== "down") ||
-			(tile instanceof Gate && tile.openness >= 1)
-		);
-	}
-	updateHurtbox(world: World, canvasIO: CanvasIO) {
-		if(this.hurtboxSize === 0) { return; }
-		const hurtbox = this.hurtbox();
-		for(const { position, tile } of world.getTilesAt(hurtbox)) {
-			if(this.shouldDestroy(tile)){
-				world.destroyTile(position);
-			}
-		}
-		world.damage(hurtbox, canvasIO);
+		this.fireSpawner.position = this.position;
+		this.fireSpawner.direction = this.direction;
+		this.fireSpawner.update(world, canvasIO);
 	}
 	checkForPlayer(world: World) {
 		this.checkForPlayerFire(world);
 		this.checkForPlayerTurns(world);
 	}
 	checkForPlayerFire(world: World) {
-		const hurtbox = this.hurtbox(LizardData.MAX_HURTBOX_SIZE);
+		const hurtbox = this.fireSpawner.hurtbox(this.fireSpawner.maxHurtboxSize);
 		if(!world.player.dead && world.player.physicsObject.hitbox().intersects(hurtbox)) {
-			this.startFire();
+			this.fireSpawner.startFire(LizardData.FIRE_DURATION);
 		}
 	}
 	checkForPlayerTurns(world: World) {
@@ -390,16 +322,6 @@ export class Lizard {
 			this.attemptTurn(this.nextTurn, world);
 			this.nextTurn = null;
 		}
-	}
-	startFire() {
-		if(this.fireTimer < 0) {
-			this.hurtboxSize = 0;
-		}
-		this.fireTimer = LizardData.FIRE_DURATION;
-	}
-	stopFire() {
-		this.fireTimer = 0;
-		this.hurtboxSize = 0;
 	}
 
 	lengthAfterDamage(rectangle: Rectangle) {

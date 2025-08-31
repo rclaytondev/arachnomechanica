@@ -10,6 +10,7 @@ import { World } from "./world/World.js";
 import { Rectangle } from "../utils-ts/modules/geometry/Rectangle.mjs";
 import { SolidTile } from "./tiles/SolidTile.mjs";
 import { Flameturret } from "./items/Flameturret.mjs";
+import { Lizard } from "./entities/Lizard.js";
 
 const recordedRNG: number[] = [];
 let rngOverrideIndex = 0;
@@ -53,6 +54,7 @@ world.tiles.fillRect(new Rectangle(5, -1, 9, 8), new SolidTile("solid", "tower")
 // spider.basepoint = new PointOnSurface(new Surface(new Vector(10, -1), "up"), 0);
 // spider.basepoint = new PointOnSurface(new Surface(new Vector(2, 2), "down"), 25);
 // world.entities.addEntity(spider);
+world.entities.addEntity(new Lizard(new Vector(225, -25), "up", 200, 3));
 world.player.equippedItems[0] = new Flameturret();
 
 export class Main {

@@ -5,6 +5,7 @@ import { GateState } from "../level-generator/GateState.mjs";
 import { Direction } from "../../utils-ts/modules/geometry/Direction.mjs";
 import { HumanoidPart } from "../entities/Humanoid.mjs";
 import { MathUtils } from "../../utils-ts/modules/math/MathUtils.mjs";
+import { FireSpawnerSettings } from "../game-utilities/FireSpawner.mjs";
 
 export class WorldData {
 	static TILE_SIZE = 50;
@@ -176,10 +177,6 @@ export class LizardData {
 	static LOOKAHEAD_DISTANCE = WorldData.TILE_SIZE * 1/2;
 	static HITBOX_WIDTH = WorldData.TILE_SIZE * 1/2;
 	static FIRE_DURATION = 30;
-	static HURTBOX_WIDTH = 1/2 * WorldData.TILE_SIZE;
-	static HURTBOX_SPEED = 6;
-	static HURTBOX_OFFSET = WorldData.TILE_SIZE * 0.4;
-	static MAX_HURTBOX_SIZE = 100;
 	static PLAYER_DETECTION_WIDTH = WorldData.TILE_SIZE * 0.5;
 	static TURN_DELAY = 7;
 
@@ -190,10 +187,17 @@ export class LizardData {
 		glowSize: 30,
 		glowIntensity: 1/8,
 	};
-	static PARTICLES_PER_FRAME = 2;
-	static PARTICLE_SPEED = LizardData.SPEED + 6;
-	static PARTICLE_SPEED_VARIANCE = 2;
-	static PARTICLE_CROSS_SPEED_VARIANCE = 1;
+	static FIRE: FireSpawnerSettings = {
+		maxHurtboxSize: 100,
+		hurtboxWidth: 1/2 * WorldData.TILE_SIZE,
+		hurtboxOffset: WorldData.TILE_SIZE * 0.4,
+		hurtboxSpeed: 6,
+		particlesPerFrame: 2,
+		particleSettings: LizardData.FIRE_PARTICLES,
+		particleSpeed: LizardData.SPEED + 6,
+		particleSpeedVariance: 2,
+		particleCrossSpeedVariance: 1,
+	};
 
 	static BODY_WIDTH = WorldData.TILE_SIZE * 0.1;
 	static BODY_POINTEDNESS = 2;
