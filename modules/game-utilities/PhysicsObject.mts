@@ -6,7 +6,8 @@ import { Entity, Tile, TileWithPosition, World } from "../world/World.js";
 
 type MoveOptions = {
 	collides?: (object: { x: number, y: number, tile: Tile } | Entity) => boolean,
-	onCollision?: (direction: Direction, collisions: (Entity | TileWithPosition)[]) => void
+	onCollision?: (direction: Direction, collisions: (Entity | TileWithPosition)[]) => void,
+	slopeMode?: "stop" | "push" | "slide",
 };
 
 export class PhysicsObject {
@@ -29,10 +30,10 @@ export class PhysicsObject {
 		this.moveX(amount.x, options, world);
 		this.moveY(amount.y, options, world);
 	}
-	moveX(amount: number, options: MoveOptions, world: World, slopeMode: "stop" | "push" | "slide" = "stop") {
+	moveX(amount: number, options: MoveOptions, world: World) {
 		this.remainder.x += amount;
 		while(this.remainder.x >= 1) {
-			const moved = this.moveUnit("right", options, world, slopeMode);
+			const moved = this.moveUnit("right", options, world);
 			this.remainder.x --;
 			if(!moved) {
 				this.remainder.x = 0;
@@ -40,7 +41,7 @@ export class PhysicsObject {
 			}
 		}
 		while(this.remainder.x < 0) {
-			const moved = this.moveUnit("left", options, world, slopeMode);
+			const moved = this.moveUnit("left", options, world);
 			this.remainder.x ++;
 			if(!moved) {
 				this.remainder.x = 0;
@@ -67,8 +68,8 @@ export class PhysicsObject {
 			}
 		}
 	}
-	moveUnit(direction: Direction, options: MoveOptions, world: World, slopeMode: "stop" | "push" | "slide" = "stop") {
-		const offset = this.slopeOffset(direction, world, slopeMode);
+	moveUnit(direction: Direction, options: MoveOptions, world: World) {
+		const offset = this.slopeOffset(direction, world, options.slopeMode ?? "stop");
 		const collidingObjects = this.collidingObjects(offset, world, options.collides ?? (() => true));
 		if(collidingObjects.length === 0) {
 			this.positionInt = this.positionInt.add(offset);
