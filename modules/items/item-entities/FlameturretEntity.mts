@@ -17,7 +17,6 @@ export class FlameturretEntity {
 			new Vector(0, 0),
 			Rectangle.square(0, 0, ItemData.FLAMETURRET.SIZE),
 		);
-		this.physicsObject.collides = (obj) => obj !== this;
 
 		this.fireSpawnerLeft = new FireSpawner(new Vector(0, 0), "left", LizardData.FIRE);
 		this.fireSpawnerRight = new FireSpawner(new Vector(0, 0), "right", LizardData.FIRE);
@@ -32,10 +31,13 @@ export class FlameturretEntity {
 	update(world: World, canvasIO: CanvasIO) {
 		this.physicsObject.velocity.x *= ItemData.FRICTION_X;
 		this.physicsObject.applyGravity(PlayerData.GRAVITY);
-		this.physicsObject.move(this.physicsObject.velocity, world, (direction) => {
-			if(Directions.isVertical(direction)) {
-				this.physicsObject.velocity.y = 0;
-			}
+		this.physicsObject.move(this.physicsObject.velocity, world, {
+			onCollision: (direction) => {
+				if(Directions.isVertical(direction)) {
+					this.physicsObject.velocity.y = 0;
+				}
+			},
+			collides: (obj) => obj !== this,
 		});
 		world.entities.moveEntity(this);
 

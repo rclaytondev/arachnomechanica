@@ -65,14 +65,16 @@ class LinearMotion {
 	parts: HumanoidPart[];
 	timeLeft: number;
 	age: number = 0;
+	collides: boolean;
 
-	constructor(velocity: Vector, parts: HumanoidPart[], duration: number) {
+	constructor(velocity: Vector, parts: HumanoidPart[], duration: number, collides: boolean) {
 		this.velocity = velocity;
 		this.parts = parts;
 		this.timeLeft = duration;
+		this.collides = collides;
 	}
 	apply(part: HumanoidPart, world: World) {
-		part.physicsObject.move(this.velocity, world, () => { this.timeLeft = -1; });
+		part.physicsObject.move(this.velocity, world, { onCollision: () => { this.timeLeft = -1; } });
 	}
 	update(world: World) {
 		this.timeLeft --;
@@ -84,11 +86,12 @@ class LinearMotion {
 		}
 	}
 
-	static translateToPosition(part: HumanoidPart, destination: Vector, duration: number, mode: "center" | "tip" | "base" = "center") {
+	static translateToPosition(part: HumanoidPart, destination: Vector, duration: number, mode: "center" | "tip" | "base" = "center", collides: boolean) {
 		return new LinearMotion(
 			destination.subtract(part[mode]()).divide(duration),
 			[part],
 			duration,
+			collides,
 		);
 	}
 }
@@ -197,14 +200,14 @@ export class Humanoid {
 		else {
 			this.physicsObject.velocity.y = 0;
 		}
-		this.physicsObject.moveY(this.physicsObject.velocity.y, () => { this.physicsObject.velocity.y = 0; }, world);
+		this.physicsObject.moveY(this.physicsObject.velocity.y, { onCollision: () => { this.physicsObject.velocity.y = 0; } }, world);
 		this.timer ++;
 
 		for(const motion of this.motions) {
 			motion.update(world);
 		}
 		for(const part of this.parts) {
-			part.physicsObject.moveY(this.physicsObject.velocity.y, () => {}, world);
+			part.physicsObject.moveY(this.physicsObject.velocity.y, {}, world);
 		}
 
 		if(this.mode === "walking") {
@@ -232,7 +235,7 @@ export class Humanoid {
 	walk(world: World) {
 		this.physicsObject.moveX(
 			this.body.center().x - this.physicsObject.hitbox().center().x,
-			() => this.turnAround(),
+			{ onCollision: () => this.turnAround() },
 			world,
 		);
 		if(!this.backwards && this.motions.every(m => m.timeLeft < 0)) {
@@ -288,7 +291,7 @@ export class Humanoid {
 		for(const partID of ["head", "body", "leftArm", "rightArm", "leftLeg", "rightLeg"] as const) {
 			const part = this[partID];
 			this.motions.push(RotationalMotion.rotateToAngle(part, angle, HumanoidData.ARMING_TIME));
-			this.motions.push(LinearMotion.translateToPosition(part, HumanoidData.ARMING_POSITIONS[partID].add(center), HumanoidData.ARMING_TIME));
+			this.motions.push(LinearMotion.translateToPosition(part, HumanoidData.ARMING_POSITIONS[partID].add(center), HumanoidData.ARMING_TIME, "center", false));
 		}
 		this.reformPosition = this.getReformPosition(world);
 	}
@@ -302,9 +305,10 @@ export class Humanoid {
 			part,
 			part.center().add(new Vector(HumanoidData.MAX_SHOT_DISTANCE, 0).rotate(-90 + MathUtils.toDegrees(part.angle))),
 			HumanoidData.MAX_SHOT_DISTANCE / HumanoidData.PROJECTILE_SPEED,
+			"center",
+			true,
 		));
 		part.shot = true;
-		part.physicsObject.collides = () => true;
 		this.timer = 0;
 	}
 	doneShooting() {
@@ -317,13 +321,13 @@ export class Humanoid {
 		const defaultHumanoid = new Humanoid(new Vector(0, 0));
 		for(const partID of ["head", "body", "leftArm", "rightArm", "leftLeg", "rightLeg"] as const) {
 			const part = this[partID];
-			part.physicsObject.collides = () => false;
 			this.motions.push(RotationalMotion.rotateToAngle(part, defaultHumanoid[partID].angle, HumanoidData.REFORM_TIME));
 			this.motions.push(LinearMotion.translateToPosition(
 				part,
 				defaultHumanoid[partID].center().add(this.reformPosition),
 				HumanoidData.REFORM_TIME,
 				"center",
+				false,
 			));
 		}
 	}

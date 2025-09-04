@@ -24,7 +24,6 @@ export class Spikeball {
 			new Rectangle(0, 0, 2 * SpikeballData.RADIUS, 2 * SpikeballData.RADIUS),
 		);
 		this.physicsObject.velocity = velocity;
-		this.physicsObject.collides = (object) => this.collides(object);
 	}
 
 	collides(object: { x: number, y: number, tile: Tile } | Entity) {
@@ -79,29 +78,35 @@ export class Spikeball {
 	update(world: World, canvasIO: CanvasIO) {
 		this.physicsObject.moveX(
 			this.physicsObject.velocity.x,
-			(direction, collisions) => {
-				this.bounces --;
-				if(collisions.some(
-					t => "tile" in t && World.isSlopeTile(t.tile)
-					&& ((t.tile.shape === "slope-floor-left" || t.tile.shape === "slope-ceiling-left") === (this.physicsObject.velocity.x < 0)))
-				) {
-					this.physicsObject.velocity.y = -this.physicsObject.velocity.y;
-				}
-				this.physicsObject.velocity.x = -this.physicsObject.velocity.x;
+			{
+				collides: (obj) => this.collides(obj),
+				onCollision: (direction, collisions) => {
+					this.bounces --;
+					if(collisions.some(
+						t => "tile" in t && World.isSlopeTile(t.tile)
+						&& ((t.tile.shape === "slope-floor-left" || t.tile.shape === "slope-ceiling-left") === (this.physicsObject.velocity.x < 0)))
+					) {
+						this.physicsObject.velocity.y = -this.physicsObject.velocity.y;
+					}
+					this.physicsObject.velocity.x = -this.physicsObject.velocity.x;
+				},
 			},
 			world,
 		);
 		this.physicsObject.moveY(
 			this.physicsObject.velocity.y,
-			(direction, collisions) => {
-				this.bounces --;
-				if(collisions.some(
-					t => "tile" in t && World.isSlopeTile(t.tile)
-					&& ((t.tile.shape === "slope-ceiling-left" || t.tile.shape === "slope-ceiling-right") === (this.physicsObject.velocity.y < 0)))
-				) {
-					this.physicsObject.velocity.x = -this.physicsObject.velocity.x;
-				}
-				this.physicsObject.velocity.y = -this.physicsObject.velocity.y;
+			{
+				collides: (obj) => this.collides(obj),
+				onCollision: (direction, collisions) => {
+					this.bounces --;
+					if(collisions.some(
+						t => "tile" in t && World.isSlopeTile(t.tile)
+						&& ((t.tile.shape === "slope-ceiling-left" || t.tile.shape === "slope-ceiling-right") === (this.physicsObject.velocity.y < 0)))
+					) {
+						this.physicsObject.velocity.x = -this.physicsObject.velocity.x;
+					}
+					this.physicsObject.velocity.y = -this.physicsObject.velocity.y;
+				},
 			},
 			world,
 		);

@@ -7,7 +7,7 @@ import { Spikeball } from "./entities/Spikeball.mjs";
 import { GameUtils } from "./game-utilities/GameUtils.mjs";
 import { PhysicsObject } from "./game-utilities/PhysicsObject.mjs";
 import { Item } from "./items/Item.mjs";
-import { Entity, ItemEntity, Tile, World } from "./world/World.js";
+import { ItemEntity, World } from "./world/World.js";
 
 export class Player {
 	physicsObject: PhysicsObject = new PhysicsObject(
@@ -20,10 +20,6 @@ export class Player {
 	facing: "left" | "right" = "left";
 
 	equippedItems: [Item | null, Item | null] = [null, null];
-
-	constructor() {
-		this.physicsObject.collides = (object: Entity | { x: number, y: number, tile: Tile }) => !(object instanceof Spikeball);
-	}
 
 	display(canvasIO: CanvasIO) {
 		canvasIO.ctx.fillStyle = PlayerData.COLOR;
@@ -43,8 +39,14 @@ export class Player {
 		}
 		this.physicsObject.applyGravity(canvasIO.keys.KeyZ && this.physicsObject.velocity.y <= 0 ? PlayerData.GRAVITY_WHILE_JUMPING : PlayerData.GRAVITY);
 		this.physicsObject.velocity.x = MathUtils.constrain(this.physicsObject.velocity.x, -PlayerData.MAX_X_VELOCITY, PlayerData.MAX_X_VELOCITY);
-		this.physicsObject.moveX(this.physicsObject.velocity.x, () => { this.physicsObject.velocity.x = 0; }, world, "slide");
-		this.physicsObject.moveY(this.physicsObject.velocity.y, () => { this.physicsObject.velocity.y = 0; }, world);
+		this.physicsObject.moveX(this.physicsObject.velocity.x, {
+			onCollision: () => { this.physicsObject.velocity.x = 0; },
+			collides: (obj) => !(obj instanceof Spikeball),
+		}, world, "slide");
+		this.physicsObject.moveY(this.physicsObject.velocity.y, {
+			onCollision: () => { this.physicsObject.velocity.y = 0; },
+			collides: (obj) => !(obj instanceof Spikeball),
+		}, world);
 	}
 	checkInputs(world: World, canvasIO: CanvasIO) {
 		if(canvasIO.keys.ArrowRight && !canvasIO.keys.ArrowLeft) {
@@ -76,7 +78,7 @@ export class Player {
 		}
 	}
 	onGround(world: World) {
-		return !this.physicsObject.canMove("down", world);
+		return !this.physicsObject.canMove("down", world, () => true);
 	}
 	damage() {
 		this.dead = true;

@@ -201,7 +201,6 @@ export class Spider {
 			position.subtract(SpiderData.HITBOX_SIZE / 2, SpiderData.HITBOX_SIZE / 2).floor(),
 			new Rectangle(0, 0, SpiderData.HITBOX_SIZE, SpiderData.HITBOX_SIZE),
 		);
-		this.physicsObject.collides = (obj) => obj !== this;
 		this.legs = this.initializeLegs();
 	}
 	initializeLegs() {
@@ -384,8 +383,7 @@ export class Spider {
 		const direction = player.subtract(center).normalize();
 		const velocity = direction.multiply(SpiderData.PROJECTILE_SPEED);
 		const acceleration = direction.multiply(SpiderData.PROJECTILE_ACCELERATION);
-		const projectile = new SpiderProjectile(center, velocity, acceleration);
-		projectile.physicsObject.collides = (obj) => obj !== this;
+		const projectile = new SpiderProjectile(center, velocity, acceleration, this);
 		world.entities.addEntity(projectile);
 	}
 
@@ -398,7 +396,10 @@ export class Spider {
 		this.physicsObject.move(
 			newPosition.subtract(this.physicsObject.positionFloat()),
 			world,
-			() => this.switchDirection(),
+			{
+				collides: (obj) => obj !== this,
+				onCollision: () => this.switchDirection(),
+			},
 		);
 		world.entities.moveEntity(this);
 	}
@@ -455,7 +456,7 @@ export class Spider {
 	}
 	explode(world: World, canvasIO: CanvasIO) {
 		const center = this.physicsObject.hitbox().center();
-		const projectile = new SpiderProjectile(center, new Vector(0, 0), new Vector(0, 0));
+		const projectile = new SpiderProjectile(center, new Vector(0, 0), new Vector(0, 0), this);
 		projectile.explode(world, canvasIO);
 	}
 
@@ -475,16 +476,21 @@ export class SpiderProjectile {
 	physicsObject: PhysicsObject;
 	velocity: Vector;
 	acceleration: Vector;
+	spider: Spider;
 
-	constructor(position: Vector, velocity: Vector, acceleration: Vector) {
+	constructor(position: Vector, velocity: Vector, acceleration: Vector, spider: Spider) {
 		this.physicsObject = new PhysicsObject(position.floor(), Rectangle.square(0, 0, 1));
 		this.velocity = velocity;
 		this.acceleration = acceleration;
+		this.spider = spider;
 	}
 
 	update(world: World, canvasIO: CanvasIO) {
 		this.velocity = this.velocity.add(this.acceleration);
-		this.physicsObject.move(this.velocity, world, () => this.explode(world, canvasIO));
+		this.physicsObject.move(this.velocity, world, {
+			collides: (obj) => obj !== this.spider,
+			onCollision: () => this.explode(world, canvasIO),
+		});
 		world.entities.moveEntity(this);
 
 		world.addParticle(new Particle(
