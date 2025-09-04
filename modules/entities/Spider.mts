@@ -200,6 +200,7 @@ export class Spider {
 		this.physicsObject = new PhysicsObject(
 			position.subtract(SpiderData.HITBOX_SIZE / 2, SpiderData.HITBOX_SIZE / 2).floor(),
 			new Rectangle(0, 0, SpiderData.HITBOX_SIZE, SpiderData.HITBOX_SIZE),
+			"spider",
 		);
 		this.legs = this.initializeLegs();
 	}
@@ -479,7 +480,7 @@ export class SpiderProjectile {
 	spider: Spider;
 
 	constructor(position: Vector, velocity: Vector, acceleration: Vector, spider: Spider) {
-		this.physicsObject = new PhysicsObject(position.floor(), Rectangle.square(0, 0, 1));
+		this.physicsObject = new PhysicsObject(position.floor(), Rectangle.square(0, 0, 1), "spider-projectile");
 		this.velocity = velocity;
 		this.acceleration = acceleration;
 		this.spider = spider;

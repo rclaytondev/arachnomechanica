@@ -60,9 +60,9 @@ world.entities.addEntity(new Humanoid(new Vector(500, -500)));
 world.player.equippedItems[0] = new Flameturret();
 
 export class Main {
-	// static screen: World | RoomEditor = new World(true).initializeGeneration();
+	static screen: World | RoomEditor = new World(true).initializeGeneration();
 	// static screen: World | RoomEditor = new RoomEditor();
-	static screen: World | RoomEditor = world;
+	// static screen: World | RoomEditor = world;
 
 	static fadingOpacity: number = 0;
 	static fadingDestination: number = 0;

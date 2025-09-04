@@ -13,6 +13,7 @@ export class Player {
 	physicsObject: PhysicsObject = new PhysicsObject(
 		new Vector(0, -50),
 		new Rectangle(0, 0, PlayerData.HITBOX_WIDTH, PlayerData.HITBOX_HEIGHT),
+		"player",
 	);
 	hasDoubleJump: boolean = false;
 	dead: boolean = false;

@@ -10,16 +10,20 @@ type MoveOptions = {
 	slopeMode?: "stop" | "push" | "slide",
 };
 
+type EntityType = "player" | "humanoid" | "humanoid-part" | "spider" | "spider-projectile" | "spikeball" | "flameturret";
+
 export class PhysicsObject {
 	positionInt: Vector;
 	remainder: Vector;
 	dimensions: Rectangle;
 	velocity: Vector = new Vector(0, 0);
+	entityType: EntityType;
 
-	constructor(positionInt: Vector, dimensions: Rectangle) {
+	constructor(positionInt: Vector, dimensions: Rectangle, entityType: EntityType) {
 		this.positionInt = positionInt.floor();
 		this.remainder = positionInt.subtract(this.positionInt);
 		this.dimensions = dimensions;
+		this.entityType = entityType;
 	}
 
 	applyGravity(amount: number) {

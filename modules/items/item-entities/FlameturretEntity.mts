@@ -16,6 +16,7 @@ export class FlameturretEntity {
 		this.physicsObject = new PhysicsObject(
 			new Vector(0, 0),
 			Rectangle.square(0, 0, ItemData.FLAMETURRET.SIZE),
+			"flameturret",
 		);
 
 		this.fireSpawnerLeft = new FireSpawner(new Vector(0, 0), "left", LizardData.FIRE);

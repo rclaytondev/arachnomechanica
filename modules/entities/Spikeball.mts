@@ -22,6 +22,7 @@ export class Spikeball {
 		this.physicsObject = new PhysicsObject(
 			position,
 			new Rectangle(0, 0, 2 * SpikeballData.RADIUS, 2 * SpikeballData.RADIUS),
+			"spikeball",
 		);
 		this.physicsObject.velocity = velocity;
 	}

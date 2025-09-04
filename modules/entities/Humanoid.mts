@@ -107,6 +107,7 @@ export class HumanoidPart {
 		this.physicsObject = new PhysicsObject(
 			position.subtract(1, 1),
 			new Rectangle(0, 0, 2, 2),
+			"humanoid-part",
 		);
 		this.angle = angle;
 		this.width = width;
@@ -180,7 +181,7 @@ export class Humanoid {
 	motions: (RotationalMotion | LinearMotion)[] = [];
 
 	constructor(position: Vector) {
-		this.physicsObject = new PhysicsObject(position, new Rectangle(0, 0, HumanoidData.HITBOX_WIDTH, HumanoidData.HITBOX_HEIGHT));
+		this.physicsObject = new PhysicsObject(position, new Rectangle(0, 0, HumanoidData.HITBOX_WIDTH, HumanoidData.HITBOX_HEIGHT), "humanoid");
 
 		const center = this.physicsObject.hitbox().center();
 		this.head = HumanoidData.HEAD.translate(center);
