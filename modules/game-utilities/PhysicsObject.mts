@@ -8,7 +8,8 @@ import { Entity } from "./Entity.mjs";
 type MoveOptions = {
 	collides?: (object: { x: number, y: number, tile: Tile } | Entity) => boolean,
 	onCollision?: (direction: Direction, collisions: (Entity | TileWithPosition)[]) => void,
-	slopeMode?: "stop" | "push" | "slide",
+	slideUpSlopes?: boolean,
+	slideDownSlopes?: boolean
 };
 
 type EntityType = "player" | "humanoid" | "humanoid-part" | "spider" | "spider-projectile" | "spikeball" | "flameturret";
@@ -74,7 +75,7 @@ export class PhysicsObject {
 		}
 	}
 	moveUnit(direction: Direction, options: MoveOptions, world: World) {
-		const offset = this.slopeOffset(direction, world, options.slopeMode ?? "stop");
+		const offset = this.slopeOffset(direction, world, options.slideUpSlopes ?? false, options.slideDownSlopes ?? false);
 		const collidingObjects = this.collidingObjects(offset, world, options.collides ?? (() => true));
 		if(collidingObjects.length === 0) {
 			this.positionInt = this.positionInt.add(offset);
@@ -89,13 +90,13 @@ export class PhysicsObject {
 			return false;
 		}
 	}
-	slopeOffset(direction: Direction, world: World, slopeMode: "stop" | "push" | "slide") {
+	slopeOffset(direction: Direction, world: World, slideUpSlopes: boolean, slideDownSlopes: boolean) {
 		const offset = Vector.unit(direction);
-		if(slopeMode === "stop") { return offset; }
+		if(!slideUpSlopes && !slideDownSlopes) { return offset; }
 
 		if(
 			Directions.isHorizontal(direction)
-			&& (slopeMode === "push" || slopeMode === "slide")
+			&& slideUpSlopes
 			&& world.onSlope(this.hitbox(), `slope-floor-${direction}`)
 		) {
 			return offset.add(0, -1);
@@ -104,7 +105,7 @@ export class PhysicsObject {
 		const opposite = Directions.opposite[direction];
 		if(
 			Directions.isHorizontal(opposite)
-			&& slopeMode === "slide"
+			&& slideDownSlopes
 			&& world.onSlope(this.hitbox(), `slope-floor-${opposite}`)
 		) {
 			return offset.add(0, 1);

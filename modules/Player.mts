@@ -43,7 +43,8 @@ export class Player {
 		this.physicsObject.moveX(this.physicsObject.velocity.x, {
 			onCollision: () => { this.physicsObject.velocity.x = 0; },
 			collides: (obj) => !(obj instanceof Spikeball),
-			slopeMode: "slide",
+			slideUpSlopes: true,
+			slideDownSlopes: true,
 		}, world);
 		this.physicsObject.moveY(this.physicsObject.velocity.y, {
 			onCollision: () => { this.physicsObject.velocity.y = 0; },
