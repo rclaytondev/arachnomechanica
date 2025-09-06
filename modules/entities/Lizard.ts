@@ -151,7 +151,7 @@ export class Lizard {
 
 		canvasIO.ctx.restore();
 	}
-	displayHitboxes(canvasIO: CanvasIO) {
+	displayDebug(canvasIO: CanvasIO) {
 		const hitboxes = this.hitboxes();
 		for(const box of hitboxes) {
 			canvasIO.ctx.strokeStyle = DEBUG_SETTINGS.LIZARD_HITBOX_COLOR;
@@ -392,7 +392,7 @@ export class Lizard {
 			) { return true; }
 		}
 		const entities = [...world.entities.entitiesIntersecting(lookaheadRectangle)];
-		if(entities.some(entity => "hitboxes" in entity && entity.hitboxes().some(b => b.intersects(lookaheadRectangle)))) {
+		if(entities.some(entity => entity.hitboxes().some(b => b.intersects(lookaheadRectangle)))) {
 			return true;
 		}
 		return false;

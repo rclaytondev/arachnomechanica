@@ -2,7 +2,8 @@ import { Direction, Directions } from "../../utils-ts/modules/geometry/Direction
 import { Rectangle } from "../../utils-ts/modules/geometry/Rectangle.mjs";
 import { Vector } from "../../utils-ts/modules/geometry/Vector.mjs";
 import { WorldData } from "../constants/GameData.mjs";
-import { Entity, Tile, TileWithPosition, World } from "../world/World.js";
+import { Tile, TileWithPosition, World } from "../world/World.js";
+import { Entity } from "./Entity.mjs";
 
 type MoveOptions = {
 	collides?: (object: { x: number, y: number, tile: Tile } | Entity) => boolean,

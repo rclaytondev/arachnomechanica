@@ -3,7 +3,8 @@ import { Vector } from "../../utils-ts/modules/geometry/Vector.mjs";
 import { Grid } from "../../utils-ts/modules/Grid.mjs";
 import { Utils } from "../../utils-ts/modules/Utils.mjs";
 import { WorldData } from "../constants/GameData.mjs";
-import { Entity, TileEntity, TileEntityWithPosition } from "./World";
+import { TileEntity, TileEntityWithPosition } from "./World";
+import { Entity } from "../game-utilities/Entity.mjs";
 
 export class Entities {
 	positions: Map<Entity, Vector[]> = new Map();

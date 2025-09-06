@@ -10,7 +10,8 @@ import { GameUtils } from "../game-utilities/GameUtils.mjs";
 import { Particle } from "../game-utilities/Particle.mjs";
 import { PhysicsObject } from "../game-utilities/PhysicsObject.mjs";
 import { Player } from "../Player.mjs";
-import { Entity, World } from "../world/World";
+import { World } from "../world/World";
+import { Entity } from "../game-utilities/Entity.mjs";
 
 export class Surface {
 	start: Vector;
@@ -186,7 +187,7 @@ export class SpiderLeg {
 	}
 }
 
-export class Spider {
+export class Spider extends Entity {
 	physicsObject: PhysicsObject;
 	movement: "clockwise" | "counterclockwise" = "clockwise";
 	basepoint: PointOnSurface | null = null;
@@ -197,6 +198,7 @@ export class Spider {
 	legs: SpiderLeg[];
 
 	constructor(position: Vector) {
+		super();
 		this.physicsObject = new PhysicsObject(
 			position.subtract(SpiderData.HITBOX_SIZE / 2, SpiderData.HITBOX_SIZE / 2).floor(),
 			new Rectangle(0, 0, SpiderData.HITBOX_SIZE, SpiderData.HITBOX_SIZE),
@@ -473,13 +475,14 @@ export class Spider {
 	}
 }
 
-export class SpiderProjectile {
+export class SpiderProjectile extends Entity {
 	physicsObject: PhysicsObject;
 	velocity: Vector;
 	acceleration: Vector;
 	spider: Spider;
 
 	constructor(position: Vector, velocity: Vector, acceleration: Vector, spider: Spider) {
+		super();
 		this.physicsObject = new PhysicsObject(position.floor(), Rectangle.square(0, 0, 1), "spider-projectile");
 		this.velocity = velocity;
 		this.acceleration = acceleration;
@@ -549,6 +552,9 @@ export class SpiderProjectile {
 		), canvasIO);
 	}
 
+	hitboxes() {
+		return [];
+	}
 	boundingBox() {
 		return this.physicsObject.hitbox();
 	}

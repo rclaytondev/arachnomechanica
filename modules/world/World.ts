@@ -13,29 +13,24 @@ import { GearsBackground } from "../backgrounds/GearsBackground.mjs";
 import { SkyBackground } from "../backgrounds/SkyBackground.mjs";
 import { GameUtils } from "../game-utilities/GameUtils.mjs";
 import { LaserBlock } from "../tiles/LaserBlock.mjs";
-import { Lizard } from "../entities/Lizard.js";
-import { Spikeball } from "../entities/Spikeball.mjs";
 import { SpikeballBlock } from "../tiles/SpikeballBlock.mjs";
-import { Portal } from "../entities/Portal.mjs";
 import { MathUtils } from "../../utils-ts/modules/math/MathUtils.mjs";
-import { Humanoid } from "../entities/Humanoid.mjs";
 import { RoomEditor } from "../RoomEditor.mjs";
 import { TowerTile } from "../tiles/TowerTile.mjs";
 import { SolidTile } from "../tiles/SolidTile.mjs";
 import { StoneTile } from "../tiles/StoneTile.mjs";
 import { WorldGenerator } from "../level-generator/WorldGenerator.mjs";
 import { Utils } from "../../utils-ts/modules/Utils.mjs";
-import { Spider, SpiderProjectile } from "../entities/Spider.mjs";
 import { EntitySpawner } from "../level-generator/EntitySpawner.mjs";
 import { Entities } from "./Entities.mjs";
 import { FlameturretEntity } from "../items/item-entities/FlameturretEntity.mjs";
+import { Entity } from "../game-utilities/Entity.mjs";
 
 export type TileEntity = SolidTile | Gate | LaserBlock | SpikeballBlock;
 export type Tile = (typeof WorldData.STRING_TILE_TYPES)[number] | TileEntity;
 export type Slope = (typeof WorldData.SLOPES)[number];
 export type TileWithPosition = { x: number, y: number, tile: Tile };
 export type TileEntityWithPosition = { x: number, y: number, tile: TileEntity };
-export type Entity = Lizard | Spikeball | Portal | Humanoid | Spider | SpiderProjectile | ItemEntity;
 export type ItemEntity = FlameturretEntity;
 
 export class World {
@@ -136,9 +131,7 @@ export class World {
 	displayGlowEffects(canvasIO: CanvasIO, visibleTileRegion: Rectangle) {
 		const entityRegion = this.visibleRegion(canvasIO, WorldData.GLOW_RENDER_DISTANCE);
 		for(const entity of this.entities.entitiesIntersecting(entityRegion)) {
-			if("displayGlowEffect" in entity) {
-				entity.displayGlowEffect(canvasIO);
-			}
+			entity.displayGlowEffect(canvasIO);
 		}
 		for(let x = visibleTileRegion.left(); x < visibleTileRegion.right(); x ++) {
 			for(let y = visibleTileRegion.top(); y < visibleTileRegion.bottom(); y ++) {
@@ -199,7 +192,7 @@ export class World {
 						WorldData.TILE_SIZE, WorldData.PLATFORM_THICKNESS,
 					);
 				}
-				else if(typeof tile !== "string" && "display" in tile && !(tile instanceof LaserBlock)) {
+				else if(typeof tile !== "string" && !(tile instanceof LaserBlock)) {
 					tile.display(canvasIO, x, y);
 				}
 				else if(tile instanceof LaserBlock) {
@@ -246,15 +239,7 @@ export class World {
 	displayDebugInfo(canvasIO: CanvasIO) {
 		const region = this.visibleRegion(canvasIO, WorldData.ENTITY_RENDER_DISTANCE);
 		for(const entity of this.entities.entitiesIntersecting(region)) {
-			if("displayHitbox" in entity) {
-				entity.displayHitbox(canvasIO);
-			}
-			else if("displayHitboxes" in entity) {
-				entity.displayHitboxes(canvasIO);
-			}
-			else if("displayDebug" in entity) {
-				entity.displayDebug(canvasIO);
-			}
+			entity.displayDebug(canvasIO);
 		}
 	}
 
@@ -389,7 +374,7 @@ export class World {
 	collidingEntities(rectangle: Rectangle, collides: (object: { x: number, y: number, tile: Tile } | Entity) => boolean = () => true) {
 		const solids = [];
 		for(const entity of this.entities.entitiesIntersecting(rectangle)) {
-			if(collides(entity) && "hitboxes" in entity && entity.hitboxes().some(b => rectangle.intersects(b))) {
+			if(collides(entity) && entity.hitboxes().some(b => rectangle.intersects(b))) {
 				solids.push(entity);
 			}
 		}
@@ -499,7 +484,7 @@ export class World {
 		const rectangle = Rectangle.fromOppositeCorners(position, furthestEndpoint);
 		for(const entity of this.entities.entitiesIntersecting(rectangle)) {
 			if(!collides(entity)) { continue; }
-			for(const hitbox of ("hitboxes" in entity) ? entity.hitboxes() : []) {
+			for(const hitbox of entity.hitboxes()) {
 				result = Math.min(result, GameUtils.rayIntersectsRectangle(position, direction, hitbox));
 			}
 		}
@@ -591,9 +576,7 @@ export class World {
 			this.player.damage();
 		}
 		for(const entity of this.entities.entitiesIntersecting(hurtbox)) {
-			if("damage" in entity) {
-				entity.damage(hurtbox, this, canvasIO);
-			}
+			entity.damage(hurtbox, this, canvasIO);
 		}
 	}
 

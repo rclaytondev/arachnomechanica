@@ -5,6 +5,7 @@ import { MathUtils } from "../../utils-ts/modules/math/MathUtils.mjs";
 import { Utils } from "../../utils-ts/modules/Utils.mjs";
 import { DEBUG_SETTINGS } from "../constants/DebugSettings.mjs";
 import { HumanoidData, PlayerData } from "../constants/GameData.mjs";
+import { Entity } from "../game-utilities/Entity.mjs";
 import { GameUtils } from "../game-utilities/GameUtils.mjs";
 import { PhysicsObject } from "../game-utilities/PhysicsObject.mjs";
 import { World } from "../world/World";
@@ -162,7 +163,7 @@ export class HumanoidPart {
 	}
 }
 
-export class Humanoid {
+export class Humanoid extends Entity {
 	mode: "walking" | "waiting" | "arming" | "shooting" | "reforming" = "walking";
 	direction: "left" | "right" = "right";
 	physicsObject: PhysicsObject;
@@ -181,6 +182,7 @@ export class Humanoid {
 	motions: (RotationalMotion | LinearMotion)[] = [];
 
 	constructor(position: Vector) {
+		super();
 		this.physicsObject = new PhysicsObject(position, new Rectangle(0, 0, HumanoidData.HITBOX_WIDTH, HumanoidData.HITBOX_HEIGHT), "humanoid");
 
 		const center = this.physicsObject.hitbox().center();
@@ -442,6 +444,9 @@ export class Humanoid {
 		];
 	}
 
+	hitboxes() {
+		return [this.physicsObject.hitbox()];
+	}
 	boundingBox() {
 		return Rectangle.boundingBox(this.parts.map(p => p.physicsObject.hitbox().center()));
 	}
