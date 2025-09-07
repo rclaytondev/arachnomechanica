@@ -280,7 +280,7 @@ export class Humanoid extends RectangularEntity {
 			}
 		}
 
-		if(world.hasLineOfSight(this.physicsObject.hitbox().center(), world.player.physicsObject.hitbox(), (obj) => obj !== this)) {
+		if(world.hasLineOfSight(this.physicsObject.hitbox().center(), world.player.hitbox, (obj) => obj !== this)) {
 			this.beginArming(world);
 		}
 	}
@@ -294,7 +294,7 @@ export class Humanoid extends RectangularEntity {
 		this.enterMode("arming");
 		this.motions = [];
 		const center = this.physicsObject.hitbox().center();
-		const angle = Math.PI / 2 + world.player.physicsObject.hitbox().center().subtract(center).angle();
+		const angle = Math.PI / 2 + world.player.hitbox.center().subtract(center).angle();
 		for(const partID of ["head", "body", "leftArm", "rightArm", "leftLeg", "rightLeg"] as const) {
 			const part = this[partID];
 			this.motions.push(RotationalMotion.rotateToAngle(part, angle, HumanoidData.ARMING_TIME));
@@ -340,7 +340,7 @@ export class Humanoid extends RectangularEntity {
 	}
 	getReformPosition(world: World) {
 		const box = this.physicsObject.hitbox();
-		const direction = world.player.physicsObject.hitbox().center().subtract(box.center()).normalize();
+		const direction = world.player.hitbox.center().subtract(box.center()).normalize();
 		let position: Vector | null = null;
 		for(let i = 0; i < HumanoidData.MAX_SHOT_DISTANCE; i ++) {
 			const translated = box.translate(direction.multiply(i));

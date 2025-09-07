@@ -68,8 +68,10 @@ export class World {
 			}
 		}
 		const tile = Utils.randomItem(emptyTiles);
-		this.player.physicsObject.positionInt = tile.multiply(WorldData.TILE_SIZE);
-		this.camera = this.player.physicsObject.hitbox().center();
+		// TODO: make sure the player doesn't spawn overlapping an enemy
+		this.player.hitbox.x = tile.x * WorldData.TILE_SIZE;
+		this.player.hitbox.y = tile.y * WorldData.TILE_SIZE;
+		this.camera = this.player.hitbox.center();
 	}
 
 	display(canvasIO: CanvasIO, visibleTileRegion: Rectangle = this.visibleTileRegion(canvasIO)) {
@@ -276,13 +278,13 @@ export class World {
 	}
 	updateCamera() {
 		if(!(Main.screen instanceof RoomEditor)) {
-			this.camera = GameUtils.moveVectorTowards(this.camera, this.player.physicsObject.hitbox().center(), WorldData.CAMERA_SPEED);
+			this.camera = GameUtils.moveVectorTowards(this.camera, this.player.hitbox.center(), WorldData.CAMERA_SPEED);
 		}
 	}
 
 	checkWorldGeneration() {
 		if(!this.enableGeneration) { return; }
-		const position = this.player.physicsObject.hitbox().center();
+		const position = this.player.hitbox.center();
 		const chunk = position.divide(WorldData.TILE_SIZE * RoomData.SIZE * LevelGeneratorData.CHUNK_SIZE).floor();
 		for(const adjacent of [chunk, ...chunk.adjacentVectors()]) {
 			if(!this.worldGenerator.isChunkGenerated(adjacent)) {
@@ -561,7 +563,7 @@ export class World {
 		}
 	}
 	addParticle(particle: Particle, canvasIO: CanvasIO) {
-		const player = this.player.physicsObject.hitbox().center();
+		const player = this.player.hitbox.center();
 		const distanceX = MathUtils.dist(particle.position.x, player.x);
 		const distanceY = MathUtils.dist(particle.position.y, player.y);
 		if(
@@ -572,7 +574,7 @@ export class World {
 		}
 	}
 	damage(hurtbox: Rectangle, canvasIO: CanvasIO) {
-		if(this.player.physicsObject.hitbox().intersects(hurtbox)) {
+		if(this.player.hitbox.intersects(hurtbox)) {
 			this.player.damage();
 		}
 		for(const entity of this.entities.entitiesIntersecting(hurtbox)) {

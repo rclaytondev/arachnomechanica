@@ -166,6 +166,9 @@ export abstract class Entity {
 		}
 		return false;
 	}
+	canMove(direction: Direction, world: World) {
+		return this.moveUnit(direction, world, { queryOnly: true });
+	}
 }
 
 export abstract class RectangularEntity extends Entity {

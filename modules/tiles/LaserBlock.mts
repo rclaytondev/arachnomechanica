@@ -107,7 +107,7 @@ export class LaserBlock {
 		}
 	}
 	updateLengths(world: World, x: number, y: number, canvasIO: CanvasIO) {
-		const player = world.player.physicsObject.hitbox();
+		const player = world.player.hitbox;
 		for(const [i, direction] of this.directions().entries()) {
 			const length = this.endpointDistance(new Vector(x, y), direction, world, canvasIO.boundingBox());
 			this.lengths[i] = GameUtils.moveTowards(this.lengths[i], length, LaserBlockData.LASER_LINEAR_SPEED);
@@ -157,7 +157,7 @@ export class LaserBlock {
 	}
 
 	static canSpawn(position: Vector, world: World) {
-		const player = world.player.physicsObject.hitbox().center();
+		const player = world.player.hitbox.center();
 		const center = position.add(1/2, 1/2).multiply(WorldData.TILE_SIZE);
 		const laser = new LaserBlock(1, 0, 0);
 		const previousTile = world.tiles.get(position);
@@ -166,7 +166,7 @@ export class LaserBlock {
 		const result = !laser.intersectsBox(
 			position,
 			player.subtract(center),
-			world.player.physicsObject.hitbox(),
+			world.player.hitbox,
 			distance,
 		);
 		world.tiles.set(position, previousTile);

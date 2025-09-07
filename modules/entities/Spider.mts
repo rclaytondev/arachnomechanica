@@ -351,7 +351,7 @@ export class Spider extends RectangularEntity {
 	checkProjectile(world: World) {
 		const center = this.physicsObject.hitbox().center();
 		const up = new Vector(0, -1).rotate(MathUtils.toDegrees(-this.angle)).multiply(20);
-		const player = world.player.physicsObject.hitbox();
+		const player = world.player.hitbox;
 		const collides = (obj: Entity) => obj !== this;
 		const hasLineOfSight = world.hasLineOfSight(center.add(up), player, collides) && world.hasLineOfSight(center.subtract(up), player, collides);
 		if(!hasLineOfSight) {
@@ -371,7 +371,7 @@ export class Spider extends RectangularEntity {
 		}
 	}
 	runAway(player: Player) {
-		const playerCenter = player.physicsObject.hitbox().center();
+		const playerCenter = player.hitbox.center();
 		if(!this.basepoint) { return; }
 		const distance = Vector.dist(this.basepoint.position(), playerCenter);
 		const direction = this.basepoint.surface.tangentVectorCW().multiply(this.movement === "clockwise" ? 1 : -1);
@@ -382,7 +382,7 @@ export class Spider extends RectangularEntity {
 	}
 	shootProjectile(world: World) {
 		const center = this.physicsObject.hitbox().center();
-		const player = world.player.physicsObject.hitbox().center();
+		const player = world.player.hitbox.center();
 		const direction = player.subtract(center).normalize();
 		const velocity = direction.multiply(SpiderData.PROJECTILE_SPEED);
 		const acceleration = direction.multiply(SpiderData.PROJECTILE_ACCELERATION);
@@ -506,7 +506,7 @@ export class SpiderProjectile extends RectangularEntity {
 			SpiderData.PROJECTILE_PARTICLE_SETTINGS,
 		), canvasIO);
 
-		if(this.physicsObject.hitbox().intersects(world.player.physicsObject.hitbox())) {
+		if(this.physicsObject.hitbox().intersects(world.player.hitbox)) {
 			this.explode(world, canvasIO);
 		}
 	}

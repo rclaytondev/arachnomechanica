@@ -119,7 +119,7 @@ export class Spikeball extends RectangularEntity {
 			this.die(world, canvasIO);
 		}
 		this.angle += SpikeballData.ROTATION_SPEED;
-		if(this.hurtbox().intersects(world.player.physicsObject.hitbox())) {
+		if(this.hurtbox().intersects(world.player.hitbox)) {
 			world.player.damage();
 		}
 		this.age ++;

@@ -53,7 +53,7 @@ export class FlameturretEntity extends RectangularEntity {
 			fireSpawner.update(world, canvasIO);
 			fireSpawner.updateHurtbox(world, canvasIO);
 			const hurtbox = fireSpawner.hurtbox(fireSpawner.maxHurtboxSize);
-			if(world.isInSolid(hurtbox) && !hurtbox.intersects(world.player.physicsObject.hitbox())) {
+			if(world.isInSolid(hurtbox) && !hurtbox.intersects(world.player.hitbox)) {
 				fireSpawner.startFire(LizardData.FIRE_DURATION);
 			}
 		}

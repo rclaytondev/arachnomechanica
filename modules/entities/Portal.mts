@@ -21,7 +21,7 @@ export class Portal extends Entity {
 			this.addLine(world, canvasIO);
 		}
 
-		if(world.player.physicsObject.hitbox().intersects(this.teleportHitbox())) {
+		if(world.player.hitbox.intersects(this.teleportHitbox())) {
 			// eslint-disable-next-line no-console
 			console.log("Portal teleportation is currently unimplemented.");
 		}

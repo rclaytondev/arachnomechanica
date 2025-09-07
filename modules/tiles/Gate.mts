@@ -96,7 +96,7 @@ export class Gate {
 		return count;
 	}
 	getPlayerSide(world: World, x: number, y: number) {
-		const hitbox = world.player.physicsObject.hitbox();
+		const hitbox = world.player.hitbox;
 		if(Directions.isVertical(this.direction)) {
 			const gatesLeft = this.adjacentGates(world, x, y, "left");
 			const gatesRight = this.adjacentGates(world, x, y, "right");
@@ -113,7 +113,7 @@ export class Gate {
 		}
 	}
 	checkPlayer(world: World, x: number, y: number) {
-		const hitbox = world.player.physicsObject.hitbox();
+		const hitbox = world.player.hitbox;
 		const sameRowOrColumn = (Directions.isVertical(this.direction)
 			? (hitbox.bottom() >= (y + 1 - GateData.HITBOX_SIZE) * WorldData.TILE_SIZE && hitbox.top() <= (y + GateData.HITBOX_SIZE) * WorldData.TILE_SIZE)
 			: (hitbox.right() >= (x + 1 - GateData.HITBOX_SIZE) * WorldData.TILE_SIZE && hitbox.left() <= (x + GateData.HITBOX_SIZE) * WorldData.TILE_SIZE)
@@ -137,8 +137,7 @@ export class Gate {
 	}
 
 	initialize(player: Player, x: number, y: number) {
-		const hitbox = player.physicsObject.hitbox();
-		const center = hitbox.center();
+		const center = player.hitbox.center();
 		if(Directions.isVertical(this.direction)) {
 			this.playerSide = center.x < (x + 1/2) * WorldData.TILE_SIZE ? "negative" : "positive";
 		}

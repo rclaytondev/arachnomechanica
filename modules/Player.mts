@@ -6,16 +6,11 @@ import { ItemData, PlayerData, WorldData } from "./constants/GameData.mjs";
 import { Spikeball } from "./entities/Spikeball.mjs";
 import { RectangularEntity } from "./game-utilities/Entity.mjs";
 import { GameUtils } from "./game-utilities/GameUtils.mjs";
-import { PhysicsObject } from "./game-utilities/PhysicsObject.mjs";
 import { Item } from "./items/Item.mjs";
 import { ItemEntity, World } from "./world/World.js";
 
 export class Player extends RectangularEntity {
-	physicsObject: PhysicsObject = new PhysicsObject(
-		new Vector(0, -50),
-		new Rectangle(0, 0, PlayerData.HITBOX_WIDTH, PlayerData.HITBOX_HEIGHT),
-		"player",
-	);
+	velocity: Vector = new Vector(0, 0);
 	hasDoubleJump: boolean = false;
 	dead: boolean = false;
 	timeSinceDeath: number = 0;
@@ -29,8 +24,8 @@ export class Player extends RectangularEntity {
 
 	display(canvasIO: CanvasIO) {
 		canvasIO.ctx.fillStyle = PlayerData.COLOR;
-		canvasIO.fillRect(this.physicsObject.hitbox());
-		const center = this.physicsObject.hitbox().center();
+		canvasIO.fillRect(this.hitbox);
+		const center = this.hitbox.center();
 		GameUtils.glowCircle(center.x, center.y, PlayerData.GLOW_SIZE, PlayerData.GLOW_INTENSITY, canvasIO);
 	}
 
@@ -43,38 +38,38 @@ export class Player extends RectangularEntity {
 		if(this.onGround(world)) {
 			this.hasDoubleJump = true;
 		}
-		this.physicsObject.applyGravity(canvasIO.keys.KeyZ && this.physicsObject.velocity.y <= 0 ? PlayerData.GRAVITY_WHILE_JUMPING : PlayerData.GRAVITY);
-		this.physicsObject.velocity.x = MathUtils.constrain(this.physicsObject.velocity.x, -PlayerData.MAX_X_VELOCITY, PlayerData.MAX_X_VELOCITY);
-		this.physicsObject.moveX(this.physicsObject.velocity.x, {
-			onCollision: () => { this.physicsObject.velocity.x = 0; },
+		this.velocity.y += canvasIO.keys.KeyZ && this.velocity.y <= 0 ? PlayerData.GRAVITY_WHILE_JUMPING : PlayerData.GRAVITY;
+		this.velocity.x = MathUtils.constrain(this.velocity.x, -PlayerData.MAX_X_VELOCITY, PlayerData.MAX_X_VELOCITY);
+		this.move(new Vector(this.velocity.x, 0), world, {
+			onCollision: () => { this.velocity.x = 0; },
 			collides: (obj) => !(obj instanceof Spikeball),
 			slideUpSlopes: true,
 			slideDownSlopes: true,
-		}, world);
-		this.physicsObject.moveY(this.physicsObject.velocity.y, {
-			onCollision: () => { this.physicsObject.velocity.y = 0; },
+		});
+		this.move(new Vector(0, this.velocity.y), world, {
+			onCollision: () => { this.velocity.y = 0; },
 			collides: (obj) => !(obj instanceof Spikeball),
-		}, world);
+		});
 	}
 	checkInputs(world: World, canvasIO: CanvasIO) {
 		if(canvasIO.keys.ArrowRight && !canvasIO.keys.ArrowLeft) {
-			this.physicsObject.velocity.x += PlayerData.HORIZONTAL_ACCELERATION;
+			this.velocity.x += PlayerData.HORIZONTAL_ACCELERATION;
 			this.facing = "right";
 		}
 		if(canvasIO.keys.ArrowLeft && !canvasIO.keys.ArrowRight) {
-			this.physicsObject.velocity.x -= PlayerData.HORIZONTAL_ACCELERATION;
+			this.velocity.x -= PlayerData.HORIZONTAL_ACCELERATION;
 			this.facing = "left";
 		}
 		if(
 			(!canvasIO.keys.ArrowLeft && !canvasIO.keys.ArrowRight) ||
-			(canvasIO.keys.ArrowLeft && this.physicsObject.velocity.x > 0) ||
-			(canvasIO.keys.ArrowRight && this.physicsObject.velocity.x < 0)
+			(canvasIO.keys.ArrowLeft && this.velocity.x > 0) ||
+			(canvasIO.keys.ArrowRight && this.velocity.x < 0)
 		) {
-			this.physicsObject.velocity.x *= PlayerData.FRICTION_X;
+			this.velocity.x *= PlayerData.FRICTION_X;
 		}
 		const onGround = this.onGround(world);
 		if(canvasIO.keys.KeyZ && !GameUtils.pastKeys.KeyZ && (onGround || this.hasDoubleJump)) {
-			this.physicsObject.velocity.y = -PlayerData.JUMP_VELOCITY;
+			this.velocity.y = -PlayerData.JUMP_VELOCITY;
 			this.hasDoubleJump = onGround;
 		}
 
@@ -86,7 +81,7 @@ export class Player extends RectangularEntity {
 		}
 	}
 	onGround(world: World) {
-		return !this.physicsObject.canMove("down", world, () => true);
+		return !this.canMove("down", world);
 	}
 	damage() {
 		this.dead = true;
@@ -102,7 +97,7 @@ export class Player extends RectangularEntity {
 		const direction = (canvasIO.keys.ArrowDown ? "down" : this.facing);
 		const size = (direction === "down" ? item.physicsObject.dimensions.height : item.physicsObject.dimensions.width);
 		item.physicsObject.setCenter(
-			this.physicsObject.hitbox().edgeCenter(direction).add(Vector.unit(direction).multiply(ItemData.THROW_OFFSET + size / 2)),
+			this.hitbox.edgeCenter(direction).add(Vector.unit(direction).multiply(ItemData.THROW_OFFSET + size / 2)),
 		);
 		item.physicsObject.velocity = this.itemThrowVelocity(canvasIO);
 		world.entities.addEntity(item);
