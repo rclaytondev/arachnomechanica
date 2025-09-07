@@ -13,7 +13,9 @@ type MoveOptions = {
 	onCollision?: (direction: Direction, collisions: (Entity | TileWithPosition)[]) => void,
 	onMoveFail?: (direction: Direction, unpushables: (Entity | TileWithPosition)[]) => void,
 	slideUpSlopes?: boolean,
-	slideDownSlopes?: boolean,
+	slideDownSlopes?: boolean
+};
+type MoveUnitOptions = MoveOptions & {
 	queryOnly?: boolean
 };
 
@@ -57,7 +59,7 @@ export abstract class Entity {
 			}
 		}
 	}
-	moveUnit(direction: Direction, world: World, options: MoveOptions): boolean {
+	moveUnit(direction: Direction, world: World, options: MoveUnitOptions): boolean {
 		if(Directions.isHorizontal(direction)) {
 			const offsetY = this.slopeOffsetY(direction, world, options.slideUpSlopes, options.slideDownSlopes);
 			if(offsetY !== 0) {
@@ -67,7 +69,7 @@ export abstract class Entity {
 		}
 		return this.moveOrthogonal(direction, world, options);
 	}
-	private moveDiagonal(originalDirection: "left" | "right", diagonal: Vector, world: World, options: MoveOptions): boolean {
+	private moveDiagonal(originalDirection: "left" | "right", diagonal: Vector, world: World, options: MoveUnitOptions): boolean {
 		const collidingObjects = this.collidingObjects(diagonal, world, options.collides ?? (() => true));
 		const translatedY = this.hitboxes().map(h => h.translate(new Vector(0, diagonal.y)));
 		const pushables = collidingObjects.filter(
@@ -77,19 +79,24 @@ export abstract class Entity {
 			return false;
 		}
 		for(const pushable of pushables) {
-			pushable.moveUnit(originalDirection, world, { onMoveFail: () => {
-				for(const collidingHitbox of this.collidingHitboxes(pushable, diagonal)) {
-					pushable.damage(collidingHitbox, world, canvasIO!);
-				}
-			} });
+			pushable.moveUnit(originalDirection, world, {
+				onMoveFail: () => {
+					for(const collidingHitbox of this.collidingHitboxes(pushable, diagonal)) {
+						pushable.damage(collidingHitbox, world, canvasIO!);
+					}
+				},
+				queryOnly: options.queryOnly,
+			});
 		}
 		if(collidingObjects.length !== 0) {
 			options.onCollision?.(originalDirection, collidingObjects);
 		}
-		this.translate(diagonal);
+		if(!options.queryOnly) {
+			this.translate(diagonal);
+		}
 		return true;
 	}
-	private moveOrthogonal(direction: Direction, world: World, options: MoveOptions): boolean {
+	private moveOrthogonal(direction: Direction, world: World, options: MoveUnitOptions): boolean {
 		const collidingObjects = this.collidingObjects(Vector.unit(direction), world, options.collides ?? (() => true));
 		if(collidingObjects.length !== 0) {
 			options.onCollision?.(direction, collidingObjects);
@@ -100,13 +107,18 @@ export abstract class Entity {
 			return false;
 		}
 		for(const pushable of pushables) {
-			pushable.moveUnit(direction, world, { onMoveFail: () => {
-				for(const collidingHitbox of this.collidingHitboxes(pushable, Vector.unit(direction))) {
-					pushable.damage(collidingHitbox, world, canvasIO!);
-				}
-			} });
+			pushable.moveUnit(direction, world, {
+				onMoveFail: () => {
+					for(const collidingHitbox of this.collidingHitboxes(pushable, Vector.unit(direction))) {
+						pushable.damage(collidingHitbox, world, canvasIO!);
+					}
+				},
+				queryOnly: options.queryOnly,
+			});
 		}
-		this.translate(Vector.unit(direction));
+		if(!options.queryOnly) {
+			this.translate(Vector.unit(direction));
+		}
 		return true;
 	}
 	slopeOffsetY(direction: "left" | "right", world: World, slideUpSlopes: boolean = false, slideDownSlopes: boolean = false) {
