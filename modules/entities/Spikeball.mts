@@ -152,4 +152,7 @@ export class Spikeball extends Entity {
 	boundingBox() {
 		return this.physicsObject.hitbox();
 	}
+	translate(amount: Vector) {
+		this.physicsObject.setPosition(this.physicsObject.positionFloat().add(amount));
+	}
 }

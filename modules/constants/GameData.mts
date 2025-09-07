@@ -538,3 +538,14 @@ export class ItemData {
 		SIZE: WorldData.TILE_SIZE * 0.6,
 	};
 }
+
+export class PhysicsData {
+	static CAN_PUSH = {
+		// TODO
+
+		// "lizard": {
+		// 	"lizard": false,
+		// 	"spikeball": true,
+		// },
+	};
+}

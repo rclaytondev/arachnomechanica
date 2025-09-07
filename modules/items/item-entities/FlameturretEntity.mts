@@ -66,4 +66,7 @@ export class FlameturretEntity extends Entity {
 	hitboxes() {
 		return [this.boundingBox()];
 	}
+	translate(amount: Vector) {
+		this.physicsObject.setPosition(this.physicsObject.positionFloat().add(amount));
+	}
 }

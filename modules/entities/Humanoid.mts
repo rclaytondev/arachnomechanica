@@ -450,4 +450,8 @@ export class Humanoid extends Entity {
 	boundingBox() {
 		return Rectangle.boundingBox(this.parts.map(p => p.physicsObject.hitbox().center()));
 	}
+	translate(amount: Vector) {
+		// TODO: translate each individual part as well (maybe?)
+		this.physicsObject.setPosition(this.physicsObject.positionFloat().add(amount));
+	}
 }

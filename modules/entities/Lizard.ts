@@ -13,10 +13,11 @@ import { LaserBlock } from "../tiles/LaserBlock.mjs";
 import { SpikeballBlock } from "../tiles/SpikeballBlock.mjs";
 import { SolidTile } from "../tiles/SolidTile.mjs";
 import { FireSpawner } from "../game-utilities/FireSpawner.mjs";
+import { Entity } from "../game-utilities/Entity.mjs";
 
 type Joint = { position: Vector, direction: Direction };
 
-export class Lizard {
+export class Lizard extends Entity {
 	direction: Direction;
 	position: Vector;
 	joints: Joint[] = [];
@@ -34,6 +35,7 @@ export class Lizard {
 	fireSpawner: FireSpawner;
 
 	constructor(position: Vector, direction: Direction, length: number, speed: number) {
+		super();
 		this.position = position;
 		this.direction = direction;
 		this.headAngle = Vector.unit(this.direction).angle();
@@ -478,5 +480,10 @@ export class Lizard {
 		const [tail] = this.getPointOnBody(this.length);
 		const joints = this.joints.map(j => j.position);
 		return Rectangle.boundingBox([this.position, ...joints, tail]);
+	}
+	translate(amount: Vector) {
+		for(const joint of this.joints) {
+			joint.position = joint.position.add(amount);
+		}
 	}
 }

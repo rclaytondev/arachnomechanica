@@ -323,7 +323,7 @@ export class Spider extends Entity {
 	}
 
 	update(world: World) {
-		this.move(this.getSpeed(), world);
+		this.moveAlongSurface(this.getSpeed(), world);
 		this.updateAngle();
 		this.updateLegs();
 		this.checkProjectile(world);
@@ -390,7 +390,7 @@ export class Spider extends Entity {
 		world.entities.addEntity(projectile);
 	}
 
-	move(amount: number, world: World) {
+	moveAlongSurface(amount: number, world: World) {
 		this.moveBasepoint(amount, world);
 		const distance = this.wallDistance(world);
 		const normal = this.smoothedNormal(world);
@@ -472,6 +472,9 @@ export class Spider extends Entity {
 
 	boundingBox() {
 		return this.physicsObject.hitbox();
+	}
+	translate(amount: Vector) {
+		this.physicsObject.setPosition(this.physicsObject.positionFloat().add(amount));
 	}
 }
 
@@ -557,5 +560,8 @@ export class SpiderProjectile extends Entity {
 	}
 	boundingBox() {
 		return this.physicsObject.hitbox();
+	}
+	translate(amount: Vector) {
+		this.physicsObject.setPosition(this.physicsObject.positionFloat().add(amount));
 	}
 }
