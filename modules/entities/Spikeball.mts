@@ -5,9 +5,9 @@ import { SpikeballData, WorldData } from "../constants/GameData.mjs";
 import { GameUtils } from "../game-utilities/GameUtils.mjs";
 import { PhysicsObject } from "../game-utilities/PhysicsObject.mjs";
 import { Tile, World } from "../world/World.js";
-import { Entity } from "../game-utilities/Entity.mjs";
+import { Entity, RectangularEntity } from "../game-utilities/Entity.mjs";
 
-export class Spikeball extends Entity {
+export class Spikeball extends RectangularEntity {
 	static glowGradient = GameUtils.glowCircleGradient(
 		0, 0, SpikeballData.GLOW_SIZE,
 		SpikeballData.GLOW_INTENSITY,
@@ -20,7 +20,7 @@ export class Spikeball extends Entity {
 	bounces: number = SpikeballData.BOUNCES;
 
 	constructor(position: Vector, velocity: Vector) {
-		super();
+		super(new Rectangle(position.x, position.y, 2 * SpikeballData.RADIUS, 2 * SpikeballData.RADIUS));
 		this.physicsObject = new PhysicsObject(
 			position,
 			new Rectangle(0, 0, 2 * SpikeballData.RADIUS, 2 * SpikeballData.RADIUS),

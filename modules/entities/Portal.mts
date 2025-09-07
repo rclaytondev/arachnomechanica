@@ -54,8 +54,11 @@ export class Portal extends Entity {
 	reflect() {
 		return new Portal(new Vector(RoomData.SIZE * WorldData.TILE_SIZE - this.position.x, this.position.y));
 	}
-	translate(offset: Vector) {
+	copyAndTranslate(offset: Vector) {
 		return new Portal(this.position.add(offset));
+	}
+	translate(amount: Vector): void {
+		this.position = this.position.add(amount);
 	}
 	copy() {
 		return new Portal(this.position.clone());

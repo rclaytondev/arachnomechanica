@@ -3,18 +3,18 @@ import { Directions } from "../../../utils-ts/modules/geometry/Direction.mjs";
 import { Rectangle } from "../../../utils-ts/modules/geometry/Rectangle.mjs";
 import { Vector } from "../../../utils-ts/modules/geometry/Vector.mjs";
 import { ItemData, LizardData, PlayerData } from "../../constants/GameData.mjs";
-import { Entity } from "../../game-utilities/Entity.mjs";
+import { RectangularEntity } from "../../game-utilities/Entity.mjs";
 import { FireSpawner } from "../../game-utilities/FireSpawner.mjs";
 import { PhysicsObject } from "../../game-utilities/PhysicsObject.mjs";
 import { World } from "../../world/World";
 
-export class FlameturretEntity extends Entity {
+export class FlameturretEntity extends RectangularEntity {
 	physicsObject: PhysicsObject;
 	fireSpawnerLeft: FireSpawner;
 	fireSpawnerRight: FireSpawner;
 
 	constructor() {
-		super();
+		super(Rectangle.square(0, 0, ItemData.FLAMETURRET.SIZE));
 		this.physicsObject = new PhysicsObject(
 			new Vector(0, 0),
 			Rectangle.square(0, 0, ItemData.FLAMETURRET.SIZE),

@@ -155,3 +155,28 @@ export abstract class Entity {
 		return false;
 	}
 }
+
+export abstract class RectangularEntity extends Entity {
+	hitbox: Rectangle;
+
+	constructor(hitbox: Rectangle) {
+		super();
+		const corner = hitbox.getCorner("top-left");
+		this.hitbox = new Rectangle(
+			Math.floor(hitbox.x), Math.floor(hitbox.y),
+			hitbox.width, hitbox.height,
+		);
+		this.subpixel = corner.subtract(corner.floor());
+	}
+
+	hitboxes() {
+		return [this.hitbox];
+	}
+	boundingBox() {
+		return this.hitbox;
+	}
+	translate(amount: Vector): void {
+		this.hitbox.x += amount.x;
+		this.hitbox.y += amount.y;
+	}
+}

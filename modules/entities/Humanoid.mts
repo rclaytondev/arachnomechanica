@@ -5,7 +5,7 @@ import { MathUtils } from "../../utils-ts/modules/math/MathUtils.mjs";
 import { Utils } from "../../utils-ts/modules/Utils.mjs";
 import { DEBUG_SETTINGS } from "../constants/DebugSettings.mjs";
 import { HumanoidData, PlayerData } from "../constants/GameData.mjs";
-import { Entity } from "../game-utilities/Entity.mjs";
+import { RectangularEntity } from "../game-utilities/Entity.mjs";
 import { GameUtils } from "../game-utilities/GameUtils.mjs";
 import { PhysicsObject } from "../game-utilities/PhysicsObject.mjs";
 import { World } from "../world/World";
@@ -97,7 +97,7 @@ class LinearMotion {
 	}
 }
 
-export class HumanoidPart {
+export class HumanoidPart extends RectangularEntity {
 	physicsObject: PhysicsObject;
 	angle: number;
 	width: number;
@@ -105,6 +105,7 @@ export class HumanoidPart {
 	shot: boolean = false;
 
 	constructor(position: Vector, angle: number, width: number, length: number) {
+		super(Rectangle.fromCenter(position.x, position.y, 2, 2));
 		this.physicsObject = new PhysicsObject(
 			position.subtract(1, 1),
 			new Rectangle(0, 0, 2, 2),
@@ -115,7 +116,7 @@ export class HumanoidPart {
 		this.length = length;
 	}
 
-	display(humanoid: Humanoid, canvasIO: CanvasIO) {
+	display(canvasIO: CanvasIO) {
 		const position = this.physicsObject.hitbox().center();
 		canvasIO.ctx.save();
 		canvasIO.ctx.translate(position.x, position.y);
@@ -127,6 +128,9 @@ export class HumanoidPart {
 			this.width / 2, this.length,
 		);
 		canvasIO.ctx.restore();
+	}
+	update() {
+
 	}
 
 	tangentVector() {
@@ -155,7 +159,7 @@ export class HumanoidPart {
 			-this.angle, this.width, this.length,
 		);
 	}
-	translate(amount: Vector) {
+	copyAndTranslate(amount: Vector) {
 		return new HumanoidPart(
 			this.physicsObject.hitbox().center().add(amount),
 			this.angle, this.width, this.length,
@@ -163,7 +167,7 @@ export class HumanoidPart {
 	}
 }
 
-export class Humanoid extends Entity {
+export class Humanoid extends RectangularEntity {
 	mode: "walking" | "waiting" | "arming" | "shooting" | "reforming" = "walking";
 	direction: "left" | "right" = "right";
 	physicsObject: PhysicsObject;
@@ -182,16 +186,16 @@ export class Humanoid extends Entity {
 	motions: (RotationalMotion | LinearMotion)[] = [];
 
 	constructor(position: Vector) {
-		super();
+		super(new Rectangle(position.x, position.y, HumanoidData.HITBOX_WIDTH, HumanoidData.HITBOX_HEIGHT));
 		this.physicsObject = new PhysicsObject(position, new Rectangle(0, 0, HumanoidData.HITBOX_WIDTH, HumanoidData.HITBOX_HEIGHT), "humanoid");
 
 		const center = this.physicsObject.hitbox().center();
-		this.head = HumanoidData.HEAD.translate(center);
-		this.body = HumanoidData.BODY.translate(center);
-		this.leftArm = HumanoidData.LEFT_ARM.translate(center);
-		this.rightArm = HumanoidData.LEFT_ARM.reflect().translate(center);
-		this.leftLeg = HumanoidData.LEFT_LEG.translate(center);
-		this.rightLeg = HumanoidData.LEFT_LEG.reflect().translate(center);
+		this.head = HumanoidData.HEAD.copyAndTranslate(center);
+		this.body = HumanoidData.BODY.copyAndTranslate(center);
+		this.leftArm = HumanoidData.LEFT_ARM.copyAndTranslate(center);
+		this.rightArm = HumanoidData.LEFT_ARM.reflect().copyAndTranslate(center);
+		this.leftLeg = HumanoidData.LEFT_LEG.copyAndTranslate(center);
+		this.rightLeg = HumanoidData.LEFT_LEG.reflect().copyAndTranslate(center);
 
 		this.motions = this.liftLegForStep(this.direction);
 	}
@@ -375,7 +379,7 @@ export class Humanoid extends Entity {
 
 	display(canvasIO: CanvasIO) {
 		for(const part of this.parts) {
-			part.display(this, canvasIO);
+			part.display(canvasIO);
 		}
 	}
 

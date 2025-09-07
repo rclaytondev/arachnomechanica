@@ -11,7 +11,7 @@ import { Particle } from "../game-utilities/Particle.mjs";
 import { PhysicsObject } from "../game-utilities/PhysicsObject.mjs";
 import { Player } from "../Player.mjs";
 import { World } from "../world/World";
-import { Entity } from "../game-utilities/Entity.mjs";
+import { Entity, RectangularEntity } from "../game-utilities/Entity.mjs";
 
 export class Surface {
 	start: Vector;
@@ -187,7 +187,7 @@ export class SpiderLeg {
 	}
 }
 
-export class Spider extends Entity {
+export class Spider extends RectangularEntity {
 	physicsObject: PhysicsObject;
 	movement: "clockwise" | "counterclockwise" = "clockwise";
 	basepoint: PointOnSurface | null = null;
@@ -198,7 +198,7 @@ export class Spider extends Entity {
 	legs: SpiderLeg[];
 
 	constructor(position: Vector) {
-		super();
+		super(Rectangle.fromCenter(position.x, position.y, SpiderData.HITBOX_SIZE / 2, SpiderData.HITBOX_SIZE / 2));
 		this.physicsObject = new PhysicsObject(
 			position.subtract(SpiderData.HITBOX_SIZE / 2, SpiderData.HITBOX_SIZE / 2).floor(),
 			new Rectangle(0, 0, SpiderData.HITBOX_SIZE, SpiderData.HITBOX_SIZE),
@@ -478,14 +478,14 @@ export class Spider extends Entity {
 	}
 }
 
-export class SpiderProjectile extends Entity {
+export class SpiderProjectile extends RectangularEntity {
 	physicsObject: PhysicsObject;
 	velocity: Vector;
 	acceleration: Vector;
 	spider: Spider;
 
 	constructor(position: Vector, velocity: Vector, acceleration: Vector, spider: Spider) {
-		super();
+		super(Rectangle.square(position.x, position.y, 1));
 		this.physicsObject = new PhysicsObject(position.floor(), Rectangle.square(0, 0, 1), "spider-projectile");
 		this.velocity = velocity;
 		this.acceleration = acceleration;
