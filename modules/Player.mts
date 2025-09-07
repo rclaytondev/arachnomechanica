@@ -2,14 +2,15 @@ import { CanvasIO } from "../utils-ts/modules/CanvasIO.mjs";
 import { Rectangle } from "../utils-ts/modules/geometry/Rectangle.mjs";
 import { Vector } from "../utils-ts/modules/geometry/Vector.mjs";
 import { MathUtils } from "../utils-ts/modules/math/MathUtils.mjs";
-import { ItemData, PlayerData } from "./constants/GameData.mjs";
+import { ItemData, PlayerData, WorldData } from "./constants/GameData.mjs";
 import { Spikeball } from "./entities/Spikeball.mjs";
+import { RectangularEntity } from "./game-utilities/Entity.mjs";
 import { GameUtils } from "./game-utilities/GameUtils.mjs";
 import { PhysicsObject } from "./game-utilities/PhysicsObject.mjs";
 import { Item } from "./items/Item.mjs";
 import { ItemEntity, World } from "./world/World.js";
 
-export class Player {
+export class Player extends RectangularEntity {
 	physicsObject: PhysicsObject = new PhysicsObject(
 		new Vector(0, -50),
 		new Rectangle(0, 0, PlayerData.HITBOX_WIDTH, PlayerData.HITBOX_HEIGHT),
@@ -21,6 +22,10 @@ export class Player {
 	facing: "left" | "right" = "left";
 
 	equippedItems: [Item | null, Item | null] = [null, null];
+
+	constructor() {
+		super(new Rectangle(0, -WorldData.TILE_SIZE, PlayerData.HITBOX_WIDTH, PlayerData.HITBOX_HEIGHT));
+	}
 
 	display(canvasIO: CanvasIO) {
 		canvasIO.ctx.fillStyle = PlayerData.COLOR;
