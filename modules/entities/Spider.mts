@@ -8,7 +8,6 @@ import { DEBUG_SETTINGS } from "../constants/DebugSettings.mjs";
 import { SpiderData, WorldData } from "../constants/GameData.mjs";
 import { GameUtils } from "../game-utilities/GameUtils.mjs";
 import { Particle } from "../game-utilities/Particle.mjs";
-import { PhysicsObject } from "../game-utilities/PhysicsObject.mjs";
 import { Player } from "../Player.mjs";
 import { World } from "../world/World";
 import { Entity, RectangularEntity } from "../game-utilities/Entity.mjs";
@@ -159,7 +158,7 @@ export class SpiderLeg {
 		return spider.basepoint!.moveAlongSurface(this.distance, world).position();
 	}
 	jointPosition(spider: Spider, position: Vector) {
-		const center = spider.physicsObject.hitbox().center();
+		const center = spider.hitbox.center();
 		const distance = Vector.dist(position, center);
 		const horizontal = position.subtract(center).normalize();
 		const up = horizontal.rotate(this.attachmentOffset.x < 0 ? 90 : -90);
@@ -182,13 +181,12 @@ export class SpiderLeg {
 	}
 
 	attachment(spider: Spider) {
-		const center = spider.physicsObject.hitbox().center();
+		const center = spider.hitbox.center();
 		return center.add(this.attachmentOffset.rotate(MathUtils.toDegrees(spider.angle)));
 	}
 }
 
 export class Spider extends RectangularEntity {
-	physicsObject: PhysicsObject;
 	movement: "clockwise" | "counterclockwise" = "clockwise";
 	basepoint: PointOnSurface | null = null;
 	angle: number = 0;
@@ -199,11 +197,6 @@ export class Spider extends RectangularEntity {
 
 	constructor(position: Vector) {
 		super(Rectangle.fromCenter(position.x, position.y, SpiderData.HITBOX_SIZE / 2, SpiderData.HITBOX_SIZE / 2));
-		this.physicsObject = new PhysicsObject(
-			position.subtract(SpiderData.HITBOX_SIZE / 2, SpiderData.HITBOX_SIZE / 2).floor(),
-			new Rectangle(0, 0, SpiderData.HITBOX_SIZE, SpiderData.HITBOX_SIZE),
-			"spider",
-		);
 		this.legs = this.initializeLegs();
 	}
 	initializeLegs() {
@@ -243,7 +236,7 @@ export class Spider extends RectangularEntity {
 	}
 	displayBody(canvasIO: CanvasIO) {
 		canvasIO.ctx.save();
-		const position = this.physicsObject.hitbox().center();
+		const position = this.hitbox.center();
 		canvasIO.ctx.translate(position.x, position.y);
 		canvasIO.ctx.rotate(this.angle);
 		canvasIO.ctx.fillStyle = SpiderData.COLOR;
@@ -265,7 +258,7 @@ export class Spider extends RectangularEntity {
 		));
 	}
 	displayEyes(canvasIO: CanvasIO) {
-		const center = this.physicsObject.hitbox().center();
+		const center = this.hitbox.center();
 		const numGlowing = this.numGlowingEyes();
 		let count = 0;
 		for(let angle = 0; angle < 360; angle += 360 / SpiderData.NUM_EYES) {
@@ -281,7 +274,7 @@ export class Spider extends RectangularEntity {
 		}
 	}
 	displayGlowEffect(canvasIO: CanvasIO) {
-		const center = this.physicsObject.hitbox().center();
+		const center = this.hitbox.center();
 		// const glowIntensity = GameUtils.lerp(
 		// 	MathUtils.constrain(this.rechargeTime, 0, SpiderData.RECHARGE_TIME),
 		// 	0, SpiderData.RECHARGE_TIME,
@@ -315,7 +308,7 @@ export class Spider extends RectangularEntity {
 
 		canvasIO.ctx.strokeStyle = "rgb(0, 255, 255)";
 		canvasIO.ctx.lineWidth = 1;
-		canvasIO.strokeRect(this.physicsObject.hitbox());
+		canvasIO.strokeRect(this.hitbox);
 
 		for(const leg of this.legs) {
 			leg.displayDebug();
@@ -349,7 +342,7 @@ export class Spider extends RectangularEntity {
 		return this.hasProjectile() ? SpiderData.SPEED : SpiderData.FAST_SPEED;
 	}
 	checkProjectile(world: World) {
-		const center = this.physicsObject.hitbox().center();
+		const center = this.hitbox.center();
 		const up = new Vector(0, -1).rotate(MathUtils.toDegrees(-this.angle)).multiply(20);
 		const player = world.player.hitbox;
 		const collides = (obj: Entity) => obj !== this;
@@ -381,7 +374,7 @@ export class Spider extends RectangularEntity {
 		}
 	}
 	shootProjectile(world: World) {
-		const center = this.physicsObject.hitbox().center();
+		const center = this.hitbox.center();
 		const player = world.player.hitbox.center();
 		const direction = player.subtract(center).normalize();
 		const velocity = direction.multiply(SpiderData.PROJECTILE_SPEED);
@@ -396,11 +389,11 @@ export class Spider extends RectangularEntity {
 		const normal = this.smoothedNormal(world);
 		const newCenter = this.basepoint!.position().add(normal.multiply(distance));
 		const newPosition = newCenter.subtract(SpiderData.HITBOX_SIZE / 2, SpiderData.HITBOX_SIZE / 2);
-		this.physicsObject.move(
-			newPosition.subtract(this.physicsObject.positionFloat()),
+		this.move(
+			newPosition.subtract(this.hitbox.getCorner("top-left")),
 			world,
 			{
-				collides: (obj) => obj !== this,
+				collides: (obj) => obj !== this && !(obj instanceof SpiderProjectile && obj.spider === this),
 				onCollision: () => this.switchDirection(),
 			},
 		);
@@ -452,41 +445,40 @@ export class Spider extends RectangularEntity {
 	}
 
 	damage(hurtbox: Rectangle, world: World, canvasIO: CanvasIO) {
-		if(!hurtbox.intersects(this.physicsObject.hitbox())) { return; }
+		if(!hurtbox.intersects(this.hitbox)) { return; }
 
 		world.entities.removeEntity(this);
 		this.explode(world, canvasIO);
 	}
 	explode(world: World, canvasIO: CanvasIO) {
-		const center = this.physicsObject.hitbox().center();
+		const center = this.hitbox.center();
 		const projectile = new SpiderProjectile(center, new Vector(0, 0), new Vector(0, 0), this);
 		projectile.explode(world, canvasIO);
 	}
 
 	hitboxes() {
-		return [this.physicsObject.hitbox()];
+		return [this.hitbox];
 	}
 	switchDirection() {
 		this.movement = (this.movement === "clockwise") ? "counterclockwise" : "clockwise";
 	}
 
 	boundingBox() {
-		return this.physicsObject.hitbox();
+		return this.hitbox;
 	}
 	translate(amount: Vector) {
-		this.physicsObject.setPosition(this.physicsObject.positionFloat().add(amount));
+		this.hitbox.x += amount.x;
+		this.hitbox.y += amount.y;
 	}
 }
 
 export class SpiderProjectile extends RectangularEntity {
-	physicsObject: PhysicsObject;
 	velocity: Vector;
 	acceleration: Vector;
 	spider: Spider;
 
 	constructor(position: Vector, velocity: Vector, acceleration: Vector, spider: Spider) {
 		super(Rectangle.square(position.x, position.y, 1));
-		this.physicsObject = new PhysicsObject(position.floor(), Rectangle.square(0, 0, 1), "spider-projectile");
 		this.velocity = velocity;
 		this.acceleration = acceleration;
 		this.spider = spider;
@@ -494,19 +486,19 @@ export class SpiderProjectile extends RectangularEntity {
 
 	update(world: World, canvasIO: CanvasIO) {
 		this.velocity = this.velocity.add(this.acceleration);
-		this.physicsObject.move(this.velocity, world, {
+		this.move(this.velocity, world, {
 			collides: (obj) => obj !== this.spider,
 			onCollision: () => this.explode(world, canvasIO),
 		});
 		world.entities.moveEntity(this);
 
 		world.addParticle(new Particle(
-			this.physicsObject.hitbox().center(),
+			this.hitbox.center(),
 			new Vector(0, 0),
 			SpiderData.PROJECTILE_PARTICLE_SETTINGS,
 		), canvasIO);
 
-		if(this.physicsObject.hitbox().intersects(world.player.hitbox)) {
+		if(this.hitbox.intersects(world.player.hitbox)) {
 			this.explode(world, canvasIO);
 		}
 	}
@@ -523,7 +515,7 @@ export class SpiderProjectile extends RectangularEntity {
 		this.explosionDamage(world, canvasIO);
 	}
 	destroyTiles(world: World) {
-		const center = this.physicsObject.hitbox().center();
+		const center = this.hitbox.center();
 		const tileExplosion = Rectangle.fromCenter(
 			center.x, center.y,
 			SpiderData.PROJECTILE_EXPLOSION.DESTRUCTION_RADIUS * 2,
@@ -534,7 +526,7 @@ export class SpiderProjectile extends RectangularEntity {
 		}
 	}
 	addExplosionParticles(world: World, canvasIO: CanvasIO) {
-		const center = this.physicsObject.hitbox().center();
+		const center = this.hitbox.center();
 		const area = Math.PI * SpiderData.PROJECTILE_EXPLOSION.VISUAL_RADIUS ** 2;
 		const numParticles = Math.floor(area / (WorldData.TILE_SIZE ** 2) * SpiderData.PROJECTILE_EXPLOSION.PARTICLE_DENSITY);
 		for(let i = 0; i < numParticles; i ++) {
@@ -547,21 +539,11 @@ export class SpiderProjectile extends RectangularEntity {
 		}
 	}
 	explosionDamage(world: World, canvasIO: CanvasIO) {
-		const center = this.physicsObject.hitbox().center();
+		const center = this.hitbox.center();
 		world.damage(Rectangle.fromCenter(
 			center.x, center.y,
 			2 * SpiderData.PROJECTILE_EXPLOSION.DAMAGE_RADIUS,
 			2 * SpiderData.PROJECTILE_EXPLOSION.DAMAGE_RADIUS,
 		), canvasIO);
-	}
-
-	hitboxes() {
-		return [];
-	}
-	boundingBox() {
-		return this.physicsObject.hitbox();
-	}
-	translate(amount: Vector) {
-		this.physicsObject.setPosition(this.physicsObject.positionFloat().add(amount));
 	}
 }

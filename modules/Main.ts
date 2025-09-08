@@ -10,6 +10,7 @@ import { World } from "./world/World.js";
 import { Rectangle } from "../utils-ts/modules/geometry/Rectangle.mjs";
 import { SolidTile } from "./tiles/SolidTile.mjs";
 import { Lizard } from "./entities/Lizard.js";
+import { PointOnSurface, Spider, Surface } from "./entities/Spider.mjs";
 
 const recordedRNG: number[] = [];
 let rngOverrideIndex = 0;
@@ -48,14 +49,14 @@ world.tiles.fillRect(new Rectangle(-5, -5, 10, 20), new SolidTile("solid", "towe
 world.tiles.fillRect(new Rectangle(-4, -4, 9, 8), "empty");
 world.tiles.fillRect(new Rectangle(5, -1, 9, 8), new SolidTile("solid", "tower"));
 // const spider = new Spider(new Vector(500, -125));
-// const spider = new Spider(new Vector(75, 125));
-// spider.movement = "counterclockwise";
-// spider.basepoint = new PointOnSurface(new Surface(new Vector(2, 4), "up"), 25);
-// world.entities.addEntity(spider);
+const spider = new Spider(new Vector(200, 175));
+spider.movement = "counterclockwise";
+spider.basepoint = new PointOnSurface(new Surface(new Vector(4, 4), "up"), 25);
+world.entities.addEntity(spider);
 // world.entities.addEntity(new Lizard(new Vector(225, -25), "up", 200, 3));
-world.entities.addEntity(new Lizard(new Vector(1000, -50), "right", 200, 0));
-world.player.hitbox.x = 825;
-world.player.hitbox.y = -200;
+// world.entities.addEntity(new Lizard(new Vector(1000, -50), "right", 200, 0));
+// world.player.hitbox.x = 825;
+// world.player.hitbox.y = -200;
 // world.entities.addEntity(new Humanoid(new Vector(500, -500)));
 // world.player.equippedItems[0] = new Flameturret();
 
