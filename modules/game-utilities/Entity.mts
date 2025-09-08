@@ -169,6 +169,11 @@ export abstract class Entity {
 	canMove(direction: Direction, world: World) {
 		return this.moveUnit(direction, world, { queryOnly: true });
 	}
+	intersects(entity: Entity) {
+		const hitboxes1 = this.hitboxes();
+		const hitboxes2 = entity.hitboxes();
+		return hitboxes1.some(h1 => hitboxes2.some(h2 => h1.intersects(h2)));
+	}
 }
 
 export abstract class RectangularEntity extends Entity {

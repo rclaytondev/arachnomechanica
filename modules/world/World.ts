@@ -637,4 +637,9 @@ export class World {
 		}
 		return tile instanceof SolidTile && tile.shape === "solid";
 	}
+
+	intersectingEntities() {
+		const entities = [...this.entities.allEntities()];
+		return entities.some(e1 => entities.some(e2 => e1.intersects(e2)));
+	}
 }
