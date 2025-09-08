@@ -50,6 +50,7 @@ export class Player extends RectangularEntity {
 			onCollision: () => { this.velocity.y = 0; },
 			collides: (obj) => !(obj instanceof Spikeball),
 		});
+		world.entities.moveEntity(this);
 	}
 	checkInputs(world: World, canvasIO: CanvasIO) {
 		if(canvasIO.keys.ArrowRight && !canvasIO.keys.ArrowLeft) {

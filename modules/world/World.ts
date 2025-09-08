@@ -52,6 +52,7 @@ export class World {
 
 	constructor(enableGeneration: boolean) {
 		this.enableGeneration = enableGeneration;
+		this.entities.addEntity(this.player);
 	}
 
 	initializeGeneration() {
@@ -83,9 +84,6 @@ export class World {
 		this.displayGlowEffects(canvasIO, visibleTileRegion);
 		this.displayLaserBlocks(canvasIO, visibleTileRegion);
 		this.displayLasers(canvasIO);
-		if(!this.player.dead) {
-			this.player.display(canvasIO);
-		}
 		this.displayParticles(canvasIO);
 		this.displayEntities(canvasIO);
 		this.displayTiles(canvasIO, visibleTileRegion);
@@ -247,7 +245,6 @@ export class World {
 
 	update(canvasIO: CanvasIO) {
 		this.updateEntities(canvasIO);
-		this.player.update(this, canvasIO);
 		this.updateTiles(canvasIO);
 		this.updateParticles();
 		this.screenShakeTimer --;
