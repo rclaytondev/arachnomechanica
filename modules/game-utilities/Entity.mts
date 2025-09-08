@@ -139,7 +139,7 @@ export abstract class Entity {
 		const collidingPlatforms = (direction.y > 0) ? this.collidingPlatforms(world).filter(collides) : [];
 		const newHitboxes = this.hitboxes().map(h => h.translate(direction));
 		return [...collidingPlatforms, ...new Set(newHitboxes.flatMap(
-			h => [...world.collidingTiles(h, collides), ...world.collidingEntities(h, collides)]),
+			h => [...world.collidingTiles(h, collides), ...world.collidingEntities(h, collides).filter(o => o !== this)]),
 		)];
 	}
 	collidingHitboxes(entity: Entity, offset: Vector) {

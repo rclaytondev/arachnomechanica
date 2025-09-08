@@ -477,11 +477,12 @@ export class Lizard extends Entity {
 	}
 
 	boundingBox() {
-		const [tail] = this.getPointOnBody(this.length);
-		const joints = this.joints.map(j => j.position);
-		return Rectangle.boundingBox([this.position, ...joints, tail]);
+		return Rectangle.boundingBox(this.hitboxes().flatMap(
+			r => [r.getCorner("top-left"), r.getCorner("top-right"), r.getCorner("bottom-left"), r.getCorner("bottom-right")],
+		));
 	}
 	translate(amount: Vector) {
+		this.position = this.position.add(amount);
 		for(const joint of this.joints) {
 			joint.position = joint.position.add(amount);
 		}

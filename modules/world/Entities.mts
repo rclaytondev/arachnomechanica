@@ -15,9 +15,9 @@ export class Entities {
 	entityGridPositions(rectangle: Rectangle) {
 		return Rectangle.fromBounds(
 			Math.floor(rectangle.left() / WorldData.ENTITY_CHUNK_SIZE),
-			Math.ceil(rectangle.right() / WorldData.ENTITY_CHUNK_SIZE),
+			Math.ceil((rectangle.right() + 1) / WorldData.ENTITY_CHUNK_SIZE),
 			Math.floor(rectangle.top() / WorldData.ENTITY_CHUNK_SIZE),
-			Math.ceil(rectangle.bottom() / WorldData.ENTITY_CHUNK_SIZE),
+			Math.ceil((rectangle.bottom() + 1) / WorldData.ENTITY_CHUNK_SIZE),
 		);
 	}
 	addEntity(entity: Entity) {
