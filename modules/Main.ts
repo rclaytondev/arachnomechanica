@@ -42,7 +42,6 @@ for(let i = 0; i < CORNER_SIZE; i ++) {
 	EMPTY_ROOM.tiles.set(RoomData.SIZE - 1, RoomData.SIZE - 1 - i, new SolidTile("solid", "tower"));
 }
 
-let frameCount = 0;
 const FRAMERATE = 60;
 const world = new World(false);
 world.tiles.fillRect(new Rectangle(-5, -5, 10, 20), new SolidTile("solid", "tower"));
@@ -134,7 +133,7 @@ const frameTimes: number[] = [];
 window.setInterval(() => {
 	Main.update(canvasIO!);
 	Main.display(canvasIO!);
-	frameCount ++;
+	GameUtils.frameCount ++;
 
 	if(DEBUG_SETTINGS.SHOW_FRAMERATE) {
 		const now = Date.now();
@@ -149,5 +148,3 @@ window.setInterval(() => {
 		canvasIO!.ctx.fillText(`${frameTimes.length} FPS`, 0, 0);
 	}
 }, 1000 / FRAMERATE);
-
-export { frameCount };

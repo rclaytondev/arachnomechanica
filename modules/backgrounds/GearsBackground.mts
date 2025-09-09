@@ -4,7 +4,6 @@ import { Vector } from "../../utils-ts/modules/geometry/Vector.mjs";
 import { MathUtils } from "../../utils-ts/modules/math/MathUtils.mjs";
 import { BackgroundData, BackgroundGearLayerData } from "../constants/GameData.mjs";
 import { GameUtils } from "../game-utilities/GameUtils.mjs";
-import { frameCount } from "../Main.js";
 
 class BackgroundGear {
 	position: Vector;
@@ -57,7 +56,7 @@ class BackgroundGear {
 		}
 		canvasIO.ctx.save();
 		canvasIO.ctx.translate(position.x, position.y);
-		canvasIO.ctx.rotate((this.startAngle + this.speed * frameCount) * Math.PI / 180);
+		canvasIO.ctx.rotate((this.startAngle + this.speed * GameUtils.frameCount) * Math.PI / 180);
 		canvasIO.ctx.drawImage(this.image, -this.image.width / 2, -this.image.height / 2);
 		canvasIO.ctx.restore();
 	}

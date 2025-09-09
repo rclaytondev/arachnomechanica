@@ -19,6 +19,8 @@ type RandomEvenlySpacedOptions<T> = {
 type Color = { red: number, green: number, blue: number };
 
 export class GameUtils {
+	static frameCount = 0;
+
 	static moveTowards(value: number, target: number, speed: number) {
 		if(value < target) {
 			return Math.min(value + speed, target);

@@ -5,7 +5,6 @@ import { PortalData, RoomData, WorldData } from "../constants/GameData.mjs";
 import { Entity } from "../game-utilities/Entity.mjs";
 import { GameUtils } from "../game-utilities/GameUtils.mjs";
 import { Particle } from "../game-utilities/Particle.mjs";
-import { frameCount } from "../Main.js";
 import { World } from "../world/World.js";
 
 export class Portal extends Entity {
@@ -17,7 +16,7 @@ export class Portal extends Entity {
 	}
 
 	update(world: World, canvasIO: CanvasIO) {
-		if(frameCount % PortalData.FRAMES_PER_LINE === 0) {
+		if(GameUtils.frameCount % PortalData.FRAMES_PER_LINE === 0) {
 			this.addLine(world, canvasIO);
 		}
 

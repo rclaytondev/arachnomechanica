@@ -4,7 +4,6 @@ import { Rectangle } from "../../utils-ts/modules/geometry/Rectangle.mjs";
 import { Vector } from "../../utils-ts/modules/geometry/Vector.mjs";
 import { GateData, WorldData } from "../constants/GameData.mjs";
 import { GameUtils } from "../game-utilities/GameUtils.mjs";
-import { frameCount } from "../Main.js";
 import { Player } from "../Player.mjs";
 import { World } from "../world/World.js";
 
@@ -76,10 +75,10 @@ export class Gate {
 		canvasIO.fillRect(box);
 	}
 	update(world: World, x: number, y: number, canvasIO: CanvasIO) {
-		if(this.lastFrameUpdated !== frameCount - 1) {
+		if(this.lastFrameUpdated !== GameUtils.frameCount - 1) {
 			this.initialize(world.player, x, y);
 		}
-		this.lastFrameUpdated = frameCount;
+		this.lastFrameUpdated = GameUtils.frameCount;
 		this.checkPlayer(world, x, y);
 		const closed = this.openness === 0;
 		if(!closed && this.openness === 0) {
