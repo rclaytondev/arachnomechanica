@@ -1,7 +1,7 @@
 import { CanvasIO, canvasIO } from "../utils-ts/modules/CanvasIO.mjs";
 import { Vector } from "../utils-ts/modules/geometry/Vector.mjs";
 import { DEBUG_SETTINGS } from "./constants/DebugSettings.mjs";
-import {PlayerData, RoomData, SpikeballBlockData } from "./constants/GameData.mjs";
+import {PlayerData, RoomData } from "./constants/GameData.mjs";
 import { GameUtils } from "./game-utilities/GameUtils.mjs";
 import { Room } from "./level-generator/Room.mjs";
 import { RoomEditor } from "./RoomEditor.mjs";
@@ -9,7 +9,7 @@ import { Rooms, ROOMS } from "./level-generator/Rooms.mjs";
 import { World } from "./world/World.js";
 import { Rectangle } from "../utils-ts/modules/geometry/Rectangle.mjs";
 import { SolidTile } from "./tiles/SolidTile.mjs";
-import { SpikeballBlock } from "./tiles/SpikeballBlock.mjs";
+import { Flameturret } from "./items/Flameturret.mjs";
 
 const recordedRNG: number[] = [];
 let rngOverrideIndex = 0;
@@ -46,7 +46,7 @@ const world = new World(false);
 world.tiles.fillRect(new Rectangle(-5, -5, 10, 20), new SolidTile("solid", "tower"));
 world.tiles.fillRect(new Rectangle(-4, -4, 9, 8), "empty");
 world.tiles.fillRect(new Rectangle(5, -1, 9, 8), new SolidTile("solid", "tower"));
-world.addTile(new Vector(2, 2), new SpikeballBlock(SpikeballBlockData.PATTERNS[0]));
+// world.addTile(new Vector(2, 2), new SpikeballBlock(SpikeballBlockData.PATTERNS[0]));
 // const spider = new Spider(new Vector(500, -125));
 // const spider = new Spider(new Vector(200, 175));
 // spider.movement = "counterclockwise";
@@ -55,7 +55,7 @@ world.addTile(new Vector(2, 2), new SpikeballBlock(SpikeballBlockData.PATTERNS[0
 // world.entities.addEntity(new Lizard(new Vector(225, -25), "up", 200, 3));
 // world.entities.addEntity(new Lizard(new Vector(1000, -50), "right", 200, 0));
 // world.player.hitbox.x += 50;
-// world.player.equippedItems[0] = new Flameturret();
+world.player.equippedItems[0] = new Flameturret();
 
 export class Main {
 	// static screen: World | RoomEditor = new World(true).initializeGeneration();

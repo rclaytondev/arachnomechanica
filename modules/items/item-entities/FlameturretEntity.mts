@@ -5,39 +5,33 @@ import { Vector } from "../../../utils-ts/modules/geometry/Vector.mjs";
 import { ItemData, LizardData, PlayerData } from "../../constants/GameData.mjs";
 import { RectangularEntity } from "../../game-utilities/Entity.mjs";
 import { FireSpawner } from "../../game-utilities/FireSpawner.mjs";
-import { PhysicsObject } from "../../game-utilities/PhysicsObject.mjs";
 import { World } from "../../world/World";
 
 export class FlameturretEntity extends RectangularEntity {
-	physicsObject: PhysicsObject;
+	velocity: Vector = new Vector(0, 0);
 	fireSpawnerLeft: FireSpawner;
 	fireSpawnerRight: FireSpawner;
 
 	constructor() {
 		super(Rectangle.square(0, 0, ItemData.FLAMETURRET.SIZE));
-		this.physicsObject = new PhysicsObject(
-			new Vector(0, 0),
-			Rectangle.square(0, 0, ItemData.FLAMETURRET.SIZE),
-			"flameturret",
-		);
-
-		this.fireSpawnerLeft = new FireSpawner(new Vector(0, 0), "left", LizardData.FIRE);
-		this.fireSpawnerRight = new FireSpawner(new Vector(0, 0), "right", LizardData.FIRE);
+		const center = this.hitbox.center();
+		this.fireSpawnerLeft = new FireSpawner(center.add(-ItemData.FLAMETURRET.FIRE_OFFSET, 0), "left", LizardData.FIRE);
+		this.fireSpawnerRight = new FireSpawner(center.add(ItemData.FLAMETURRET.FIRE_OFFSET, 0), "right", LizardData.FIRE);
 	}
 
 	display(canvasIO: CanvasIO) {
-		const center = this.physicsObject.hitbox().center();
+		const center = this.hitbox.center();
 		canvasIO.ctx.fillStyle = "black";
 		canvasIO.fillDiamond(center.x, center.y, ItemData.FLAMETURRET.SIZE / 2);
 	}
 
 	update(world: World, canvasIO: CanvasIO) {
-		this.physicsObject.velocity.x *= ItemData.FRICTION_X;
-		this.physicsObject.applyGravity(PlayerData.GRAVITY);
-		this.physicsObject.move(this.physicsObject.velocity, world, {
+		this.velocity.x *= ItemData.FRICTION_X;
+		this.velocity.y += PlayerData.GRAVITY;
+		this.move(this.velocity, world, {
 			onCollision: (direction) => {
 				if(Directions.isVertical(direction)) {
-					this.physicsObject.velocity.y = 0;
+					this.velocity.y = 0;
 				}
 			},
 			collides: (obj) => obj !== this,
@@ -47,26 +41,21 @@ export class FlameturretEntity extends RectangularEntity {
 		this.updateFire(world, canvasIO);
 	}
 	updateFire(world: World, canvasIO: CanvasIO) {
-		const center = this.physicsObject.hitbox().center();
 		for(const fireSpawner of [this.fireSpawnerLeft, this.fireSpawnerRight]) {
-			fireSpawner.position = center;
 			fireSpawner.update(world, canvasIO);
 			fireSpawner.updateHurtbox(world, canvasIO);
 			const hurtbox = fireSpawner.hurtbox(fireSpawner.maxHurtboxSize);
 			if(world.isInSolid(hurtbox) && !hurtbox.intersects(world.player.hitbox)) {
+				world.isInSolid(hurtbox);
 				fireSpawner.startFire(LizardData.FIRE_DURATION);
 			}
 		}
 	}
 
-	boundingBox() {
-		return this.physicsObject.hitbox();
-	}
-
-	hitboxes() {
-		return [this.boundingBox()];
-	}
 	translate(amount: Vector) {
-		this.physicsObject.setPosition(this.physicsObject.positionFloat().add(amount));
+		this.hitbox.x += amount.x;
+		this.hitbox.y += amount.y;
+		this.fireSpawnerLeft.position = this.fireSpawnerLeft.position.add(amount);
+		this.fireSpawnerRight.position = this.fireSpawnerRight.position.add(amount);
 	}
 }

@@ -106,11 +106,10 @@ export class Player extends RectangularEntity {
 	}
 	throw(item: ItemEntity, world: World, canvasIO: CanvasIO) {
 		const direction = (canvasIO.keys.ArrowDown ? "down" : this.facing);
-		const size = (direction === "down" ? item.physicsObject.dimensions.height : item.physicsObject.dimensions.width);
-		item.physicsObject.setCenter(
-			this.hitbox.edgeCenter(direction).add(Vector.unit(direction).multiply(ItemData.THROW_OFFSET + size / 2)),
-		);
-		item.physicsObject.velocity = this.itemThrowVelocity(canvasIO);
+		const size = (direction === "down" ? item.hitbox.height : item.hitbox.width);
+		const throwStart = this.hitbox.edgeCenter(direction).add(Vector.unit(direction).multiply(ItemData.THROW_OFFSET + size / 2));
+		item.translate(new Vector(throwStart.x - item.hitbox.width / 2, throwStart.y - item.hitbox.height / 2));
+		item.velocity = this.itemThrowVelocity(canvasIO);
 		world.entities.addEntity(item);
 	}
 }

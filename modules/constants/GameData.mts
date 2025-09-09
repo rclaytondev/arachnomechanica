@@ -466,6 +466,7 @@ export class ItemData {
 
 	static FLAMETURRET = {
 		SIZE: WorldData.TILE_SIZE * 0.6,
+		FIRE_OFFSET: 15,
 	};
 }
 
