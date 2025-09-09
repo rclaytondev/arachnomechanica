@@ -10,7 +10,7 @@
 	- Idea 3: it shoots a fireball at you if you're in the same diagonal line.
 	- Idea 4: it has orbiting fireballs that it shoots at you if you're tangent to them.
 	- Idea 5: if it gets close to you it pulls its legs in, curls up into a spikeball, and jumps at you (like the Watcher Knights in Hollow Knight).
-- [x] Humanoid creature with a body made of long, thin triangles; when it sees you, it disassembles itself into triangles that all rotate so the pointy end is facing you, and the triangles launch themselves at you one at a time. When they're all there, they reassemble into a humanoid creature again.
+- [ ] Humanoid creature with a body made of long, thin triangles; when it sees you, it disassembles itself into triangles that all rotate so the pointy end is facing you, and the triangles launch themselves at you one at a time. When they're all there, they reassemble into a humanoid creature again.
 	- [ ] Ideally it should also have some other attack that it can do while in human form. In order to be distinct, it should not be a ranged projectile attack or an attack involving damage upon touching its body.
 		- Idea 1: it raises its hands and summons spikes from the ground that stab you.
 		- Idea 2: it raises its hands and summons slow-moving flying enemies that seek out your position and deal contact damage.

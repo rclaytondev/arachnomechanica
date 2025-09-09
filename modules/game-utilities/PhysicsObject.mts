@@ -12,7 +12,7 @@ type MoveOptions = {
 	slideDownSlopes?: boolean
 };
 
-type EntityType = "player" | "humanoid" | "humanoid-part" | "spider" | "spider-projectile" | "spikeball" | "flameturret";
+type EntityType = "player" | "spider" | "spider-projectile" | "spikeball" | "flameturret";
 
 export class PhysicsObject {
 	positionInt: Vector;

@@ -55,7 +55,6 @@ world.addTile(new Vector(2, 2), new SpikeballBlock(SpikeballBlockData.PATTERNS[0
 // world.entities.addEntity(new Lizard(new Vector(225, -25), "up", 200, 3));
 // world.entities.addEntity(new Lizard(new Vector(1000, -50), "right", 200, 0));
 // world.player.hitbox.x += 50;
-// world.entities.addEntity(new Humanoid(new Vector(500, -500)));
 // world.player.equippedItems[0] = new Flameturret();
 
 export class Main {

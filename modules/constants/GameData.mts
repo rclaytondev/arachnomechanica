@@ -3,8 +3,6 @@ import { ParticleSettings } from "../game-utilities/Particle.mjs";
 import { Traversability } from "../level-generator/Room.mjs";
 import { GateState } from "../level-generator/GateState.mjs";
 import { Direction } from "../../utils-ts/modules/geometry/Direction.mjs";
-import { HumanoidPart } from "../entities/Humanoid.mjs";
-import { MathUtils } from "../../utils-ts/modules/math/MathUtils.mjs";
 import { FireSpawnerSettings } from "../game-utilities/FireSpawner.mjs";
 
 export class WorldData {
@@ -374,74 +372,6 @@ export class PortalData {
 		rotation: Math.PI / 2,
 		opacityDecay: { min: 1/60, max: 1/40 },
 		thickness: 2,
-	};
-}
-
-export class HumanoidData {
-	static HITBOX_WIDTH = 1 * WorldData.TILE_SIZE;
-	static HITBOX_HEIGHT = 1.8 * WorldData.TILE_SIZE;
-
-	static COLOR = "black";
-
-	static LEG_LIFT_AMOUNT = MathUtils.toRadians(30);
-	static WALK_PHASE_1_DURATION = 15;
-	static WALK_PHASE_2_DURATION = 15;
-	static WALK_PHASE_3_DURATION = 15;
-
-	static ARMING_TIME = 10;
-	static DELAY_AFTER_ARMING = 20;
-	static DELAY_AFTER_SHOT = 10;
-	static MAX_SHOT_DISTANCE = 800;
-	static PROJECTILE_SPEED = 20;
-
-	static REFORM_TIME = 30;
-
-	static HEAD = new HumanoidPart(
-		new Vector(0, 5),
-		MathUtils.toRadians(180),
-		20,
-		50,
-	);
-	static BODY = new HumanoidPart(
-		new Vector(0, 35),
-		MathUtils.toRadians(180),
-		20,
-		50,
-	);
-	static LEFT_ARM = new HumanoidPart(
-		new Vector(-20, 25),
-		MathUtils.toRadians(190),
-		10,
-		40,
-	);
-	static LEFT_LEG = new HumanoidPart(
-		new Vector(-4, 15),
-		MathUtils.toRadians(0),
-		10,
-		30,
-	);
-
-	static ARMING_CIRCLE_RADIUS = 50;
-	static ARMING_CIRCLE_Y = 0;
-	static ARMING_POSITIONS = {
-		head: new Vector(0, HumanoidData.ARMING_CIRCLE_Y - HumanoidData.ARMING_CIRCLE_RADIUS),
-		body: new Vector(0, HumanoidData.ARMING_CIRCLE_Y),
-		leftArm: new Vector(
-			HumanoidData.ARMING_CIRCLE_RADIUS * Math.cos(MathUtils.toRadians(90 + 360/5)),
-			HumanoidData.ARMING_CIRCLE_RADIUS * -Math.sin(MathUtils.toRadians(90 + 360/5)) + HumanoidData.ARMING_CIRCLE_Y,
-		),
-		rightArm: new Vector(
-			HumanoidData.ARMING_CIRCLE_RADIUS * Math.cos(MathUtils.toRadians(90 - 360/5)),
-			HumanoidData.ARMING_CIRCLE_RADIUS * -Math.sin(MathUtils.toRadians(90 - 360/5)) + HumanoidData.ARMING_CIRCLE_Y,
-		),
-		leftLeg: new Vector(
-			HumanoidData.ARMING_CIRCLE_RADIUS * Math.cos(MathUtils.toRadians(90 + 2 * 360/5)),
-			HumanoidData.ARMING_CIRCLE_RADIUS * -Math.sin(MathUtils.toRadians(90 + 2 * 360/5)) + HumanoidData.ARMING_CIRCLE_Y,
-		),
-		rightLeg: new Vector(
-			HumanoidData.ARMING_CIRCLE_RADIUS * Math.cos(MathUtils.toRadians(90 - 2 * 360/5)),
-			HumanoidData.ARMING_CIRCLE_RADIUS * -Math.sin(MathUtils.toRadians(90 - 2 * 360/5)) + HumanoidData.ARMING_CIRCLE_Y,
-		),
 	};
 }
 
