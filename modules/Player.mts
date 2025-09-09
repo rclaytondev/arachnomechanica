@@ -4,10 +4,10 @@ import { Vector } from "../utils-ts/modules/geometry/Vector.mjs";
 import { MathUtils } from "../utils-ts/modules/math/MathUtils.mjs";
 import { ItemData, PlayerData, WorldData } from "./constants/GameData.mjs";
 import { Spikeball } from "./entities/Spikeball.mjs";
-import { RectangularEntity } from "./game-utilities/Entity.mjs";
+import { Entity, RectangularEntity } from "./game-utilities/Entity.mjs";
 import { GameUtils } from "./game-utilities/GameUtils.mjs";
 import { Item } from "./items/Item.mjs";
-import { ItemEntity, World } from "./world/World.js";
+import { ItemEntity, TileWithPosition, World } from "./world/World.js";
 
 export class Player extends RectangularEntity {
 	velocity: Vector = new Vector(0, 0);
@@ -41,14 +41,18 @@ export class Player extends RectangularEntity {
 		this.velocity.y += canvasIO.keys.KeyZ && this.velocity.y <= 0 ? PlayerData.GRAVITY_WHILE_JUMPING : PlayerData.GRAVITY;
 		this.velocity.x = MathUtils.constrain(this.velocity.x, -PlayerData.MAX_X_VELOCITY, PlayerData.MAX_X_VELOCITY);
 		this.move(new Vector(this.velocity.x, 0), world, {
-			onCollision: () => { this.velocity.x = 0; },
-			collides: (obj) => !(obj instanceof Spikeball),
+			onCollision: (direction, collisions) => {
+				this.velocity.x = 0;
+				this.checkDamagingCollisions(collisions, world);
+			},
 			slideUpSlopes: true,
 			slideDownSlopes: true,
 		});
 		this.move(new Vector(0, this.velocity.y), world, {
-			onCollision: () => { this.velocity.y = 0; },
-			collides: (obj) => !(obj instanceof Spikeball),
+			onCollision: (direction, collisions) => {
+				this.velocity.y = 0;
+				this.checkDamagingCollisions(collisions, world);
+			},
 		});
 		world.entities.moveEntity(this);
 	}
@@ -81,11 +85,17 @@ export class Player extends RectangularEntity {
 			this.equippedItems[1]?.use(world, canvasIO);
 		}
 	}
+	checkDamagingCollisions(collisions: (Entity | TileWithPosition)[], world: World) {
+		for(const obj of collisions.filter(c => c instanceof Spikeball)) {
+			this.damage(obj.hitbox, world);
+		}
+	}
 	onGround(world: World) {
 		return !this.canMove("down", world);
 	}
-	damage() {
+	damage(hurtbox: Rectangle, world: World) {
 		this.dead = true;
+		world.entities.removeEntity(this);
 	}
 
 	itemThrowVelocity(canvasIO: CanvasIO) {

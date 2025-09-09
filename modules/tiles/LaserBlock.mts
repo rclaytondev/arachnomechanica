@@ -123,7 +123,7 @@ export class LaserBlock {
 				), canvasIO);
 			}
 			if(this.intersectsBox(new Vector(x, y), direction, player, length)) {
-				world.player.damage();
+				world.player.damage(world.player.hitbox, world);
 			}
 		}
 	}

@@ -113,9 +113,16 @@ export class SpikeballBlock {
 	}
 
 	spawnSpikeballs(world: World, x: number, y: number) {
+		const spikeballs = [];
 		for(const [xDirection, yDirection] of this.pattern[this.patternStep]) {
 			if(this.canSpawnSpikeball(x, y, xDirection, yDirection, world)) {
-				this.spawnSpikeball(x, y, xDirection, yDirection, world);
+				spikeballs.push(this.spawnSpikeball(x, y, xDirection, yDirection, world));
+			}
+		}
+
+		for(const spikeball of spikeballs) {
+			for(const other of spikeballs.filter(s => s !== spikeball)) {
+				spikeball.overlappingSpikeballs.push(other);
 			}
 		}
 
@@ -151,6 +158,7 @@ export class SpikeballBlock {
 		);
 		this.spikeballs.push(spikeball);
 		world.entities.addEntity(spikeball);
+		return spikeball;
 	}
 
 	copy() {

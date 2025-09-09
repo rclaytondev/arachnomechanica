@@ -572,7 +572,7 @@ export class World {
 	}
 	damage(hurtbox: Rectangle, canvasIO: CanvasIO) {
 		if(this.player.hitbox.intersects(hurtbox)) {
-			this.player.damage();
+			this.player.damage(hurtbox, this);
 		}
 		for(const entity of this.entities.entitiesIntersecting(hurtbox)) {
 			entity.damage(hurtbox, this, canvasIO);
@@ -640,6 +640,7 @@ export class World {
 
 	intersectingEntities() {
 		const entities = [...this.entities.allEntities()];
-		return entities.some(e1 => entities.some(e2 => e1.intersects(e2)));
+		const pairs = entities.flatMap((e1, i1) => entities.slice(i1 + 1).map(e2 => [e1, e2] as [Entity, Entity]));
+		return pairs.filter(([e1, e2]) => e1.intersects(e2));
 	}
 }
