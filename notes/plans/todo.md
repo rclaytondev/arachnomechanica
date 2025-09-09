@@ -21,5 +21,4 @@ Things to do:
 - [x] Lasers can pass through blocks when facing left, it seems
 
 Refactoring:
-- [ ] `PhysicsObject.moveX` and `PhysicsObject.moveY` have lots of repeated code
 - [ ] Glow effects could be managed automatically by `GameUtils` instead of having each object keep track of its gradient
