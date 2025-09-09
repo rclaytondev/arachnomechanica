@@ -456,19 +456,8 @@ export class Spider extends RectangularEntity {
 		projectile.explode(world, canvasIO);
 	}
 
-	hitboxes() {
-		return [this.hitbox];
-	}
 	switchDirection() {
 		this.movement = (this.movement === "clockwise") ? "counterclockwise" : "clockwise";
-	}
-
-	boundingBox() {
-		return this.hitbox;
-	}
-	translate(amount: Vector) {
-		this.hitbox.x += amount.x;
-		this.hitbox.y += amount.y;
 	}
 }
 

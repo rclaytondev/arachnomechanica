@@ -133,12 +133,4 @@ export class Spikeball extends RectangularEntity {
 			SpikeballData.SHATTER_PARTICLE_SETTINGS,
 		);
 	}
-
-	hurtbox() {
-		const center = this.hitbox.center();
-		return new Rectangle(
-			center.x - SpikeballData.HURTBOX_SIZE / 2, center.y - SpikeballData.HURTBOX_SIZE / 2,
-			SpikeballData.HURTBOX_SIZE, SpikeballData.HURTBOX_SIZE,
-		);
-	}
 }
