@@ -334,13 +334,13 @@ export class Lizard extends Entity {
 			const next = joints[i + 1];
 			if(
 				joint.y === next.y &&
-				rectangle.intersects(Rectangle.fromBounds(joint.x, next.x, joint.y, joint.y))
+				rectangle.intersects(Lizard.segmentHitbox(joint, next))
 			) {
 				return distance + ((joint.x > next.x) ? joint.x - rectangle.right() : rectangle.left() - joint.x);
 			}
 			if(
 				joint.x === next.x &&
-				rectangle.intersects(Rectangle.fromBounds(joint.x, joint.x, joint.y, next.y))
+				rectangle.intersects(Lizard.segmentHitbox(joint, next))
 			) {
 				return distance + ((joint.y > next.y) ? joint.y - rectangle.bottom() : rectangle.top() - joint.y);
 			}
@@ -441,20 +441,21 @@ export class Lizard extends Entity {
 	}
 
 	static segmentHitbox(point1: Vector, point2: Vector) {
+		const HALF_HITBOX = Math.floor(LizardData.HITBOX_WIDTH / 2);
 		if(point1.x === point2.x) {
 			return Rectangle.fromBounds(
-				point1.x - LizardData.HITBOX_WIDTH / 2,
-				point1.x + LizardData.HITBOX_WIDTH / 2,
-				Math.min(point1.y, point2.y) - LizardData.HITBOX_WIDTH / 2,
-				Math.max(point1.y, point2.y) + LizardData.HITBOX_WIDTH / 2,
+				point1.x - HALF_HITBOX,
+				point1.x + HALF_HITBOX,
+				Math.min(point1.y, point2.y) - HALF_HITBOX,
+				Math.max(point1.y, point2.y) + HALF_HITBOX,
 			);
 		}
 		else {
 			return Rectangle.fromBounds(
-				Math.min(point1.x, point2.x) - LizardData.HITBOX_WIDTH / 2,
-				Math.max(point1.x, point2.x) + LizardData.HITBOX_WIDTH / 2,
-				point1.y - LizardData.HITBOX_WIDTH / 2,
-				point1.y + LizardData.HITBOX_WIDTH / 2,
+				Math.min(point1.x, point2.x) - HALF_HITBOX,
+				Math.max(point1.x, point2.x) + HALF_HITBOX,
+				point1.y - HALF_HITBOX,
+				point1.y + HALF_HITBOX,
 			);
 		}
 	}
