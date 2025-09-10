@@ -1,7 +1,7 @@
 import { CanvasIO, canvasIO } from "../utils-ts/modules/CanvasIO.mjs";
 import { Vector } from "../utils-ts/modules/geometry/Vector.mjs";
 import { DEBUG_SETTINGS } from "./constants/DebugSettings.mjs";
-import {PlayerData, RoomData } from "./constants/GameData.mjs";
+import {PlayerData } from "./constants/GameData.mjs";
 import { GameUtils } from "./game-utilities/GameUtils.mjs";
 import { Room } from "./level-generator/Room.mjs";
 import { RoomEditor } from "./RoomEditor.mjs";
@@ -9,9 +9,6 @@ import { Rooms, ROOMS } from "./level-generator/Rooms.mjs";
 import { World } from "./world/World.js";
 import { Rectangle } from "../utils-ts/modules/geometry/Rectangle.mjs";
 import { SolidTile } from "./tiles/SolidTile.mjs";
-import { Flameturret } from "./items/Flameturret.mjs";
-import { Lizard } from "./entities/Lizard.js";
-import { PointOnSurface, Spider, Surface } from "./entities/Spider.mjs";
 
 const recordedRNG: number[] = [];
 let rngOverrideIndex = 0;
@@ -30,47 +27,14 @@ if(DEBUG_SETTINGS.PRINT_RNG_KEY) {
 Rooms.initialize();
 Room.addRoomVariants();
 
-const CORNER_SIZE = 3;
-const EMPTY_ROOM = new World(false);
-for(let i = 0; i < CORNER_SIZE; i ++) {
-	EMPTY_ROOM.tiles.set(i, 0, new SolidTile("solid", "tower"));
-	EMPTY_ROOM.tiles.set(0, i, new SolidTile("solid", "tower"));
-	EMPTY_ROOM.tiles.set(RoomData.SIZE - 1 - i, 0, new SolidTile("solid", "tower"));
-	EMPTY_ROOM.tiles.set(RoomData.SIZE - 1, i, new SolidTile("solid", "tower"));
-	EMPTY_ROOM.tiles.set(0, RoomData.SIZE - 1 - i, new SolidTile("solid", "tower"));
-	EMPTY_ROOM.tiles.set(i, RoomData.SIZE - 1, new SolidTile("solid", "tower"));
-	EMPTY_ROOM.tiles.set(RoomData.SIZE - 1 - i, RoomData.SIZE - 1, new SolidTile("solid", "tower"));
-	EMPTY_ROOM.tiles.set(RoomData.SIZE - 1, RoomData.SIZE - 1 - i, new SolidTile("solid", "tower"));
-}
-
-const FRAMERATE = 60;
 const world = new World(false);
-world.tiles.fillRect(new Rectangle(-5, -5, 9, 20), new SolidTile("solid", "tower"));
-world.tiles.fillRect(new Rectangle(-4, -4, 9, 8), "empty");
-world.tiles.fillRect(new Rectangle(5, -1, 9, 8), new SolidTile("solid", "tower"));
-// world.addTile(new Vector(2, 2), new SpikeballBlock(SpikeballBlockData.PATTERNS[0]));
-// const spider = new Spider(new Vector(500, -125));
-// world.entities.addEntity(new Lizard(new Vector(225, -25), "up", 200, 3));
-// world.entities.addEntity(new Lizard(new Vector(1000, -50), "right", 200, 0));
-// world.player.hitbox.x += 50;
-world.player.equippedItems[0] = new Flameturret();
-
-const lizard = new Lizard(new Vector(1425, 3355), "down", 175, 3);
-lizard.joints = [{ direction: "left", position: new Vector(1425, 3313) }];
-console.log(lizard.hitboxes()[1].intersects(new Rectangle(1559, 3325, 15, 15)));
-console.log(lizard.lengthAfterDamage(new Rectangle(1559, 3325, 15, 15)));
-
-world.entities.addEntity(new Lizard(new Vector(225, 125), "up", 300, 3));
-const spider = new Spider(new Vector(100, 175));
-spider.movement = "counterclockwise";
-spider.basepoint = new PointOnSurface(new Surface(new Vector(2, 4), "up"), 25);
-world.entities.addEntity(spider);
+world.tiles.fillRect(new Rectangle(-5, 0, 9, 3), new SolidTile("solid", "tower"));
 
 
 export class Main {
-	// static screen: World | RoomEditor = new World(true).initializeGeneration();
+	static screen: World | RoomEditor = new World(true).initializeGeneration();
 	// static screen: World | RoomEditor = new RoomEditor();
-	static screen: World | RoomEditor = world;
+	// static screen: World | RoomEditor = world;
 
 	static fadingOpacity: number = 0;
 	static fadingDestination: number = 0;
@@ -136,6 +100,8 @@ if(DEBUG_SETTINGS.GENERATOR_VISUALIZATION.ENABLED && Main.screen instanceof Worl
 	debugger;
 }
 
+
+const FRAMERATE = 60;
 const frameTimes: number[] = [];
 
 window.setInterval(() => {
