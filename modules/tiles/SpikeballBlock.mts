@@ -157,7 +157,10 @@ export class SpikeballBlock {
 			new Vector(x, y).add(Vector.unit(yDirection)),
 		);
 		this.spikeballs.push(spikeball);
-		world.entities.addEntity(spikeball);
+		const intersecting = world.entities.entitiesIntersecting(spikeball.hitbox);
+		if(intersecting.size === 0) {
+			world.entities.addEntity(spikeball);
+		}
 		return spikeball;
 	}
 

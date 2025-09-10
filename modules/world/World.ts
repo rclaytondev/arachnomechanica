@@ -570,6 +570,11 @@ export class World {
 			this.particles.push(particle);
 		}
 	}
+	addEntityIfEmpty(entity: Entity) {
+		if(!entity.hitboxes().some(h => this.isInSolid(h))) {
+			this.entities.addEntity(entity);
+		}
+	}
 	damage(hurtbox: Rectangle, canvasIO: CanvasIO) {
 		if(this.player.hitbox.intersects(hurtbox)) {
 			this.player.damage(hurtbox, this);
