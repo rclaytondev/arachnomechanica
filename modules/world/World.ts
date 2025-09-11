@@ -3,7 +3,7 @@ import { Direction, Directions } from "../../utils-ts/modules/geometry/Direction
 import { Rectangle } from "../../utils-ts/modules/geometry/Rectangle.mjs";
 import { Vector } from "../../utils-ts/modules/geometry/Vector.mjs";
 import { Grid } from "../../utils-ts/modules/Grid.mjs";
-import { BackgroundData, PlayerData, WorldData } from "../constants/GameData.mjs";
+import { BackgroundData, LevelGeneratorData, PlayerData, RoomData, WorldData } from "../constants/GameData.mjs";
 import { Main } from "../Main.js";
 import { DEBUG_SETTINGS } from "../constants/DebugSettings.mjs";
 import { Particle } from "../game-utilities/Particle.mjs";
@@ -88,7 +88,14 @@ export class World {
 		}
 	}
 	displayBackground(canvasIO: CanvasIO) {
+		const translation = this.translationToCamera(canvasIO);
+		this.skyBackground.display(canvasIO);
 		canvasIO.ctx.save();
+		canvasIO.clipRect(
+			translation.x, translation.y,
+			LevelGeneratorData.WIDTH * RoomData.SIZE * WorldData.TILE_SIZE,
+			LevelGeneratorData.HEIGHT * RoomData.SIZE * WorldData.TILE_SIZE,
+		);
 		canvasIO.fillCanvas(BackgroundData.BACKGROUND_COLOR);
 		this.gearsBackground.display(canvasIO, this.camera);
 		canvasIO.ctx.restore();
