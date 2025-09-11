@@ -52,7 +52,7 @@ export class WorldData {
 export class LevelGeneratorData {
 	static WIDTH = 4;
 	static HEIGHT = 6;
-	static BORDER_X = 2;
+	static BORDER_X = 4;
 	static BORDER_Y = 10;
 
 	static MAIN_PATH_BRANCH_PROBABILITY_X = 0.5;

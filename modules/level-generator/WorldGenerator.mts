@@ -27,6 +27,7 @@ export class WorldGenerator {
 		this.generateRoomsOffPath();
 		this.pruneConnections();
 		this.addRooms(world);
+		this.addBorders(world);
 		this.spawnPlayer(world);
 	}
 
@@ -180,6 +181,28 @@ export class WorldGenerator {
 				);
 			}
 		}
+	}
+	addBorders(world: World) {
+		world.tiles.fillRect(new Rectangle(
+			-LevelGeneratorData.BORDER_X, -LevelGeneratorData.BORDER_Y,
+			LevelGeneratorData.WIDTH * RoomData.SIZE + LevelGeneratorData.BORDER_X,
+			LevelGeneratorData.BORDER_Y,
+		), new SolidTile("solid", "tower"));
+		world.tiles.fillRect(new Rectangle(
+			-LevelGeneratorData.BORDER_X, 0,
+			LevelGeneratorData.BORDER_X,
+			LevelGeneratorData.HEIGHT * RoomData.SIZE,
+		), new SolidTile("solid", "tower"));
+		world.tiles.fillRect(new Rectangle(
+			LevelGeneratorData.WIDTH * RoomData.SIZE, -LevelGeneratorData.BORDER_Y,
+			LevelGeneratorData.BORDER_X,
+			LevelGeneratorData.HEIGHT * RoomData.SIZE + LevelGeneratorData.BORDER_Y,
+		), new SolidTile("solid", "tower"));
+		world.tiles.fillRect(new Rectangle(
+			-LevelGeneratorData.BORDER_X, LevelGeneratorData.HEIGHT * RoomData.SIZE,
+			LevelGeneratorData.WIDTH * RoomData.SIZE + 2 * LevelGeneratorData.BORDER_X,
+			LevelGeneratorData.BORDER_Y,
+		), new SolidTile("solid", "tower"));
 	}
 	spawnPlayer(world: World) {
 		const emptyTiles = [];
