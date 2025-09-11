@@ -13,6 +13,7 @@ export type Traversability = { start: GateState, end: GateState }[];
 export type RoomTile = "empty" | "platform" | SolidTile | Gate;
 
 export class Room {
+	originalName: string;
 	name: string;
 	tiles: Grid<RoomTile>;
 	canSpawnWithExits: (exits: Direction[]) => boolean;
@@ -22,6 +23,7 @@ export class Room {
 	entities: Portal[];
 
 	constructor(name: string, tiles: { x: number, y: number, type: | "solid" | "platform" | Slope | Gate }[] | Grid<RoomTile>, exitTiles: { x: number, y: number, direction: Direction }[] | Grid<Direction | "none">, entities: Portal[] = [], canSpawnWithExits: (exits: Direction[]) => boolean, traversability?: Traversability, weight: number = 1) {
+		this.originalName = name;
 		this.name = name;
 		if(tiles instanceof Grid) {
 			this.tiles = tiles;
@@ -77,7 +79,7 @@ export class Room {
 
 	reflect() {
 		const reflected = new Room(
-			`${this.name}-reflected`,
+			this.name,
 			[],
 			[],
 			this.entities.map(e => e.reflect()),
@@ -87,6 +89,7 @@ export class Room {
 				end: new GateState(null, Directions.reflectX[end.exit], end.toggled),
 			})),
 		);
+		reflected.name = `${this.name}-reflected`;
 		for(let x = 0; x < RoomData.SIZE; x ++) {
 			for(let y = 0; y < RoomData.SIZE; y ++) {
 				const reflectedX = RoomData.SIZE - x - 1;

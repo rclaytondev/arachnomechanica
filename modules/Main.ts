@@ -1,5 +1,4 @@
 import { CanvasIO, canvasIO } from "../utils-ts/modules/CanvasIO.mjs";
-import { Vector } from "../utils-ts/modules/geometry/Vector.mjs";
 import { DEBUG_SETTINGS } from "./constants/DebugSettings.mjs";
 import {PlayerData } from "./constants/GameData.mjs";
 import { GameUtils } from "./game-utilities/GameUtils.mjs";
@@ -92,7 +91,7 @@ if(DEBUG_SETTINGS.GENERATOR_VISUALIZATION.ENABLED && Main.screen instanceof Worl
 	// eslint-disable-next-line no-console
 	console.time("generating chunk");
 	const debugWorld = new World(false);
-	debugWorld.worldGenerator.generateChunk(new Vector(0, 0), debugWorld);
+	debugWorld.worldGenerator.generateLevel(debugWorld);
 	debugWorld.worldGenerator.visualize(canvasIO!, false);
 	// eslint-disable-next-line no-console
 	console.timeEnd("generating chunk");

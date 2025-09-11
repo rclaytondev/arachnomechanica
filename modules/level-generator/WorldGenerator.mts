@@ -3,9 +3,10 @@ import { Direction, Directions } from "../../utils-ts/modules/geometry/Direction
 import { Rectangle } from "../../utils-ts/modules/geometry/Rectangle.mjs";
 import { Vector } from "../../utils-ts/modules/geometry/Vector.mjs";
 import { Grid } from "../../utils-ts/modules/Grid.mjs";
+import { MathUtils } from "../../utils-ts/modules/math/MathUtils.mjs";
 import { Utils } from "../../utils-ts/modules/Utils.mjs";
 import { DEBUG_SETTINGS } from "../constants/DebugSettings.mjs";
-import { LevelGeneratorData, RoomData } from "../constants/GameData.mjs";
+import { LevelGeneratorData, RoomData, WorldData } from "../constants/GameData.mjs";
 import { GameUtils } from "../game-utilities/GameUtils.mjs";
 import { Gate } from "../tiles/Gate.mjs";
 import { SolidTile } from "../tiles/SolidTile.mjs";
@@ -16,79 +17,125 @@ import { RoomPlaceholder } from "./RoomPlaceholder.mjs";
 import { ROOMS } from "./Rooms.mjs";
 
 export class WorldGenerator {
+	path: Vector[] = [];
 	rooms: Grid<RoomPlaceholder | null> = new Grid(null);
 	currentChunk: Vector = new Vector(0, 0);
 
-	generateChunk(chunkPosition: Vector, world: World) {
-		this.currentChunk = chunkPosition;
-		this.initializeChunk();
-		this.prunePhysicalConnections();
-		this.connectRandomRooms();
+	generateLevel(world: World) {
+		this.generatePath();
+		this.generateBranchesOffPath();
+		this.generateRoomsOffPath();
 		this.pruneConnections();
 		this.addRooms(world);
-		world.entitySpawner.generateChunk(chunkPosition, world);
+		this.spawnPlayer(world);
 	}
 
-	initializeChunk() {
-		for(let x = 0; x < LevelGeneratorData.CHUNK_SIZE; x ++) {
-			for(let y = 0; y < LevelGeneratorData.CHUNK_SIZE; y ++) {
-				const position = this.roomPosition(new Vector(x, y));
-				const placeholder = new RoomPlaceholder([...Directions.DIRECTIONS], ROOMS.find(r => r.name === "control-room-junction")!);
-				this.rooms.set(position, placeholder);
-			}
-		}
-	}
-	prunePhysicalConnections() {
-		const connections: { position: Vector, direction: Direction }[] = [];
-		for(let x = 0; x < LevelGeneratorData.CHUNK_SIZE; x ++) {
-			for(let y = 0; y < LevelGeneratorData.CHUNK_SIZE; y ++) {
-				const position = this.roomPosition(new Vector(x, y));
-				connections.push({ position, direction: "right" });
-				connections.push({ position, direction: "down" });
-				if(x === 0) {
-					connections.push({ position, direction: "left" });
-				}
-				if(y === 0) {
-					connections.push({ position, direction: "up" });
-				}
-			}
-		}
-		const randomized = GameUtils.randomPermutation(connections);
-		for(const { position, direction } of randomized) {
-			const adjacent = position.add(Vector.unit(direction));
-			const adjacentRoom = this.rooms.get(adjacent);
-			if(adjacentRoom && adjacentRoom.generated) {
-				this.setConnected(position, direction, adjacentRoom.exits.includes(Directions.opposite[direction]));
-			}
-			else {
-				this.disconnect(position, direction);
-				if(!this.isPhysicallyConnected()) {
-					this.connect(position, direction);
-				}
-			}
-		}
-	}
-	connectRandomRooms() {
-		const edges = this.unconnectedEdges();
-		const interior = edges.filter(({ position, direction }) => this.isInChunk(position) && this.isInChunk(position.add(Vector.unit(direction))));
-		const boundary = edges.filter(e => !interior.includes(e));
+	generatePath() {
+		const defaultRoom = ROOMS.find(r => r.name === "control-room-junction")!;
 
-		for(const { position, direction } of GameUtils.randomPermutation(interior).slice(0, LevelGeneratorData.INTERIOR_CONNECTIONS)) {
-			this.connect(position, direction);
+		let x = GameUtils.randomInt(0, LevelGeneratorData.WIDTH - 1);
+		let y = 0;
+		this.path.push(new Vector(x, y));
+		const portalRoom = new RoomPlaceholder([], ROOMS.find(r => r.name === "level-exit")!);
+		portalRoom.generated = true;
+		this.rooms.set(x, y, portalRoom);
+		while(y < LevelGeneratorData.HEIGHT - 1) {
+			const nextDirection = Utils.randomItem(this.possibleNextDirections(x, y));
+			const nextPosition = Vector.unit(nextDirection).add(x, y);
+			this.path.push(nextPosition);
+			this.rooms.set(nextPosition, new RoomPlaceholder([Directions.opposite[nextDirection]], defaultRoom));
+			this.rooms.get(x, y)!.exits.push(nextDirection);
+			[x, y] = [nextPosition.x, nextPosition.y];
 		}
-		for(const direction of Directions.DIRECTIONS) {
-			if(!this.isChunkGenerated(this.currentChunk.add(Vector.unit(direction)))) {
-				const boundaryInDirection = boundary.filter(edge => edge.direction === direction);
-				for(const { position } of GameUtils.randomPermutation(boundaryInDirection).slice(0, LevelGeneratorData.BOUNDARY_CONNECTIONS)) {
-					this.connect(position, direction);
+	}
+	possibleNextDirections(x: number, y: number): Direction[] {
+		if(this.path.length <= 1) {
+			return [
+				...((x > 0) ? ["left"] as const : []),
+				...((x < LevelGeneratorData.WIDTH - 1) ? ["right"] as const : []),
+				"down",
+			];
+		}
+		const lastRoom = this.path[this.path.length - 2];
+		const directions: Direction[] = ["down"];
+		if(x > 0 && !(x === lastRoom.x + 1 && y === lastRoom.y)) {
+			directions.push("left");
+		}
+		if(x < LevelGeneratorData.WIDTH - 1 && !(x === lastRoom.x - 1 && y === lastRoom.y)) {
+			directions.push("right");
+		}
+		return directions;
+	}
+	generateBranchesOffPath() {
+		for(const position of this.path) {
+			const room = this.rooms.get(position)!;
+			const exits = Directions.DIRECTIONS.filter(dir => (
+				this.rooms.get(position.add(Vector.unit(dir))) === null &&
+				this.isInBounds(position.add(Vector.unit(dir)))
+			));
+			for(const exit of exits) {
+				if(
+					(Directions.isHorizontal(exit) && Math.random() < LevelGeneratorData.MAIN_PATH_BRANCH_PROBABILITY_X) ||
+					(Directions.isVertical(exit) && Math.random() < LevelGeneratorData.MAIN_PATH_BRANCH_PROBABILITY_Y)
+				) { room.exits.push(exit); }
+			}
+		}
+	}
+	generateRoomsOffPath() {
+		const positions = [];
+		for(let x = 0; x < LevelGeneratorData.WIDTH; x ++) {
+			for(let y = 0; y < LevelGeneratorData.HEIGHT; y ++) {
+				if(this.rooms.get(x, y) === null) {
+					positions.push(new Vector(x, y));
+				}
+			}
+		}
+		let stillGenerating = true;
+		while(stillGenerating) {
+			stillGenerating = false;
+			for(let i = 0; i < positions.length; i ++) {
+				const generated = this.generateRoom(positions[i]);
+				if(generated) {
+					positions.splice(i, 1);
+					i --;
+					stillGenerating = true;
 				}
 			}
 		}
 	}
+	generateRoom(position: Vector) {
+		const exits = Directions.DIRECTIONS.filter(dir => (
+			this.rooms.get(position.add(Vector.unit(dir)))?.exits.includes(Directions.opposite[dir])
+		));
+		if(exits.length === 0) {
+			return false;
+		}
+		const otherExits = Directions.DIRECTIONS.filter(dir => !exits.includes(dir));
+		for(const exit of otherExits) {
+			const adjacentPosition = position.add(Vector.unit(exit));
+			if(
+				(
+					(Directions.isHorizontal(exit) && Math.random() < LevelGeneratorData.OFF_PATH_BRANCH_PROBABILITY_X)
+					|| (Directions.isVertical(exit) && Math.random() < LevelGeneratorData.OFF_PATH_BRANCH_PROBABILITY_Y)
+				)
+				&& this.isInBounds(adjacentPosition)
+				&& this.rooms.get(adjacentPosition) === null
+			) { exits.push(exit); }
+		}
+		this.rooms.set(position, new RoomPlaceholder(exits, ROOMS.find(r => r.name === "control-room-junction")!));
+		return true;
+	}
+
+
 	pruneConnections() {
-		const positions = this.chunkRectangle().squares();
-		for(const position of positions.sort((a, b) => this.rooms.get(b)!.exits.length - this.rooms.get(a)!.exits.length)) {
-			this.pruneRoom(this.rooms.get(position)!);
+		const rooms = (this.levelRectangle().squares()
+			.map(p => this.rooms.get(p))
+			.filter(p => p != null)
+			.filter(p => !p.generated)
+			.sort((a, b) => a.exits.length - b.exits.length)
+		);
+		for(const room of rooms) {
+			this.pruneRoom(room);
 		}
 	}
 	pruneRoom(roomPlaceholder: RoomPlaceholder) {
@@ -97,7 +144,8 @@ export class WorldGenerator {
 		const lessConnectiveRooms = Utils.groupBy(
 			ROOMS.filter(r => (
 				r.canSpawnWithExits(roomPlaceholder.exits)
-				&& Room.connectivity(r.traversability, roomPlaceholder.exits) < connectivity),
+				&& Room.connectivity(r.traversability, roomPlaceholder.exits) < connectivity)
+				&& r.originalName !== "level-exit",
 			),
 			r => Room.connectivity(r.traversability, roomPlaceholder.exits),
 		);
@@ -119,14 +167,47 @@ export class WorldGenerator {
 		roomPlaceholder.room = originalRoom;
 	}
 	addRooms(world: World) {
-		for(const position of this.chunkRectangle().squares()) {
+		for(const position of this.levelRectangle().squares()) {
 			const roomPlaceholder = this.rooms.get(position)!;
-			roomPlaceholder.generated = true;
-			roomPlaceholder.room.add(position.multiply(RoomData.SIZE), world, roomPlaceholder.exits);
+			if(roomPlaceholder) {
+				roomPlaceholder.generated = true;
+				roomPlaceholder.room.add(position.multiply(RoomData.SIZE), world, roomPlaceholder.exits);
+			}
+			else {
+				world.tiles.fillRect(
+					new Rectangle(position.x * RoomData.SIZE, position.y * RoomData.SIZE, RoomData.SIZE, RoomData.SIZE),
+					new SolidTile("solid", "tower"),
+				);
+			}
 		}
+	}
+	spawnPlayer(world: World) {
+		const emptyTiles = [];
+		const startRoom = this.path[this.path.length - 1];
+		for(const position of Rectangle.square(startRoom.x, startRoom.y, 1).scale(RoomData.SIZE).squares()) {
+			const tileBelow = world.tiles.get(position.x, position.y + 1);
+			if(world.tiles.get(position) === "empty" && tileBelow instanceof SolidTile && tileBelow.shape === "solid") {
+				emptyTiles.push(position);
+			}
+		}
+		const tile = Utils.randomItem(emptyTiles);
+		// TODO: make sure the player doesn't spawn overlapping an enemy
+		world.player.hitbox.x = tile.x * WorldData.TILE_SIZE;
+		world.player.hitbox.y = tile.y * WorldData.TILE_SIZE;
+		world.addEntityIfEmpty(world.player);
+		world.camera = world.player.hitbox.center();
 	}
 
 
+	isInBounds(position: Vector) {
+		return (
+			0 <= position.x && position.x < LevelGeneratorData.WIDTH &&
+			0 <= position.y && position.y < LevelGeneratorData.HEIGHT
+		);
+	}
+	isEdgeInBounds(position: Vector, direction: Direction) {
+		return this.isInBounds(position) && this.isInBounds(position.add(Vector.unit(direction)));
+	}
 	connect(roomPosition: Vector, direction: Direction) {
 		const adjacentRoom = this.rooms.get(roomPosition.add(Vector.unit(direction)));
 		const opposite = Directions.opposite[direction];
@@ -157,27 +238,17 @@ export class WorldGenerator {
 			this.disconnect(room, direction);
 		}
 	}
-	isPhysicallyConnected() {
-		const reachable = GameUtils.reachableNodes<Vector | Direction>(
-			this.chunkCenter(),
-			(position) => position instanceof Vector ? this.rooms.get(position)!.exits
-				.map(e => position.add(Vector.unit(e)))
-				.map(p => this.isInChunk(p) ? p : this.directionFromChunk(p)) : [],
-			v => v.toString(),
-		);
-		return reachable.length >= LevelGeneratorData.CHUNK_SIZE ** 2 + 4;
-	}
 	isConnected() {
-		const edges = this.connectedEdges().length; // can be optimized: this is a constant.
-		const chunkCenter = this.rooms.get(this.chunkCenter());
-		const startState = new GateState(this.chunkCenter(), chunkCenter!.exits[0], false);
+		const edges = this.connectedEdges();
+		const startRoom = this.rooms.get(this.path[this.path.length - 1]);
+		const startState = new GateState(this.path[this.path.length - 1], startRoom!.exits[0], false);
 		for(const backwards of [true, false]) {
 			const reachable = GameUtils.reachableNodes(
 				startState,
-				(state) => this.neighbors(state, backwards).filter(n => this.isEdgeInChunk(n.position!, n.exit)),
+				(state) => this.neighbors(state, backwards).filter(n => this.isEdgeInBounds(n.position!, n.exit)),
 				v => v.normalize().toString(true),
 			);
-			if(reachable.length < edges * 2) {
+			if(reachable.length < edges) {
 				return false;
 			}
 		}
@@ -207,72 +278,12 @@ export class WorldGenerator {
 		}
 		return result;
 	}
-	connectedEdges(chunkPosition: Vector = this.currentChunk) {
-		return this.edgesInChunk(chunkPosition).filter(
-			({ position, direction }) => this.rooms.get(position)?.exits.includes(direction),
-		);
-	}
-	unconnectedEdges(chunkPosition: Vector = this.currentChunk) {
-		return this.edgesInChunk(chunkPosition).filter(
-			({ position, direction }) => !(this.rooms.get(position)?.exits.includes(direction)),
-		);
-	}
 
-
-
-	chunkCenter(chunkPosition: Vector = this.currentChunk) {
-		return chunkPosition.add(1/2, 1/2).multiply(LevelGeneratorData.CHUNK_SIZE).floor();
+	levelRectangle() {
+		return new Rectangle(0, 0, LevelGeneratorData.WIDTH, LevelGeneratorData.HEIGHT);
 	}
-	roomPosition(positionInChunk: Vector, chunkPosition: Vector = this.currentChunk) {
-		return chunkPosition.multiply(LevelGeneratorData.CHUNK_SIZE).add(positionInChunk);
-	}
-	isInChunk(position: Vector, chunkPosition: Vector = this.currentChunk) {
-		return position.divide(LevelGeneratorData.CHUNK_SIZE).floor().equals(chunkPosition);
-	}
-	isEdgeInChunk(position: Vector, edge: Direction, chunkPosition: Vector = this.currentChunk) {
-		return this.isInChunk(position, chunkPosition) || this.isInChunk(position.add(Vector.unit(edge)), chunkPosition);
-	}
-	chunkRectangle(chunkPosition: Vector = this.currentChunk) {
-		return Rectangle.square(
-			chunkPosition.x * LevelGeneratorData.CHUNK_SIZE,
-			chunkPosition.y * LevelGeneratorData.CHUNK_SIZE,
-			LevelGeneratorData.CHUNK_SIZE,
-		);
-	}
-	directionFromChunk(position: Vector, chunkPosition: Vector = this.currentChunk): Direction {
-		if(position.x < chunkPosition.x * LevelGeneratorData.CHUNK_SIZE) {
-			return "left";
-		}
-		else if(position.x >= (chunkPosition.x + 1) * LevelGeneratorData.CHUNK_SIZE) {
-			return "right";
-		}
-		else if(position.y < chunkPosition.y * LevelGeneratorData.CHUNK_SIZE) {
-			return "up";
-		}
-		else {
-			return "down";
-		}
-	}
-	isChunkGenerated(chunkPosition: Vector) {
-		const roomPlaceholder = this.rooms.get(chunkPosition.multiply(LevelGeneratorData.CHUNK_SIZE));
-		return roomPlaceholder != null && roomPlaceholder.room != null;
-	}
-	edgesInChunk(chunkPosition: Vector = this.currentChunk) {
-		const edges: { position: Vector, direction: Direction }[] = [];
-		for(let x = 0; x < LevelGeneratorData.CHUNK_SIZE; x ++) {
-			for(let y = 0; y < LevelGeneratorData.CHUNK_SIZE; y ++) {
-				const position = this.roomPosition(new Vector(x, y), chunkPosition);
-				edges.push({ position, direction: "right" });
-				edges.push({ position, direction: "down" });
-				if(x === 0) {
-					edges.push({ position, direction: "left" });
-				}
-				if(y === 0) {
-					edges.push({ position, direction: "up" });
-				}
-			}
-		}
-		return edges;
+	connectedEdges() {
+		return MathUtils.sum(this.levelRectangle().squares().map(s => this.rooms.get(s)?.exits?.length ?? 0));
 	}
 
 

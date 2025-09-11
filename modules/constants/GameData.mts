@@ -50,13 +50,15 @@ export class WorldData {
 }
 
 export class LevelGeneratorData {
-	static CHUNK_SIZE = 6;
-	static INTERIOR_CONNECTIONS = 2;
-	static BOUNDARY_CONNECTIONS = Math.floor( 1/2 * ((LevelGeneratorData.CHUNK_SIZE + 1) + LevelGeneratorData.INTERIOR_CONNECTIONS / (LevelGeneratorData.CHUNK_SIZE - 1)) - 1);
+	static WIDTH = 4;
+	static HEIGHT = 6;
+	static BORDER_X = 2;
+	static BORDER_Y = 10;
 
-	static REGION_CHUNK_SIZE = 5;
-	static REGIONS_PER_CHUNK = 1;
-	static REGION_EVENNESS = 7;
+	static MAIN_PATH_BRANCH_PROBABILITY_X = 0.5;
+	static MAIN_PATH_BRANCH_PROBABILITY_Y = 0.5;
+	static OFF_PATH_BRANCH_PROBABILITY_X = 0.5;
+	static OFF_PATH_BRANCH_PROBABILITY_Y = 0.5;
 };
 
 export class PlayerData {

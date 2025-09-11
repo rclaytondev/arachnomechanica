@@ -3,7 +3,7 @@ import { Direction, Directions } from "../../utils-ts/modules/geometry/Direction
 import { Rectangle } from "../../utils-ts/modules/geometry/Rectangle.mjs";
 import { Vector } from "../../utils-ts/modules/geometry/Vector.mjs";
 import { Grid } from "../../utils-ts/modules/Grid.mjs";
-import { BackgroundData, LevelGeneratorData, PlayerData, RoomData, WorldData } from "../constants/GameData.mjs";
+import { BackgroundData, PlayerData, WorldData } from "../constants/GameData.mjs";
 import { Main } from "../Main.js";
 import { DEBUG_SETTINGS } from "../constants/DebugSettings.mjs";
 import { Particle } from "../game-utilities/Particle.mjs";
@@ -20,7 +20,6 @@ import { TowerTile } from "../tiles/TowerTile.mjs";
 import { SolidTile } from "../tiles/SolidTile.mjs";
 import { StoneTile } from "../tiles/StoneTile.mjs";
 import { WorldGenerator } from "../level-generator/WorldGenerator.mjs";
-import { Utils } from "../../utils-ts/modules/Utils.mjs";
 import { EntitySpawner } from "../level-generator/EntitySpawner.mjs";
 import { Entities } from "./Entities.mjs";
 import { FlameturretEntity } from "../items/item-entities/FlameturretEntity.mjs";
@@ -56,23 +55,9 @@ export class World {
 	}
 
 	initializeGeneration() {
-		this.worldGenerator.generateChunk(new Vector(0, 0), this);
-		this.spawnPlayer();
+		this.worldGenerator.generateLevel(this);
+		this.entitySpawner.spawnAllEntities(this.worldGenerator.levelRectangle(), this);
 		return this;
-	}
-	spawnPlayer() {
-		const emptyTiles = [];
-		for(const position of Rectangle.square(0, 0, RoomData.SIZE).squares()) {
-			const tileBelow = this.tiles.get(position.x, position.y + 1);
-			if(this.tiles.get(position) === "empty" && tileBelow instanceof SolidTile && tileBelow.shape === "solid") {
-				emptyTiles.push(position);
-			}
-		}
-		const tile = Utils.randomItem(emptyTiles);
-		// TODO: make sure the player doesn't spawn overlapping an enemy
-		this.player.hitbox.x = tile.x * WorldData.TILE_SIZE;
-		this.player.hitbox.y = tile.y * WorldData.TILE_SIZE;
-		this.camera = this.player.hitbox.center();
 	}
 
 	display(canvasIO: CanvasIO, visibleTileRegion: Rectangle = this.visibleTileRegion(canvasIO)) {
@@ -249,7 +234,6 @@ export class World {
 		this.updateParticles();
 		this.screenShakeTimer --;
 		this.updateCamera();
-		this.checkWorldGeneration();
 	}
 	updateEntities(canvasIO: CanvasIO) {
 		const region = this.visibleRegion(canvasIO, WorldData.ENTITY_UPDATE_DISTANCE);
@@ -276,17 +260,6 @@ export class World {
 	updateCamera() {
 		if(!(Main.screen instanceof RoomEditor)) {
 			this.camera = GameUtils.moveVectorTowards(this.camera, this.player.hitbox.center(), WorldData.CAMERA_SPEED);
-		}
-	}
-
-	checkWorldGeneration() {
-		if(!this.enableGeneration) { return; }
-		const position = this.player.hitbox.center();
-		const chunk = position.divide(WorldData.TILE_SIZE * RoomData.SIZE * LevelGeneratorData.CHUNK_SIZE).floor();
-		for(const adjacent of [chunk, ...chunk.adjacentVectors()]) {
-			if(!this.worldGenerator.isChunkGenerated(adjacent)) {
-				this.worldGenerator.generateChunk(adjacent, this);
-			}
 		}
 	}
 
