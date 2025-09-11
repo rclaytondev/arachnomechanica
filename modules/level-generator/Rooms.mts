@@ -1442,7 +1442,7 @@ export class Rooms {
 					{ x: 4, y: 0, direction: "up" },
 				],
 				[],
-				() => true,
+				(exits: Direction[]) => exits.some(e => e !== "up"),
 				Room.getTraversability([
 					...Room.onewayGatelessPath("up", "left"),
 					...Room.gatelessPath("left", "right"),
