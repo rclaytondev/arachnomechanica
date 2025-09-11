@@ -23,22 +23,13 @@ export class LaserBlock {
 		LaserBlockData.LASER_COLOR.red, LaserBlockData.LASER_COLOR.green, LaserBlockData.LASER_COLOR.blue,
 	);
 
-	static angleTimer = 0;
-	static direction: 1 | -1 = 1;
-	static update(canvasIO: CanvasIO) {
-		LaserBlock.angleTimer += LaserBlock.direction;
-		if(canvasIO.keys.KeyZ && !GameUtils.pastKeys.KeyZ) {
-			LaserBlock.direction = (LaserBlock.direction === 1) ? -1 : 1;
-		}
-	}
-
 	lasers: number;
 	speed: number;
 	startAngle: number;
 	lengths: number[];
 
 	get angle() {
-		return this.startAngle + LaserBlock.angleTimer * this.speed;
+		return this.startAngle + GameUtils.frameCount * this.speed;
 	}
 
 	constructor(lasers: number, speed: number, startAngle: number) {

@@ -256,7 +256,6 @@ export class World {
 			}
 		}
 		Gate.update(this);
-		LaserBlock.update(canvasIO);
 	}
 	updateParticles() {
 		for(const particle of this.particles) {
