@@ -17,6 +17,16 @@ export class LaserBlock {
 		LaserBlockData.LASER_GLOW_INTENSITY,
 		LaserBlockData.LASER_COLOR.red, LaserBlockData.LASER_COLOR.green, LaserBlockData.LASER_COLOR.blue,
 	);
+	static activatedGlowLineGradient = GameUtils.glowLineGradient(
+		0, 0, 0, -LaserBlockData.ACTIVATED_GLOW_SIZE,
+		LaserBlockData.ACTIVATED_GLOW_INTENSITY,
+		LaserBlockData.LASER_COLOR.red, LaserBlockData.LASER_COLOR.green, LaserBlockData.LASER_COLOR.blue,
+	);
+	static activatedGlowLineGradient2 = GameUtils.glowLineGradient(
+		0, 0, 0, LaserBlockData.ACTIVATED_GLOW_SIZE,
+		LaserBlockData.ACTIVATED_GLOW_INTENSITY,
+		LaserBlockData.LASER_COLOR.red, LaserBlockData.LASER_COLOR.green, LaserBlockData.LASER_COLOR.blue,
+	);
 	static circleGradient = GameUtils.glowCircleGradient(
 		0, 0,
 		LaserBlockData.LASER_GLOW_SIZE, LaserBlockData.LASER_GLOW_INTENSITY,
@@ -27,20 +37,25 @@ export class LaserBlock {
 	speed: number;
 	startAngle: number;
 	lengths: number[];
+	direction: 1 | -1;
+
+	mode: "unactivated" | "waiting" | "activated" = "unactivated";
+	modeStartTime: number = 0;
 
 	get angle() {
 		return this.startAngle + GameUtils.frameCount * this.speed;
 	}
 
-	constructor(lasers: number, speed: number, startAngle: number) {
+	constructor(lasers: number, speed: number, startAngle: number, direction: 1 | -1) {
 		this.lasers = lasers;
 		this.speed = speed;
 		this.startAngle = startAngle;
 		this.lengths = new Array(lasers).fill(0);
+		this.direction = direction;
 	}
 
 	copy() {
-		return new LaserBlock(this.lasers, this.speed, this.startAngle);
+		return new LaserBlock(this.lasers, this.speed, this.startAngle, this.direction);
 	}
 
 	display(canvasIO: CanvasIO, x: number, y: number) {
@@ -48,7 +63,7 @@ export class LaserBlock {
 		canvasIO.ctx.fillRect(x * WorldData.TILE_SIZE, y * WorldData.TILE_SIZE, WorldData.TILE_SIZE, WorldData.TILE_SIZE);
 	}
 	displayLasers(canvasIO: CanvasIO, x: number, y: number) {
-		canvasIO.ctx.lineWidth = LaserBlockData.LASER_THICKNESS;
+		canvasIO.ctx.lineWidth = (this.mode === "activated") ? LaserBlockData.ACTIVATED_THICKNESS : LaserBlockData.LASER_THICKNESS;
 		const center = new Vector(x + 1/2, y + 1/2).multiply(WorldData.TILE_SIZE);
 		for(const [i, angle] of this.angles().entries()) {
 			const distance = this.lengths[i];
@@ -56,7 +71,8 @@ export class LaserBlock {
 			canvasIO.ctx.save();
 			canvasIO.ctx.translate(center.x, center.y);
 			canvasIO.ctx.rotate(angle);
-			canvasIO.strokeLine(0, 0, distance, 0);
+			canvasIO.linePointedness = canvasIO.ctx.lineWidth / 2;
+			canvasIO.pointedLine(0, 0, distance, 0);
 			canvasIO.ctx.restore();
 		}
 	}
@@ -92,9 +108,8 @@ export class LaserBlock {
 	}
 
 	update(world: World, x: number, y: number, canvasIO: CanvasIO) {
-		if(world.visibleTileRegion(canvasIO).distanceTo(new Vector(x, y)) * WorldData.TILE_SIZE < LaserBlockData.UPDATE_DISTANCE) {
-			this.updateLengths(world, x, y, canvasIO);
-		}
+		this.updateLengths(world, x, y, canvasIO);
+		this.updateMode();
 	}
 	updateLengths(world: World, x: number, y: number, canvasIO: CanvasIO) {
 		const player = world.player.hitbox;
@@ -114,8 +129,32 @@ export class LaserBlock {
 				), canvasIO);
 			}
 			if(this.intersectsBox(new Vector(x, y), direction, player, length)) {
-				world.player.damage(world.player.hitbox, world);
+				if(this.mode === "unactivated") {
+					this.modeStartTime = GameUtils.frameCount;
+					this.mode = "waiting";
+					this.setSpeed(0);
+				}
+				if(this.mode === "activated") {
+					world.player.damage(world.player.hitbox, world);
+				}
 			}
+		}
+	}
+	setSpeed(speed: number) {
+		const angle = this.angle;
+		this.startAngle = angle - GameUtils.frameCount * speed;
+		this.speed = speed;
+	}
+	updateMode() {
+		if(this.mode === "waiting" && GameUtils.frameCount - this.modeStartTime > LaserBlockData.WAIT_TIMER) {
+			this.mode = "activated";
+			this.modeStartTime = GameUtils.frameCount;
+			this.setSpeed(LaserBlockData.ACTIVATED_SPEED * this.direction);
+		}
+		if(this.mode === "activated" && GameUtils.frameCount - this.modeStartTime > LaserBlockData.ACTIVATION_TIME) {
+			this.mode = "unactivated";
+			this.modeStartTime = GameUtils.frameCount;
+			this.setSpeed(LaserBlockData.MIN_SPEED * this.direction);
 		}
 	}
 
@@ -134,7 +173,7 @@ export class LaserBlock {
 		return GameUtils.rayIntersectsRectangle(
 			onscreenPosition, direction,
 			box,
-		) < length;
+		) <= length;
 	}
 	endpointDistance(position: Vector, direction: Vector, world: World, screenSize: Rectangle) {
 		const center = position.add(1/2, 1/2).multiply(WorldData.TILE_SIZE);
@@ -149,7 +188,7 @@ export class LaserBlock {
 	static canSpawn(position: Vector, world: World) {
 		const player = world.player.hitbox.center();
 		const center = position.add(1/2, 1/2).multiply(WorldData.TILE_SIZE);
-		const laser = new LaserBlock(1, 0, 0);
+		const laser = new LaserBlock(1, 0, 0, 1);
 		const previousTile = world.tiles.get(position);
 		world.tiles.set(position, laser);
 		const distance = laser.endpointDistance(position, player.subtract(center), world, new Rectangle(0, 0, 100, 100));

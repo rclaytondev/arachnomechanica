@@ -121,10 +121,12 @@ export class EntitySpawner {
 				LaserBlock.canSpawn,
 			],
 			(position, world) => {
+				const direction = (Math.random() < 0.5) ? 1 : -1;
 				world.addTile(position, new LaserBlock(
 					LaserBlockData.BEAMS_PER_BLOCK,
-					GameUtils.random(LaserBlockData.MIN_SPEED, LaserBlockData.MAX_SPEED) * (Math.random() < 0.5 ? -1 : 1),
+					GameUtils.random(LaserBlockData.MIN_SPEED, LaserBlockData.MAX_SPEED) * direction,
 					GameUtils.random(0, 2 * Math.PI),
+					direction,
 				));
 			},
 			world,

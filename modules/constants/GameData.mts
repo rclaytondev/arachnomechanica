@@ -135,8 +135,8 @@ export class LaserBlockData {
 		green: 200,
 		blue: 0,
 	};
-	static LASER_THICKNESS = 5;
-	static LASER_GLOW_SIZE = 100;
+	static LASER_THICKNESS = 3;
+	static LASER_GLOW_SIZE = 60;
 	static LASER_GLOW_INTENSITY = 0.5;
 	static LASER_OFFSCREEN_DISTANCE = 100;
 	static LASER_LINEAR_SPEED = 50;
@@ -163,10 +163,16 @@ export class LaserBlockData {
 
 	static LASERS_PER_ROOM = 0.7;
 	static SPAWN_EVENNESS = 9;
-	static MIN_SPEED = 0.01;
-	static MAX_SPEED = 0.01;
+	static MIN_SPEED = 0.015;
+	static MAX_SPEED = 0.015;
 	static MAX_LENGTH = 300;
 	static BEAMS_PER_BLOCK = 2;
+	static WAIT_TIMER = 15;
+	static ACTIVATED_SPEED = 0.1;
+	static ACTIVATION_TIME = Math.PI / LaserBlockData.ACTIVATED_SPEED;
+	static ACTIVATED_THICKNESS = 10;
+	static ACTIVATED_GLOW_INTENSITY = 0.7;
+	static ACTIVATED_GLOW_SIZE = 100;
 
 	static UPDATE_DISTANCE = LaserBlockData.MAX_LENGTH + (LaserBlockData.MAX_LENGTH / LaserBlockData.LASER_LINEAR_SPEED) * PlayerData.MAX_X_VELOCITY;
 }
