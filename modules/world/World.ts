@@ -138,11 +138,10 @@ export class World {
 			}
 		}
 		for(const { tile, x, y } of this.entities.allTileEntities()) {
-			const distance = Vector.dist(new Vector(x, y).multiply(WorldData.TILE_SIZE), this.camera);
 			if(tile instanceof LaserBlock) {
 				tile.displayLaserGlow(canvasIO, x, y);
 			}
-			else if(tile instanceof SpikeballBlock && distance < WorldData.GLOW_RENDER_DISTANCE) {
+			else if(tile instanceof SpikeballBlock) {
 				tile.displayGlow(canvasIO, x, y);
 			}
 		}

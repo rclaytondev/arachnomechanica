@@ -356,6 +356,7 @@ export class SpikeballBlockData {
 
 	static GLOW_SIZE = 150;
 	static GLOW_INTENSITY = 0.75;
+	static ACCENT_WIDTH = 3;
 
 	static BARREL_COLOR = "rgb(15, 15, 15)";
 	static BARREL_LENGTH = 0.2 * WorldData.TILE_SIZE;

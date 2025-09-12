@@ -64,6 +64,7 @@ export class SpikeballBlock {
 
 			const openness = this.doors[direction];
 			canvasIO.ctx.strokeStyle = `rgb(${SpikeballData.ACCENT_COLOR.red}, ${SpikeballData.ACCENT_COLOR.green}, ${SpikeballData.ACCENT_COLOR.blue})`;
+			canvasIO.ctx.lineWidth = SpikeballBlockData.ACCENT_WIDTH;
 			canvasIO.ctx.fillStyle = `rgb(${SpikeballData.ACCENT_COLOR.red}, ${SpikeballData.ACCENT_COLOR.green}, ${SpikeballData.ACCENT_COLOR.blue})`;
 			canvasIO.strokeLine(0, 0, 0, -WorldData.TILE_SIZE / 2 - SpikeballBlockData.BARREL_DOOR_LENGTH + SpikeballBlockData.DOOR_HEIGHT);
 			canvasIO.ctx.fillRect(-5, -5, 10, 10);
