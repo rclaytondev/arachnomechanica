@@ -59,7 +59,7 @@ export class LaserBlock {
 	}
 
 	display(canvasIO: CanvasIO, x: number, y: number) {
-		canvasIO.ctx.fillStyle = LaserBlockData.COLOR;
+		canvasIO.ctx.fillStyle = LaserBlockData.TILE_COLOR;
 		canvasIO.ctx.fillRect(x * WorldData.TILE_SIZE, y * WorldData.TILE_SIZE, WorldData.TILE_SIZE, WorldData.TILE_SIZE);
 	}
 	displayLasers(canvasIO: CanvasIO, x: number, y: number) {
@@ -154,7 +154,7 @@ export class LaserBlock {
 		if(this.mode === "activated" && GameUtils.frameCount - this.modeStartTime > LaserBlockData.ACTIVATION_TIME) {
 			this.mode = "unactivated";
 			this.modeStartTime = GameUtils.frameCount;
-			this.setSpeed(LaserBlockData.MIN_SPEED * this.direction);
+			this.setSpeed(LaserBlockData.SPEED * this.direction);
 		}
 	}
 
