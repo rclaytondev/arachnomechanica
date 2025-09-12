@@ -5,6 +5,7 @@ import { SpikeballBlockData, SpikeballData, SpikeballPattern, WorldData } from "
 import { Spikeball } from "../entities/Spikeball.mjs";
 import { GameUtils } from "../game-utilities/GameUtils.mjs";
 import { World } from "../world/World";
+import { Diagonal } from "../../utils-ts/modules/geometry/Direction.mjs";
 
 export class SpikeballBlock {
 	static glowGradient = GameUtils.glowCircleGradient(
@@ -18,11 +19,7 @@ export class SpikeballBlock {
 	pattern: SpikeballPattern;
 	patternStep: number = 0;
 	spikeballs: Spikeball[] = [];
-	doorUpLeft: number = 0;
-	doorUpRight: number = 0;
-	doorDownLeft: number = 0;
-	doorDownRight: number = 0;
-	doors: { "up-left": number, "up-right": number, "down-left": number, "down-right": number } = {
+	doors: { [diagonal in Diagonal]: number } = {
 		"up-left": 0,
 		"up-right": 0,
 		"down-left": 0,
