@@ -4966,6 +4966,10 @@ export class Rooms {
 				[
 				],
 				(exits: Direction[]) => exits.includes("up") && !exits.includes("left") && exits.includes("right"),
+				Room.getTraversability([
+					...Room.gatelessPath("down", "right"),
+					{ start: new GateState(null, "up", false), end: new GateState(null, "down", true) },
+				]),
 			),
 			new Room(
 				"vertical-gates",
