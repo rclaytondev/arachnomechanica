@@ -3,10 +3,9 @@ import { Rectangle } from "../../utils-ts/modules/geometry/Rectangle.mjs";
 import { Vector } from "../../utils-ts/modules/geometry/Vector.mjs";
 import { SpikeballData, WorldData } from "../constants/GameData.mjs";
 import { GameUtils } from "../game-utilities/GameUtils.mjs";
-import { Slope, Tile, TileWithPosition, World } from "../world/World.js";
+import { Tile, TileWithPosition, World } from "../world/World.js";
 import { Entity, RectangularEntity } from "../game-utilities/Entity.mjs";
 import { Direction, Directions } from "../../utils-ts/modules/geometry/Direction.mjs";
-import { Player } from "../Player.mjs";
 
 export class Spikeball extends RectangularEntity {
 	static glowGradient = GameUtils.glowCircleGradient(
@@ -76,19 +75,11 @@ export class Spikeball extends RectangularEntity {
 			world.player.damage(this.hitbox, world);
 		}
 		this.bounces --;
-		const collideableSlope = (this.velocity.x > 0) ? (
-			(this.velocity.y > 0) ? "slope-floor-right" : "slope-ceiling-right"
-		) : (this.velocity.y > 0 ? "slope-floor-left" : "slope-ceiling-left");
-		const collidedWithSlope = collisions.some(
-			t => "tile" in t && World.isSlopeTile(t.tile) && t.tile.shape === collideableSlope,
-		);
 		if(Directions.isHorizontal(direction)) {
 			this.velocity.x *= -1;
-			if(collidedWithSlope) { this.velocity.y *= -1; }
 		}
 		else {
 			this.velocity.y *= -1;
-			if(collidedWithSlope) { this.velocity.x *= -1; }
 		}
 	}
 	update(world: World, canvasIO: CanvasIO) {
