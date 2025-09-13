@@ -4681,7 +4681,7 @@ export class Rooms {
 				],
 				[
 				],
-				() => true,
+				(exits: Direction[]) => exits.some(e => e !== "up"),
 				Room.getTraversability([
 					...Room.gatelessPath("left", "right"),
 					...Room.gatelessPath("left", "down"),
