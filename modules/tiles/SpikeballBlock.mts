@@ -82,7 +82,10 @@ export class SpikeballBlock {
 	}
 
 	update(world: World, x: number, y: number) {
-		if(this.spikeballs.every(s => s.bounces <= SpikeballBlockData.BOUNCES_LEFT_BEFORE_SPAWN)) {
+		this.spikeballs = this.spikeballs.filter(
+			s => world.entities.hasEntity(s) && s.bounces > SpikeballBlockData.BOUNCES_LEFT_BEFORE_SPAWN,
+		);
+		if(this.spikeballs.length === 0) {
 			this.timeUntilSpawn --;
 		}
 		this.timeSinceSpawn ++;
@@ -114,13 +117,16 @@ export class SpikeballBlock {
 		const spikeballs = [];
 		for(const [xDirection, yDirection] of this.pattern[this.patternStep]) {
 			if(this.canSpawnSpikeball(x, y, xDirection, yDirection, world)) {
-				spikeballs.push(this.spawnSpikeball(x, y, xDirection, yDirection, world));
+				const spikeball = this.spawnSpikeball(x, y, xDirection, yDirection, world);
+				if(spikeball != null) {
+					spikeballs.push(spikeball);
+				}
 			}
 		}
 
 		for(const spikeball of spikeballs) {
 			for(const other of spikeballs.filter(s => s !== spikeball)) {
-				spikeball.overlappingSpikeballs.push(other);
+				spikeball.overlappingObjects.push(other);
 			}
 		}
 
@@ -149,17 +155,21 @@ export class SpikeballBlock {
 			new Vector(x + 1/2, y + 1/2).multiply(WorldData.TILE_SIZE).subtract(SpikeballData.RADIUS, SpikeballData.RADIUS),
 			Vector.unit(xDirection).add(Vector.unit(yDirection)).multiply(SpikeballData.SPEED),
 		);
-		spikeball.ignoredTiles.push(
+		spikeball.overlappingObjects.push(
 			new Vector(x, y),
 			new Vector(x, y).add(Vector.unit(xDirection)),
 			new Vector(x, y).add(Vector.unit(yDirection)),
+			new Vector(x, y).add(Vector.unit(xDirection)).add(Vector.unit(yDirection)),
 		);
-		this.spikeballs.push(spikeball);
-		const intersecting = world.entities.entitiesIntersecting(spikeball.hitbox);
-		if(intersecting.size === 0) {
+		const intersecting = [...world.entities.entitiesIntersecting(spikeball.hitbox)].filter(
+			e => e.hitboxes().some(h => h.intersects(spikeball.hitbox)),
+		);
+		if(intersecting.length === 0) {
+			this.spikeballs.push(spikeball);
 			world.entities.addEntity(spikeball);
+			return spikeball;
 		}
-		return spikeball;
+		return null;
 	}
 
 	copy() {

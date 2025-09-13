@@ -42,6 +42,9 @@ export class Entities {
 		}
 		this.positions.set(entity, positions);
 	}
+	hasEntity(entity: Entity) {
+		return this.positions.has(entity);
+	}
 	removeEntity(entity: Entity) {
 		for(const position of this.positions.get(entity) ?? []) {
 			this.removeEntityFromGrid(entity, position);

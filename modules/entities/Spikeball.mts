@@ -14,10 +14,9 @@ export class Spikeball extends RectangularEntity {
 	);
 	velocity: Vector;
 	angle: number = 0;
-	ignoredTiles: Vector[] = [];
 	age: number = 0;
 	bounces: number = SpikeballData.BOUNCES;
-	overlappingSpikeballs: Spikeball[] = [];
+	overlappingObjects: (Spikeball | Vector)[] = [];
 
 	constructor(position: Vector, velocity: Vector) {
 		super(new Rectangle(position.x, position.y, 2 * SpikeballData.RADIUS, 2 * SpikeballData.RADIUS));
@@ -26,10 +25,10 @@ export class Spikeball extends RectangularEntity {
 
 	collides(object: { x: number, y: number, tile: Tile } | Entity) {
 		if(object instanceof Spikeball) {
-			return !this.overlappingSpikeballs.includes(object);
+			return !this.overlappingObjects.includes(object);
 		}
-		else if("tile" in object && this.age < Math.sqrt(2) * WorldData.TILE_SIZE / 2 / SpikeballData.SPEED + 1) {
-			return !this.ignoredTiles.some(t => t.equals(object.x, object.y));
+		else if("tile" in object) {
+			return !this.overlappingObjects.some(o => o instanceof Vector && o.equals(object.x, object.y));
 		}
 		return true;
 	}
@@ -118,7 +117,12 @@ export class Spikeball extends RectangularEntity {
 		}
 		this.angle += SpikeballData.ROTATION_SPEED;
 		this.age ++;
-		this.overlappingSpikeballs = this.overlappingSpikeballs.filter(s => s.intersects(this));
+		if(this.age > (WorldData.TILE_SIZE - 2 * SpikeballData.RADIUS) / SpikeballData.SPEED) {
+			this.overlappingObjects = this.overlappingObjects.filter(s => (
+				(s instanceof Spikeball && s.intersects(this))
+				|| (s instanceof Vector && this.hitbox.intersects(Rectangle.square(s.x, s.y, 1).scale(WorldData.TILE_SIZE)))
+			));
+		}
 	}
 
 	die(world: World, canvasIO: CanvasIO) {
