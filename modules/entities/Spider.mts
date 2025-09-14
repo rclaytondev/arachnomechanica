@@ -343,9 +343,9 @@ export class Spider extends RectangularEntity {
 	}
 	checkProjectile(world: World) {
 		const center = this.hitbox.center();
-		const up = new Vector(0, -1).rotate(MathUtils.toDegrees(-this.angle)).multiply(20);
+		const up = new Vector(0, -1).rotate(MathUtils.toDegrees(-this.angle)).multiply(15);
 		const player = world.player.hitbox;
-		const collides = (obj: Entity) => obj !== this;
+		const collides = (obj: Entity) => obj !== this && obj !== world.player;
 		const hasLineOfSight = world.hasLineOfSight(center.add(up), player, collides) && world.hasLineOfSight(center.subtract(up), player, collides);
 		if(!hasLineOfSight) {
 			this.rechargeTime --;
