@@ -176,12 +176,7 @@ export class World {
 					SolidTile.displayTile(position, canvasIO, tile);
 				}
 				else if(tile === "platform") {
-					canvasIO.ctx.fillStyle = WorldData.TILE_COLORS.tower;
-					canvasIO.ctx.fillRect(
-						x * WorldData.TILE_SIZE,
-						y * WorldData.TILE_SIZE,
-						WorldData.TILE_SIZE, WorldData.PLATFORM_THICKNESS,
-					);
+					this.displayPlatform(canvasIO, position);
 				}
 				else if(typeof tile !== "string" && !(tile instanceof LaserBlock)) {
 					tile.display(canvasIO, x, y);
@@ -193,6 +188,24 @@ export class World {
 		}
 
 		StoneTile.displayStoneTiles(this, canvasIO, region);
+	}
+	displayPlatform(canvasIO: CanvasIO, position: Vector) {
+		canvasIO.ctx.fillStyle = WorldData.TILE_COLORS.tower;
+		canvasIO.ctx.fillRect(
+			position.x * WorldData.TILE_SIZE, position.y * WorldData.TILE_SIZE,
+			WorldData.TILE_SIZE + 1, 2 * WorldData.TILE_ACCENT_INSET,
+		);
+		const platformLeft = (this.tiles.get(position.x - 1, position.y) === "platform");
+		const platformRight = (this.tiles.get(position.x + 1, position.y) === "platform");
+		const accentStart = platformLeft ? -1 : WorldData.TILE_ACCENT_INSET;
+		const accentEnd = WorldData.TILE_SIZE- (platformRight ? -1 : WorldData.TILE_ACCENT_INSET);
+		const accentY = position.y * WorldData.TILE_SIZE + WorldData.TILE_ACCENT_INSET;
+		canvasIO.ctx.strokeStyle = WorldData.TILE_ACCENT_COLOR;
+		canvasIO.ctx.lineWidth = WorldData.TILE_ACCENT_THICKNESS;
+		canvasIO.strokeLine(
+			position.x * WorldData.TILE_SIZE + accentStart, accentY,
+			position.x * WorldData.TILE_SIZE + accentEnd, accentY,
+		);
 	}
 	displaytTileAccents(canvasIO: CanvasIO, region: Rectangle) {
 		for(let x = region.left(); x < region.right(); x ++) {
