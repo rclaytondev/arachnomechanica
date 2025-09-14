@@ -84,6 +84,13 @@ export class Player extends RectangularEntity {
 		if(canvasIO.keys.KeyC && !GameUtils.pastKeys.KeyC) {
 			this.equippedItems[1]?.use(world, canvasIO);
 		}
+		if(canvasIO.keys.ArrowDown && this.onGround(world)) {
+			this.crouch();
+		}
+		if(
+			(!canvasIO.keys.ArrowDown && this.onGround(world)) ||
+			(this.velocity.y > 0)
+		) { this.uncrouch(world); }
 	}
 	checkDamagingCollisions(collisions: (Entity | TileWithPosition)[], world: World) {
 		for(const obj of collisions.filter(c => c instanceof Spikeball)) {
@@ -96,6 +103,25 @@ export class Player extends RectangularEntity {
 	damage(hurtbox: Rectangle, world: World) {
 		this.dead = true;
 		world.entities.removeEntity(this);
+	}
+
+	crouch() {
+		this.hitbox = Rectangle.fromBounds(
+			this.hitbox.left(), this.hitbox.right(),
+			this.hitbox.bottom() - PlayerData.CROUCHED_HITBOX_HEIGHT, this.hitbox.bottom(),
+		);
+	}
+	uncrouch(world: World) {
+		const newHitbox = Rectangle.fromBounds(
+			this.hitbox.left(), this.hitbox.right(),
+			this.hitbox.bottom() - PlayerData.HITBOX_HEIGHT, this.hitbox.bottom(),
+		);
+		if(!world.isInSolid(newHitbox, o => o !== this)) {
+			this.hitbox = newHitbox;
+		}
+	}
+	isCrouched() {
+		return this.hitbox.height === PlayerData.CROUCHED_HITBOX_HEIGHT;
 	}
 
 	itemThrowVelocity(canvasIO: CanvasIO) {
