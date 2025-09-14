@@ -11,16 +11,16 @@ export class WorldData {
 		"tower": "rgb(30, 30, 30)",
 		"stone": "rgb(59, 67, 70)",
 	};
-	static TILE_ACCENT_COLOR = "rgb(100, 180, 255)";
+	static TILE_ACCENT_COLOR = "rgb(255, 255, 255)";
 	static TILE_ACCENT_RADIUS = WorldData.TILE_SIZE * 0.35;
 	static TILE_ACCENT_INSET = WorldData.TILE_SIZE / 2 - WorldData.TILE_ACCENT_RADIUS;
 	static TILE_ACCENT_THICKNESS = 2;
 
-	static TILE_GLOW_SIZE = 40;
+	static TILE_GLOW_SIZE = 0;
 	static TILE_GLOW_INTENSITY = 0.13;
 	static TILE_GLOW_COLOR = {
-		red: 100,
-		green: 180,
+		red: 255,
+		green: 255,
 		blue: 255,
 	};
 
@@ -73,8 +73,8 @@ export class PlayerData {
 	static MAX_X_VELOCITY = 8;
 	static FRICTION_X = 0.7;
 
-	static GLOW_SIZE = 300;
-	static GLOW_INTENSITY = 1/8;
+	static GLOW_SIZE = 200;
+	static GLOW_INTENSITY = 1/3;
 
 	static DEATH_RESET_DELAY = 90;
 	static FADE_SPEED = 0.03;
@@ -231,11 +231,16 @@ export class LizardData {
 	static FIRE_MOUTH_OPENNESS = 25;
 	static EYE_SIZE = WorldData.TILE_SIZE * 0.1;
 	static EYE_Y = WorldData.TILE_SIZE * 0.3;
-	static EYE_COLOR = "rgb(0, 150, 255)";
+	static EYE_COLOR = "rgb(255, 128, 0)";
 	static HEAD_ROTATION_SPEED = 0.2;
 
 	static LIGHT_SIZE = 100;
 	static LIGHT_INTENSITY = 0.3;
+	static GLOW_COLOR = {
+		red: 255,
+		green: 128,
+		blue: 0,
+	};
 
 	static LIZARDS_PER_ROOM = 0.6;
 	static MIN_LENGTH = 2;
@@ -295,9 +300,9 @@ export class SpikeballData {
 	static RADIUS = WorldData.TILE_SIZE * 0.35;
 	static COLOR = "rgb(0, 0, 0)";
 	static ACCENT_COLOR = {
-		red: 0,
-		green: 128,
-		blue: 128,
+		red: 255,
+		green: 0,
+		blue: 0,
 	};
 	static ACCENT_THICKNESS = 2;
 	static ACCENT_RADIUS_MULTIPLIER = 0.7;
@@ -357,10 +362,6 @@ export class SpikeballBlockData {
 	static GLOW_SIZE = 150;
 	static GLOW_INTENSITY = 0.75;
 	static ACCENT_WIDTH = 3;
-
-	static BARREL_COLOR = "rgb(15, 15, 15)";
-	static BARREL_LENGTH = 0.2 * WorldData.TILE_SIZE;
-	static BARREL_DOOR_LENGTH = 0.3 * WorldData.TILE_SIZE;
 }
 
 export class PortalData {
@@ -432,8 +433,8 @@ export class SpiderData {
 	static SHOT_DELAY = 10;
 	static GLOW_COLOR = {
 		red: 255,
-		green: 255,
-		blue: 255,
+		green: 128,
+		blue: 0,
 	};
 
 	static PROJECTILE_PARTICLE_SETTINGS: ParticleSettings = {

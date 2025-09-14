@@ -38,19 +38,10 @@ export class SpikeballBlock {
 		canvasIO.ctx.restore();
 	}
 	display(canvasIO: CanvasIO, x: number, y: number) {
-		const center = new Vector(x + 1/2, y + 1/2).multiply(WorldData.TILE_SIZE);
+		canvasIO.ctx.fillStyle = WorldData.TILE_COLORS.tower;
+		canvasIO.fillSquare(x * WorldData.TILE_SIZE, y * WorldData.TILE_SIZE, WorldData.TILE_SIZE);
 
-		for(const direction of Directions.DIAGONALS) {
-			canvasIO.ctx.save();
-			canvasIO.ctx.translate(center.x, center.y);
-			canvasIO.rotateTo("up", direction);
-			canvasIO.ctx.fillStyle = SpikeballBlockData.BARREL_COLOR;
-			canvasIO.ctx.fillRect(
-				-WorldData.TILE_SIZE / 2, -WorldData.TILE_SIZE / 2 - SpikeballBlockData.BARREL_LENGTH,
-				WorldData.TILE_SIZE, WorldData.TILE_SIZE / 2 + SpikeballBlockData.BARREL_LENGTH,
-			);
-			canvasIO.ctx.restore();
-		}
+		const center = new Vector(x + 1/2, y + 1/2).multiply(WorldData.TILE_SIZE);
 
 		for(const direction of Directions.DIAGONALS) {
 			canvasIO.ctx.save();
@@ -63,21 +54,39 @@ export class SpikeballBlock {
 			canvasIO.ctx.strokeStyle = `rgb(${SpikeballData.ACCENT_COLOR.red}, ${SpikeballData.ACCENT_COLOR.green}, ${SpikeballData.ACCENT_COLOR.blue})`;
 			canvasIO.ctx.lineWidth = SpikeballBlockData.ACCENT_WIDTH;
 			canvasIO.ctx.fillStyle = `rgb(${SpikeballData.ACCENT_COLOR.red}, ${SpikeballData.ACCENT_COLOR.green}, ${SpikeballData.ACCENT_COLOR.blue})`;
-			canvasIO.strokeLine(0, 0, 0, -WorldData.TILE_SIZE / 2 - SpikeballBlockData.BARREL_DOOR_LENGTH + SpikeballBlockData.DOOR_HEIGHT);
+			canvasIO.strokeLine(0, 0, 0, -WorldData.TILE_SIZE / 2 + SpikeballBlockData.DOOR_HEIGHT);
 			canvasIO.ctx.fillRect(-5, -5, 10, 10);
 
 
 			canvasIO.ctx.fillStyle = SpikeballBlockData.DOOR_COLOR;
 			canvasIO.ctx.fillRect(
-				-WorldData.TILE_SIZE / 2, -WorldData.TILE_SIZE / 2 - SpikeballBlockData.BARREL_DOOR_LENGTH,
+				-WorldData.TILE_SIZE / 2, -WorldData.TILE_SIZE / 2,
 				WorldData.TILE_SIZE / 2 - openness, SpikeballBlockData.DOOR_HEIGHT,
 			);
 			canvasIO.ctx.fillRect(
-				openness, -WorldData.TILE_SIZE / 2 - SpikeballBlockData.BARREL_DOOR_LENGTH,
+				openness, -WorldData.TILE_SIZE / 2,
 				WorldData.TILE_SIZE / 2 - openness, SpikeballBlockData.DOOR_HEIGHT,
 			);
 			canvasIO.ctx.restore();
 			// debugger;
+		}
+		for(const direction of Directions.DIAGONALS) {
+			const openness = this.doors[direction];
+			canvasIO.ctx.save();
+			canvasIO.ctx.translate(center.x, center.y);
+			canvasIO.rotateTo("up", direction);
+			canvasIO.ctx.strokeStyle = GameUtils.formatColor(SpikeballData.ACCENT_COLOR);
+			canvasIO.ctx.lineWidth = SpikeballBlockData.ACCENT_WIDTH;
+			canvasIO.ctx.lineCap = "round";
+			for(const sign of [1, -1]) {
+				canvasIO.strokeLine(
+					sign * (-WorldData.TILE_SIZE / 2 + SpikeballBlockData.DOOR_HEIGHT / 2),
+					-WorldData.TILE_SIZE / 2 + SpikeballBlockData.DOOR_HEIGHT / 2,
+					sign * Math.max(-openness - SpikeballBlockData.DOOR_HEIGHT / 2, -WorldData.TILE_SIZE / 2 + SpikeballBlockData.DOOR_HEIGHT / 2),
+					-WorldData.TILE_SIZE / 2 + SpikeballBlockData.DOOR_HEIGHT / 2,
+				);
+			}
+			canvasIO.ctx.restore();
 		}
 	}
 

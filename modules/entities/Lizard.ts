@@ -77,7 +77,14 @@ export class Lizard extends Entity {
 	displayGlowEffect(canvasIO: CanvasIO) {
 		canvasIO.ctx.save();
 		this.transformToHead(canvasIO);
-		GameUtils.glowCircle(0, LizardData.EYE_Y + LizardData.HEAD_OFFSET, LizardData.LIGHT_SIZE, LizardData.LIGHT_INTENSITY, canvasIO);
+		GameUtils.glowCircle(
+			0, LizardData.EYE_Y + LizardData.HEAD_OFFSET,
+			LizardData.LIGHT_SIZE, LizardData.LIGHT_INTENSITY,
+			canvasIO,
+			LizardData.GLOW_COLOR.red,
+			LizardData.GLOW_COLOR.green,
+			LizardData.GLOW_COLOR.blue,
+		);
 		canvasIO.ctx.restore();
 	}
 	getLegAngle(distance: number) {
