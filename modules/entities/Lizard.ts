@@ -14,6 +14,7 @@ import { SpikeballBlock } from "../tiles/SpikeballBlock.mjs";
 import { SolidTile } from "../tiles/SolidTile.mjs";
 import { FireSpawner } from "../game-utilities/FireSpawner.mjs";
 import { Entity } from "../game-utilities/Entity.mjs";
+import { Player } from "../Player.mjs";
 
 type Joint = { position: Vector, direction: Direction };
 
@@ -401,7 +402,7 @@ export class Lizard extends Entity {
 			) { return true; }
 		}
 		const entities = [...world.entities.entitiesIntersecting(lookaheadRectangle)];
-		if(entities.some(entity => entity.hitboxes().some(b => b.intersects(lookaheadRectangle)))) {
+		if(entities.some(entity => !(entity instanceof Player) && entity.hitboxes().some(b => b.intersects(lookaheadRectangle)))) {
 			return true;
 		}
 		return false;
