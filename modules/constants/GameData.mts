@@ -118,6 +118,8 @@ export class RoomData {
 
 export class GateData {
 	static COLOR = "rgb(15, 15, 15)";
+	// static INNER_ACCENT_INSET = 2 * WorldData.TILE_ACCENT_INSET;
+	static INNER_ACCENT_INSET = WorldData.TILE_ACCENT_INSET + (WorldData.TILE_SIZE / 2 - WorldData.TILE_ACCENT_INSET) / 2;
 
 	static TOGGLE_DISTANCE = 0;
 	static SPEED = 0.2;

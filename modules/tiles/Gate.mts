@@ -73,6 +73,31 @@ export class Gate {
 		const box = this.getPhysicsBox(x, y, Math.max(1 - this.openness, GateData.MIN_DISPLAY_SIZE));
 		canvasIO.ctx.fillStyle = GateData.COLOR;
 		canvasIO.fillRect(box);
+
+		canvasIO.ctx.save();
+		canvasIO.clipRect(box.x, box.y, box.width, box.height);
+		const patternBox = box.extend(Directions.opposite[this.direction], WorldData.TILE_SIZE - Math.min(box.width, box.height));
+		canvasIO.ctx.strokeStyle = WorldData.TILE_ACCENT_COLOR;
+		canvasIO.ctx.lineWidth = WorldData.TILE_ACCENT_THICKNESS;
+		for(const size of [WorldData.TILE_ACCENT_INSET, GateData.INNER_ACCENT_INSET]) {
+			canvasIO.strokeSquare(
+				patternBox.x + size, patternBox.y + size,
+				WorldData.TILE_SIZE - 2 * size,
+			);
+		}
+		const center = patternBox.center();
+		const directions: Direction[] = (Directions.isHorizontal(this.direction) ? ["left", "right"] : ["up", "down"]);
+		for(const direction of directions) {
+			canvasIO.ctx.save();
+			canvasIO.ctx.translate(center.x, center.y);
+			canvasIO.rotateTo("down", direction);
+			canvasIO.strokeLine(
+				0, GateData.INNER_ACCENT_INSET - WorldData.TILE_SIZE / 2,
+				0, WorldData.TILE_ACCENT_INSET - WorldData.TILE_SIZE / 2,
+			);
+			canvasIO.ctx.restore();
+		}
+		canvasIO.ctx.restore();
 	}
 	update(world: World, x: number, y: number, canvasIO: CanvasIO) {
 		if(this.lastFrameUpdated !== GameUtils.frameCount - 1) {
