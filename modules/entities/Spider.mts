@@ -511,7 +511,7 @@ export class SpiderProjectile extends RectangularEntity {
 			SpiderData.PROJECTILE_EXPLOSION.DESTRUCTION_RADIUS * 2,
 		);
 		for(const { position } of world.getTilesAt(tileExplosion)) {
-			world.destroyTile(position);
+			world.destroyNonGateTile(position);
 		}
 	}
 	addExplosionParticles(world: World, canvasIO: CanvasIO) {

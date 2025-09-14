@@ -544,6 +544,19 @@ export class World {
 			this.entities.removeTileEntity(position);
 		}
 	}
+	destroyNonGateTile(position: Vector) {
+		const isGate = this.tiles.get(position) instanceof Gate;
+		const adjacentGate = Directions.DIRECTIONS.some(d => {
+			const tile = this.tiles.get(position.add(Vector.unit(d)));
+			return tile instanceof Gate && tile.direction === d;
+		});
+		if(!isGate && !adjacentGate) {
+			if(World.isTileEntity(this.tiles.get(position))) {
+				this.entities.removeTileEntity(position);
+			}
+			this.tiles.set(position, "empty");
+		}
+	}
 	addTile(position: Vector, tile: Tile) {
 		this.tiles.set(position, tile);
 		if(World.isTileEntity(tile)) {
