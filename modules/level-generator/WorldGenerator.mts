@@ -175,34 +175,38 @@ export class WorldGenerator {
 				roomPlaceholder.room.add(position.multiply(RoomData.SIZE), world, roomPlaceholder.exits);
 			}
 			else {
-				world.tiles.fillRect(
-					new Rectangle(position.x * RoomData.SIZE, position.y * RoomData.SIZE, RoomData.SIZE, RoomData.SIZE),
-					new SolidTile("solid", "tower"),
-				);
+				const rectangle = Rectangle.square(position.x * RoomData.SIZE, position.y * RoomData.SIZE, RoomData.SIZE);
+				world.tiles.fillRect(rectangle, new SolidTile("solid", "tower"));
+				world.originalTiles.fillRect(rectangle, new SolidTile("solid", "tower"));
 			}
 		}
 	}
 	addBorders(world: World) {
-		world.tiles.fillRect(new Rectangle(
+		const fillSolidRect = (x: number, y: number, w: number, h: number) => {
+			world.tiles.fillRect(new Rectangle(x, y, w, h), new SolidTile("solid", "tower"));
+			world.originalTiles.fillRect(new Rectangle(x, y, w, h), new SolidTile("solid", "tower"));
+		};
+
+		fillSolidRect(
 			-LevelGeneratorData.BORDER_X, -LevelGeneratorData.BORDER_Y,
 			LevelGeneratorData.WIDTH * RoomData.SIZE + LevelGeneratorData.BORDER_X,
 			LevelGeneratorData.BORDER_Y,
-		), new SolidTile("solid", "tower"));
-		world.tiles.fillRect(new Rectangle(
+		);
+		fillSolidRect(
 			-LevelGeneratorData.BORDER_X, 0,
 			LevelGeneratorData.BORDER_X,
 			LevelGeneratorData.HEIGHT * RoomData.SIZE,
-		), new SolidTile("solid", "tower"));
-		world.tiles.fillRect(new Rectangle(
+		);
+		fillSolidRect(
 			LevelGeneratorData.WIDTH * RoomData.SIZE, -LevelGeneratorData.BORDER_Y,
 			LevelGeneratorData.BORDER_X,
 			LevelGeneratorData.HEIGHT * RoomData.SIZE + LevelGeneratorData.BORDER_Y,
-		), new SolidTile("solid", "tower"));
-		world.tiles.fillRect(new Rectangle(
+		);
+		fillSolidRect(
 			-LevelGeneratorData.BORDER_X, LevelGeneratorData.HEIGHT * RoomData.SIZE,
 			LevelGeneratorData.WIDTH * RoomData.SIZE + 2 * LevelGeneratorData.BORDER_X,
 			LevelGeneratorData.BORDER_Y,
-		), new SolidTile("solid", "tower"));
+		);
 	}
 	spawnPlayer(world: World) {
 		const emptyTiles = [];

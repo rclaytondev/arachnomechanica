@@ -34,6 +34,7 @@ export type ItemEntity = FlameturretEntity;
 
 export class World {
 	tiles: Grid<Tile> = new Grid("empty");
+	originalTiles: Grid<Tile> = new Grid("empty");
 	entities: Entities = new Entities();
 	particles: Particle[] = [];
 	gearsBackground: GearsBackground = GearsBackground.generate();
@@ -494,11 +495,14 @@ export class World {
 	}
 
 	angle(position: Vector, adjacentDirection: Direction, perpendicularDirection: Direction, empty: boolean = true) {
+		return World.angle(position, adjacentDirection, perpendicularDirection, empty, this.tiles);
+	}
+	static angle(position: Vector, adjacentDirection: Direction, perpendicularDirection: Direction, empty: boolean = true, tiles: Grid<Tile>) {
 		/* Returns the angle before encountering a solid/empty, when first moving in `adjacentDirection` and then in `perpendicularDirection` and then in a circle after that. */
-		const tile = this.tiles.get(position);
-		const adjacent = this.tiles.get(position.add(Vector.unit(adjacentDirection)));
-		const diagonal = this.tiles.get(position.add(Vector.unit(adjacentDirection)).add(Vector.unit(perpendicularDirection)));
-		const perpendicular = this.tiles.get(position.add(Vector.unit(perpendicularDirection)));
+		const tile = tiles.get(position);
+		const adjacent = tiles.get(position.add(Vector.unit(adjacentDirection)));
+		const diagonal = tiles.get(position.add(Vector.unit(adjacentDirection)).add(Vector.unit(perpendicularDirection)));
+		const perpendicular = tiles.get(position.add(Vector.unit(perpendicularDirection)));
 		if(World.isSolidOrSlope(adjacent, Directions.opposite[adjacentDirection]) === empty) {
 			return 0;
 		}
@@ -562,6 +566,10 @@ export class World {
 		if(World.isTileEntity(tile)) {
 			this.entities.addTileEntity(tile, position);
 		}
+	}
+	addOriginalTile(position: Vector, tile: Tile) {
+		this.addTile(position, tile);
+		this.originalTiles.set(position, tile);
 	}
 	addParticle(particle: Particle, canvasIO: CanvasIO) {
 		const player = this.player.hitbox.center();

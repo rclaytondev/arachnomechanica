@@ -67,7 +67,7 @@ export class TowerTile {
 		const directions = TowerTile.slopeEdges(tile);
 		for(const [edge, direction] of [directions, [...directions].reverse()]) {
 			const edgeCenter = center.add(Vector.unit(edge).multiply(WorldData.TILE_ACCENT_RADIUS));
-			if(!World.isSolidOrSlope(world.tiles.get(position.add(Vector.unit(edge))), Directions.opposite[edge])) {
+			if(!World.isSolidOrSlope(world.originalTiles.get(position.add(Vector.unit(edge))), Directions.opposite[edge])) {
 				const vertex1 = edgeCenter.add(Vector.unit(direction).multiply(-(WorldData.TILE_SIZE / 2 - WorldData.TILE_ACCENT_INSET * (1 + Math.SQRT2))));
 				const vertex2 = edgeCenter.add(Vector.unit(direction).multiply(TowerTile.getAccentLength(position, edge, direction, world)));
 				canvasIO.strokeLine(vertex1.x, vertex1.y, vertex2.x, vertex2.y);
@@ -75,7 +75,7 @@ export class TowerTile {
 		}
 	}
 	static getSlopeAccentLength(position: Vector, adjacentDirection: Direction, perpendicularDirection: Direction, world: World) {
-		const angle = world.angle(position, adjacentDirection, perpendicularDirection, false);
+		const angle = World.angle(position, adjacentDirection, perpendicularDirection, false, world.originalTiles);
 		const defaultLength = WorldData.TILE_SIZE / Math.SQRT2 + WorldData.TILE_ACCENT_INSET * (1 + Math.SQRT2);
 		return ({
 			0: WorldData.TILE_SIZE / Math.SQRT2 - WorldData.TILE_ACCENT_INSET * (1 + Math.SQRT2),
@@ -87,7 +87,7 @@ export class TowerTile {
 		} as { [key: number]: number } )[angle] ?? defaultLength;
 	}
 	static getAccentLength(position: Vector, side: Direction, direction: Direction, world: World): number {
-		const angle = world.angle(position, direction, side, false);
+		const angle = World.angle(position, direction, side, false, world.originalTiles);
 		const defaultLength = WorldData.TILE_SIZE / 2 + WorldData.TILE_ACCENT_INSET * (Math.SQRT2 + 1);
 		return ({
 			0: WorldData.TILE_ACCENT_RADIUS,
@@ -104,7 +104,7 @@ export class TowerTile {
 
 		const center = position.multiply(WorldData.TILE_SIZE).add(WorldData.TILE_SIZE / 2, WorldData.TILE_SIZE / 2);
 		for(const side of Directions.DIRECTIONS) {
-			const adjacentTile = world.tiles.get(position.add(Vector.unit(side)));
+			const adjacentTile = world.originalTiles.get(position.add(Vector.unit(side)));
 			if(World.isSolidOrSlope(adjacentTile, Directions.opposite[side])) { continue; }
 
 			const edgeCenter = center.add(Vector.unit(side).multiply(WorldData.TILE_ACCENT_RADIUS));
