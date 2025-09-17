@@ -168,26 +168,29 @@ export class World {
 			}
 		}
 	}
-	displayTiles(canvasIO: CanvasIO, region: Rectangle) {
-		for(let x = region.left(); x < region.right(); x ++) {
-			for(let y = region.top(); y < region.bottom(); y ++) {
-				const position = new Vector(x, y);
-				const tile = this.tiles.get(position);
-				if(tile instanceof SolidTile) {
-					SolidTile.displayTile(position, canvasIO, tile);
-				}
-				else if(tile === "platform") {
-					this.displayPlatform(canvasIO, position);
-				}
-				else if(typeof tile !== "string" && !(tile instanceof LaserBlock)) {
-					tile.display(canvasIO, x, y);
-				}
-				else if(tile instanceof LaserBlock) {
-					// tile.displayBarrels(canvasIO, x, y);
-				}
+	displayTileEntities(canvasIO: CanvasIO, region: Rectangle) {
+		for(const position of region.squares()) {
+			const tile = this.tiles.get(position);
+			if(typeof tile !== "string" && !(tile instanceof LaserBlock) && !(tile instanceof SolidTile)) {
+				tile.display(canvasIO, position.x, position.y);
+			}
+		}
+	}
+	displayBasicTiles(canvasIO: CanvasIO, region: Rectangle) {
+		for(const position of region.squares()) {
+			const tile = this.tiles.get(position);
+			if(tile instanceof SolidTile) {
+				SolidTile.displayTile(position, canvasIO, tile);
+			}
+			else if(tile === "platform") {
+				this.displayPlatform(canvasIO, position);
 			}
 		}
 
+	}
+	displayTiles(canvasIO: CanvasIO, region: Rectangle) {
+		this.displayBasicTiles(canvasIO, region);
+		this.displayTileEntities(canvasIO, region);
 		StoneTile.displayStoneTiles(this, canvasIO, region);
 	}
 	displayPlatform(canvasIO: CanvasIO, position: Vector) {
