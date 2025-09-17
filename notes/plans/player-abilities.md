@@ -18,6 +18,7 @@ Items for the new system:
 	- This can also be used to elevate yourself by throwing it underneath you, which is cool.
 - **Decoy**: after being thrown, enemies seek/attack the decoy instead of the player.
 - **Invisibility**: after drinking the potion (or equivalent), the enemies do not seek out the player until the effect wears off.
+	- I could make it so the effect only dissipates when using a portal to the next level. As a consequence, the player could keep the effect if they find a way to get to the next level without using the portal, which is cool.
 - **Freeze**: after throwing it, all enemies and traps on screen are frozen for a brief period of time.
 - **Teleport**: when using the item, the player teleports as far as they can (in the direction of the held arrow keys) until they reach a wall.
 	- This was originally planned to be a infinitely-reusable item (possibly with a energy cost or a cooldown to limit uses). However, infinitely-reusable items don't work well with single-use items, and I can still think of good uses for a single-use teleporter, so I now think this is the way to do it.
@@ -28,6 +29,9 @@ Items for the new system:
 	- The original intent was that the player would use it right before being hit (which is why I originally imagined it as being only around half a second), but even with a longer duration, the player is still incentivized to use it right before being hit if they want to maximize the item's usefulness.
 	- A longer duration gives the player a choice between safety (using the shield before entering a dangerous room) and efficiency (waiting to use the shield until right before being hit). This indicates that a longer duration could be better.
 	- On the other hand, a shorter duration adds more of a timing element, making it more like the shields in games like Dead Cells and Nine Sols.
+- **Gate Toggler**: when used, all the gates toggle whether they are open or closed.
+	- This is a relatively weak item, but that's ok.
+	- This was an idea from before I settled on single-use items. Back then it was problematic because it allowed the player to completely ignore the gate mechanic, but as a single-use (or just limited-use) item, there's no problem.
 
 # Notes About Items
 - I now don't think I actually need a starting item that lets you break blocks: if the lizards softlock you, you should always be able to get out of it since that means there will be a lizard in the room and you can use them to break the walls and escape.

@@ -27,3 +27,8 @@ List of things that could generate in the world:
 	- This could be fixed by making it so that items have a "used" / "unused" state instead of being destroyed after use. Then, if a player had already consumed an item but still has the used-up version, I could allow them to still use it if they are within range of an infinite-items device.
 - **Item Requirement**: a room with several devices depicting items. If the player uses all the items while within range, they get a reward or progression progress. (The idea is it would be like a side-quest: "collect all these items and use them here to get a reward").
 	- This is kind of boring.
+- **Health Refill**: the player could have a health system where each damage source deals 1 unit of damage, and they start with around 3 health. The player could find items to restore 1 health.
+	- This is good because the game is already very difficult (because everything is an insta-kill).
+	- This is good because I've been wondering how to reward the player for doing something cool. Giving them items doesn't quite work since space is limited and they will already be able to find items, but getting an extra unit of health is a very useful reward.
+	- These would have to be rare, because otherwise once the player reaches a certain level of skill they will be able to heal faster than they take damage, and then they will just have solved the game and can get an arbitrarily high score easily.
+		- I could address this by making it so that these give diminishing returns, e.g. the first heal requires 1 healing item, the next heal requires 2, and so on.
