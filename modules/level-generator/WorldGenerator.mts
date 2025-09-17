@@ -6,7 +6,7 @@ import { Grid } from "../../utils-ts/modules/Grid.mjs";
 import { MathUtils } from "../../utils-ts/modules/math/MathUtils.mjs";
 import { Utils } from "../../utils-ts/modules/Utils.mjs";
 import { DEBUG_SETTINGS } from "../constants/DebugSettings.mjs";
-import { LevelGeneratorData, RoomData, WorldData } from "../constants/GameData.mjs";
+import { LevelGeneratorData, RoomData } from "../constants/GameData.mjs";
 import { GameUtils } from "../game-utilities/GameUtils.mjs";
 import { Gate } from "../tiles/Gate.mjs";
 import { SolidTile } from "../tiles/SolidTile.mjs";
@@ -20,6 +20,11 @@ export class WorldGenerator {
 	path: Vector[] = [];
 	rooms: Grid<RoomPlaceholder | null> = new Grid(null);
 	currentChunk: Vector = new Vector(0, 0);
+	position: Vector;
+
+	constructor(position: Vector = new Vector(0, 0)) {
+		this.position = position;
+	}
 
 	generateLevel(world: World) {
 		this.generatePath();
@@ -28,7 +33,6 @@ export class WorldGenerator {
 		this.pruneConnections();
 		this.addRooms(world);
 		this.addBorders(world);
-		this.spawnPlayer(world);
 	}
 
 	generatePath() {
@@ -172,10 +176,14 @@ export class WorldGenerator {
 			const roomPlaceholder = this.rooms.get(position)!;
 			if(roomPlaceholder) {
 				roomPlaceholder.generated = true;
-				roomPlaceholder.room.add(position.multiply(RoomData.SIZE), world, roomPlaceholder.exits);
+				roomPlaceholder.room.add(this.position.add(position.multiply(RoomData.SIZE)), world, roomPlaceholder.exits);
 			}
 			else {
-				const rectangle = Rectangle.square(position.x * RoomData.SIZE, position.y * RoomData.SIZE, RoomData.SIZE);
+				const rectangle = Rectangle.square(
+					this.position.x + position.x * RoomData.SIZE,
+					this.position.y + position.y * RoomData.SIZE,
+					RoomData.SIZE,
+				);
 				world.tiles.fillRect(rectangle, new SolidTile("solid", "tower"));
 				world.originalTiles.fillRect(rectangle, new SolidTile("solid", "tower"));
 			}
@@ -188,41 +196,25 @@ export class WorldGenerator {
 		};
 
 		fillSolidRect(
-			-LevelGeneratorData.BORDER_X, -LevelGeneratorData.BORDER_Y,
+			this.position.x - LevelGeneratorData.BORDER_X, this.position.y - LevelGeneratorData.BORDER_Y,
 			LevelGeneratorData.WIDTH * RoomData.SIZE + LevelGeneratorData.BORDER_X,
 			LevelGeneratorData.BORDER_Y,
 		);
 		fillSolidRect(
-			-LevelGeneratorData.BORDER_X, 0,
+			this.position.x - LevelGeneratorData.BORDER_X, this.position.y,
 			LevelGeneratorData.BORDER_X,
 			LevelGeneratorData.HEIGHT * RoomData.SIZE,
 		);
 		fillSolidRect(
-			LevelGeneratorData.WIDTH * RoomData.SIZE, -LevelGeneratorData.BORDER_Y,
+			this.position.x + LevelGeneratorData.WIDTH * RoomData.SIZE, this.position.y - LevelGeneratorData.BORDER_Y,
 			LevelGeneratorData.BORDER_X,
 			LevelGeneratorData.HEIGHT * RoomData.SIZE + LevelGeneratorData.BORDER_Y,
 		);
 		fillSolidRect(
-			-LevelGeneratorData.BORDER_X, LevelGeneratorData.HEIGHT * RoomData.SIZE,
+			this.position.x - LevelGeneratorData.BORDER_X, this.position.y + LevelGeneratorData.HEIGHT * RoomData.SIZE,
 			LevelGeneratorData.WIDTH * RoomData.SIZE + 2 * LevelGeneratorData.BORDER_X,
 			LevelGeneratorData.BORDER_Y,
 		);
-	}
-	spawnPlayer(world: World) {
-		const emptyTiles = [];
-		const startRoom = this.path[this.path.length - 1];
-		for(const position of Rectangle.square(startRoom.x, startRoom.y, 1).scale(RoomData.SIZE).squares()) {
-			const tileBelow = world.tiles.get(position.x, position.y + 1);
-			if(world.tiles.get(position) === "empty" && tileBelow instanceof SolidTile && tileBelow.shape === "solid") {
-				emptyTiles.push(position);
-			}
-		}
-		const tile = Utils.randomItem(emptyTiles);
-		// TODO: make sure the player doesn't spawn overlapping an enemy
-		world.player.hitbox.x = tile.x * WorldData.TILE_SIZE;
-		world.player.hitbox.y = tile.y * WorldData.TILE_SIZE;
-		world.addEntityIfEmpty(world.player);
-		world.camera = world.player.hitbox.center();
 	}
 
 

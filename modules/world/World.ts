@@ -24,6 +24,7 @@ import { EntitySpawner } from "../level-generator/EntitySpawner.mjs";
 import { Entities } from "./Entities.mjs";
 import { FlameturretEntity } from "../items/item-entities/FlameturretEntity.mjs";
 import { Entity } from "../game-utilities/Entity.mjs";
+import { Utils } from "../../utils-ts/modules/Utils.mjs";
 
 export type TileEntity = SolidTile | Gate | LaserBlock | SpikeballBlock;
 export type Tile = (typeof WorldData.STRING_TILE_TYPES)[number] | TileEntity;
@@ -43,6 +44,7 @@ export class World {
 	screenShakeIntensity: number = 0;
 	camera: Vector = new Vector(0, 0);
 	levels: number = 0;
+	nextPlayerSpawnRoom: Vector = new Vector(0, 0);
 
 	worldGenerator: WorldGenerator = new WorldGenerator();
 	enableGeneration: boolean;
@@ -57,8 +59,44 @@ export class World {
 
 	initializeGeneration() {
 		this.worldGenerator.generateLevel(this);
-		this.entitySpawner.spawnAllEntities(this.worldGenerator.levelRectangle(), this);
+		this.spawnPlayer(this.worldGenerator.path[this.worldGenerator.path.length - 1]);
+		const rectangle = this.worldGenerator.levelRectangle().scale(RoomData.SIZE);
+		this.entitySpawner.spawnAllEntities(
+			Rectangle.fromBounds(rectangle.left() + 1, rectangle.right() - 1, rectangle.top() + 1, rectangle.bottom() - 1),
+			this,
+		);
 		return this;
+	}
+	spawnPlayer(startRoom: Vector) {
+		const tile = this.playerSpawnPosition(startRoom);
+		this.player.hitbox.x = tile.x * WorldData.TILE_SIZE;
+		this.player.hitbox.y = tile.y * WorldData.TILE_SIZE;
+		this.addEntityIfEmpty(this.player);
+		this.camera = this.player.hitbox.center();
+	}
+	playerSpawnPosition(startRoom: Vector) {
+		const levelHeight = RoomData.SIZE * LevelGeneratorData.HEIGHT + LevelGeneratorData.BORDER_Y;
+		const translatedStartRoom = startRoom.multiply(RoomData.SIZE).add(new Vector(0, -levelHeight * this.levels));
+		const emptyTiles = [];
+		for(const position of Rectangle.square(translatedStartRoom.x, translatedStartRoom.y, RoomData.SIZE).squares()) {
+			const tileBelow = this.tiles.get(position.x, position.y + 1);
+			if(this.tiles.get(position) === "empty" && tileBelow instanceof SolidTile && tileBelow.shape === "solid") {
+				emptyTiles.push(position);
+			}
+		}
+		return Utils.randomItem(emptyTiles);
+	}
+	generateNextLevel() {
+		this.levels ++;
+		const levelHeight = RoomData.SIZE * LevelGeneratorData.HEIGHT + LevelGeneratorData.BORDER_Y;
+		const generator = new WorldGenerator(new Vector(0, -levelHeight * this.levels));
+		generator.generateLevel(this);
+		const rectangle = generator.levelRectangle().scale(RoomData.SIZE).translate(new Vector(0, -levelHeight * this.levels));
+		this.entitySpawner.spawnAllEntities(
+			Rectangle.fromBounds(rectangle.left() + 1, rectangle.right() - 1, rectangle.top() + 1, rectangle.bottom() - 1),
+			this,
+		);
+		this.nextPlayerSpawnRoom = generator.path[generator.path.length - 1];
 	}
 
 	display(canvasIO: CanvasIO, visibleTileRegion: Rectangle = this.visibleTileRegion(canvasIO)) {
@@ -255,6 +293,7 @@ export class World {
 		this.updateEntities(canvasIO);
 		this.updateTiles(canvasIO);
 		this.updateParticles();
+		this.updateGeneration();
 		this.screenShakeTimer --;
 		this.updateCamera();
 	}
@@ -282,6 +321,12 @@ export class World {
 	updateCamera() {
 		if(!(Main.screen instanceof RoomEditor)) {
 			this.camera = GameUtils.moveVectorTowards(this.camera, this.player.hitbox.center(), WorldData.CAMERA_SPEED);
+		}
+	}
+	updateGeneration() {
+		const levelHeight = WorldData.TILE_SIZE * (RoomData.SIZE * LevelGeneratorData.HEIGHT + LevelGeneratorData.BORDER_Y);
+		if(this.player.hitbox.top() < RoomData.SIZE * WorldData.TILE_SIZE - this.levels * levelHeight) {
+			this.generateNextLevel();
 		}
 	}
 

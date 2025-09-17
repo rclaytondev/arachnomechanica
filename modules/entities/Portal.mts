@@ -21,8 +21,7 @@ export class Portal extends Entity {
 		}
 
 		if(world.player.hitbox.intersects(this.teleportHitbox())) {
-			// eslint-disable-next-line no-console
-			console.log("Portal teleportation is currently unimplemented.");
+			this.teleportPlayer(world);
 		}
 	}
 	teleportHitbox() {
@@ -40,6 +39,11 @@ export class Portal extends Entity {
 			new Vector(0, -PortalData.LINE_SPEED),
 			PortalData.PARTICLE_SETTINGS,
 		), canvasIO);
+	}
+	teleportPlayer(world: World) {
+		const tile = world.playerSpawnPosition(world.nextPlayerSpawnRoom);
+		world.player.hitbox.x = tile.x * WorldData.TILE_SIZE;
+		world.player.hitbox.y = tile.y * WorldData.TILE_SIZE;
 	}
 
 	display(canvasIO: CanvasIO) {
