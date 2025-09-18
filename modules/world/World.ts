@@ -340,7 +340,7 @@ export class World {
 	}
 	updateGeneration() {
 		const levelHeight = WorldData.TILE_SIZE * (RoomData.SIZE * LevelGeneratorData.HEIGHT + LevelGeneratorData.BORDER_Y);
-		if(this.player.hitbox.top() < RoomData.SIZE * WorldData.TILE_SIZE - this.levelsGenerated * levelHeight) {
+		if(this.enableGeneration && this.player.hitbox.top() < RoomData.SIZE * WorldData.TILE_SIZE - this.levelsGenerated * levelHeight) {
 			this.generateNextLevel();
 		}
 
