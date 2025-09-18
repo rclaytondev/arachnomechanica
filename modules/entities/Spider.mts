@@ -313,6 +313,12 @@ export class Spider extends RectangularEntity {
 			const start = this.basepoint.surface.start.multiply(WorldData.TILE_SIZE);
 			const end = this.basepoint.surface.end().multiply(WorldData.TILE_SIZE);
 			canvasIO.strokeLine(start.x, start.y, end.x, end.y);
+
+			const tile = this.basepoint.surface.tilePosition();
+			canvasIO.ctx.save();
+			canvasIO.ctx.globalAlpha = 0.25;
+			canvasIO.fillSquare(tile.x * WorldData.TILE_SIZE, tile.y * WorldData.TILE_SIZE, WorldData.TILE_SIZE);
+			canvasIO.ctx.restore();
 		}
 
 		canvasIO.ctx.strokeStyle = "rgb(0, 255, 255)";
