@@ -394,7 +394,7 @@ export class Lizard extends Entity {
 		const lookaheadRectangle = this.lookaheadRectangle(direction, distance, length);
 		for(const { tile } of world.getTilesAt(lookaheadRectangle)) {
 			if(
-				(tile instanceof SolidTile && tile.shape === "solid") ||
+				(tile instanceof SolidTile && tile.shape === "full") ||
 				(tile === "platform" && direction === "down") ||
 				(tile instanceof Gate && tile.openness !== 1) ||
 				(tile instanceof LaserBlock || tile instanceof SpikeballBlock) ||

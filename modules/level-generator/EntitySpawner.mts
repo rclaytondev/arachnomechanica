@@ -60,12 +60,12 @@ export class EntitySpawner {
 	static spawnRequirements = {
 		replaceSolid: (position: Vector, world: World) => {
 			const tile = world.tiles.get(position);
-			return tile instanceof SolidTile && tile.shape === "solid";
+			return tile instanceof SolidTile && tile.shape === "full";
 		},
 		replaceEmpty: (position: Vector, world: World) => world.tiles.get(position) === "empty",
 		solidAdjacent: (position: Vector, world: World) => Directions.DIRECTIONS.some(direction => {
 			const tile = world.tiles.get(position.add(Vector.unit(direction)));
-			return tile instanceof SolidTile && tile.shape === "solid";
+			return tile instanceof SolidTile && tile.shape === "full";
 		}),
 		atLeast2Empty: (position: Vector, world: World) => (
 			Directions.DIRECTIONS.filter(d => world.tiles.get(position.add(Vector.unit(d))) === "empty").length >= 2
@@ -189,7 +189,7 @@ export class EntitySpawner {
 			(position: Vector, world: World) => {
 				const direction = Directions.DIRECTIONS.find(dir => {
 					const tile = world.tiles.get(position.add(Vector.unit(dir)));
-					return tile instanceof SolidTile && tile.shape === "solid";
+					return tile instanceof SolidTile && tile.shape === "full";
 				})!;
 				const spider = new Spider(position.add(1/2, 1/2).multiply(WorldData.TILE_SIZE));
 				const surfacePoint = {

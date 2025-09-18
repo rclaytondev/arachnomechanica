@@ -27,7 +27,7 @@ Rooms.initialize();
 Room.addRoomVariants();
 
 const world = new World(false);
-world.tiles.fillRect(new Rectangle(-5, 0, 9, 3), new SolidTile("solid", "tower"));
+world.tiles.fillRect(new Rectangle(-5, 0, 9, 3), new SolidTile("full", "tower"));
 
 
 export class Main {

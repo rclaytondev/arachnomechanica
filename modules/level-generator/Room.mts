@@ -31,7 +31,11 @@ export class Room {
 		else {
 			this.tiles = new Grid("empty");
 			for(const { x, y, type } of tiles) {
-				const tile = (type === "solid" || World.isSlope(type as string)) ? new SolidTile(type as "solid" | Slope, "tower") : (type as "platform" | Gate);
+				const tile = (
+					type === "solid" ? new SolidTile("full", "tower")
+					: World.isSlope(type as string) ? new SolidTile(type as Slope, "tower")
+					: (type as "platform" | Gate)
+				);
 				this.tiles.set(x, y, tile);
 			}
 		}
@@ -64,7 +68,7 @@ export class Room {
 
 				const direction = this.exitTiles.get(x, y);
 				if(direction !== "none" && !exits.includes(direction)) {
-					world.addOriginalTile(worldPosition, new SolidTile("solid", "tower"));
+					world.addOriginalTile(worldPosition, new SolidTile("full", "tower"));
 				}
 			}
 		}

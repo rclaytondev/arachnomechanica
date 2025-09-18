@@ -50,7 +50,7 @@ export class RoomEditor {
 		const position = this.world.getTileCoordinates(canvasIO.mouse.position);
 		if(canvasIO.mouse.button === "left") {
 			if(this.mode === "solid") {
-				this.setTile(position, canvasIO.mouse.button === "left" ? new SolidTile("solid", "tower") : "empty");
+				this.setTile(position, canvasIO.mouse.button === "left" ? new SolidTile("full", "tower") : "empty");
 			}
 			else if(this.mode === "platform") {
 				this.setTile(position, canvasIO.mouse.button === "left" ? "platform" : "empty");

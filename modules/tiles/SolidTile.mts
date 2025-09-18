@@ -5,10 +5,10 @@ import { WorldData } from "../constants/GameData.mjs";
 import { Slope } from "../world/World";
 
 export class SolidTile {
-	readonly shape: "solid" | Slope;
+	readonly shape: "full" | Slope;
 	readonly texture: "tower" | "stone";
 
-	constructor(shape: "solid" | Slope, texture: "tower" | "stone") {
+	constructor(shape: "full" | Slope, texture: "tower" | "stone") {
 		this.shape = shape;
 		this.texture = texture;
 	}
@@ -21,7 +21,7 @@ export class SolidTile {
 	}
 
 	addToPath(position: Vector, canvasIO: CanvasIO) {
-		if(this.shape === "solid") {
+		if(this.shape === "full") {
 			canvasIO.ctx.rect(
 				position.x * WorldData.TILE_SIZE - 1,
 				position.y * WorldData.TILE_SIZE - 1,

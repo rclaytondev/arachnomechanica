@@ -184,15 +184,15 @@ export class WorldGenerator {
 					this.position.y + position.y * RoomData.SIZE,
 					RoomData.SIZE,
 				);
-				world.tiles.fillRect(rectangle, new SolidTile("solid", "tower"));
-				world.originalTiles.fillRect(rectangle, new SolidTile("solid", "tower"));
+				world.tiles.fillRect(rectangle, new SolidTile("full", "tower"));
+				world.originalTiles.fillRect(rectangle, new SolidTile("full", "tower"));
 			}
 		}
 	}
 	addBorders(world: World) {
 		const fillSolidRect = (x: number, y: number, w: number, h: number) => {
-			world.tiles.fillRect(new Rectangle(x, y, w, h), new SolidTile("solid", "tower"));
-			world.originalTiles.fillRect(new Rectangle(x, y, w, h), new SolidTile("solid", "tower"));
+			world.tiles.fillRect(new Rectangle(x, y, w, h), new SolidTile("full", "tower"));
+			world.originalTiles.fillRect(new Rectangle(x, y, w, h), new SolidTile("full", "tower"));
 		};
 
 		fillSolidRect(
