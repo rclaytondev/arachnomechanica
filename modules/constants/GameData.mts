@@ -31,6 +31,11 @@ export class WorldData {
 
 	static CAMERA_SPEED = 100;
 
+	static OVERLAY_FADE_SPEED = 0.02;
+	static OVERLAY_INITIAL_OPACITY = 2;
+	static OVERLAY_COLOR = "white";
+	static OVERLAY_FONT = "100px monospace";
+
 	static PARTICLE_RENDER_DISTANCE_Y = 15;
 
 	static STONE_LINE_AMOUNT = 3e-4; // 1e-2 means 1 per 10x10 grid, 1e-4 means 1 per 100x100 grid, etc

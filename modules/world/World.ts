@@ -43,8 +43,11 @@ export class World {
 	screenShakeTimer: number = 0;
 	screenShakeIntensity: number = 0;
 	camera: Vector = new Vector(0, 0);
-	levels: number = 0;
+	levelsGenerated: number = 0;
+	levelsVisited: number = 0;
 	nextPlayerSpawnRoom: Vector = new Vector(0, 0);
+	overlayText: string = "";
+	overlayTextOpacity: number = 0;
 
 	worldGenerator: WorldGenerator = new WorldGenerator();
 	enableGeneration: boolean;
@@ -76,7 +79,7 @@ export class World {
 	}
 	playerSpawnPosition(startRoom: Vector) {
 		const levelHeight = RoomData.SIZE * LevelGeneratorData.HEIGHT + LevelGeneratorData.BORDER_Y;
-		const translatedStartRoom = startRoom.multiply(RoomData.SIZE).add(new Vector(0, -levelHeight * this.levels));
+		const translatedStartRoom = startRoom.multiply(RoomData.SIZE).add(new Vector(0, -levelHeight * this.levelsGenerated));
 		const emptyTiles = [];
 		for(const position of Rectangle.square(translatedStartRoom.x, translatedStartRoom.y, RoomData.SIZE).squares()) {
 			const tileBelow = this.tiles.get(position.x, position.y + 1);
@@ -87,11 +90,11 @@ export class World {
 		return Utils.randomItem(emptyTiles);
 	}
 	generateNextLevel() {
-		this.levels ++;
+		this.levelsGenerated ++;
 		const levelHeight = RoomData.SIZE * LevelGeneratorData.HEIGHT + LevelGeneratorData.BORDER_Y;
-		const generator = new WorldGenerator(new Vector(0, -levelHeight * this.levels));
+		const generator = new WorldGenerator(new Vector(0, -levelHeight * this.levelsGenerated));
 		generator.generateLevel(this);
-		const rectangle = generator.levelRectangle().scale(RoomData.SIZE).translate(new Vector(0, -levelHeight * this.levels));
+		const rectangle = generator.levelRectangle().scale(RoomData.SIZE).translate(new Vector(0, -levelHeight * this.levelsGenerated));
 		this.entitySpawner.spawnAllEntities(
 			Rectangle.fromBounds(rectangle.left() + 1, rectangle.right() - 1, rectangle.top() + 1, rectangle.bottom() - 1),
 			this,
@@ -114,6 +117,8 @@ export class World {
 		this.displaytTileAccents(canvasIO, visibleTileRegion);
 		this.displayDebugInfo(canvasIO);
 		canvasIO.ctx.restore();
+
+		this.displayOverlayText(canvasIO);
 
 		if(DEBUG_SETTINGS.SHOW_MOUSE_COORDINATES) {
 			this.displayMouseCoordinates(canvasIO);
@@ -288,6 +293,15 @@ export class World {
 			entity.displayDebug(canvasIO);
 		}
 	}
+	displayOverlayText(canvasIO: CanvasIO) {
+		canvasIO.ctx.save();
+		canvasIO.ctx.font = WorldData.OVERLAY_FONT;
+		canvasIO.ctx.fillStyle = WorldData.OVERLAY_COLOR;
+		canvasIO.ctx.globalAlpha = MathUtils.constrain(this.overlayTextOpacity, 0, 1);
+		canvasIO.ctx.textAlign = "center";
+		canvasIO.ctx.fillText(this.overlayText, canvasIO.canvas.width / 2, canvasIO.canvas.height / 2);
+		canvasIO.ctx.restore();
+	}
 
 	update(canvasIO: CanvasIO) {
 		this.updateEntities(canvasIO);
@@ -295,6 +309,7 @@ export class World {
 		this.updateParticles();
 		this.updateGeneration();
 		this.screenShakeTimer --;
+		this.overlayTextOpacity -= WorldData.OVERLAY_FADE_SPEED;
 		this.updateCamera();
 	}
 	updateEntities(canvasIO: CanvasIO) {
@@ -325,8 +340,15 @@ export class World {
 	}
 	updateGeneration() {
 		const levelHeight = WorldData.TILE_SIZE * (RoomData.SIZE * LevelGeneratorData.HEIGHT + LevelGeneratorData.BORDER_Y);
-		if(this.player.hitbox.top() < RoomData.SIZE * WorldData.TILE_SIZE - this.levels * levelHeight) {
+		if(this.player.hitbox.top() < RoomData.SIZE * WorldData.TILE_SIZE - this.levelsGenerated * levelHeight) {
 			this.generateNextLevel();
+		}
+
+		if(this.player.hitbox.top() < -(this.levelsVisited - 1) * levelHeight) {
+			this.levelsVisited ++;
+			const floorText = `${this.levelsVisited.toString().padStart(2, "0")}`;
+			this.overlayText = `Floor ${floorText}`;
+			this.overlayTextOpacity = WorldData.OVERLAY_INITIAL_OPACITY;
 		}
 	}
 
