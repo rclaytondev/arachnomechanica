@@ -20,6 +20,14 @@ export class Surface {
 		this.start = start;
 		this.outwardNormal = outwardNormal;
 	}
+	static tileEdgeCW(tilePosition: Vector, edge: Direction) {
+		return {
+			"left": new Surface(tilePosition.add(0, 1), "left"),
+			"right": new Surface(tilePosition.add(1, 0), "right"),
+			"up": new Surface(tilePosition, "up"),
+			"down": new Surface(tilePosition.add(1, 1), "down"),
+		}[edge];
+	}
 
 	tangentDirectionCW() {
 		return Directions.rotateClockwise[this.outwardNormal];
@@ -467,14 +475,8 @@ export class Spider extends RectangularEntity {
 			return tile instanceof BasicTile && tile.shape === "full";
 		})!;
 		const spider = new Spider(position.add(1/2, 1/2).multiply(WorldData.TILE_SIZE));
-		const surfacePoint = {
-			"left": position,
-			"right": position.add(1, 0),
-			"up": position,
-			"down": position.add(0, 1),
-		}[direction];
 		spider.basepoint = new PointOnSurface(
-			new Surface(surfacePoint, Directions.opposite[direction]),
+			Surface.tileEdgeCW(position.add(Vector.unit(direction)), Directions.opposite[direction]),
 			WorldData.TILE_SIZE / 2,
 		);
 		world.addEntityIfEmpty(spider);
