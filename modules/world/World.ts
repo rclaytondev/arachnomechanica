@@ -17,7 +17,7 @@ import { SpikeballBlock } from "../tiles/SpikeballBlock.mjs";
 import { MathUtils } from "../../utils-ts/modules/math/MathUtils.mjs";
 import { RoomEditor } from "../RoomEditor.mjs";
 import { TowerTile } from "../tiles/TowerTile.mjs";
-import { SolidTile } from "../tiles/SolidTile.mjs";
+import { BasicTile } from "../tiles/BasicTile.mjs";
 import { StoneTile } from "../tiles/StoneTile.mjs";
 import { WorldGenerator } from "../level-generator/WorldGenerator.mjs";
 import { EntitySpawner } from "../level-generator/EntitySpawner.mjs";
@@ -26,7 +26,7 @@ import { FlameturretEntity } from "../items/item-entities/FlameturretEntity.mjs"
 import { Entity } from "../game-utilities/Entity.mjs";
 import { Utils } from "../../utils-ts/modules/Utils.mjs";
 
-export type TileEntity = SolidTile | Gate | LaserBlock | SpikeballBlock;
+export type TileEntity = BasicTile | Gate | LaserBlock | SpikeballBlock;
 export type Tile = (typeof WorldData.STRING_TILE_TYPES)[number] | TileEntity;
 export type Slope = (typeof WorldData.SLOPES)[number];
 export type TileWithPosition = { x: number, y: number, tile: Tile };
@@ -83,7 +83,7 @@ export class World {
 		const emptyTiles = [];
 		for(const position of Rectangle.square(translatedStartRoom.x, translatedStartRoom.y, RoomData.SIZE).squares()) {
 			const tileBelow = this.tiles.get(position.x, position.y + 1);
-			if(this.tiles.get(position) === "empty" && tileBelow instanceof SolidTile && tileBelow.shape === "full") {
+			if(this.tiles.get(position) === "empty" && tileBelow instanceof BasicTile && tileBelow.shape === "full") {
 				emptyTiles.push(position);
 			}
 		}
@@ -173,7 +173,7 @@ export class World {
 			for(let y = visibleTileRegion.top(); y < visibleTileRegion.bottom(); y ++) {
 				const position = new Vector(x, y);
 				const tile = this.tiles.get(position);
-				if(tile instanceof SolidTile && tile.shape === "full" && tile.texture === "tower") {
+				if(tile instanceof BasicTile && tile.shape === "full" && tile.texture === "tower") {
 					TowerTile.displayTileGlow(position, canvasIO, this);
 				}
 				else if(World.isSlopeTile(tile) && tile.texture === "tower") {
@@ -214,7 +214,7 @@ export class World {
 	displayTileEntities(canvasIO: CanvasIO, region: Rectangle) {
 		for(const position of region.squares()) {
 			const tile = this.tiles.get(position);
-			if(typeof tile !== "string" && !(tile instanceof LaserBlock) && !(tile instanceof SolidTile)) {
+			if(typeof tile !== "string" && !(tile instanceof LaserBlock) && !(tile instanceof BasicTile)) {
 				tile.display(canvasIO, position.x, position.y);
 			}
 		}
@@ -222,8 +222,8 @@ export class World {
 	displayBasicTiles(canvasIO: CanvasIO, region: Rectangle) {
 		for(const position of region.squares()) {
 			const tile = this.tiles.get(position);
-			if(tile instanceof SolidTile) {
-				SolidTile.displayTile(position, canvasIO, tile);
+			if(tile instanceof BasicTile) {
+				BasicTile.displayTile(position, canvasIO, tile);
 			}
 			else if(tile === "platform") {
 				this.displayPlatform(canvasIO, position);
@@ -259,7 +259,7 @@ export class World {
 			for(let y = region.top(); y < region.bottom(); y ++) {
 				const position = new Vector(x, y);
 				const tile = this.tiles.get(position);
-				if(tile instanceof SolidTile && tile.shape === "full" && tile.texture === "tower") {
+				if(tile instanceof BasicTile && tile.shape === "full" && tile.texture === "tower") {
 					TowerTile.displayTileAccent(position, canvasIO, this);
 				}
 				else if(World.isSlopeTile(tile) && tile.texture === "tower") {
@@ -414,14 +414,14 @@ export class World {
 			Math.ceil(corner.y / WorldData.TILE_SIZE) - 1,
 		);
 		const tile = this.tiles.get(position);
-		return tile instanceof SolidTile && tile.shape === slope && this.slopeIntersectionDistance(rectangle, position, slope) === 0;
+		return tile instanceof BasicTile && tile.shape === slope && this.slopeIntersectionDistance(rectangle, position, slope) === 0;
 	}
 	collidingTiles(rectangle: Rectangle, collides: (object: { x: number, y: number, tile: Tile } | Entity) => boolean = () => true) {
 		const tiles = [];
 		for(const { position, tile } of this.getTilesAt(rectangle)) {
 			const { x, y } = position;
 			if(collides({ x, y, tile }) && (
-				tile instanceof SolidTile && tile.shape === "full" ||
+				tile instanceof BasicTile && tile.shape === "full" ||
 				(tile instanceof Gate && tile.openness !== 1 && rectangle.intersects(tile.getPhysicsBox(x, y))) ||
 				tile instanceof LaserBlock ||
 				tile instanceof SpikeballBlock ||
@@ -459,14 +459,14 @@ export class World {
 		const tile = this.tiles.get(tilePosition);
 		const adjacent = this.tiles.get(adjacentPosition);
 		if(
-			World.isSolidOrSlope(tile, direction)
-			|| World.isSolidOrSlope(adjacent, Directions.opposite[direction])
+			World.isEdgeBasicSolid(tile, direction)
+			|| World.isEdgeBasicSolid(adjacent, Directions.opposite[direction])
 		) { return true; }
 
 		for(const position of [tilePosition, adjacentPosition]) {
 			const tile = this.tiles.get(position);
 			if(!ignoredTiles.includes(tile) && (
-				World.isSolidTile(tile) ||
+				World.isFullTile(tile) ||
 				tile instanceof Gate && tile.getPhysicsBox(position.x, position.y).contains(worldPosition)
 			)) { return true; }
 		}
@@ -484,7 +484,7 @@ export class World {
 	}
 	slopeLineIntersectionDistance(position: Vector, direction: Vector, tilePosition: Vector) {
 		const slope = this.tiles.get(tilePosition);
-		if(!(slope instanceof SolidTile && World.isSlope(slope.shape))) {
+		if(!(slope instanceof BasicTile && World.isSlope(slope.shape))) {
 			return Infinity;
 		}
 		const tileBox = new Rectangle(tilePosition.x, tilePosition.y, 1, 1).scale(WorldData.TILE_SIZE);
@@ -573,28 +573,28 @@ export class World {
 		const adjacent = tiles.get(position.add(Vector.unit(adjacentDirection)));
 		const diagonal = tiles.get(position.add(Vector.unit(adjacentDirection)).add(Vector.unit(perpendicularDirection)));
 		const perpendicular = tiles.get(position.add(Vector.unit(perpendicularDirection)));
-		if(World.isSolidOrSlope(adjacent, Directions.opposite[adjacentDirection]) === empty) {
+		if(World.isEdgeBasicSolid(adjacent, Directions.opposite[adjacentDirection]) === empty) {
 			return 0;
 		}
-		if(World.isSolidOrSlope(adjacent, perpendicularDirection) === empty) {
+		if(World.isEdgeBasicSolid(adjacent, perpendicularDirection) === empty) {
 			return 45;
 		}
-		if(World.isSolidOrSlope(diagonal, Directions.opposite[perpendicularDirection]) === empty) {
+		if(World.isEdgeBasicSolid(diagonal, Directions.opposite[perpendicularDirection]) === empty) {
 			return 90;
 		}
-		if(World.isSolidOrSlope(diagonal, Directions.opposite[adjacentDirection]) === empty) {
+		if(World.isEdgeBasicSolid(diagonal, Directions.opposite[adjacentDirection]) === empty) {
 			return 135;
 		}
-		if(World.isSolidOrSlope(perpendicular, adjacentDirection) === empty) {
+		if(World.isEdgeBasicSolid(perpendicular, adjacentDirection) === empty) {
 			return 180;
 		}
-		if(World.isSolidOrSlope(perpendicular, Directions.opposite[perpendicularDirection]) === empty) {
+		if(World.isEdgeBasicSolid(perpendicular, Directions.opposite[perpendicularDirection]) === empty) {
 			return 225;
 		}
-		if(World.isSolidOrSlope(tile, perpendicularDirection) === empty) {
+		if(World.isEdgeBasicSolid(tile, perpendicularDirection) === empty) {
 			return 270;
 		}
-		if(World.isSolidOrSlope(tile, adjacentDirection) === empty) {
+		if(World.isEdgeBasicSolid(tile, adjacentDirection) === empty) {
 			return 315;
 		}
 		return 360;
@@ -610,7 +610,7 @@ export class World {
 			if(adjacentTile instanceof Gate && adjacentTile.direction === Directions.opposite[direction]) {
 				this.destroyTile(adjacentPosition);
 			}
-			else if(tile instanceof SolidTile && tile.shape === "full" && adjacentTile instanceof Gate && adjacentTile.direction === direction) {
+			else if(tile instanceof BasicTile && tile.shape === "full" && adjacentTile instanceof Gate && adjacentTile.direction === direction) {
 				this.destroyTile(adjacentPosition);
 			}
 		}
@@ -670,39 +670,47 @@ export class World {
 
 	static isTile(value: unknown): value is Tile {
 		return (typeof value === "string" && (WorldData.STRING_TILE_TYPES as readonly string[]).includes(value))
-			|| value instanceof SolidTile
+			|| value instanceof BasicTile
 			|| World.isTileEntity(value);
 	}
 	static isSlope(value: unknown): value is (typeof WorldData.SLOPES)[number] {
 		return (WorldData.SLOPES as readonly unknown[]).includes(value);
 	}
-	static isSlopeTile(value: unknown): value is SolidTile & { shape: Slope } {
-		return value instanceof SolidTile && (WorldData.SLOPES as readonly unknown[]).includes(value.shape);
+	static isSlopeTile(value: unknown): value is BasicTile & { shape: Slope } {
+		return value instanceof BasicTile && (WorldData.SLOPES as readonly unknown[]).includes(value.shape);
 	}
 	static isTileEntity(value: unknown): value is TileEntity {
 		return value instanceof Gate || value instanceof LaserBlock || value instanceof SpikeballBlock;
 	}
-	static isSolidTile(tile: Tile) {
+	static isFullTile(tile: Tile) {
 		return (
-			tile instanceof SolidTile && tile.shape === "full"
+			tile instanceof BasicTile && tile.shape === "full"
 			|| (tile instanceof Gate && tile.openness === 0)
-			|| tile instanceof LaserBlock
+			|| tile instanceof LaserBlock || tile instanceof SpikeballBlock
+		);
+	}
+	static isSemifullTile(tile: Tile, includePlaforms: boolean = false) {
+		return (
+			World.isFullTile(tile)
+			|| (tile instanceof Gate && tile.openness !== 1)
+			|| tile instanceof BasicTile
+			|| (includePlaforms && tile === "platform")
 		);
 	}
 	static reflectTile(tile: Tile) {
 		if(tile === "empty" || tile === "platform") {
 			return tile;
 		}
-		else if(tile instanceof SolidTile && World.isSlopeTile(tile)) {
+		else if(tile instanceof BasicTile && World.isSlopeTile(tile)) {
 			const reflections: { [key: string]: Slope } = {
 				"slope-floor-left": "slope-floor-right",
 				"slope-floor-right": "slope-floor-left",
 				"slope-ceiling-left": "slope-ceiling-right",
 				"slope-ceiling-right": "slope-ceiling-left",
 			};
-			return new SolidTile(reflections[tile.shape], tile.texture);
+			return new BasicTile(reflections[tile.shape], tile.texture);
 		}
-		else if(tile instanceof SolidTile) {
+		else if(tile instanceof BasicTile) {
 			return tile;
 		}
 		else if(tile instanceof Gate) {
@@ -714,8 +722,8 @@ export class World {
 			throw new Error("Cannot reflect tile.");
 		}
 	}
-	static isSolidOrSlope(tile: Tile, direction: Direction) {
-		if(tile instanceof SolidTile && World.isSlope(tile.shape)) {
+	static isEdgeBasicSolid(tile: Tile, direction: Direction) {
+		if(tile instanceof BasicTile && World.isSlope(tile.shape)) {
 			const edges = ({
 				"slope-floor-left": ["left", "down"],
 				"slope-floor-right": ["right", "down"],
@@ -724,7 +732,7 @@ export class World {
 			} as const)[tile.shape];
 			return (edges as readonly Direction[]).includes(direction);
 		}
-		return tile instanceof SolidTile && tile.shape === "full";
+		return tile instanceof BasicTile && tile.shape === "full";
 	}
 
 	intersectingEntities() {

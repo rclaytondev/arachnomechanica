@@ -10,7 +10,7 @@ import { Rectangle } from "../utils-ts/modules/geometry/Rectangle.mjs";
 import { ROOMS } from "./level-generator/Rooms.mjs";
 import { GameUtils } from "./game-utilities/GameUtils.mjs";
 import { Portal } from "./entities/Portal.mjs";
-import { SolidTile } from "./tiles/SolidTile.mjs";
+import { BasicTile } from "./tiles/BasicTile.mjs";
 
 export class RoomEditor {
 	room: Room;
@@ -50,7 +50,7 @@ export class RoomEditor {
 		const position = this.world.getTileCoordinates(canvasIO.mouse.position);
 		if(canvasIO.mouse.button === "left") {
 			if(this.mode === "solid") {
-				this.setTile(position, canvasIO.mouse.button === "left" ? new SolidTile("full", "tower") : "empty");
+				this.setTile(position, canvasIO.mouse.button === "left" ? new BasicTile("full", "tower") : "empty");
 			}
 			else if(this.mode === "platform") {
 				this.setTile(position, canvasIO.mouse.button === "left" ? "platform" : "empty");
@@ -78,7 +78,7 @@ export class RoomEditor {
 					"down-left": "slope-floor-left",
 					"down-right": "slope-floor-right",
 				} as const)[this.direction];
-				this.setTile(position, new SolidTile(tile, "tower"));
+				this.setTile(position, new BasicTile(tile, "tower"));
 			}
 		}
 		else {
@@ -198,7 +198,7 @@ export class RoomEditor {
 		if(typeof tile === "string"){
 			return `"${tile}"`;
 		}
-		else if(tile instanceof SolidTile) {
+		else if(tile instanceof BasicTile) {
 			return `"${tile.shape}"`;
 		}
 		else if(tile instanceof Gate) {

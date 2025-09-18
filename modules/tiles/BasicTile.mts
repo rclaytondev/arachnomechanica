@@ -4,7 +4,7 @@ import { MathUtils } from "../../utils-ts/modules/math/MathUtils.mjs";
 import { WorldData } from "../constants/GameData.mjs";
 import { Slope } from "../world/World";
 
-export class SolidTile {
+export class BasicTile {
 	readonly shape: "full" | Slope;
 	readonly texture: "tower" | "stone";
 
@@ -14,10 +14,10 @@ export class SolidTile {
 	}
 
 	copy() {
-		return new SolidTile(this.shape, this.texture);
+		return new BasicTile(this.shape, this.texture);
 	}
 	equals(tile: unknown) {
-		return tile instanceof SolidTile && this.shape === tile.shape && this.texture === tile.texture;
+		return tile instanceof BasicTile && this.shape === tile.shape && this.texture === tile.texture;
 	}
 
 	addToPath(position: Vector, canvasIO: CanvasIO) {
@@ -48,7 +48,7 @@ export class SolidTile {
 		}
 	}
 
-	static displayTile(position: Vector, canvasIO: CanvasIO, tile: SolidTile) {
+	static displayTile(position: Vector, canvasIO: CanvasIO, tile: BasicTile) {
 		canvasIO.ctx.fillStyle = WorldData.TILE_COLORS[tile.texture];
 		canvasIO.ctx.beginPath();
 		tile.addToPath(position, canvasIO);

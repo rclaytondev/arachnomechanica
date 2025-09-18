@@ -8,7 +8,7 @@ import { PointOnSurface, Spider, Surface } from "../entities/Spider.mjs";
 import { GameUtils } from "../game-utilities/GameUtils.mjs";
 import { Gate } from "../tiles/Gate.mjs";
 import { LaserBlock } from "../tiles/LaserBlock.mjs";
-import { SolidTile } from "../tiles/SolidTile.mjs";
+import { BasicTile } from "../tiles/BasicTile.mjs";
 import { SpikeballBlock } from "../tiles/SpikeballBlock.mjs";
 import { World } from "../world/World.js";
 
@@ -60,12 +60,12 @@ export class EntitySpawner {
 	static spawnRequirements = {
 		replaceSolid: (position: Vector, world: World) => {
 			const tile = world.tiles.get(position);
-			return tile instanceof SolidTile && tile.shape === "full";
+			return tile instanceof BasicTile && tile.shape === "full";
 		},
 		replaceEmpty: (position: Vector, world: World) => world.tiles.get(position) === "empty",
 		solidAdjacent: (position: Vector, world: World) => Directions.DIRECTIONS.some(direction => {
 			const tile = world.tiles.get(position.add(Vector.unit(direction)));
-			return tile instanceof SolidTile && tile.shape === "full";
+			return tile instanceof BasicTile && tile.shape === "full";
 		}),
 		atLeast2Empty: (position: Vector, world: World) => (
 			Directions.DIRECTIONS.filter(d => world.tiles.get(position.add(Vector.unit(d))) === "empty").length >= 2
@@ -76,7 +76,7 @@ export class EntitySpawner {
 		atLeastLine3Empty: (position: Vector, world: World) => {
 			for(const direction of Directions.DIRECTIONS) {
 				const firstTile = world.tiles.get(position.add(Vector.unit(direction)));
-				if(firstTile instanceof SolidTile) { continue; }
+				if(firstTile instanceof BasicTile) { continue; }
 				for(let i = 2; i <= 3; i ++) {
 					if(world.tiles.get(position.add(Vector.unit(direction).multiply(i))) !== "empty") {
 						return false;
@@ -91,7 +91,7 @@ export class EntitySpawner {
 				const perpendicular1 = Vector.unit(Directions.rotateClockwise[direction]);
 				const perpendicular2 = Vector.unit(Directions.rotateCounterclockwise[direction]);
 				const firstTile = world.tiles.get(position.add(directionVector));
-				if(firstTile instanceof SolidTile) { continue; }
+				if(firstTile instanceof BasicTile) { continue; }
 				for(let i = 2; i <= 3; i ++) {
 					if(
 						world.tiles.get(position.add(directionVector.multiply(i))) !== "empty" ||
@@ -189,7 +189,7 @@ export class EntitySpawner {
 			(position: Vector, world: World) => {
 				const direction = Directions.DIRECTIONS.find(dir => {
 					const tile = world.tiles.get(position.add(Vector.unit(dir)));
-					return tile instanceof SolidTile && tile.shape === "full";
+					return tile instanceof BasicTile && tile.shape === "full";
 				})!;
 				const spider = new Spider(position.add(1/2, 1/2).multiply(WorldData.TILE_SIZE));
 				const surfacePoint = {

@@ -9,7 +9,7 @@ import { DEBUG_SETTINGS } from "../constants/DebugSettings.mjs";
 import { LevelGeneratorData, RoomData } from "../constants/GameData.mjs";
 import { GameUtils } from "../game-utilities/GameUtils.mjs";
 import { Gate } from "../tiles/Gate.mjs";
-import { SolidTile } from "../tiles/SolidTile.mjs";
+import { BasicTile } from "../tiles/BasicTile.mjs";
 import { World } from "../world/World";
 import { GateState } from "./GateState.mjs";
 import { Room } from "./Room.mjs";
@@ -184,15 +184,15 @@ export class WorldGenerator {
 					this.position.y + position.y * RoomData.SIZE,
 					RoomData.SIZE,
 				);
-				world.tiles.fillRect(rectangle, new SolidTile("full", "tower"));
-				world.originalTiles.fillRect(rectangle, new SolidTile("full", "tower"));
+				world.tiles.fillRect(rectangle, new BasicTile("full", "tower"));
+				world.originalTiles.fillRect(rectangle, new BasicTile("full", "tower"));
 			}
 		}
 	}
 	addBorders(world: World) {
 		const fillSolidRect = (x: number, y: number, w: number, h: number) => {
-			world.tiles.fillRect(new Rectangle(x, y, w, h), new SolidTile("full", "tower"));
-			world.originalTiles.fillRect(new Rectangle(x, y, w, h), new SolidTile("full", "tower"));
+			world.tiles.fillRect(new Rectangle(x, y, w, h), new BasicTile("full", "tower"));
+			world.originalTiles.fillRect(new Rectangle(x, y, w, h), new BasicTile("full", "tower"));
 		};
 
 		fillSolidRect(
@@ -358,7 +358,7 @@ export class WorldGenerator {
 		for(const tilePosition of Rectangle.square(0, 0, RoomData.SIZE).squares()) {
 			const tile = roomPlaceholder.room.tiles.get(tilePosition);
 			const exitTile = roomPlaceholder.room.exitTiles.get(tilePosition);
-			if(tile instanceof SolidTile || tile === "platform" || (exitTile !== "none" && !roomPlaceholder.exits.includes(exitTile as Direction))) {
+			if(tile instanceof BasicTile || tile === "platform" || (exitTile !== "none" && !roomPlaceholder.exits.includes(exitTile as Direction))) {
 				canvasIO.ctx.fillStyle = "black";
 			}
 			else if(tile instanceof Gate) {

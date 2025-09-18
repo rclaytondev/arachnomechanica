@@ -7,7 +7,7 @@ import { RoomEditor } from "./RoomEditor.mjs";
 import { Rooms, ROOMS } from "./level-generator/Rooms.mjs";
 import { World } from "./world/World.js";
 import { Rectangle } from "../utils-ts/modules/geometry/Rectangle.mjs";
-import { SolidTile } from "./tiles/SolidTile.mjs";
+import { BasicTile } from "./tiles/BasicTile.mjs";
 
 const recordedRNG: number[] = [];
 let rngOverrideIndex = 0;
@@ -27,7 +27,7 @@ Rooms.initialize();
 Room.addRoomVariants();
 
 const world = new World(false);
-world.tiles.fillRect(new Rectangle(-5, 0, 9, 3), new SolidTile("full", "tower"));
+world.tiles.fillRect(new Rectangle(-5, 0, 9, 3), new BasicTile("full", "tower"));
 
 
 export class Main {

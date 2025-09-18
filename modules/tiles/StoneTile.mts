@@ -6,7 +6,7 @@ import { Utils } from "../../utils-ts/modules/Utils.mjs";
 import { WorldData } from "../constants/GameData.mjs";
 import { GameUtils } from "../game-utilities/GameUtils.mjs";
 import { World } from "../world/World";
-import { SolidTile } from "./SolidTile.mjs";
+import { BasicTile } from "./BasicTile.mjs";
 
 export class StoneTile {
 	static distance(v1: Vector, v2: Vector) {
@@ -68,7 +68,7 @@ export class StoneTile {
 		for(let x = visibleTileRegion.left(); x < visibleTileRegion.right(); x ++) {
 			for(let y = visibleTileRegion.top(); y < visibleTileRegion.bottom(); y ++) {
 				const tile = world.tiles.get(x, y);
-				if(tile instanceof SolidTile && tile.texture === "stone") {
+				if(tile instanceof BasicTile && tile.texture === "stone") {
 					tile.addToPath(new Vector(x, y), canvasIO);
 				}
 			}

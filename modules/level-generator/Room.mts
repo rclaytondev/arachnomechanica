@@ -6,11 +6,11 @@ import { GateState } from "./GateState.mjs";
 import { Gate } from "../tiles/Gate.mjs";
 import { Slope, World } from "../world/World.js";
 import { Portal } from "../entities/Portal.mjs";
-import { SolidTile } from "../tiles/SolidTile.mjs";
+import { BasicTile } from "../tiles/BasicTile.mjs";
 import { ROOMS } from "./Rooms.mjs";
 
 export type Traversability = { start: GateState, end: GateState }[];
-export type RoomTile = "empty" | "platform" | SolidTile | Gate;
+export type RoomTile = "empty" | "platform" | BasicTile | Gate;
 
 export class Room {
 	originalName: string;
@@ -32,8 +32,8 @@ export class Room {
 			this.tiles = new Grid("empty");
 			for(const { x, y, type } of tiles) {
 				const tile = (
-					type === "solid" ? new SolidTile("full", "tower")
-					: World.isSlope(type as string) ? new SolidTile(type as Slope, "tower")
+					type === "solid" ? new BasicTile("full", "tower")
+					: World.isSlope(type as string) ? new BasicTile(type as Slope, "tower")
 					: (type as "platform" | Gate)
 				);
 				this.tiles.set(x, y, tile);
@@ -68,7 +68,7 @@ export class Room {
 
 				const direction = this.exitTiles.get(x, y);
 				if(direction !== "none" && !exits.includes(direction)) {
-					world.addOriginalTile(worldPosition, new SolidTile("full", "tower"));
+					world.addOriginalTile(worldPosition, new BasicTile("full", "tower"));
 				}
 			}
 		}
@@ -123,8 +123,8 @@ export class Room {
 			if(typeof t1 === "string") {
 				return t1 === t2;
 			}
-			else if(t1 instanceof SolidTile) {
-				return t2 instanceof SolidTile && t1.equals(t2);
+			else if(t1 instanceof BasicTile) {
+				return t2 instanceof BasicTile && t1.equals(t2);
 			}
 			return t2 instanceof Gate && t1.open === t2.open;
 		});

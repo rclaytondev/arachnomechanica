@@ -7,11 +7,7 @@ import { GameUtils } from "../game-utilities/GameUtils.mjs";
 import { DEBUG_SETTINGS } from "../constants/DebugSettings.mjs";
 import { World } from "../world/World.js";
 import { Rectangle } from "../../utils-ts/modules/geometry/Rectangle.mjs";
-import { Gate } from "../tiles/Gate.mjs";
 import { LizardData, WorldData } from "../constants/GameData.mjs";
-import { LaserBlock } from "../tiles/LaserBlock.mjs";
-import { SpikeballBlock } from "../tiles/SpikeballBlock.mjs";
-import { SolidTile } from "../tiles/SolidTile.mjs";
 import { FireSpawner } from "../game-utilities/FireSpawner.mjs";
 import { Entity } from "../game-utilities/Entity.mjs";
 import { Player } from "../Player.mjs";
@@ -393,13 +389,9 @@ export class Lizard extends Entity {
 	isObstructed(world: World, direction: Direction = this.direction, distance: number = LizardData.LOOKAHEAD_DISTANCE, length: number = 1) {
 		const lookaheadRectangle = this.lookaheadRectangle(direction, distance, length);
 		for(const { tile } of world.getTilesAt(lookaheadRectangle)) {
-			if(
-				(tile instanceof SolidTile && tile.shape === "full") ||
-				(tile === "platform" && direction === "down") ||
-				(tile instanceof Gate && tile.openness !== 1) ||
-				(tile instanceof LaserBlock || tile instanceof SpikeballBlock) ||
-				World.isSlopeTile(tile)
-			) { return true; }
+			if(World.isSemifullTile(tile, direction === "down")) {
+				return true;
+			}
 		}
 		const entities = [...world.entities.entitiesIntersecting(lookaheadRectangle)];
 		if(entities.some(entity => !(entity instanceof Player) && entity.hitboxes().some(b => b.intersects(lookaheadRectangle)))) {
