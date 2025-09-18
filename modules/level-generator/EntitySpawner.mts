@@ -2,9 +2,9 @@ import { Directions } from "../../utils-ts/modules/geometry/Direction.mjs";
 import { Rectangle } from "../../utils-ts/modules/geometry/Rectangle.mjs";
 import { Vector } from "../../utils-ts/modules/geometry/Vector.mjs";
 import { Utils } from "../../utils-ts/modules/Utils.mjs";
-import { LaserBlockData, LizardData, RoomData, SpiderData, SpikeballBlockData, WorldData } from "../constants/GameData.mjs";
+import { LaserBlockData, LizardData, RoomData, SpiderData, SpikeballBlockData } from "../constants/GameData.mjs";
 import { Lizard } from "../entities/Lizard.js";
-import { PointOnSurface, Spider, Surface } from "../entities/Spider.mjs";
+import { Spider } from "../entities/Spider.mjs";
 import { GameUtils } from "../game-utilities/GameUtils.mjs";
 import { Gate } from "../tiles/Gate.mjs";
 import { LaserBlock } from "../tiles/LaserBlock.mjs";
@@ -120,15 +120,7 @@ export class EntitySpawner {
 				EntitySpawner.spawnRequirements.notOnFloor,
 				LaserBlock.canSpawn,
 			],
-			(position, world) => {
-				const direction = (Math.random() < 0.5) ? 1 : -1;
-				world.addTile(position, new LaserBlock(
-					LaserBlockData.BEAMS_PER_BLOCK,
-					LaserBlockData.SPEED * direction,
-					GameUtils.random(0, 2 * Math.PI),
-					direction,
-				));
-			},
+			(position, world) => world.addTile(position, LaserBlock.generate()),
 			world,
 		);
 	}
@@ -155,25 +147,7 @@ export class EntitySpawner {
 			LizardData.SPAWN_EVENNESS,
 			tileRegion,
 			[EntitySpawner.spawnRequirements.replaceEmpty],
-			(position: Vector, world: World) => {
-				const direction = Utils.randomItem(Directions.DIRECTIONS);
-				let distance = 0;
-				for(; distance < LizardData.MAX_LENGTH; distance ++) {
-					const empty = world.tiles.get(position.add(Vector.unit(direction).multiply(distance))) === "empty";
-					if(!empty) {
-						distance --;
-						break;
-					}
-				}
-				if(distance >= LizardData.MIN_LENGTH) {
-					world.addEntityIfEmpty(new Lizard(
-						position.add(1/2, 1/2).multiply(WorldData.TILE_SIZE),
-						direction,
-						(GameUtils.randomInt(LizardData.MIN_LENGTH, distance) + 1/2) * WorldData.TILE_SIZE,
-						LizardData.SPEED,
-					));
-				}
-			},
+			Lizard.spawn,
 			world,
 		);
 	}
@@ -186,24 +160,7 @@ export class EntitySpawner {
 				EntitySpawner.spawnRequirements.replaceEmpty,
 				EntitySpawner.spawnRequirements.solidAdjacent,
 			],
-			(position: Vector, world: World) => {
-				const direction = Directions.DIRECTIONS.find(dir => {
-					const tile = world.tiles.get(position.add(Vector.unit(dir)));
-					return tile instanceof BasicTile && tile.shape === "full";
-				})!;
-				const spider = new Spider(position.add(1/2, 1/2).multiply(WorldData.TILE_SIZE));
-				const surfacePoint = {
-					"left": position,
-					"right": position.add(1, 0),
-					"up": position,
-					"down": position.add(0, 1),
-				}[direction];
-				spider.basepoint = new PointOnSurface(
-					new Surface(surfacePoint, Directions.opposite[direction]),
-					WorldData.TILE_SIZE / 2,
-				);
-				world.addEntityIfEmpty(spider);
-			},
+			Spider.spawn,
 			world,
 		);
 	}

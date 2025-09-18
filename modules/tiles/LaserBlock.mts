@@ -53,6 +53,15 @@ export class LaserBlock {
 		this.lengths = new Array(lasers).fill(0);
 		this.direction = direction;
 	}
+	static generate() {
+		const direction = (Math.random() < 0.5) ? 1 : -1;
+		return new LaserBlock(
+			LaserBlockData.BEAMS_PER_BLOCK,
+			LaserBlockData.SPEED * direction,
+			GameUtils.random(0, 2 * Math.PI),
+			direction,
+		);
+	}
 
 	copy() {
 		return new LaserBlock(this.lasers, this.speed, this.startAngle, this.direction);

@@ -11,6 +11,7 @@ import { Particle } from "../game-utilities/Particle.mjs";
 import { Player } from "../Player.mjs";
 import { World } from "../world/World";
 import { Entity, RectangularEntity } from "../game-utilities/Entity.mjs";
+import { BasicTile } from "../tiles/BasicTile.mjs";
 
 export class Surface {
 	start: Vector;
@@ -458,6 +459,25 @@ export class Spider extends RectangularEntity {
 
 	switchDirection() {
 		this.movement = (this.movement === "clockwise") ? "counterclockwise" : "clockwise";
+	}
+
+	static spawn(position: Vector, world: World) {
+		const direction = Directions.DIRECTIONS.find(dir => {
+			const tile = world.tiles.get(position.add(Vector.unit(dir)));
+			return tile instanceof BasicTile && tile.shape === "full";
+		})!;
+		const spider = new Spider(position.add(1/2, 1/2).multiply(WorldData.TILE_SIZE));
+		const surfacePoint = {
+			"left": position,
+			"right": position.add(1, 0),
+			"up": position,
+			"down": position.add(0, 1),
+		}[direction];
+		spider.basepoint = new PointOnSurface(
+			new Surface(surfacePoint, Directions.opposite[direction]),
+			WorldData.TILE_SIZE / 2,
+		);
+		world.addEntityIfEmpty(spider);
 	}
 }
 
