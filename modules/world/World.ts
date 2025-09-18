@@ -136,9 +136,9 @@ export class World {
 		this.skyBackground.display(canvasIO);
 		canvasIO.ctx.save();
 		canvasIO.clipRect(
-			translation.x, translation.y,
+			translation.x, 0,
 			LevelGeneratorData.WIDTH * RoomData.SIZE * WorldData.TILE_SIZE,
-			LevelGeneratorData.HEIGHT * RoomData.SIZE * WorldData.TILE_SIZE,
+			canvasIO.canvas.height,
 		);
 		canvasIO.fillCanvas(BackgroundData.BACKGROUND_COLOR);
 		this.gearsBackground.display(canvasIO, this.camera);
