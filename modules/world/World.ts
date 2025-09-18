@@ -564,37 +564,37 @@ export class World {
 		return distance <= this.lineIntersectionDistance(position, direction, distance, [], collides);
 	}
 
-	angle(position: Vector, adjacentDirection: Direction, perpendicularDirection: Direction, empty: boolean = true) {
-		return World.angle(position, adjacentDirection, perpendicularDirection, empty, this.tiles);
+	angle(position: Vector, adjacentDirection: Direction, perpendicularDirection: Direction, empty: boolean = true, basicOnly: boolean = true) {
+		return World.angle(position, adjacentDirection, perpendicularDirection, empty, basicOnly, this.tiles);
 	}
-	static angle(position: Vector, adjacentDirection: Direction, perpendicularDirection: Direction, empty: boolean = true, tiles: Grid<Tile>) {
+	static angle(position: Vector, adjacentDirection: Direction, perpendicularDirection: Direction, empty: boolean = true, basicOnly: boolean = true, tiles: Grid<Tile>) {
 		/* Returns the angle before encountering a solid/empty, when first moving in `adjacentDirection` and then in `perpendicularDirection` and then in a circle after that. */
 		const tile = tiles.get(position);
 		const adjacent = tiles.get(position.add(Vector.unit(adjacentDirection)));
 		const diagonal = tiles.get(position.add(Vector.unit(adjacentDirection)).add(Vector.unit(perpendicularDirection)));
 		const perpendicular = tiles.get(position.add(Vector.unit(perpendicularDirection)));
-		if(World.isEdgeBasicSolid(adjacent, Directions.opposite[adjacentDirection]) === empty) {
+		if(World.isEdgeSolid(adjacent, Directions.opposite[adjacentDirection], basicOnly) === empty) {
 			return 0;
 		}
-		if(World.isEdgeBasicSolid(adjacent, perpendicularDirection) === empty) {
+		if(World.isEdgeSolid(adjacent, perpendicularDirection, basicOnly) === empty && World.isSlopeTile(adjacent)) {
 			return 45;
 		}
-		if(World.isEdgeBasicSolid(diagonal, Directions.opposite[perpendicularDirection]) === empty) {
+		if(World.isEdgeSolid(diagonal, Directions.opposite[perpendicularDirection], basicOnly) === empty) {
 			return 90;
 		}
-		if(World.isEdgeBasicSolid(diagonal, Directions.opposite[adjacentDirection]) === empty) {
+		if(World.isEdgeSolid(diagonal, Directions.opposite[adjacentDirection], basicOnly) === empty && World.isSlopeTile(diagonal)) {
 			return 135;
 		}
-		if(World.isEdgeBasicSolid(perpendicular, adjacentDirection) === empty) {
+		if(World.isEdgeSolid(perpendicular, adjacentDirection, basicOnly) === empty) {
 			return 180;
 		}
-		if(World.isEdgeBasicSolid(perpendicular, Directions.opposite[perpendicularDirection]) === empty) {
+		if(World.isEdgeSolid(perpendicular, Directions.opposite[perpendicularDirection], basicOnly) === empty && World.isSlopeTile(perpendicular)) {
 			return 225;
 		}
-		if(World.isEdgeBasicSolid(tile, perpendicularDirection) === empty) {
+		if(World.isEdgeSolid(tile, perpendicularDirection, basicOnly) === empty) {
 			return 270;
 		}
-		if(World.isEdgeBasicSolid(tile, adjacentDirection) === empty) {
+		if(World.isEdgeSolid(tile, adjacentDirection, basicOnly) === empty && World.isSlopeTile(tile)) {
 			return 315;
 		}
 		return 360;
@@ -733,6 +733,14 @@ export class World {
 			return (edges as readonly Direction[]).includes(direction);
 		}
 		return tile instanceof BasicTile && tile.shape === "full";
+	}
+	static isEdgeSolid(tile: Tile, direction: Direction, basicOnly: boolean = false) {
+		if(World.isEdgeBasicSolid(tile, direction)) { return true; }
+		return !basicOnly && (
+			(tile instanceof LaserBlock || tile instanceof SpikeballBlock)
+			|| (tile === "platform" && direction === "up")
+			|| (tile instanceof Gate && tile.openness === 0)
+		);
 	}
 
 	intersectingEntities() {

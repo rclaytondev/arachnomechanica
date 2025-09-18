@@ -43,7 +43,10 @@ export class Surface {
 			this.tilePosition(),
 			Directions.rotateCounterclockwise[tileTangent],
 			tileTangent,
+			true,
+			false,
 		) + (Directions.isDiagonal(tangent) ? 45 : 0);
+		if(angle === 360) { return null; }
 		let newTangent = Directions.opposite[tangent];
 		for(let i = 0; i < angle; i += 45) {
 			newTangent = Directions.rotateClockwise45[newTangent];
@@ -60,7 +63,10 @@ export class Surface {
 			this.tilePosition(),
 			Directions.rotateCounterclockwise[tileTangent],
 			Directions.opposite[tileTangent],
+			true,
+			false,
 		) + (Directions.isDiagonal(tangent) ? 45 : 0);
+		if(angle === 360) { return null; }
 		let newTangent = Directions.opposite[tangent];
 		for(let i = 0; i < angle; i += 45) {
 			newTangent = Directions.rotateCounterclockwise45[newTangent];
@@ -116,13 +122,19 @@ export class PointOnSurface {
 		let point = this.copy();
 		point.distance += amount;
 		while(point.distance > point.surface.length()) {
-			point = new PointOnSurface(
-				point.surface.nextSurfaceCW(world),
-				point.distance - point.surface.length(),
-			);
+			const nextSurface = point.surface.nextSurfaceCW(world);
+			if(nextSurface === null) {
+				point.distance = point.surface.length();
+				break;
+			}
+			point = new PointOnSurface(nextSurface, point.distance - point.surface.length());
 		}
 		while(point.distance < 0) {
 			const nextSurface = point.surface.nextSurfaceCCW(world);
+			if(nextSurface === null) {
+				point.distance = 0;
+				break;
+			}
 			point = new PointOnSurface(
 				nextSurface,
 				nextSurface.length() + point.distance,
@@ -171,7 +183,7 @@ export class SpiderLeg {
 		const distance = Vector.dist(position, center);
 		const horizontal = position.subtract(center).normalize();
 		const up = horizontal.rotate(this.attachmentOffset.x < 0 ? 90 : -90);
-		const height = Math.sqrt(this.length ** 2 - (distance / 2) ** 2);
+		const height = Math.sqrt(Math.max(0, this.length ** 2 - (distance / 2) ** 2));
 		return center.add(horizontal.multiply(distance / 2)).add(up.multiply(height));
 	}
 
@@ -335,6 +347,7 @@ export class Spider extends RectangularEntity {
 		this.updateAngle();
 		this.updateLegs();
 		this.checkProjectile(world);
+		this.checkPlatformEnds(world);
 	}
 	updateAngle() {
 		const targetAngle = Math.PI / 2 - (this.basepoint ? Directions.angle[this.basepoint.surface.outwardNormal] : 0);
@@ -397,6 +410,20 @@ export class Spider extends RectangularEntity {
 		const projectile = new SpiderProjectile(center, velocity, acceleration, this);
 		world.entities.addEntity(projectile);
 	}
+	checkPlatformEnds(world: World) {
+		const onRightEnd = (
+			this.basepoint &&
+			this.basepoint.surface.nextSurfaceCW(world) === null &&
+			this.basepoint.distance > this.basepoint.surface.length() / 2
+		);
+		if(onRightEnd) { this.movement = "counterclockwise"; }
+		const onLeftEnd = (
+			this.basepoint &&
+			this.basepoint.surface.nextSurfaceCCW(world) === null &&
+			this.basepoint.distance < this.basepoint.surface.length() / 2
+		);
+		if(onLeftEnd) { this.movement = "clockwise"; }
+	}
 
 	moveAlongSurface(amount: number, world: World) {
 		this.moveBasepoint(amount, world);
@@ -418,8 +445,10 @@ export class Spider extends RectangularEntity {
 		this.basepoint = this.basepoint!.moveAlongSurface(amount * (this.movement === "clockwise" ? 1 : -1), world);
 	}
 	smoothedNormal(world: World) {
+		const defaultNormal = Vector.unit(this.basepoint!.surface.outwardNormal);
 		if(this.basepoint!.distance < SpiderData.TURN_WALL_DURATION) {
 			const nextSurface = this.basepoint!.surface.nextSurfaceCCW(world);
+			if(!nextSurface) { return defaultNormal; }
 			const angle = Directions.angle[this.basepoint!.surface.outwardNormal];
 			const nextAngle = Directions.angle[nextSurface.outwardNormal];
 			const lerpedAngle = GameUtils.lerpAngle(
@@ -431,6 +460,7 @@ export class Spider extends RectangularEntity {
 		}
 		if(this.basepoint!.surface.length() - this.basepoint!.distance < SpiderData.TURN_WALL_DURATION) {
 			const nextSurface = this.basepoint!.surface.nextSurfaceCW(world);
+			if(!nextSurface) { return defaultNormal; }
 			const angle = Directions.angle[this.basepoint!.surface.outwardNormal];
 			const nextAngle = Directions.angle[nextSurface.outwardNormal];
 			const lerpedAngle = GameUtils.lerpAngle(
@@ -440,14 +470,16 @@ export class Spider extends RectangularEntity {
 			);
 			return new Vector(Math.cos(lerpedAngle), -Math.sin(lerpedAngle));
 		}
-		return Vector.unit(this.basepoint!.surface.outwardNormal);
+		return defaultNormal;
 	}
 	wallDistance(world: World) {
 		const nextSurfaceCW = this.basepoint!.surface.nextSurfaceCW(world);
 		const nextSurfaceCCW = this.basepoint!.surface.nextSurfaceCCW(world);
+		const turningCW = (nextSurfaceCW && nextSurfaceCW.outwardNormal !== this.basepoint!.surface.outwardNormal);
+		const turningCCW = (nextSurfaceCCW && nextSurfaceCCW.outwardNormal !== this.basepoint!.surface.outwardNormal);
 		const distanceToTurn = Math.min(
-			nextSurfaceCCW.outwardNormal === this.basepoint!.surface.outwardNormal ? Infinity : this.basepoint!.distance,
-			nextSurfaceCW.outwardNormal === this.basepoint!.surface.outwardNormal ? Infinity : this.basepoint!.surface.length() - this.basepoint!.distance,
+			turningCCW ? this.basepoint!.distance : Infinity,
+			turningCW ? this.basepoint!.surface.length() - this.basepoint!.distance: Infinity,
 		);
 		if(distanceToTurn > SpiderData.TURN_WALL_DURATION) {
 			return SpiderData.SIZE / 2;

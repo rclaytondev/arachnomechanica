@@ -75,7 +75,7 @@ export class TowerTile {
 		}
 	}
 	static getSlopeAccentLength(position: Vector, adjacentDirection: Direction, perpendicularDirection: Direction, world: World) {
-		const angle = World.angle(position, adjacentDirection, perpendicularDirection, false, world.originalTiles);
+		const angle = World.angle(position, adjacentDirection, perpendicularDirection, false, true, world.originalTiles);
 		const defaultLength = WorldData.TILE_SIZE / Math.SQRT2 + WorldData.TILE_ACCENT_INSET * (1 + Math.SQRT2);
 		return ({
 			0: WorldData.TILE_SIZE / Math.SQRT2 - WorldData.TILE_ACCENT_INSET * (1 + Math.SQRT2),
@@ -87,7 +87,7 @@ export class TowerTile {
 		} as { [key: number]: number } )[angle] ?? defaultLength;
 	}
 	static getAccentLength(position: Vector, side: Direction, direction: Direction, world: World): number {
-		const angle = World.angle(position, direction, side, false, world.originalTiles);
+		const angle = World.angle(position, direction, side, false, true, world.originalTiles);
 		const defaultLength = WorldData.TILE_SIZE / 2 + WorldData.TILE_ACCENT_INSET * (Math.SQRT2 + 1);
 		return ({
 			0: WorldData.TILE_ACCENT_RADIUS,
