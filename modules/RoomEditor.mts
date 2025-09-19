@@ -200,7 +200,7 @@ export class RoomEditor {
 			return `"${tile}"`;
 		}
 		else if(tile instanceof BasicTile) {
-			return `"${tile.shape}"`;
+			return `"${tile.shape === "full" ? "solid" : tile.shape}"`;
 		}
 		else if(tile instanceof Gate) {
 			return `new Gate("${tile.direction}", ${tile.open})`;

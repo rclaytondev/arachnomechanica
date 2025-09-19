@@ -294,6 +294,7 @@ export class World {
 		}
 	}
 	displayOverlayText(canvasIO: CanvasIO) {
+		if(Main.screen instanceof RoomEditor) { return; }
 		canvasIO.ctx.save();
 		canvasIO.ctx.font = WorldData.OVERLAY_FONT;
 		canvasIO.ctx.fillStyle = WorldData.OVERLAY_COLOR;

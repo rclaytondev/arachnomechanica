@@ -7,6 +7,8 @@ import { Spikeball } from "./entities/Spikeball.mjs";
 import { Entity, RectangularEntity } from "./game-utilities/Entity.mjs";
 import { GameUtils } from "./game-utilities/GameUtils.mjs";
 import { Item } from "./items/Item.mjs";
+import { Main } from "./Main.js";
+import { RoomEditor } from "./RoomEditor.mjs";
 import { ItemEntity, TileWithPosition, World } from "./world/World.js";
 
 export class Player extends RectangularEntity {
@@ -30,6 +32,7 @@ export class Player extends RectangularEntity {
 	}
 
 	update(world: World, canvasIO: CanvasIO) {
+		if(Main.screen instanceof RoomEditor) { return; }
 		if(this.dead) {
 			this.timeSinceDeath ++;
 			return;
