@@ -655,7 +655,9 @@ export class World {
 	addEntityIfEmpty(entity: Entity) {
 		if(!entity.hitboxes().some(h => this.isInSolid(h))) {
 			this.entities.addEntity(entity);
+			return true;
 		}
+		return false;
 	}
 	damage(hurtbox: Rectangle, canvasIO: CanvasIO) {
 		if(this.player.hitbox.intersects(hurtbox)) {

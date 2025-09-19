@@ -511,13 +511,16 @@ export class Spider extends RectangularEntity {
 		const direction = Directions.DIRECTIONS.find(dir => {
 			const tile = world.tiles.get(position.add(Vector.unit(dir)));
 			return tile instanceof BasicTile && tile.shape === "full";
-		})!;
+		});
+		if(!direction) {
+			return false;
+		}
 		const spider = new Spider(position.add(1/2, 1/2).multiply(WorldData.TILE_SIZE));
 		spider.basepoint = new PointOnSurface(
 			Surface.tileEdgeCW(position.add(Vector.unit(direction)), Directions.opposite[direction]),
 			WorldData.TILE_SIZE / 2,
 		);
-		world.addEntityIfEmpty(spider);
+		return world.addEntityIfEmpty(spider);
 	}
 }
 

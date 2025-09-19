@@ -37,7 +37,7 @@ export class EntitySpawner {
 	}
 
 
-	spawnEntities(amount: number, evenness: number, tileRegion: Rectangle, requirements: ((position: Vector, world: World) => boolean)[], spawn: (position: Vector, world: World) => void, world: World) {
+	spawnEntities(amount: number, evenness: number, tileRegion: Rectangle, requirements: ((position: Vector, world: World) => boolean)[], spawn: (position: Vector, world: World) => boolean, world: World) {
 		const positions = tileRegion.squares();
 		let possiblePositions = positions.filter(position => requirements.every(r => r(position, world)));
 		const spawnedPositions: Vector[] = [];
@@ -49,10 +49,12 @@ export class EntitySpawner {
 				trials: evenness,
 				previousPoints: spawnedPositions,
 			});
-			spawnedPositions.push(position);
-			spawn(position, world);
+			const spawned = spawn(position, world);
+			if(spawned) {
+				spawnedPositions.push(position);
+			}
 			const adjacent = [position, ...position.adjacentVectors()];
-			possiblePositions = possiblePositions.filter(p => !adjacent.some(a => a.equals(p)));
+			possiblePositions = possiblePositions.filter(p => p !== position && !adjacent.some(a => a.equals(p)));
 		}
 	}
 
@@ -120,7 +122,10 @@ export class EntitySpawner {
 				EntitySpawner.spawnRequirements.notOnFloor,
 				LaserBlock.canSpawn,
 			],
-			(position, world) => world.addTile(position, LaserBlock.generate()),
+			(position, world) => {
+				world.addTile(position, LaserBlock.generate());
+				return true;
+			},
 			world,
 		);
 	}
@@ -137,6 +142,7 @@ export class EntitySpawner {
 			],
 			(position: Vector, world: World) => {
 				world.addTile(position, new SpikeballBlock(Utils.randomItem(SpikeballBlockData.PATTERNS)));
+				return true;
 			},
 			world,
 		);

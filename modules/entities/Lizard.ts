@@ -477,23 +477,26 @@ export class Lizard extends Entity {
 		);
 	}
 	static spawn(tilePosition: Vector, world: World) {
-		const direction = Utils.randomItem(Directions.DIRECTIONS);
-		let distance = 0;
-		for(; distance < LizardData.MAX_LENGTH; distance ++) {
-			const empty = world.tiles.get(tilePosition.add(Vector.unit(direction).multiply(distance))) === "empty";
-			if(!empty) {
-				distance --;
-				break;
+		const [_, direction, maxLength] = Utils.maxEntry(Directions.DIRECTIONS, (direction) => {
+			let i = 0;
+			while(true) {
+				i ++;
+				if(world.tiles.get(tilePosition.add(Vector.unit(direction).multiply(i))) !== "empty") {
+					return i - 1;
+				}
 			}
-		}
-		if(distance >= LizardData.MIN_LENGTH) {
-			world.addEntityIfEmpty(new Lizard(
+		});
+		if(maxLength >= LizardData.MIN_LENGTH) {
+			const length = GameUtils.randomInt(maxLength, LizardData.MAX_LENGTH);
+			return world.addEntityIfEmpty(new Lizard(
 				tilePosition.add(1/2, 1/2).multiply(WorldData.TILE_SIZE),
 				direction,
-				(GameUtils.randomInt(LizardData.MIN_LENGTH, distance) + 1/2) * WorldData.TILE_SIZE,
+				(GameUtils.randomInt(LizardData.MIN_LENGTH, length) + 1/2) * WorldData.TILE_SIZE,
 				LizardData.SPEED,
 			));
+			return true;
 		}
+		return false;
 	}
 
 	boundingBox() {
