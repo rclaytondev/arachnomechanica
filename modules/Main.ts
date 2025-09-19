@@ -4,10 +4,8 @@ import {PlayerData } from "./constants/GameData.mjs";
 import { GameUtils } from "./game-utilities/GameUtils.mjs";
 import { Room } from "./level-generator/Room.mjs";
 import { RoomEditor } from "./RoomEditor.mjs";
-import { Rooms, ROOMS } from "./level-generator/Rooms.mjs";
+import { ROOMS, Rooms } from "./level-generator/Rooms.mjs";
 import { World } from "./world/World.js";
-import { Rectangle } from "../utils-ts/modules/geometry/Rectangle.mjs";
-import { BasicTile } from "./tiles/BasicTile.mjs";
 
 const recordedRNG: number[] = [];
 let rngOverrideIndex = 0;
@@ -26,14 +24,9 @@ if(DEBUG_SETTINGS.PRINT_RNG_KEY) {
 Rooms.initialize();
 Room.addRoomVariants();
 
-const world = new World(false);
-world.tiles.fillRect(new Rectangle(-5, 0, 9, 3), new BasicTile("full", "tower"));
-
 
 export class Main {
 	static screen: World | RoomEditor = new World(true).initializeGeneration();
-	// static screen: World | RoomEditor = new RoomEditor();
-	// static screen: World | RoomEditor = world;
 
 	static fadingOpacity: number = 0;
 	static fadingDestination: number = 0;
@@ -73,37 +66,25 @@ export class Main {
 }
 
 
-if(Main.screen instanceof RoomEditor) {
-	const room = (
-		(typeof DEBUG_SETTINGS.EDITOR_ROOM === "number") ? ROOMS[DEBUG_SETTINGS.EDITOR_ROOM]
-		: (typeof DEBUG_SETTINGS.EDITOR_ROOM === "string") ? ROOMS.find(r => r.name === DEBUG_SETTINGS.EDITOR_ROOM)
-		: [...ROOMS].reverse().find(r => !r.name.includes("-reflected") && !r.name.includes("-toggled"))
-	);
-	if(!room) {
-		throw new Error(`Room "${DEBUG_SETTINGS.EDITOR_ROOM}" does not exist.`);
-	}
-	// eslint-disable-next-line no-console
-	console.log(`loaded room ${room.name} in the editor`);
-	Main.screen = new RoomEditor(room);
-}
-
-if(DEBUG_SETTINGS.GENERATOR_VISUALIZATION.ENABLED && Main.screen instanceof World) {
-	// eslint-disable-next-line no-console
-	console.time("generating chunk");
-	const debugWorld = new World(false);
-	debugWorld.worldGenerator.generateLevel(debugWorld);
-	debugWorld.worldGenerator.visualize(canvasIO!, false);
-	// eslint-disable-next-line no-console
-	console.timeEnd("generating chunk");
-	// eslint-disable-next-line no-debugger
-	debugger;
-}
-
-
 const FRAMERATE = 60;
 const frameTimes: number[] = [];
 
 window.setInterval(() => {
+	if(GameUtils.frameCount === 0 && Main.screen instanceof RoomEditor) {
+		const room = (
+			(typeof DEBUG_SETTINGS.EDITOR_ROOM === "number") ? ROOMS[DEBUG_SETTINGS.EDITOR_ROOM]
+			: (typeof DEBUG_SETTINGS.EDITOR_ROOM === "string") ? ROOMS.find(r => r.name === DEBUG_SETTINGS.EDITOR_ROOM)
+			: [...ROOMS].reverse().find(r => !r.name.includes("-reflected") && !r.name.includes("-toggled"))
+		);
+		if(!room) {
+			throw new Error(`Room "${DEBUG_SETTINGS.EDITOR_ROOM}" does not exist.`);
+		}
+
+		// eslint-disable-next-line no-console
+		console.log(`loaded room ${room.name} in the editor`);
+		Main.screen = new RoomEditor(room);
+	}
+
 	Main.update(canvasIO!);
 	Main.display(canvasIO!);
 	GameUtils.frameCount ++;
