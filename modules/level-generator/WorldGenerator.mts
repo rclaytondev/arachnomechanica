@@ -145,27 +145,25 @@ export class WorldGenerator {
 	}
 	pruneRoom(roomPlaceholder: RoomPlaceholder) {
 		const originalRoom = roomPlaceholder.room;
-		const connectivity = Room.connectivity(roomPlaceholder.room.traversability, roomPlaceholder.exits);
-		const lessConnectiveRooms = Utils.groupBy(
+		const possibleRooms = Utils.groupBy(
 			ROOMS.filter(r => (
 				r.canSpawnWithExits(roomPlaceholder.exits)
-				&& Room.connectivity(r.traversability, roomPlaceholder.exits) < connectivity)
-				&& r.originalName !== "level-exit",
-			),
+				&& r.originalName !== "level-exit"
+			)),
 			r => Room.connectivity(r.traversability, roomPlaceholder.exits),
 		);
-		while(lessConnectiveRooms.size > 0) {
-			const room = Utils.randomItem(lessConnectiveRooms.get(Math.min(...lessConnectiveRooms.keys()))!);
+		while(possibleRooms.size > 0) {
+			const room = Utils.randomItem(possibleRooms.get(Math.min(...possibleRooms.keys()))!);
 			roomPlaceholder.room = room;
 			if(this.isConnected()) { return; }
-			for(const connectedness of [...lessConnectiveRooms.keys()]) {
-				const group = lessConnectiveRooms.get(connectedness)!;
-				lessConnectiveRooms.set(connectedness, group.filter(r => !Utils.isSubset(
+			for(const connectedness of [...possibleRooms.keys()]) {
+				const group = possibleRooms.get(connectedness)!;
+				possibleRooms.set(connectedness, group.filter(r => !Utils.isSubset(
 					Room.filterTraversability(r.traversability, roomPlaceholder.exits).map(s => `${s.end}, ${s.start}`),
 					Room.filterTraversability(room.traversability, roomPlaceholder.exits).map(s => `${s.end}, ${s.start}`),
 				)));
-				if(lessConnectiveRooms.get(connectedness)!.length === 0) {
-					lessConnectiveRooms.delete(connectedness);
+				if(possibleRooms.get(connectedness)!.length === 0) {
+					possibleRooms.delete(connectedness);
 				}
 			}
 		}
