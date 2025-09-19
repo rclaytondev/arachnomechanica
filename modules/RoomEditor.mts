@@ -36,6 +36,7 @@ export class RoomEditor {
 		this.world.update(canvasIO);
 		this.checkForClicks(canvasIO);
 		this.checkForKeyPresses(canvasIO);
+		this.world.originalTiles = this.world.tiles;
 
 		const numberKeys = canvasIO.numberKeys();
 		if(numberKeys.length !== 0) {
