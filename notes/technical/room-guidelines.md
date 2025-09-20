@@ -9,4 +9,4 @@ Room Design Guidelines:
 	- Exits going down should have a platform (or equivalent) on the lowest two tiles, and at least one should be in the middle 2 tiles or on the left or right edge of the exit.
 	- At least one of the middle 2 tiles should be unobstructed 
 	- Exits going up or down should occupy at least the middle 2 tiles horizontally, and possibly more, at most the middle 6 tiles.
-	- Exits going up should have a platform on y=4 or higher.
+	- Exits going up should have a platform on y=3 or higher.
