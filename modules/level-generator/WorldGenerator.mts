@@ -28,9 +28,9 @@ export class WorldGenerator {
 
 	generateLevel(world: World) {
 		this.generatePath();
-		this.generateBranchesOffPath();
-		this.generateRoomsOffPath();
-		this.pruneConnections();
+		this.generateExitsOnPath();
+		this.generateExitsOffPath();
+		this.generateRooms();
 		this.addRooms(world);
 		this.addBorders(world);
 	}
@@ -71,7 +71,7 @@ export class WorldGenerator {
 		}
 		return directions;
 	}
-	generateBranchesOffPath() {
+	generateExitsOnPath() {
 		for(const position of this.path) {
 			const room = this.rooms.get(position)!;
 			const exits = Directions.DIRECTIONS.filter(dir => (
@@ -86,7 +86,7 @@ export class WorldGenerator {
 			}
 		}
 	}
-	generateRoomsOffPath() {
+	generateExitsOffPath() {
 		const positions = [];
 		for(let x = 0; x < LevelGeneratorData.WIDTH; x ++) {
 			for(let y = 0; y < LevelGeneratorData.HEIGHT; y ++) {
@@ -99,7 +99,7 @@ export class WorldGenerator {
 		while(stillGenerating) {
 			stillGenerating = false;
 			for(let i = 0; i < positions.length; i ++) {
-				const generated = this.generateRoom(positions[i]);
+				const generated = this.generateExits(positions[i]);
 				if(generated) {
 					positions.splice(i, 1);
 					i --;
@@ -108,7 +108,7 @@ export class WorldGenerator {
 			}
 		}
 	}
-	generateRoom(position: Vector) {
+	generateExits(position: Vector) {
 		const exits = Directions.DIRECTIONS.filter(dir => (
 			this.rooms.get(position.add(Vector.unit(dir)))?.exits.includes(Directions.opposite[dir])
 		));
@@ -132,7 +132,7 @@ export class WorldGenerator {
 	}
 
 
-	pruneConnections() {
+	generateRooms() {
 		const rooms = (this.levelRectangle().squares()
 			.map(p => this.rooms.get(p))
 			.filter(p => p != null)
@@ -140,10 +140,10 @@ export class WorldGenerator {
 			.sort((a, b) => a.exits.length - b.exits.length)
 		);
 		for(const room of rooms) {
-			this.pruneRoom(room);
+			this.generateRoom(room);
 		}
 	}
-	pruneRoom(roomPlaceholder: RoomPlaceholder) {
+	generateRoom(roomPlaceholder: RoomPlaceholder) {
 		const originalRoom = roomPlaceholder.room;
 		const possibleRooms = Utils.groupBy(
 			ROOMS.filter(r => (
