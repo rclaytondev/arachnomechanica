@@ -16,13 +16,13 @@ export class Room {
 	originalName: string;
 	name: string;
 	tiles: Grid<RoomTile>;
-	canSpawnWithExits: (exits: Direction[]) => boolean;
+	canSpawnWithExits: (exits: Set<Direction>) => boolean;
 	exitTiles: Grid<Direction | "none">;
 	traversability: Traversability;
 	weight: number;
 	entities: Portal[];
 
-	constructor(name: string, tiles: { x: number, y: number, type: | "solid" | "platform" | Slope | Gate }[] | Grid<RoomTile>, exitTiles: { x: number, y: number, direction: Direction }[] | Grid<Direction | "none">, entities: Portal[] = [], canSpawnWithExits: (exits: Direction[]) => boolean, traversability?: Traversability, weight: number = 1) {
+	constructor(name: string, tiles: { x: number, y: number, type: | "solid" | "platform" | Slope | Gate }[] | Grid<RoomTile>, exitTiles: { x: number, y: number, direction: Direction }[] | Grid<Direction | "none">, entities: Portal[] = [], canSpawnWithExits: (exits: Set<Direction>) => boolean, traversability?: Traversability, weight: number = 1) {
 		this.originalName = name;
 		this.name = name;
 		if(tiles instanceof Grid) {
@@ -58,7 +58,7 @@ export class Room {
 		return this.entities.some(e => e instanceof Portal);
 	}
 
-	add(position: Vector, world: World, exits: Direction[]) {
+	add(position: Vector, world: World, exits: Set<Direction>) {
 		for(let x = 0; x < RoomData.SIZE; x ++) {
 			for(let y = 0; y < RoomData.SIZE; y ++) {
 				const tile = this.tiles.get(x, y);
@@ -67,7 +67,7 @@ export class Room {
 				world.addOriginalTile(worldPosition, tileCopy);
 
 				const direction = this.exitTiles.get(x, y);
-				if(direction !== "none" && !exits.includes(direction)) {
+				if(direction !== "none" && !exits.has(direction)) {
 					world.addOriginalTile(worldPosition, new BasicTile("full", "tower"));
 				}
 			}
@@ -87,7 +87,7 @@ export class Room {
 			[],
 			[],
 			this.entities.map(e => e.reflect()),
-			(exits) => this.canSpawnWithExits(exits.map(e => Directions.reflectX[e])),
+			(exits) => this.canSpawnWithExits(new Set([...exits].map(e => Directions.reflectX[e]))),
 			this.traversability.map(({ start, end }) => ({
 				start: new GateState(null, Directions.reflectX[start.exit], start.toggled),
 				end: new GateState(null, Directions.reflectX[end.exit], end.toggled),
@@ -194,14 +194,14 @@ export class Room {
 		return connections;
 	}
 
-	static connectivity(traversability: Traversability, exits: Direction[]) {
+	static connectivity(traversability: Traversability, exits: Set<Direction>) {
 		let total = 0;
 		for(const exit of exits) {
 			for(const toggled of [true, false]) {
 				const reachableStates = traversability.filter(({ start }) => (
 					start.exit === exit && start.toggled === toggled
 				));
-				const reachableDirections = new Set(reachableStates.map(s => s.end.exit).filter(s => exits.includes(s)));
+				const reachableDirections = new Set(reachableStates.map(s => s.end.exit).filter(s => exits.has(s)));
 				reachableDirections.delete(exit);
 				total += reachableDirections.size;
 				if(reachableStates.some(s => s.end.exit === exit && s.end.toggled === !toggled)) {
@@ -209,11 +209,11 @@ export class Room {
 				}
 			}
 		}
-		const average = total / (2 * exits.length);
+		const average = total / (2 * exits.size);
 		return average;
 	}
-	static filterTraversability(traversability: Traversability, exits: Direction[]) {
-		return traversability.filter(({ start, end }) => exits.includes(start.exit) && exits.includes(end.exit));
+	static filterTraversability(traversability: Traversability, exits: Set<Direction>) {
+		return traversability.filter(({ start, end }) => exits.has(start.exit) && exits.has(end.exit));
 	}
 
 	static addRoomVariants() {

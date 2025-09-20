@@ -49,7 +49,7 @@ export class WorldGenerator {
 			const nextPosition = Vector.unit(nextDirection).add(x, y);
 			this.path.push(nextPosition);
 			this.rooms.set(nextPosition, new RoomPlaceholder([Directions.opposite[nextDirection]], defaultRoom));
-			this.rooms.get(x, y)!.exits.push(nextDirection);
+			this.rooms.get(x, y)!.exits.add(nextDirection);
 			[x, y] = [nextPosition.x, nextPosition.y];
 		}
 	}
@@ -82,7 +82,7 @@ export class WorldGenerator {
 				if(
 					(Directions.isHorizontal(exit) && Math.random() < LevelGeneratorData.MAIN_PATH_BRANCH_PROBABILITY_X) ||
 					(Directions.isVertical(exit) && Math.random() < LevelGeneratorData.MAIN_PATH_BRANCH_PROBABILITY_Y)
-				) { room.exits.push(exit); }
+				) { room.exits.add(exit); }
 			}
 		}
 	}
@@ -110,7 +110,7 @@ export class WorldGenerator {
 	}
 	generateExits(position: Vector) {
 		const exits = Directions.DIRECTIONS.filter(dir => (
-			this.rooms.get(position.add(Vector.unit(dir)))?.exits.includes(Directions.opposite[dir])
+			this.rooms.get(position.add(Vector.unit(dir)))?.exits.has(Directions.opposite[dir])
 		));
 		if(exits.length === 0) {
 			return false;
@@ -137,7 +137,7 @@ export class WorldGenerator {
 			.map(p => this.rooms.get(p))
 			.filter(p => p != null)
 			.filter(p => !p.generated)
-			.sort((a, b) => a.exits.length - b.exits.length)
+			.sort((a, b) => a.exits.size - b.exits.size)
 		);
 		for(const room of rooms) {
 			this.generateRoom(room);
@@ -225,40 +225,23 @@ export class WorldGenerator {
 	isEdgeInBounds(position: Vector, direction: Direction) {
 		return this.isInBounds(position) && this.isInBounds(position.add(Vector.unit(direction)));
 	}
-	connect(roomPosition: Vector, direction: Direction) {
+	setConnected(roomPosition: Vector, direction: Direction, connected: boolean) {
 		const adjacentRoom = this.rooms.get(roomPosition.add(Vector.unit(direction)));
 		const opposite = Directions.opposite[direction];
 		const room = this.rooms.get(roomPosition);
-		if(room && !room.exits.includes(direction)) {
-			room.exits.push(direction);
-		}
-		if(adjacentRoom && !adjacentRoom.exits.includes(opposite)) {
-			adjacentRoom.exits.push(opposite);
-		}
-	}
-	disconnect(roomPosition: Vector, direction: Direction) {
-		const adjacentRoom = this.rooms.get(roomPosition.add(Vector.unit(direction)));
-		const opposite = Directions.opposite[direction];
-		const room = this.rooms.get(roomPosition);
-		if(room) {
-			room.exits = room.exits.filter(e => e !== direction);
-		}
-		if(adjacentRoom) {
-			adjacentRoom.exits = adjacentRoom.exits.filter(e => e !== opposite);
-		}
-	}
-	setConnected(room: Vector, direction: Direction, connected: boolean) {
 		if(connected) {
-			this.connect(room, direction);
+			room?.exits.add(direction);
+			adjacentRoom?.exits.add(opposite);
 		}
 		else {
-			this.disconnect(room, direction);
+			room?.exits.delete(direction);
+			adjacentRoom?.exits.delete(opposite);
 		}
 	}
 	isConnected() {
 		const edges = this.connectedEdges();
-		const startRoom = this.rooms.get(this.path[this.path.length - 1]);
-		const startState = new GateState(this.path[this.path.length - 1], startRoom!.exits[0], false);
+		const startRoom = this.rooms.get(this.path[this.path.length - 1])!;
+		const startState = new GateState(this.path[this.path.length - 1], [...startRoom.exits][0], false);
 		for(const backwards of [true, false]) {
 			const reachable = GameUtils.reachableNodes(
 				startState,
@@ -284,7 +267,7 @@ export class WorldGenerator {
 			const room = this.rooms.get(position);
 			if(!room) { continue; }
 			for(const { start, end } of room.room.traversability) {
-				if(!room.exits.includes(start.exit) || !room.exits.includes(end.exit)) { continue; }
+				if(!room.exits.has(start.exit) || !room.exits.has(end.exit)) { continue; }
 				if(!backwards && start.translate(position).equals(state)) {
 					result.push(end.translate(position));
 				}
@@ -300,7 +283,7 @@ export class WorldGenerator {
 		return new Rectangle(0, 0, LevelGeneratorData.WIDTH, LevelGeneratorData.HEIGHT);
 	}
 	connectedEdges() {
-		return MathUtils.sum(this.levelRectangle().squares().map(s => this.rooms.get(s)?.exits?.length ?? 0));
+		return MathUtils.sum(this.levelRectangle().squares().map(s => this.rooms.get(s)?.exits.size ?? 0));
 	}
 
 
@@ -327,23 +310,23 @@ export class WorldGenerator {
 		canvasIO.ctx.fillStyle = "black";
 		canvasIO.ctx.fillRect(
 			position.x, position.y,
-			room.exits.includes("up") ? DEBUG_SETTINGS.GENERATOR_VISUALIZATION.BORDER_SIZE : DEBUG_SETTINGS.GENERATOR_VISUALIZATION.GRID_SIZE,
+			room.exits.has("up") ? DEBUG_SETTINGS.GENERATOR_VISUALIZATION.BORDER_SIZE : DEBUG_SETTINGS.GENERATOR_VISUALIZATION.GRID_SIZE,
 			DEBUG_SETTINGS.GENERATOR_VISUALIZATION.BORDER_SIZE,
 		);
 		canvasIO.ctx.fillRect(
 			position.x, position.y,
 			DEBUG_SETTINGS.GENERATOR_VISUALIZATION.BORDER_SIZE,
-			room.exits.includes("left") ? DEBUG_SETTINGS.GENERATOR_VISUALIZATION.BORDER_SIZE : DEBUG_SETTINGS.GENERATOR_VISUALIZATION.GRID_SIZE,
+			room.exits.has("left") ? DEBUG_SETTINGS.GENERATOR_VISUALIZATION.BORDER_SIZE : DEBUG_SETTINGS.GENERATOR_VISUALIZATION.GRID_SIZE,
 		);
 		canvasIO.ctx.fillRect(
 			position.x, position.y + DEBUG_SETTINGS.GENERATOR_VISUALIZATION.GRID_SIZE - DEBUG_SETTINGS.GENERATOR_VISUALIZATION.BORDER_SIZE,
-			room.exits.includes("down") ? DEBUG_SETTINGS.GENERATOR_VISUALIZATION.BORDER_SIZE : DEBUG_SETTINGS.GENERATOR_VISUALIZATION.GRID_SIZE,
+			room.exits.has("down") ? DEBUG_SETTINGS.GENERATOR_VISUALIZATION.BORDER_SIZE : DEBUG_SETTINGS.GENERATOR_VISUALIZATION.GRID_SIZE,
 			DEBUG_SETTINGS.GENERATOR_VISUALIZATION.BORDER_SIZE,
 		);
 		canvasIO.ctx.fillRect(
 			position.x + DEBUG_SETTINGS.GENERATOR_VISUALIZATION.GRID_SIZE - DEBUG_SETTINGS.GENERATOR_VISUALIZATION.BORDER_SIZE, position.y,
 			DEBUG_SETTINGS.GENERATOR_VISUALIZATION.BORDER_SIZE,
-			room.exits.includes("right") ? DEBUG_SETTINGS.GENERATOR_VISUALIZATION.BORDER_SIZE : DEBUG_SETTINGS.GENERATOR_VISUALIZATION.GRID_SIZE,
+			room.exits.has("right") ? DEBUG_SETTINGS.GENERATOR_VISUALIZATION.BORDER_SIZE : DEBUG_SETTINGS.GENERATOR_VISUALIZATION.GRID_SIZE,
 		);
 		canvasIO.ctx.fillRect(
 			position.x + DEBUG_SETTINGS.GENERATOR_VISUALIZATION.GRID_SIZE - DEBUG_SETTINGS.GENERATOR_VISUALIZATION.BORDER_SIZE,
@@ -356,7 +339,7 @@ export class WorldGenerator {
 		for(const tilePosition of Rectangle.square(0, 0, RoomData.SIZE).squares()) {
 			const tile = roomPlaceholder.room.tiles.get(tilePosition);
 			const exitTile = roomPlaceholder.room.exitTiles.get(tilePosition);
-			if(tile instanceof BasicTile || tile === "platform" || (exitTile !== "none" && !roomPlaceholder.exits.includes(exitTile as Direction))) {
+			if(tile instanceof BasicTile || tile === "platform" || (exitTile !== "none" && !roomPlaceholder.exits.has(exitTile as Direction))) {
 				canvasIO.ctx.fillStyle = "black";
 			}
 			else if(tile instanceof Gate) {

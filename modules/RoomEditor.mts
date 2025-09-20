@@ -129,7 +129,7 @@ export class RoomEditor {
 	loadRoom(room: Room) {
 		this.room = room;
 		this.world = new World(false);
-		room.add(new Vector(0, 0), this.world, ["left", "right", "up", "down"]);
+		room.add(new Vector(0, 0), this.world, new Set<Direction>(["left", "right", "up", "down"]));
 	}
 	loadNextRoom() {
 		const index = ROOMS.indexOf(this.room);
