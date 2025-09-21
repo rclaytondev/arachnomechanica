@@ -19,7 +19,6 @@ import { ROOMS } from "./Rooms.mjs";
 export class WorldGenerator {
 	path: Vector[] = [];
 	rooms: Grid<RoomPlaceholder | null> = new Grid(null);
-	currentChunk: Vector = new Vector(0, 0);
 	position: Vector;
 
 	constructor(position: Vector = new Vector(0, 0)) {
@@ -153,7 +152,7 @@ export class WorldGenerator {
 			r => Room.connectivity(r.traversability, roomPlaceholder.exits),
 		);
 		while(possibleRooms.size > 0) {
-			const room = Utils.randomItem(possibleRooms.get(Math.min(...possibleRooms.keys()))!);
+			const room = this.getRoomCandidate(possibleRooms);
 			roomPlaceholder.room = room;
 			if(this.isConnected()) { return; }
 			for(const connectedness of [...possibleRooms.keys()]) {
@@ -168,6 +167,29 @@ export class WorldGenerator {
 			}
 		}
 		roomPlaceholder.room = originalRoom;
+	}
+	getRoomCandidate(roomsWithConnectivities: Map<number, Room[]>) {
+		const minConnectivity = Math.min(...roomsWithConnectivities.keys());
+		const rooms = roomsWithConnectivities.get(minConnectivity)!;
+		const weights = rooms.map(r => this.getWeight(r, minConnectivity));
+		return GameUtils.weightedRandom(rooms, weights);
+	}
+	// getRoomCandidate(roomsWithConnectivities: Map<number, Room[]>) {
+	// 	const connectivities = [...roomsWithConnectivities.keys()];
+	// 	const rooms = connectivities.flatMap(c => roomsWithConnectivities.get(c)!);
+	// 	const weights = connectivities.flatMap(c => roomsWithConnectivities.get(c)!.flatMap(r => this.getWeight(r, c)));
+	// 	console.log(rooms.map((r, i) => [r.originalName, weights[i]]));
+	// 	const result = GameUtils.weightedRandom(rooms, weights);
+	// 	if(weights[rooms.indexOf(result)] === 0) { debugger; }
+	// 	return result;
+	// }
+	getWeight(room: Room, connectivity: number) {
+		const generatability = room.getGeneratability();
+		return (
+			LevelGeneratorData.GENERATABILITY_MULTIPLIER * (1 - generatability)
+			+ LevelGeneratorData.CONNECTIVITY_MULTIPLIER * (1 - connectivity)
+			+ LevelGeneratorData.WEIGHT_BONUS
+		) * (this.hasGenerated(room) ? LevelGeneratorData.DUPLICATE_PENALTY_MULTIPLIER : 1);
 	}
 	addRooms(world: World) {
 		for(const position of this.levelRectangle().squares()) {
@@ -277,6 +299,10 @@ export class WorldGenerator {
 			}
 		}
 		return result;
+	}
+	hasGenerated(room: Room) {
+		const rooms = [...this.rooms.values()];
+		return rooms.some(r => r?.room.originalName === room.originalName);
 	}
 
 	levelRectangle() {

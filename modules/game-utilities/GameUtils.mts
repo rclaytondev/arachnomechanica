@@ -116,6 +116,10 @@ export class GameUtils {
 		return result;
 	}
 	static weightedRandom<T>(items: T[], weights: number[]) {
+		if(weights.every(w => w === 0)) {
+			return Utils.randomItem(items);
+		}
+
 		const sum = MathUtils.sum(weights);
 		const randomValue = GameUtils.random(0, sum);
 		let partialSum = 0;

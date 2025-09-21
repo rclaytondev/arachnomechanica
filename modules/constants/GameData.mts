@@ -64,6 +64,11 @@ export class LevelGeneratorData {
 	static MAIN_PATH_BRANCH_PROBABILITY_Y = 0.5;
 	static OFF_PATH_BRANCH_PROBABILITY_X = 0.5;
 	static OFF_PATH_BRANCH_PROBABILITY_Y = 0.5;
+
+	static DUPLICATE_PENALTY_MULTIPLIER = 0;
+	static GENERATABILITY_MULTIPLIER = 2;
+	static CONNECTIVITY_MULTIPLIER = 0;
+	static WEIGHT_BONUS = 1;
 };
 
 export class PlayerData {

@@ -8,6 +8,7 @@ import { Slope, World } from "../world/World.js";
 import { Portal } from "../entities/Portal.mjs";
 import { BasicTile } from "../tiles/BasicTile.mjs";
 import { ROOMS } from "./Rooms.mjs";
+import { Utils } from "../../utils-ts/modules/Utils.mjs";
 
 export type Traversability = { start: GateState, end: GateState }[];
 export type RoomTile = "empty" | "platform" | BasicTile | Gate;
@@ -194,6 +195,15 @@ export class Room {
 		return connections;
 	}
 
+	generatability: number | null = null;
+	getGeneratability() {
+		if(this.generatability) { return this.generatability; }
+		return this.generatability = (
+			[...Utils.subsets(new Set(Directions.DIRECTIONS))]
+			.filter(s => this.canSpawnWithExits(s))
+			.length
+		) / (2 ** 4);
+	}
 	static connectivity(traversability: Traversability, exits: Set<Direction>) {
 		let total = 0;
 		for(const exit of exits) {
@@ -209,8 +219,7 @@ export class Room {
 				}
 			}
 		}
-		const average = total / (2 * exits.size);
-		return average;
+		return total / (2 * exits.size * exits.size);
 	}
 	static filterTraversability(traversability: Traversability, exits: Set<Direction>) {
 		return traversability.filter(({ start, end }) => exits.has(start.exit) && exits.has(end.exit));
