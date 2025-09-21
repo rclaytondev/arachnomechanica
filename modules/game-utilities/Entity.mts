@@ -2,8 +2,7 @@ import { canvasIO, CanvasIO } from "../../utils-ts/modules/CanvasIO.mjs";
 import { Direction, Directions } from "../../utils-ts/modules/geometry/Direction.mjs";
 import { Rectangle } from "../../utils-ts/modules/geometry/Rectangle.mjs";
 import { Vector } from "../../utils-ts/modules/geometry/Vector.mjs";
-import { Utils } from "../../utils-ts/modules/Utils.mjs";
-import { PhysicsData, WorldData } from "../constants/GameData.mjs";
+import { WorldData } from "../constants/GameData.mjs";
 import { Tile, TileWithPosition, World } from "../world/World";
 
 /* eslint @typescript-eslint/no-unused-vars: 0 */
@@ -161,7 +160,7 @@ export abstract class Entity {
 	}
 	canPush(obj: Entity | TileWithPosition): obj is Entity {
 		if(obj instanceof Entity) {
-			return true; // TODO: add restrictions on what can push what
+			return false; // TODO: add restrictions on what can push what
 			// return PhysicsData.CAN_PUSH[this.entityType][obj.entityType];
 		}
 		return false;
