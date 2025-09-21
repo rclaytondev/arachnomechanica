@@ -20,7 +20,7 @@ export class EntitySpawner {
 		return GameUtils.randomPermutation([...EntitySpawner.FEATURES]).slice(0, 2);
 	}
 
-	spawnAllEntities(tileRegion: Rectangle, world: World) {
+	static spawnAllEntities(tileRegion: Rectangle, world: World) {
 		const features = EntitySpawner.randomFeatures();
 		if(features.includes("lasers")) {
 			this.spawnLasers(tileRegion, world);
@@ -37,7 +37,7 @@ export class EntitySpawner {
 	}
 
 
-	spawnEntities(amount: number, evenness: number, tileRegion: Rectangle, requirements: ((position: Vector, world: World) => boolean)[], spawn: (position: Vector, world: World) => boolean, world: World) {
+	static spawnEntities(amount: number, evenness: number, tileRegion: Rectangle, requirements: ((position: Vector, world: World) => boolean)[], spawn: (position: Vector, world: World) => boolean, world: World) {
 		const positions = tileRegion.squares();
 		let possiblePositions = positions.filter(position => requirements.every(r => r(position, world)));
 		const spawnedPositions: Vector[] = [];
@@ -110,7 +110,7 @@ export class EntitySpawner {
 			return world.tiles.get(position.add(0, -1)) !== "empty";
 		},
 	};
-	spawnLasers(tileRegion: Rectangle, world: World) {
+	static spawnLasers(tileRegion: Rectangle, world: World) {
 		this.spawnEntities(
 			tileRegion.area() / (RoomData.SIZE ** 2) * LaserBlockData.LASERS_PER_ROOM,
 			LaserBlockData.SPAWN_EVENNESS,
@@ -129,7 +129,7 @@ export class EntitySpawner {
 			world,
 		);
 	}
-	spawnSpikeballBlocks(tileRegion: Rectangle, world: World) {
+	static spawnSpikeballBlocks(tileRegion: Rectangle, world: World) {
 		this.spawnEntities(
 			tileRegion.area() / (RoomData.SIZE ** 2) * SpikeballBlockData.SPIKEBALLS_PER_ROOM,
 			SpikeballBlockData.SPAWN_EVENNESS,
@@ -147,7 +147,7 @@ export class EntitySpawner {
 			world,
 		);
 	}
-	spawnLizards(tileRegion: Rectangle, world: World) {
+	static spawnLizards(tileRegion: Rectangle, world: World) {
 		this.spawnEntities(
 			tileRegion.area() / (RoomData.SIZE ** 2) * LizardData.LIZARDS_PER_ROOM,
 			LizardData.SPAWN_EVENNESS,
@@ -157,7 +157,7 @@ export class EntitySpawner {
 			world,
 		);
 	}
-	spawnSpiders(tileRegion: Rectangle, world: World) {
+	static spawnSpiders(tileRegion: Rectangle, world: World) {
 		this.spawnEntities(
 			tileRegion.area() / (RoomData.SIZE ** 2) * SpiderData.SPIDERS_PER_ROOM,
 			SpiderData.SPAWN_EVENNESS,

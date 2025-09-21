@@ -51,7 +51,6 @@ export class World {
 
 	worldGenerator: WorldGenerator = new WorldGenerator();
 	enableGeneration: boolean;
-	entitySpawner: EntitySpawner = new EntitySpawner();
 
 	player: Player = new Player();
 
@@ -64,7 +63,7 @@ export class World {
 		this.worldGenerator.generateLevel(this);
 		this.spawnPlayer(this.worldGenerator.path[this.worldGenerator.path.length - 1]);
 		const rectangle = this.worldGenerator.levelRectangle().scale(RoomData.SIZE);
-		this.entitySpawner.spawnAllEntities(
+		EntitySpawner.spawnAllEntities(
 			Rectangle.fromBounds(rectangle.left() + 1, rectangle.right() - 1, rectangle.top() + 1, rectangle.bottom() - 1),
 			this,
 		);
@@ -95,7 +94,7 @@ export class World {
 		const generator = new WorldGenerator(new Vector(0, -levelHeight * this.levelsGenerated));
 		generator.generateLevel(this);
 		const rectangle = generator.levelRectangle().scale(RoomData.SIZE).translate(new Vector(0, -levelHeight * this.levelsGenerated));
-		this.entitySpawner.spawnAllEntities(
+		EntitySpawner.spawnAllEntities(
 			Rectangle.fromBounds(rectangle.left() + 1, rectangle.right() - 1, rectangle.top() + 1, rectangle.bottom() - 1),
 			this,
 		);
