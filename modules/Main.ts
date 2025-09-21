@@ -6,6 +6,7 @@ import { Room } from "./level-generator/Room.mjs";
 import { RoomEditor } from "./RoomEditor.mjs";
 import { ROOMS, Rooms } from "./level-generator/Rooms.mjs";
 import { World } from "./world/World.js";
+import { WorldGenerator } from "./level-generator/WorldGenerator.mjs";
 
 const recordedRNG: number[] = [];
 let rngOverrideIndex = 0;
@@ -100,5 +101,12 @@ window.setInterval(() => {
 		canvasIO!.ctx.textBaseline = "top";
 		canvasIO!.ctx.font = "30px monospace";
 		canvasIO!.ctx.fillText(`${frameTimes.length} FPS`, 0, 0);
+	}
+
+	if(GameUtils.frameCount === 1 && DEBUG_SETTINGS.GENERATOR_VISUALIZATION.ROOM_FREQUENCY_TRIALS !== 0) {
+		// eslint-disable-next-line no-console
+		console.log(WorldGenerator.roomFrequencies(DEBUG_SETTINGS.GENERATOR_VISUALIZATION.ROOM_FREQUENCY_TRIALS));
+		// eslint-disable-next-line no-debugger
+		debugger;
 	}
 }, 1000 / FRAMERATE);

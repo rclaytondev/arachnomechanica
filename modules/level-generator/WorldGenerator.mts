@@ -10,7 +10,7 @@ import { LevelGeneratorData, RoomData } from "../constants/GameData.mjs";
 import { GameUtils } from "../game-utilities/GameUtils.mjs";
 import { Gate } from "../tiles/Gate.mjs";
 import { BasicTile } from "../tiles/BasicTile.mjs";
-import { World } from "../world/World";
+import { World } from "../world/World.js";
 import { GateState } from "./GateState.mjs";
 import { Room } from "./Room.mjs";
 import { RoomPlaceholder } from "./RoomPlaceholder.mjs";
@@ -352,5 +352,18 @@ export class WorldGenerator {
 				DEBUG_SETTINGS.GENERATOR_VISUALIZATION.GRID_SIZE / RoomData.SIZE,
 			);
 		}
+	}
+
+	static roomFrequencies(numTrials: number) {
+		const counts = new Map<string, number>();
+		for(let i = 0; i < numTrials; i ++) {
+			const world = new World(false);
+			const generator = new WorldGenerator();
+			generator.generateLevel(world);
+			for(const room of [...generator.rooms.values()].filter(r => r !== null)) {
+				counts.set(room.room.originalName, (counts.get(room.room.originalName) ?? 0) + 1);
+			}
+		}
+		return counts;
 	}
 }
