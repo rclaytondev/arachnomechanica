@@ -17,6 +17,7 @@ export class Player extends RectangularEntity {
 	dead: boolean = false;
 	timeSinceDeath: number = 0;
 	facing: "left" | "right" = "left";
+	coyoteTime: number = 0;
 
 	equippedItems: [Item | null, Item | null] = [null, null];
 
@@ -38,6 +39,7 @@ export class Player extends RectangularEntity {
 			return;
 		}
 		this.checkInputs(world, canvasIO);
+		this.coyoteTime --;
 		if(this.onGround(world)) {
 			this.hasDoubleJump = true;
 		}
@@ -76,9 +78,13 @@ export class Player extends RectangularEntity {
 			this.velocity.x *= PlayerData.FRICTION_X;
 		}
 		const onGround = this.onGround(world);
-		if(canvasIO.keys.KeyZ && !GameUtils.pastKeys.KeyZ && (onGround || this.hasDoubleJump)) {
+		if(onGround) {
+			this.coyoteTime = PlayerData.COYOTE_FRAMES;
+		}
+		if(canvasIO.keys.KeyZ && !GameUtils.pastKeys.KeyZ && (this.coyoteTime > 0 || this.hasDoubleJump)) {
 			this.velocity.y = -PlayerData.JUMP_VELOCITY;
-			this.hasDoubleJump = onGround;
+			this.hasDoubleJump = (this.coyoteTime > 0);
+			this.coyoteTime = -1;
 		}
 
 		if(canvasIO.keys.KeyX && !GameUtils.pastKeys.KeyX) {

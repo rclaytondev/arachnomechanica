@@ -83,6 +83,7 @@ export class PlayerData {
 	static JUMP_VELOCITY = 14;
 	static MAX_X_VELOCITY = 8;
 	static FRICTION_X = 0.7;
+	static COYOTE_FRAMES = 4;
 
 	static GLOW_SIZE = 200;
 	static GLOW_INTENSITY = 1/3;
