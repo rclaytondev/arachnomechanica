@@ -198,4 +198,16 @@ export abstract class RectangularEntity extends Entity {
 		this.hitbox.x += amount.x;
 		this.hitbox.y += amount.y;
 	}
+
+	extend(amount: number, direction: Direction, world: World, options: MoveUnitOptions) {
+		if(amount < 0) {
+			this.hitbox = this.hitbox.extend(direction, Math.floor(amount));
+		}
+		for(let i = 0; i < amount; i ++) {
+			const moved = this.moveUnit(direction, world, options);
+			if(moved) {
+				this.hitbox = this.hitbox.extend(Directions.opposite[direction], 1);
+			}
+		}
+	}
 }
