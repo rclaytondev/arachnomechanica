@@ -3,9 +3,10 @@ import { Direction, Directions } from "../../utils-ts/modules/geometry/Direction
 import { Rectangle } from "../../utils-ts/modules/geometry/Rectangle.mjs";
 import { Vector } from "../../utils-ts/modules/geometry/Vector.mjs";
 import { GateData, WorldData } from "../constants/GameData.mjs";
+import { Entity, InvisibleRectangle } from "../game-utilities/Entity.mjs";
 import { GameUtils } from "../game-utilities/GameUtils.mjs";
 import { Player } from "../Player.mjs";
-import { World } from "../world/World.js";
+import { TileWithPosition, World } from "../world/World.js";
 
 export class Gate {
 	static cooldown = 0;
@@ -26,20 +27,19 @@ export class Gate {
 	playerSide: "positive" | "negative" = "positive";
 	toggled: boolean = false;
 	lastFrameUpdated: number = -Infinity;
+	openness: number;
 
 	constructor(direction: Direction, toggled: boolean) {
 		this.direction = direction;
 		this.toggled = toggled;
+		this.openness = toggled ? 0 : 1;
 	}
 
 	get open() {
 		return this.toggled ? !Gate.open : Gate.open;
 	}
-	get openness() {
+	opennessTarget() {
 		return this.toggled ? 1 - Gate.openness : Gate.openness;
-	}
-	get closedness() {
-		return 1 - this.openness;
 	}
 
 	getPhysicsBox(x: number, y: number, closedness: number = 1 - this.openness) {
@@ -99,16 +99,25 @@ export class Gate {
 		}
 		canvasIO.ctx.restore();
 	}
-	update(world: World, x: number, y: number, canvasIO: CanvasIO) {
+	update(world: World, x: number, y: number) {
 		if(this.lastFrameUpdated !== GameUtils.frameCount - 1) {
 			this.initialize(world.player, x, y);
 		}
 		this.lastFrameUpdated = GameUtils.frameCount;
 		this.checkPlayer(world, x, y);
-		const closed = this.openness === 0;
-		if(!closed && this.openness === 0) {
-			world.damage(this.getPhysicsBox(x, y), canvasIO);
+		this.updateOpenness(world, x, y);
+	}
+	updateOpenness(world: World, x: number, y: number) {
+		const target = this.opennessTarget();
+		if(this.openness > target) {
+			const box = new InvisibleRectangle(this.getPhysicsBox(x, y));
+			const extension = ((1 - target) - (1 - this.openness)) * WorldData.TILE_SIZE;
+			const collides = (o: Entity | TileWithPosition) => !("tile" in o && o.tile === this);
+			world.entities.addEntity(box);
+			box.extend(extension, this.direction, world, { collides });
+			world.entities.removeEntity(box);
 		}
+		this.openness = target;
 	}
 	adjacentGates(world: World, x: number, y: number, direction: Direction) {
 		let position = Vector.unit(direction).add(x, y);

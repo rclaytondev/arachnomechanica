@@ -211,3 +211,16 @@ export abstract class RectangularEntity extends Entity {
 		}
 	}
 }
+
+export class InvisibleRectangle extends RectangularEntity {
+	constructor(hitbox: Rectangle) {
+		super(hitbox);
+	}
+
+	display() {}
+	update() {}
+
+	canPush(entity: Entity | TileWithPosition): entity is Entity {
+		return entity instanceof Entity;
+	}
+}
