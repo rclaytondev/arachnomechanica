@@ -478,13 +478,12 @@ export class Lizard extends Entity {
 	}
 	static spawn(tilePosition: Vector, world: World) {
 		const [_, direction, maxLength] = Utils.maxEntry(Directions.DIRECTIONS, (direction) => {
-			let i = 0;
-			while(true) {
-				i ++;
+			for(let i = 0; i <= LizardData.MAX_LENGTH / WorldData.TILE_SIZE; i ++) {
 				if(world.tiles.get(tilePosition.add(Vector.unit(direction).multiply(i))) !== "empty") {
 					return i - 1;
 				}
 			}
+			return LizardData.MAX_LENGTH;
 		});
 		if(maxLength >= LizardData.MIN_LENGTH) {
 			const length = GameUtils.randomInt(maxLength, LizardData.MAX_LENGTH);
