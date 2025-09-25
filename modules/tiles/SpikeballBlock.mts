@@ -86,6 +86,10 @@ export class SpikeballBlock {
 	}
 
 	update(world: World, x: number, y: number) {
+		this.updateSpikeballs(world, x, y);
+		this.updateDoors();
+	}
+	updateSpikeballs(world: World, x: number, y: number) {
 		this.spikeballs = this.spikeballs.filter(
 			s => world.entities.hasEntity(s) && s.bounces > SpikeballBlockData.BOUNCES_LEFT_BEFORE_SPAWN,
 		);
@@ -98,8 +102,8 @@ export class SpikeballBlock {
 			this.timeUntilSpawn = SpikeballBlockData.SPAWN_FREQUENCY;
 			this.timeSinceSpawn = 0;
 		}
-
-
+	}
+	updateDoors() {
 		for(const xDirection of ["left", "right"] as const) {
 			for(const yDirection of ["up", "down"] as const) {
 				const patternStep = this.pattern[this.patternStep];
