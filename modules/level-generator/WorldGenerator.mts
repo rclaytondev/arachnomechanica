@@ -51,6 +51,9 @@ export class WorldGenerator {
 			this.rooms.get(x, y)!.exits.add(nextDirection);
 			[x, y] = [nextPosition.x, nextPosition.y];
 		}
+		const startRoom = this.rooms.get(this.path[this.path.length - 1])!;
+		startRoom.room = Utils.randomItem(ROOMS.filter(r => r.originalName.includes("start-room")));
+		startRoom.generated = true;
 	}
 	possibleNextDirections(x: number, y: number): Direction[] {
 		if(this.path.length <= 1) {
