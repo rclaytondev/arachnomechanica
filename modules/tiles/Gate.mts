@@ -3,7 +3,8 @@ import { Direction, Directions } from "../../utils-ts/modules/geometry/Direction
 import { Rectangle } from "../../utils-ts/modules/geometry/Rectangle.mjs";
 import { Vector } from "../../utils-ts/modules/geometry/Vector.mjs";
 import { GateData, WorldData } from "../constants/GameData.mjs";
-import { Entity, InvisibleRectangle } from "../game-utilities/Entity.mjs";
+import { InvisibleRectangle } from "../game-utilities/Collideable.mjs";
+import { Entity } from "../game-utilities/Entity.mjs";
 import { GameUtils } from "../game-utilities/GameUtils.mjs";
 import { Player } from "../Player.mjs";
 import { TileWithPosition, World } from "../world/World.js";

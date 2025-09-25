@@ -25,6 +25,7 @@ import { Entities } from "./Entities.mjs";
 import { FlameturretEntity } from "../items/item-entities/FlameturretEntity.mjs";
 import { Entity } from "../game-utilities/Entity.mjs";
 import { Utils } from "../../utils-ts/modules/Utils.mjs";
+import { Collideable } from "../game-utilities/Collideable.mjs";
 
 export type TileEntity = BasicTile | Gate | LaserBlock | SpikeballBlock;
 export type Tile = (typeof WorldData.STRING_TILE_TYPES)[number] | TileEntity;
@@ -427,7 +428,7 @@ export class World {
 	collidingEntities(rectangle: Rectangle, collides: (object: { x: number, y: number, tile: Tile } | Entity) => boolean = () => true) {
 		const solids = [];
 		for(const entity of this.entities.entitiesIntersecting(rectangle)) {
-			if(collides(entity) && entity.hitboxes().some(b => rectangle.intersects(b))) {
+			if(entity instanceof Collideable && collides(entity) && entity.hitboxes().some(b => rectangle.intersects(b))) {
 				solids.push(entity);
 			}
 		}
@@ -536,7 +537,7 @@ export class World {
 		const furthestEndpoint = position.add(direction.multiply(maxLength));
 		const rectangle = Rectangle.fromOppositeCorners(position, furthestEndpoint);
 		for(const entity of this.entities.entitiesIntersecting(rectangle)) {
-			if(!collides(entity)) { continue; }
+			if(!(entity instanceof Collideable) || !collides(entity)) { continue; }
 			for(const hitbox of entity.hitboxes()) {
 				result = Math.min(result, GameUtils.rayIntersectsRectangle(position, direction, hitbox));
 			}
@@ -644,7 +645,7 @@ export class World {
 			this.particles.push(particle);
 		}
 	}
-	addEntityIfEmpty(entity: Entity) {
+	addEntityIfEmpty(entity: Collideable) {
 		if(!entity.hitboxes().some(h => this.isInSolid(h))) {
 			this.entities.addEntity(entity);
 			return true;
@@ -656,7 +657,7 @@ export class World {
 			this.player.damage(hurtbox, this);
 		}
 		for(const entity of this.entities.entitiesIntersecting(hurtbox)) {
-			if(entity.hitboxes().some(h => h.intersects(hurtbox))) {
+			if(entity instanceof Collideable && entity.hitboxes().some(h => h.intersects(hurtbox))) {
 				entity.damage(hurtbox, this, canvasIO);
 			}
 		}
@@ -738,8 +739,8 @@ export class World {
 	}
 
 	intersectingEntities() {
-		const entities = [...this.entities.allEntities()];
-		const pairs = entities.flatMap((e1, i1) => entities.slice(i1 + 1).map(e2 => [e1, e2] as [Entity, Entity]));
+		const entities = [...this.entities.allEntities()].filter(e => e instanceof Collideable);
+		const pairs = entities.flatMap((e1, i1) => entities.slice(i1 + 1).map(e2 => [e1, e2] as [Collideable, Collideable]));
 		return pairs.filter(([e1, e2]) => e1.intersects(e2));
 	}
 }

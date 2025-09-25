@@ -10,8 +10,9 @@ import { GameUtils } from "../game-utilities/GameUtils.mjs";
 import { Particle } from "../game-utilities/Particle.mjs";
 import { Player } from "../Player.mjs";
 import { World } from "../world/World";
-import { Entity, RectangularEntity } from "../game-utilities/Entity.mjs";
+import { Entity } from "../game-utilities/Entity.mjs";
 import { BasicTile } from "../tiles/BasicTile.mjs";
+import { RectangularCollideable } from "../game-utilities/Collideable.mjs";
 
 export class Surface {
 	start: Vector;
@@ -207,7 +208,7 @@ export class SpiderLeg {
 	}
 }
 
-export class Spider extends RectangularEntity {
+export class Spider extends RectangularCollideable {
 	movement: "clockwise" | "counterclockwise" = "clockwise";
 	basepoint: PointOnSurface | null = null;
 	angle: number = 0;
@@ -524,7 +525,7 @@ export class Spider extends RectangularEntity {
 	}
 }
 
-export class SpiderProjectile extends RectangularEntity {
+export class SpiderProjectile extends RectangularCollideable {
 	velocity: Vector;
 	acceleration: Vector;
 	spider: Spider;

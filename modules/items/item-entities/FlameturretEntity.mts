@@ -3,11 +3,11 @@ import { Directions } from "../../../utils-ts/modules/geometry/Direction.mjs";
 import { Rectangle } from "../../../utils-ts/modules/geometry/Rectangle.mjs";
 import { Vector } from "../../../utils-ts/modules/geometry/Vector.mjs";
 import { ItemData, LizardData, PlayerData } from "../../constants/GameData.mjs";
-import { RectangularEntity } from "../../game-utilities/Entity.mjs";
+import { RectangularCollideable } from "../../game-utilities/Collideable.mjs";
 import { FireSpawner } from "../../game-utilities/FireSpawner.mjs";
 import { World } from "../../world/World";
 
-export class FlameturretEntity extends RectangularEntity {
+export class FlameturretEntity extends RectangularCollideable {
 	velocity: Vector = new Vector(0, 0);
 	fireSpawnerLeft: FireSpawner;
 	fireSpawnerRight: FireSpawner;

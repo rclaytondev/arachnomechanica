@@ -9,12 +9,12 @@ import { World } from "../world/World.js";
 import { Rectangle } from "../../utils-ts/modules/geometry/Rectangle.mjs";
 import { LizardData, WorldData } from "../constants/GameData.mjs";
 import { FireSpawner } from "../game-utilities/FireSpawner.mjs";
-import { Entity } from "../game-utilities/Entity.mjs";
 import { Player } from "../Player.mjs";
+import { Collideable } from "../game-utilities/Collideable.mjs";
 
 type Joint = { position: Vector, direction: Direction };
 
-export class Lizard extends Entity {
+export class Lizard extends Collideable {
 	direction: Direction;
 	position: Vector;
 	joints: Joint[] = [];
@@ -394,7 +394,7 @@ export class Lizard extends Entity {
 			}
 		}
 		const entities = [...world.entities.entitiesIntersecting(lookaheadRectangle)];
-		if(entities.some(entity => !(entity instanceof Player) && entity.hitboxes().some(b => b.intersects(lookaheadRectangle)))) {
+		if(entities.some(entity => entity instanceof Collideable && !(entity instanceof Player) && entity.hitboxes().some(b => b.intersects(lookaheadRectangle)))) {
 			return true;
 		}
 		return false;

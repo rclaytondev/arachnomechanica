@@ -4,10 +4,11 @@ import { Vector } from "../../utils-ts/modules/geometry/Vector.mjs";
 import { SpikeballData, WorldData } from "../constants/GameData.mjs";
 import { GameUtils } from "../game-utilities/GameUtils.mjs";
 import { Tile, TileWithPosition, World } from "../world/World.js";
-import { Entity, RectangularEntity } from "../game-utilities/Entity.mjs";
+import { Entity } from "../game-utilities/Entity.mjs";
 import { Direction, Directions } from "../../utils-ts/modules/geometry/Direction.mjs";
+import { RectangularCollideable } from "../game-utilities/Collideable.mjs";
 
-export class Spikeball extends RectangularEntity {
+export class Spikeball extends RectangularCollideable {
 	velocity: Vector;
 	angle: number = 0;
 	age: number = 0;
