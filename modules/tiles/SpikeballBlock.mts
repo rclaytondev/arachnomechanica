@@ -8,12 +8,6 @@ import { World } from "../world/World";
 import { Diagonal } from "../../utils-ts/modules/geometry/Direction.mjs";
 
 export class SpikeballBlock {
-	static glowGradient = GameUtils.glowCircleGradient(
-		0, 0, SpikeballBlockData.GLOW_SIZE,
-		SpikeballBlockData.GLOW_INTENSITY,
-		SpikeballData.ACCENT_COLOR.red, SpikeballData.ACCENT_COLOR.green, SpikeballData.ACCENT_COLOR.blue,
-	);
-
 	timeUntilSpawn: number = 0;
 	timeSinceSpawn: number = 0;
 	pattern: SpikeballPattern;
@@ -31,11 +25,12 @@ export class SpikeballBlock {
 	}
 
 	displayGlow(canvasIO: CanvasIO, x: number, y: number) {
-		canvasIO.ctx.save();
-		canvasIO.ctx.translate((x + 1/2) * WorldData.TILE_SIZE, (y + 1/2) * WorldData.TILE_SIZE);
-		canvasIO.ctx.fillStyle = SpikeballBlock.glowGradient;
-		canvasIO.fillCircle(0, 0, SpikeballBlockData.GLOW_SIZE);
-		canvasIO.ctx.restore();
+		GameUtils.glowCircle(
+			(x + 1/2) * WorldData.TILE_SIZE, (y + 1/2) * WorldData.TILE_SIZE, SpikeballBlockData.GLOW_SIZE,
+			SpikeballBlockData.GLOW_INTENSITY,
+			canvasIO,
+			SpikeballData.ACCENT_COLOR.red, SpikeballData.ACCENT_COLOR.green, SpikeballData.ACCENT_COLOR.blue,
+		);
 	}
 	display(canvasIO: CanvasIO, x: number, y: number) {
 		canvasIO.ctx.fillStyle = WorldData.TILE_COLORS.tower;

@@ -8,11 +8,6 @@ import { Entity, RectangularEntity } from "../game-utilities/Entity.mjs";
 import { Direction, Directions } from "../../utils-ts/modules/geometry/Direction.mjs";
 
 export class Spikeball extends RectangularEntity {
-	static glowGradient = GameUtils.glowCircleGradient(
-		0, 0, SpikeballData.GLOW_SIZE,
-		SpikeballData.GLOW_INTENSITY,
-		SpikeballData.ACCENT_COLOR.red, SpikeballData.ACCENT_COLOR.green, SpikeballData.ACCENT_COLOR.blue,
-	);
 	velocity: Vector;
 	angle: number = 0;
 	age: number = 0;
@@ -62,11 +57,14 @@ export class Spikeball extends RectangularEntity {
 	}
 	displayGlowEffect(canvasIO: CanvasIO) {
 		const center = this.hitbox.center();
-		canvasIO.ctx.fillStyle = Spikeball.glowGradient;
 		canvasIO.ctx.save();
-		canvasIO.ctx.translate(center.x, center.y);
 		canvasIO.ctx.globalAlpha = this.age / SpikeballData.GLOW_FADE_TIME;
-		canvasIO.fillCircle(0, 0, SpikeballData.GLOW_SIZE);
+		GameUtils.glowCircle(
+			center.x, center.y,
+			SpikeballData.GLOW_SIZE, SpikeballData.GLOW_INTENSITY,
+			canvasIO,
+			SpikeballData.ACCENT_COLOR.red, SpikeballData.ACCENT_COLOR.green, SpikeballData.ACCENT_COLOR.blue,
+		);
 		canvasIO.ctx.restore();
 	}
 

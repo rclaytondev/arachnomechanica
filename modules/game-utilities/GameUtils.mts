@@ -164,42 +164,72 @@ export class GameUtils {
 	}
 
 	static hexColor(red: number, green: number, blue: number, alpha: number) {
-		return `#${red.toString(16).padStart(2, "0")}${green.toString(16).padStart(2, "0")}${blue.toString(16).padStart(2, "0")}${alpha.toString(16).padStart(2, "0")}`;
+		return `#${[red, green, blue, alpha].map(n => Math.floor(n).toString(16).padStart(2, "0")).join("")}`;
 	}
 	static glowCircle(x: number, y: number, size: number, intensity: number, canvasIO: CanvasIO, red: number = 255, green: number = 255, blue: number = 255) {
-		const gradient = GameUtils.glowCircleGradient(x, y, size, intensity, red, green, blue);
-		canvasIO.ctx.save();
-		canvasIO.ctx.fillStyle = gradient;
-		canvasIO.ctx.globalCompositeOperation = "lighter";
-		canvasIO.fillCircle(x, y, size * 2);
-		canvasIO.ctx.restore();
+		GameUtils.glowArc(x, y, size, intensity, canvasIO, 0, 2 * Math.PI, red, green, blue);
 	}
 	static glowArc(x: number, y: number, size: number, intensity: number, canvasIO: CanvasIO, startAngle: number, endAngle: number, red: number = 255, green: number = 255, blue: number = 255) {
-		const gradient = GameUtils.glowCircleGradient(x, y, size, intensity, red, green, blue);
+		const gradient = GameUtils.glowCircleGradient(size, intensity, red, green, blue);
 		canvasIO.ctx.save();
+		canvasIO.ctx.translate(x, y);
 		canvasIO.ctx.fillStyle = gradient;
 		canvasIO.ctx.globalCompositeOperation = "lighter";
-		canvasIO.fillArc(x, y, size * 2, startAngle, endAngle);
+		canvasIO.fillArc(0, 0, size, startAngle, endAngle);
 		canvasIO.ctx.restore();
 	}
-	static glowCircleGradient(x: number, y: number, size: number, intensity: number, red: number = 255, green: number = 255, blue: number = 255) {
+	static glowLine(x1: number, y1: number, x2: number, y2: number, size: number, intensity: number, canvasIO: CanvasIO, red: number = 255, green: number = 255, blue: number = 255) {
+		const offset = new Vector(x2 - x1, y2 - y1);
+		const length = offset.magnitude();
+		canvasIO.ctx.save();
+		canvasIO.ctx.globalCompositeOperation = "lighter";
+		canvasIO.ctx.translate(x1, y1);
+		canvasIO.ctx.rotate(offset.angle());
+		canvasIO.ctx.fillStyle = GameUtils.glowLineGradient(size, intensity, red, green, blue);
+		canvasIO.ctx.fillRect(0, -size, length, size);
+		canvasIO.ctx.restore();
+	}
+	static glowOutline(x1: number, y1: number, x2: number, y2: number, size: number, intensity: number, canvasIO: CanvasIO, red: number = 255, green: number = 255, blue: number = 255) {
+		GameUtils.glowLine(x1, y1, x2, y2, size, intensity, canvasIO, red, green, blue);
+		GameUtils.glowLine(x2, y2, x1, y1, size, intensity, canvasIO, red, green, blue);
+
+		const length = Math.hypot(x1 - x2, y1 - y2);
+		canvasIO.ctx.save();
+		canvasIO.ctx.translate(x1, y1);
+		canvasIO.ctx.rotate(new Vector(x2 - x1, y2 - y1).angle());
+		GameUtils.glowArc(0, 0, size, intensity, canvasIO, Math.PI / 2, 3 * Math.PI / 2, red, green, blue);
+		GameUtils.glowArc(length, 0, size, intensity, canvasIO, -Math.PI / 2, Math.PI / 2, red, green, blue);
+		canvasIO.ctx.restore();
+	}
+	static glowCircleGradients = new Map<string, CanvasGradient>();
+	static glowLineGradients = new Map<string, CanvasGradient>();
+	static glowCircleGradient(size: number, intensity: number, red: number = 255, green: number = 255, blue: number = 255) {
+		const argsString = `${size}, ${intensity}, ${red}, ${green}, ${blue}`;
+		const cachedResult = GameUtils.glowCircleGradients.get(argsString);
+		if(cachedResult) { return cachedResult; }
 		const canvas = document.createElement("canvas");
 		const ctx = canvas.getContext("2d")!;
-		const gradient = ctx.createRadialGradient(x, y, 0, x, y, size);
+		const gradient = ctx.createRadialGradient(0, 0, 0, 0, 0, size);
 		for(let i = 0; i < 1; i += 1 / size) {
 			const color = GameUtils.hexColor(red, green, blue, Math.floor(intensity * 255 * (1 - i) ** 2));
 			gradient.addColorStop(i, color);
 		}
+		GameUtils.glowCircleGradients.set(argsString, gradient);
 		return gradient;
 	}
-	static glowLineGradient(x1: number, y1: number, x2: number, y2: number, intensity: number, red: number = 255, green: number = 255, blue: number = 255) {
+	static glowLineGradient(length: number, intensity: number, red: number = 255, green: number = 255, blue: number = 255) {
+		length = Math.floor(length);
+		const argsString = `${length}, ${intensity}, ${red}, ${green}, ${blue}`;
+		const cachedResult = GameUtils.glowLineGradients.get(argsString);
+		if(cachedResult) { return cachedResult; }
 		const canvas = document.createElement("canvas");
 		const ctx = canvas.getContext("2d")!;
-		const gradient = ctx.createLinearGradient(x1, y1, x2, y2);
-		for(let i = 0; i < 1; i += 1 / Math.floor(Vector.dist(new Vector(x1, y1), new Vector(x2, y2)))) {
+		const gradient = ctx.createLinearGradient(0, 0, 0, -length);
+		for(let i = 0; i < 1; i += 1 / length) {
 			const color = GameUtils.hexColor(red, green, blue, Math.floor(intensity * 255 * (1 - i) ** 2));
 			gradient.addColorStop(i, color);
 		}
+		GameUtils.glowLineGradients.set(argsString, gradient);
 		return gradient;
 	}
 	static shatterParticles(display: (canvasIO: CanvasIO) => void, world: World, position: Vector, pieces: number, maxVelocity: number, canvasIO: CanvasIO, angleEvenness: number, settings: ParticleSettings) {

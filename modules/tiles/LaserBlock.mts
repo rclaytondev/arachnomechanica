@@ -1,38 +1,13 @@
 import { CanvasIO } from "../../utils-ts/modules/CanvasIO.mjs";
 import { Rectangle } from "../../utils-ts/modules/geometry/Rectangle.mjs";
 import { Vector } from "../../utils-ts/modules/geometry/Vector.mjs";
+import { MathUtils } from "../../utils-ts/modules/math/MathUtils.mjs";
 import { LaserBlockData, WorldData } from "../constants/GameData.mjs";
 import { GameUtils } from "../game-utilities/GameUtils.mjs";
 import { Particle } from "../game-utilities/Particle.mjs";
 import { World } from "../world/World.js";
 
 export class LaserBlock {
-	static glowLineGradient = GameUtils.glowLineGradient(
-		0, 0, 0, -LaserBlockData.LASER_GLOW_SIZE,
-		LaserBlockData.LASER_GLOW_INTENSITY,
-		LaserBlockData.LASER_COLOR.red, LaserBlockData.LASER_COLOR.green, LaserBlockData.LASER_COLOR.blue,
-	);
-	static glowLineGradient2 = GameUtils.glowLineGradient(
-		0, 0, 0, LaserBlockData.LASER_GLOW_SIZE,
-		LaserBlockData.LASER_GLOW_INTENSITY,
-		LaserBlockData.LASER_COLOR.red, LaserBlockData.LASER_COLOR.green, LaserBlockData.LASER_COLOR.blue,
-	);
-	static activatedGlowLineGradient = GameUtils.glowLineGradient(
-		0, 0, 0, -LaserBlockData.ACTIVATED_GLOW_SIZE,
-		LaserBlockData.ACTIVATED_GLOW_INTENSITY,
-		LaserBlockData.LASER_COLOR.red, LaserBlockData.LASER_COLOR.green, LaserBlockData.LASER_COLOR.blue,
-	);
-	static activatedGlowLineGradient2 = GameUtils.glowLineGradient(
-		0, 0, 0, LaserBlockData.ACTIVATED_GLOW_SIZE,
-		LaserBlockData.ACTIVATED_GLOW_INTENSITY,
-		LaserBlockData.LASER_COLOR.red, LaserBlockData.LASER_COLOR.green, LaserBlockData.LASER_COLOR.blue,
-	);
-	static circleGradient = GameUtils.glowCircleGradient(
-		0, 0,
-		LaserBlockData.LASER_GLOW_SIZE, LaserBlockData.LASER_GLOW_INTENSITY,
-		LaserBlockData.LASER_COLOR.red, LaserBlockData.LASER_COLOR.green, LaserBlockData.LASER_COLOR.blue,
-	);
-
 	lasers: number;
 	speed: number;
 	startAngle: number;
@@ -89,18 +64,13 @@ export class LaserBlock {
 		const center = new Vector(x + 1/2, y + 1/2).multiply(WorldData.TILE_SIZE);
 		for(const [i, angle] of this.angles().entries()) {
 			const distance = this.lengths[i];
-			canvasIO.ctx.save();
-			canvasIO.ctx.translate(center.x, center.y);
-			canvasIO.ctx.rotate(angle);
-			canvasIO.ctx.fillStyle = LaserBlock.glowLineGradient;
-			canvasIO.ctx.fillRect(0, -LaserBlockData.LASER_GLOW_SIZE, distance, LaserBlockData.LASER_GLOW_SIZE);
-			canvasIO.ctx.fillStyle = LaserBlock.glowLineGradient2;
-			canvasIO.ctx.fillRect(0, 0, distance, LaserBlockData.LASER_GLOW_SIZE);
-			canvasIO.ctx.fillStyle = LaserBlock.circleGradient;
-			canvasIO.fillArc(0, 0, LaserBlockData.LASER_GLOW_SIZE, Math.PI / 2, 3 * Math.PI / 2);
-			canvasIO.ctx.translate(distance, 0);
-			canvasIO.fillArc(0, 0, LaserBlockData.LASER_GLOW_SIZE, -Math.PI / 2, Math.PI / 2);
-			canvasIO.ctx.restore();
+			const endpoint = center.add(new Vector(distance, 0).rotate(MathUtils.toDegrees(angle)));
+			GameUtils.glowOutline(
+				center.x, center.y, endpoint.x, endpoint.y,
+				LaserBlockData.LASER_GLOW_SIZE, LaserBlockData.LASER_GLOW_INTENSITY,
+				canvasIO,
+				LaserBlockData.LASER_COLOR.red, LaserBlockData.LASER_COLOR.green, LaserBlockData.LASER_COLOR.blue,
+			);
 		}
 	}
 	displayBarrels(canvasIO: CanvasIO, x: number, y: number) {
