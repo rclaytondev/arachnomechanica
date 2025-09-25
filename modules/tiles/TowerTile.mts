@@ -1,34 +1,10 @@
 import { CanvasIO } from "../../utils-ts/modules/CanvasIO.mjs";
 import { Direction, Directions } from "../../utils-ts/modules/geometry/Direction.mjs";
 import { Vector } from "../../utils-ts/modules/geometry/Vector.mjs";
-import { MathUtils } from "../../utils-ts/modules/math/MathUtils.mjs";
 import { WorldData } from "../constants/GameData.mjs";
-import { GameUtils } from "../game-utilities/GameUtils.mjs";
 import { Slope, World } from "../world/World.js";
 
 export class TowerTile {
-	static tileGlowGradient: CanvasGradient | null = null;
-	static diagonalGlowGradient: CanvasGradient | null = null;
-
-	static getTileGlowGradent() {
-		if(this.tileGlowGradient) { return this.tileGlowGradient; }
-		this.tileGlowGradient = GameUtils.glowLineGradient(
-			0, 0, 0, -WorldData.TILE_GLOW_SIZE,
-			WorldData.TILE_GLOW_INTENSITY,
-			WorldData.TILE_GLOW_COLOR.red, WorldData.TILE_GLOW_COLOR.green, WorldData.TILE_GLOW_COLOR.blue,
-		);
-		return this.tileGlowGradient;
-	}
-	static getDiagonalGlowGradient() {
-		if(this.diagonalGlowGradient) { return this.diagonalGlowGradient; }
-		this.diagonalGlowGradient = GameUtils.glowCircleGradient(
-			0, 0, WorldData.TILE_GLOW_SIZE,
-			WorldData.TILE_GLOW_INTENSITY,
-			WorldData.TILE_GLOW_COLOR.red, WorldData.TILE_GLOW_COLOR.green, WorldData.TILE_GLOW_COLOR.blue,
-		);
-		return this.diagonalGlowGradient;
-	}
-
 	static displaySlopedAccent(position: Vector, canvasIO: CanvasIO, tile: Slope, world: World) {
 		const inwardNormal = {
 			"slope-floor-left": new Vector(-1, 1),
@@ -118,142 +94,6 @@ export class TowerTile {
 			}
 		}
 	}
-
-	static displayTileGlow(position: Vector, canvasIO: CanvasIO, world: World, directions: readonly Direction[] = Directions.DIRECTIONS, cornerOnly: boolean = false) {
-		const center = position.multiply(WorldData.TILE_SIZE).add(WorldData.TILE_SIZE / 2, WorldData.TILE_SIZE / 2);
-		for(const direction of directions) {
-			const adjacentTile = World.isEdgeBasicSolid(world.tiles.get(position.add(Vector.unit(direction))), Directions.opposite[direction]);
-			const right = Directions.rotateClockwise[direction];
-			const tileRight = (
-				World.isEdgeBasicSolid(world.tiles.get(position.add(Vector.unit(right))), direction)
-				|| World.isEdgeBasicSolid(world.tiles.get(position.add(Vector.unit(right))), Directions.opposite[right])
-			);
-			const tileDiagonalRight = (
-				World.isEdgeBasicSolid(world.tiles.get(position.add(Vector.unit(direction))), right)
-				|| World.isEdgeBasicSolid(world.tiles.get(position.add(Vector.unit(direction).add(Vector.unit(right)))), Directions.opposite[right])
-			);
-			if(!adjacentTile) {
-				if(!cornerOnly) {
-					TowerTile.displayGlow(position, canvasIO, direction);
-				}
-				if(!tileRight && !tileDiagonalRight) {
-					const tileEdgeCenter = center.add(Vector.unit(direction).multiply(WorldData.TILE_SIZE / 2));
-					const rightEdgeCorner = tileEdgeCenter.add(Vector.unit(right).multiply(WorldData.TILE_SIZE / 2));
-					canvasIO.ctx.save();
-					canvasIO.ctx.translate(rightEdgeCorner.x, rightEdgeCorner.y);
-					canvasIO.ctx.rotate(-Directions.angle[direction] + Math.PI / 2);
-					canvasIO.ctx.fillStyle = TowerTile.getDiagonalGlowGradient();
-					canvasIO.ctx.globalCompositeOperation = "lighter";
-					canvasIO.ctx.fillRect(0, -WorldData.TILE_GLOW_SIZE, WorldData.TILE_SIZE, WorldData.TILE_GLOW_SIZE);
-					canvasIO.ctx.restore();
-				}
-			}
-		}
-	}
-	static displayGlow(position: Vector, canvasIO: CanvasIO, direction: Direction) {
-		const center = position.multiply(WorldData.TILE_SIZE).add(WorldData.TILE_SIZE / 2, WorldData.TILE_SIZE / 2);
-		const tileEdgeCenter = center.add(Vector.unit(direction).multiply(WorldData.TILE_SIZE / 2));
-		canvasIO.ctx.save();
-		canvasIO.ctx.translate(tileEdgeCenter.x, tileEdgeCenter.y);
-		canvasIO.ctx.rotate(-Directions.angle[direction] + Math.PI / 2);
-		canvasIO.ctx.fillStyle = TowerTile.getTileGlowGradent();
-		canvasIO.ctx.globalCompositeOperation = "lighter";
-		canvasIO.ctx.fillRect(-WorldData.TILE_SIZE / 2, -WorldData.TILE_GLOW_SIZE, WorldData.TILE_SIZE, WorldData.TILE_GLOW_SIZE);
-		canvasIO.ctx.restore();
-	}
-	static displaySlopeGlow(position: Vector, canvasIO: CanvasIO, slope: Slope, world: World) {
-		TowerTile.displaySlopeEdgeGlow(position, canvasIO, slope, world);
-		TowerTile.displaySlopeCornerGlow(position, canvasIO, slope, world);
-	}
-	static displaySlopeEdgeGlow(position: Vector, canvasIO: CanvasIO, slope: Slope, world: World) {
-		const edges = TowerTile.slopeEdges(slope);
-		for(const edge of edges) {
-			if(!World.isEdgeBasicSolid(world.tiles.get(position.add(Vector.unit(edge))), Directions.opposite[edge])) {
-				TowerTile.displayGlow(position, canvasIO, edge);
-			}
-		}
-
-		const center = position.add(1/2, 1/2).multiply(WorldData.TILE_SIZE);
-		canvasIO.ctx.save();
-		canvasIO.ctx.translate(center.x, center.y);
-		const angle = {
-			"slope-floor-left": 45,
-			"slope-floor-right": -45,
-			"slope-ceiling-left": 135,
-			"slope-ceiling-right": -135,
-		}[slope];
-
-		canvasIO.ctx.rotate(MathUtils.toRadians(angle));
-		canvasIO.ctx.fillStyle = TowerTile.getTileGlowGradent();
-		canvasIO.ctx.globalCompositeOperation = "lighter";
-		canvasIO.ctx.fillRect(
-			-WorldData.TILE_SIZE * Math.SQRT2 / 2, -WorldData.TILE_GLOW_SIZE,
-			WorldData.TILE_SIZE * Math.SQRT2, WorldData.TILE_GLOW_SIZE,
-		);
-		canvasIO.ctx.restore();
-	}
-	static displaySlopeCornerGlow(position: Vector, canvasIO: CanvasIO, slope: Slope, world: World) {
-		const data = ({
-			"slope-floor-left": [
-				["up", "left", 315, position.multiply(WorldData.TILE_SIZE), false],
-				["right", "down", 315, position.add(1, 1).multiply(WorldData.TILE_SIZE), true],
-			],
-			"slope-floor-right": [
-				["left", "down", 225, position.add(0, 1).multiply(WorldData.TILE_SIZE), false],
-				["up", "right", 225, position.add(1, 0).multiply(WorldData.TILE_SIZE), true],
-			],
-			"slope-ceiling-left": [
-				["down", "left", 45, position.add(0, 1).multiply(WorldData.TILE_SIZE), true],
-				["right", "up", 45, position.add(1, 0).multiply(WorldData.TILE_SIZE), false],
-			],
-			"slope-ceiling-right": [
-				["down", "right", 135, position.add(1, 1).multiply(WorldData.TILE_SIZE), false],
-				["left", "up", 135, position.multiply(WorldData.TILE_SIZE), true],
-			],
-		} as const)[slope];
-		for(const [adjacentDirection, perpendicularDirection, startAngle, corner, clockwise] of data) {
-			const angle = 45 + world.angle(position, adjacentDirection, perpendicularDirection);
-			if(angle === 135) {
-				GameUtils.glowArc(
-					corner.x, corner.y,
-					WorldData.TILE_GLOW_SIZE, WorldData.TILE_GLOW_INTENSITY,
-					canvasIO,
-					MathUtils.toRadians(clockwise ? startAngle : startAngle - 45),
-					MathUtils.toRadians(clockwise ? startAngle + 45 : startAngle),
-					WorldData.TILE_GLOW_COLOR.red, WorldData.TILE_GLOW_COLOR.green, WorldData.TILE_GLOW_COLOR.blue,
-				);
-				GameUtils.glowArc(
-					corner.x, corner.y,
-					WorldData.TILE_GLOW_SIZE, WorldData.TILE_GLOW_INTENSITY,
-					canvasIO,
-					MathUtils.toRadians(clockwise ? startAngle - 90 : startAngle + 45),
-					MathUtils.toRadians(clockwise ? startAngle - 45 : startAngle + 90),
-					WorldData.TILE_GLOW_COLOR.red, WorldData.TILE_GLOW_COLOR.green, WorldData.TILE_GLOW_COLOR.blue,
-				);
-			}
-
-			if(angle <= 180) { continue; }
-			if(angle === 270 && clockwise) { continue; } // prevent re-drawing same glow when two corners meet at a point
-			GameUtils.glowArc(
-				corner.x, corner.y,
-				WorldData.TILE_GLOW_SIZE, WorldData.TILE_GLOW_INTENSITY,
-				canvasIO,
-				clockwise ? MathUtils.toRadians(startAngle) : MathUtils.toRadians(startAngle - (angle - 180)),
-				clockwise ? MathUtils.toRadians(startAngle + (angle - 180)) : MathUtils.toRadians(startAngle),
-				WorldData.TILE_GLOW_COLOR.red, WorldData.TILE_GLOW_COLOR.green, WorldData.TILE_GLOW_COLOR.blue,
-			);
-		}
-
-
-		const cornerSide = ({
-			"slope-floor-left": "down",
-			"slope-floor-right": "right",
-			"slope-ceiling-left": "left",
-			"slope-ceiling-right": "up",
-		} as const)[slope];
-		TowerTile.displayTileGlow(position, canvasIO, world, [cornerSide], true);
-	}
-
 
 	static slopeEdges(tile: Slope) {
 		return ({

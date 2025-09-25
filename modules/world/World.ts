@@ -107,7 +107,7 @@ export class World {
 		this.applyScreenShake(canvasIO);
 		const translation = this.translationToCamera(canvasIO);
 		canvasIO.ctx.translate(translation.x, translation.y);
-		this.displayGlowEffects(canvasIO, visibleTileRegion);
+		this.displayGlowEffects(canvasIO);
 		this.displayLaserBlocks(canvasIO, visibleTileRegion);
 		this.displayLasers(canvasIO);
 		this.displayParticles(canvasIO);
@@ -163,22 +163,10 @@ export class World {
 			Math.ceil(center.y + (canvasIO.canvas.height / 2 / WorldData.TILE_SIZE)) + offscreenTiles,
 		);
 	}
-	displayGlowEffects(canvasIO: CanvasIO, visibleTileRegion: Rectangle) {
+	displayGlowEffects(canvasIO: CanvasIO) {
 		const entityRegion = this.visibleRegion(canvasIO, WorldData.GLOW_RENDER_DISTANCE);
 		for(const entity of this.entities.entitiesIntersecting(entityRegion)) {
 			entity.displayGlowEffect(canvasIO);
-		}
-		for(let x = visibleTileRegion.left(); x < visibleTileRegion.right(); x ++) {
-			for(let y = visibleTileRegion.top(); y < visibleTileRegion.bottom(); y ++) {
-				const position = new Vector(x, y);
-				const tile = this.tiles.get(position);
-				if(tile instanceof BasicTile && tile.shape === "full" && tile.texture === "tower") {
-					TowerTile.displayTileGlow(position, canvasIO, this);
-				}
-				else if(World.isSlopeTile(tile) && tile.texture === "tower") {
-					TowerTile.displaySlopeGlow(position, canvasIO, tile.shape, this);
-				}
-			}
 		}
 		for(const { tile, x, y } of this.entities.allTileEntities()) {
 			if(tile instanceof LaserBlock) {
