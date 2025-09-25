@@ -157,6 +157,11 @@ export class LaserBlockData {
 	static ACTIVATED_THICKNESS = 10;
 	static ACTIVATED_GLOW_INTENSITY = 0.7;
 	static ACTIVATED_GLOW_SIZE = 100;
+	static ACTIVATED_COLOR = {
+		red: 255,
+		green: 0,
+		blue: 0,
+	};
 
 	static BARREL_COLOR = "rgb(50, 50, 50)";
 	static BARREL_THICKNESS = WorldData.TILE_SIZE * 0.2;

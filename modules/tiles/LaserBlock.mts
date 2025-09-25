@@ -51,7 +51,7 @@ export class LaserBlock {
 		const center = new Vector(x + 1/2, y + 1/2).multiply(WorldData.TILE_SIZE);
 		for(const [i, angle] of this.angles().entries()) {
 			const distance = this.lengths[i];
-			canvasIO.ctx.strokeStyle = `rgb(${LaserBlockData.LASER_COLOR.red}, ${LaserBlockData.LASER_COLOR.green}, ${LaserBlockData.LASER_COLOR.blue})`;
+			canvasIO.ctx.strokeStyle = GameUtils.formatColor(this.color());
 			canvasIO.ctx.save();
 			canvasIO.ctx.translate(center.x, center.y);
 			canvasIO.ctx.rotate(angle);
@@ -60,16 +60,20 @@ export class LaserBlock {
 			canvasIO.ctx.restore();
 		}
 	}
+	color() {
+		return this.mode === "activated" ? LaserBlockData.ACTIVATED_COLOR : LaserBlockData.LASER_COLOR;
+	}
 	displayLaserGlow(canvasIO: CanvasIO, x: number, y: number) {
 		const center = new Vector(x + 1/2, y + 1/2).multiply(WorldData.TILE_SIZE);
 		for(const [i, angle] of this.angles().entries()) {
 			const distance = this.lengths[i];
 			const endpoint = center.add(new Vector(distance, 0).rotate(MathUtils.toDegrees(angle)));
+			const color = this.color();
 			GameUtils.glowOutline(
 				center.x, center.y, endpoint.x, endpoint.y,
 				LaserBlockData.LASER_GLOW_SIZE, LaserBlockData.LASER_GLOW_INTENSITY,
 				canvasIO,
-				LaserBlockData.LASER_COLOR.red, LaserBlockData.LASER_COLOR.green, LaserBlockData.LASER_COLOR.blue,
+				color.red, color.green, color.blue,
 			);
 		}
 	}
