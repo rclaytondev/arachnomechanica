@@ -302,7 +302,7 @@ export class Lizard extends Entity {
 			player.top() < this.position.y + LizardData.PLAYER_DETECTION_WIDTH / 2 &&
 			!this.isObstructed(
 				world, xDirection, LizardData.LOOKAHEAD_DISTANCE,
-				Math.min(MathUtils.dist(lookaheadPoint.x, player.left()), MathUtils.dist(lookaheadPoint.x, player.right())),
+				Math.min(MathUtils.dist(lookaheadPoint.x, player.left()), MathUtils.dist(lookaheadPoint.x, player.right())) - LizardData.LOOKAHEAD_DISTANCE,
 			)
 		) { nextTurn = xDirection; }
 		else if(
@@ -310,7 +310,7 @@ export class Lizard extends Entity {
 			player.left() < this.position.x + LizardData.PLAYER_DETECTION_WIDTH / 2 &&
 			!this.isObstructed(
 				world, yDirection, LizardData.LOOKAHEAD_DISTANCE,
-				Math.min(MathUtils.dist(lookaheadPoint.y, player.top()), MathUtils.dist(lookaheadPoint.y, player.bottom())),
+				Math.min(MathUtils.dist(lookaheadPoint.y, player.top()), MathUtils.dist(lookaheadPoint.y, player.bottom())) - LizardData.LOOKAHEAD_DISTANCE,
 			)
 		) { nextTurn = yDirection; }
 		if(nextTurn !== null && nextTurn !== Directions.opposite[this.direction]) {
