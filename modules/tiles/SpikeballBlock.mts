@@ -6,6 +6,7 @@ import { Spikeball } from "../entities/Spikeball.mjs";
 import { GameUtils } from "../game-utilities/GameUtils.mjs";
 import { World } from "../world/World";
 import { Diagonal } from "../../utils-ts/modules/geometry/Direction.mjs";
+import { Particle } from "../game-utilities/Particle.mjs";
 
 export class SpikeballBlock {
 	timeUntilSpawn: number = 0;
@@ -20,7 +21,7 @@ export class SpikeballBlock {
 		"down-right": 0,
 	};
 
-	constructor(pattern: SpikeballPattern) {
+	constructor(pattern: SpikeballPattern = SpikeballBlockData.PATTERNS[0]) {
 		this.pattern = pattern;
 	}
 
@@ -85,9 +86,9 @@ export class SpikeballBlock {
 		}
 	}
 
-	update(world: World, x: number, y: number) {
+	update(world: World, x: number, y: number, canvasIO: CanvasIO) {
 		this.updateSpikeballs(world, x, y);
-		this.updateDoors();
+		this.updateDoors(world, x, y, canvasIO);
 	}
 	updateSpikeballs(world: World, x: number, y: number) {
 		this.spikeballs = this.spikeballs.filter(
@@ -103,11 +104,11 @@ export class SpikeballBlock {
 			this.timeSinceSpawn = 0;
 		}
 	}
-	updateDoors() {
+	updateDoors(world: World, x: number, y: number, canvasIO: CanvasIO) {
 		for(const xDirection of ["left", "right"] as const) {
 			for(const yDirection of ["up", "down"] as const) {
 				const patternStep = this.pattern[this.patternStep];
-				const direction = `${yDirection}-${xDirection}` as "up-left" | "up-right" | "down-left" | "down-right";
+				const direction = `${yDirection}-${xDirection}` as Diagonal;
 				const open = (
 					this.timeUntilSpawn < SpikeballBlockData.DOOR_OPENING_TIME
 					&& patternStep.some(p => p[0] === xDirection && p[1] === yDirection)
@@ -117,6 +118,24 @@ export class SpikeballBlock {
 				);
 				const target = open ? SpikeballBlockData.DOOR_OPENNESS : 0;
 				this.doors[direction] = GameUtils.moveTowards(this.doors[direction], target, SpikeballBlockData.DOOR_OPENING_SPEED);
+				if(open) {
+					this.spawnParticles(x, y, xDirection, yDirection, world, canvasIO);
+				}
+			}
+		}
+	}
+	spawnParticles(x: number, y: number, xDirection: "left" | "right", yDirection: "up" | "down", world: World, canvasIO: CanvasIO) {
+		const diagonal = `${yDirection}-${xDirection}` as Diagonal;
+		const perpendicular = Directions.rotateClockwise[diagonal];
+		for(let i = 0; i < SpikeballBlockData.PARTICLE_SPAWN_ATTEMPTS; i ++) {
+			if(Math.random() < SpikeballBlockData.PARTICLE_SPAWN_PROBABILITY) {
+				const offset = GameUtils.random(-SpikeballBlockData.PARTICLE_PERPENDICULAR_OFFSET, SpikeballBlockData.PARTICLE_PERPENDICULAR_OFFSET);
+				const velocity = GameUtils.random(SpikeballBlockData.PARTICLE_MIN_VELOCITY, SpikeballBlockData.PARTICLE_MAX_VELOCITY);
+				world.addParticle(new Particle(
+					new Vector(x + 1/2, y + 1/2).multiply(WorldData.TILE_SIZE).add(Vector.unit(perpendicular).multiply(offset)),
+					Vector.unit(diagonal).multiply(velocity),
+					SpikeballBlockData.PARTICLE_SETTINGS,
+				), canvasIO);
 			}
 		}
 	}

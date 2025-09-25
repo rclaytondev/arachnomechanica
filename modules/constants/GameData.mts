@@ -382,6 +382,18 @@ export class SpikeballBlockData {
 	static GLOW_SIZE = 150;
 	static GLOW_INTENSITY = 0.75;
 	static ACCENT_WIDTH = 3;
+
+	static PARTICLE_SPAWN_ATTEMPTS = 2;
+	static PARTICLE_SPAWN_PROBABILITY = 1;
+	static PARTICLE_PERPENDICULAR_OFFSET = 10;
+	static PARTICLE_MIN_VELOCITY = 4.5;
+	static PARTICLE_MAX_VELOCITY = 5;
+	static PARTICLE_SETTINGS: ParticleSettings = {
+		color: { red: 100, green: 100, blue: 100 },
+		size: { min: 5, max: 10 },
+		grayscaleColorVariance: 25,
+		sizeDecay: 0.3,
+	};
 }
 
 export class PortalData {
