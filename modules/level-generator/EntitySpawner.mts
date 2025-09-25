@@ -20,25 +20,26 @@ export class EntitySpawner {
 		return GameUtils.randomPermutation([...EntitySpawner.FEATURES]).slice(0, 2);
 	}
 
-	static spawnAllEntities(tileRegion: Rectangle, world: World) {
+	static spawnAllEntities(tileRegion: Rectangle, safeRegion: Rectangle, world: World) {
 		const features = EntitySpawner.randomFeatures();
 		if(features.includes("lasers")) {
-			this.spawnLasers(tileRegion, world);
+			this.spawnLasers(tileRegion, safeRegion, world);
 		}
 		if(features.includes("spikeballs")) {
-			this.spawnSpikeballBlocks(tileRegion, world);
+			this.spawnSpikeballBlocks(tileRegion, safeRegion, world);
 		}
 		if(features.includes("lizards")) {
-			this.spawnLizards(tileRegion, world);
+			this.spawnLizards(tileRegion, safeRegion, world);
 		}
 		if(features.includes("spiders")) {
-			this.spawnSpiders(tileRegion, world);
+			this.spawnSpiders(tileRegion, safeRegion, world);
 		}
 	}
 
 
-	static spawnEntities(amount: number, evenness: number, tileRegion: Rectangle, requirements: ((position: Vector, world: World) => boolean)[], spawn: (position: Vector, world: World) => boolean, world: World) {
-		const positions = tileRegion.squares();
+	static spawnEntities(amount: number, evenness: number, tileRegion: Rectangle, requirements: ((position: Vector, world: World) => boolean)[], spawn: (position: Vector, world: World) => boolean, safeRegion: Rectangle, world: World) {
+		const safePositions = new Set(safeRegion.squares().map(s => s.toString()));
+		const positions = tileRegion.squares().filter(s => !safePositions.has(s.toString()));
 		let possiblePositions = positions.filter(position => requirements.every(r => r(position, world)));
 		const spawnedPositions: Vector[] = [];
 		while(spawnedPositions.length < amount && possiblePositions.length > 0) {
@@ -110,7 +111,7 @@ export class EntitySpawner {
 			return world.tiles.get(position.add(0, -1)) !== "empty";
 		},
 	};
-	static spawnLasers(tileRegion: Rectangle, world: World) {
+	static spawnLasers(tileRegion: Rectangle, safeRegion: Rectangle, world: World) {
 		this.spawnEntities(
 			tileRegion.area() / (RoomData.SIZE ** 2) * LaserBlockData.LASERS_PER_ROOM,
 			LaserBlockData.SPAWN_EVENNESS,
@@ -126,10 +127,11 @@ export class EntitySpawner {
 				world.addTile(position, LaserBlock.generate());
 				return true;
 			},
+			safeRegion,
 			world,
 		);
 	}
-	static spawnSpikeballBlocks(tileRegion: Rectangle, world: World) {
+	static spawnSpikeballBlocks(tileRegion: Rectangle, safeRegion: Rectangle, world: World) {
 		this.spawnEntities(
 			tileRegion.area() / (RoomData.SIZE ** 2) * SpikeballBlockData.SPIKEBALLS_PER_ROOM,
 			SpikeballBlockData.SPAWN_EVENNESS,
@@ -144,20 +146,22 @@ export class EntitySpawner {
 				world.addTile(position, new SpikeballBlock(Utils.randomItem(SpikeballBlockData.PATTERNS)));
 				return true;
 			},
+			safeRegion,
 			world,
 		);
 	}
-	static spawnLizards(tileRegion: Rectangle, world: World) {
+	static spawnLizards(tileRegion: Rectangle, safeRegion: Rectangle, world: World) {
 		this.spawnEntities(
 			tileRegion.area() / (RoomData.SIZE ** 2) * LizardData.LIZARDS_PER_ROOM,
 			LizardData.SPAWN_EVENNESS,
 			tileRegion,
 			[EntitySpawner.spawnRequirements.replaceEmpty],
 			Lizard.spawn,
+			safeRegion,
 			world,
 		);
 	}
-	static spawnSpiders(tileRegion: Rectangle, world: World) {
+	static spawnSpiders(tileRegion: Rectangle, safeRegion: Rectangle, world: World) {
 		this.spawnEntities(
 			tileRegion.area() / (RoomData.SIZE ** 2) * SpiderData.SPIDERS_PER_ROOM,
 			SpiderData.SPAWN_EVENNESS,
@@ -167,6 +171,7 @@ export class EntitySpawner {
 				EntitySpawner.spawnRequirements.solidAdjacent,
 			],
 			Spider.spawn,
+			safeRegion,
 			world,
 		);
 	}
