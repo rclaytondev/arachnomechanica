@@ -1,9 +1,10 @@
 import { Vector } from "../../utils-ts/modules/geometry/Vector.mjs";
-import { RoomData } from "../constants/GameData.mjs";
+import { RoomData, WorldData } from "../constants/GameData.mjs";
 import { GateState } from "./GateState.mjs";
 import { Room } from "./Room.mjs";
 import { Gate } from "../tiles/Gate.mjs";
 import { Portal } from "../entities/Portal.mjs";
+import { SpawnPoint } from "../entities/SpawnPoint.mjs";
 
 export let ROOMS: Room[] = [];
 
@@ -5763,6 +5764,7 @@ export class Rooms {
 					{ x: 0, y: 5, direction: "left" },
 				],
 				[
+					new SpawnPoint(new Vector(5 * WorldData.TILE_SIZE, 9 * WorldData.TILE_SIZE)),
 				],
 				() => false,
 			),

@@ -15,6 +15,8 @@ import { GateState } from "./GateState.mjs";
 import { Room } from "./Room.mjs";
 import { RoomPlaceholder } from "./RoomPlaceholder.mjs";
 import { ROOMS } from "./Rooms.mjs";
+import { Portal } from "../entities/Portal.mjs";
+import { SpawnPoint } from "../entities/SpawnPoint.mjs";
 
 export class WorldGenerator {
 	path: Vector[] = [];
@@ -40,7 +42,7 @@ export class WorldGenerator {
 		let x = GameUtils.randomInt(0, LevelGeneratorData.WIDTH - 1);
 		let y = 0;
 		this.path.push(new Vector(x, y));
-		const portalRoom = new RoomPlaceholder([], ROOMS.find(r => r.name === "level-exit")!);
+		const portalRoom = new RoomPlaceholder([], ROOMS.find(r => r.entities.some(e => e instanceof Portal))!);
 		portalRoom.generated = true;
 		this.rooms.set(x, y, portalRoom);
 		while(y < LevelGeneratorData.HEIGHT - 1) {
@@ -52,7 +54,7 @@ export class WorldGenerator {
 			[x, y] = [nextPosition.x, nextPosition.y];
 		}
 		const startRoom = this.rooms.get(this.path[this.path.length - 1])!;
-		startRoom.room = Utils.randomItem(ROOMS.filter(r => r.originalName.includes("start-room")));
+		startRoom.room = Utils.randomItem(ROOMS.filter(r => r.entities.some(e => e instanceof SpawnPoint)));
 		startRoom.generated = true;
 	}
 	possibleNextDirections(x: number, y: number): Direction[] {

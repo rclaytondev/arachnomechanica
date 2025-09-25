@@ -6,6 +6,7 @@ import { Entity } from "../game-utilities/Entity.mjs";
 import { GameUtils } from "../game-utilities/GameUtils.mjs";
 import { Particle } from "../game-utilities/Particle.mjs";
 import { World } from "../world/World.js";
+import { SpawnPoint } from "./SpawnPoint.mjs";
 
 export class Portal extends Entity {
 	position: Vector;
@@ -41,9 +42,10 @@ export class Portal extends Entity {
 		), canvasIO);
 	}
 	teleportPlayer(world: World) {
-		const tile = world.playerSpawnPosition(world.nextPlayerSpawnRoom);
-		world.player.hitbox.x = tile.x * WorldData.TILE_SIZE;
-		world.player.hitbox.y = tile.y * WorldData.TILE_SIZE;
+		const nextLevel = world.nextLevelTileRectangle(world.levelsVisited).scale(WorldData.TILE_SIZE);
+		const nextSpawn = [...world.entities.entitiesPossiblyIntersecting(nextLevel)].find(e => e instanceof SpawnPoint)!;
+		world.player.hitbox.x = nextSpawn.position.x;
+		world.player.hitbox.y = nextSpawn.position.y;
 	}
 
 	display(canvasIO: CanvasIO) {

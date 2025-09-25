@@ -9,6 +9,7 @@ import { Portal } from "../entities/Portal.mjs";
 import { BasicTile } from "../tiles/BasicTile.mjs";
 import { ROOMS } from "./Rooms.mjs";
 import { Utils } from "../../utils-ts/modules/Utils.mjs";
+import { SpawnPoint } from "../entities/SpawnPoint.mjs";
 
 export type Traversability = { start: GateState, end: GateState }[];
 export type RoomTile = "empty" | "platform" | BasicTile | Gate;
@@ -21,9 +22,9 @@ export class Room {
 	exitTiles: Grid<Direction | "none">;
 	traversability: Traversability;
 	weight: number;
-	entities: Portal[];
+	entities: (Portal | SpawnPoint)[];
 
-	constructor(name: string, tiles: { x: number, y: number, type: | "solid" | "platform" | Slope | Gate }[] | Grid<RoomTile>, exitTiles: { x: number, y: number, direction: Direction }[] | Grid<Direction | "none">, entities: Portal[] = [], canSpawnWithExits: (exits: Set<Direction>) => boolean, traversability?: Traversability, weight: number = 1) {
+	constructor(name: string, tiles: { x: number, y: number, type: | "solid" | "platform" | Slope | Gate }[] | Grid<RoomTile>, exitTiles: { x: number, y: number, direction: Direction }[] | Grid<Direction | "none">, entities: (Portal | SpawnPoint)[] = [], canSpawnWithExits: (exits: Set<Direction>) => boolean, traversability?: Traversability, weight: number = 1) {
 		this.originalName = name;
 		this.name = name;
 		if(tiles instanceof Grid) {

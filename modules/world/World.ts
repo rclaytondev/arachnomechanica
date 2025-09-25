@@ -26,6 +26,7 @@ import { FlameturretEntity } from "../items/item-entities/FlameturretEntity.mjs"
 import { Entity } from "../game-utilities/Entity.mjs";
 import { Utils } from "../../utils-ts/modules/Utils.mjs";
 import { Collideable } from "../game-utilities/Collideable.mjs";
+import { SpawnPoint } from "../entities/SpawnPoint.mjs";
 
 export type TileEntity = BasicTile | Gate | LaserBlock | SpikeballBlock;
 export type Tile = (typeof WorldData.STRING_TILE_TYPES)[number] | TileEntity;
@@ -62,7 +63,7 @@ export class World {
 
 	initializeGeneration() {
 		this.worldGenerator.generateLevel(this);
-		this.spawnPlayer(this.worldGenerator.path[this.worldGenerator.path.length - 1]);
+		this.spawnPlayer(this.worldGenerator);
 		const rectangle = this.worldGenerator.levelRectangle().scale(RoomData.SIZE);
 		const startRoom = this.worldGenerator.path[this.worldGenerator.path.length - 1];
 		EntitySpawner.spawnAllEntities(
@@ -72,12 +73,18 @@ export class World {
 		);
 		return this;
 	}
-	spawnPlayer(startRoom: Vector) {
-		const tile = this.playerSpawnPosition(startRoom);
-		this.player.hitbox.x = tile.x * WorldData.TILE_SIZE;
-		this.player.hitbox.y = tile.y * WorldData.TILE_SIZE;
+	spawnPlayer(worldGenerator: WorldGenerator) {
+		const startRoom = worldGenerator.path[worldGenerator.path.length - 1];
+		const startRoomRect = Rectangle.square(startRoom.x, startRoom.y, 1).scale(RoomData.SIZE * WorldData.TILE_SIZE);
+		const spawnPoint = [...this.entities.entitiesPossiblyIntersecting(startRoomRect)].find(e => e instanceof SpawnPoint)!;
+		this.player.hitbox.x = spawnPoint.position.x;
+		this.player.hitbox.y = spawnPoint.position.y;
 		this.addEntityIfEmpty(this.player);
 		this.camera = this.player.hitbox.center();
+	}
+	nextLevelTileRectangle(levels: number = this.levelsVisited) {
+		const levelHeight = RoomData.SIZE * LevelGeneratorData.HEIGHT + LevelGeneratorData.BORDER_Y;
+		return new Rectangle(0, -levels * levelHeight, LevelGeneratorData.WIDTH * RoomData.SIZE, LevelGeneratorData.HEIGHT * RoomData.SIZE);
 	}
 	playerSpawnPosition(startRoom: Vector) {
 		const levelHeight = RoomData.SIZE * LevelGeneratorData.HEIGHT + LevelGeneratorData.BORDER_Y;

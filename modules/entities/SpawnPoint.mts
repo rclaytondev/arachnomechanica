@@ -1,0 +1,29 @@
+import { Rectangle } from "../../utils-ts/modules/geometry/Rectangle.mjs";
+import { Vector } from "../../utils-ts/modules/geometry/Vector.mjs";
+import { Entity } from "../game-utilities/Entity.mjs";
+
+export class SpawnPoint extends Entity {
+	position: Vector;
+
+	constructor(position: Vector) {
+		super();
+		this.position = position;
+	}
+
+	display() {}
+	update() {}
+
+	boundingBox(): Rectangle {
+		return Rectangle.square(this.position.x, this.position.y, 1);
+	}
+
+	copy() {
+		return new SpawnPoint(this.position);
+	}
+	copyAndTranslate(amount: Vector) {
+		return new SpawnPoint(this.position.add(amount));
+	}
+	reflect() {
+		return this.copy();
+	}
+}
