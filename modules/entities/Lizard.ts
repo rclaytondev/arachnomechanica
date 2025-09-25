@@ -393,8 +393,8 @@ export class Lizard extends Collideable {
 				return true;
 			}
 		}
-		const entities = [...world.entities.entitiesIntersecting(lookaheadRectangle)];
-		if(entities.some(entity => entity instanceof Collideable && !(entity instanceof Player) && entity.hitboxes().some(b => b.intersects(lookaheadRectangle)))) {
+		const entities = [...world.entities.collideablesIntersecting(lookaheadRectangle)];
+		if(entities.some(entity => !(entity instanceof Player))) {
 			return true;
 		}
 		return false;

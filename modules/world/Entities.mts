@@ -5,6 +5,7 @@ import { Utils } from "../../utils-ts/modules/Utils.mjs";
 import { WorldData } from "../constants/GameData.mjs";
 import { TileEntity, TileEntityWithPosition } from "./World";
 import { Entity } from "../game-utilities/Entity.mjs";
+import { Collideable } from "../game-utilities/Collideable.mjs";
 
 export class Entities {
 	positions: Map<Entity, Vector[]> = new Map();
@@ -55,9 +56,14 @@ export class Entities {
 		const values = [...this.entities.values()].filter(v => v != null);
 		return Utils.union(...values);
 	}
-	entitiesIntersecting(rectangle: Rectangle) {
+	entitiesPossiblyIntersecting(rectangle: Rectangle) {
 		const positions = [...this.entityGridPositions(rectangle).squares()];
 		return new Set(positions.flatMap(v => [...(this.entities.get(v) ?? [])]));
+	}
+	collideablesIntersecting(rectangle: Rectangle, collides: (collideable: Collideable) => boolean = () => true) {
+		return new Set([...this.entitiesPossiblyIntersecting(rectangle)].filter(
+			e => e instanceof Collideable && collides(e) && e.hitboxes().some(h => h.intersects(rectangle)),
+		)) as Set<Collideable>;
 	}
 
 	private addEntityToGrid(entity: Entity, gridSquare: Vector) {

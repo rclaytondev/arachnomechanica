@@ -7,7 +7,6 @@ import { GameUtils } from "../game-utilities/GameUtils.mjs";
 import { World } from "../world/World";
 import { Diagonal } from "../../utils-ts/modules/geometry/Direction.mjs";
 import { Particle } from "../game-utilities/Particle.mjs";
-import { Collideable } from "../game-utilities/Collideable.mjs";
 
 export class SpikeballBlock {
 	timeUntilSpawn: number = 0;
@@ -189,10 +188,8 @@ export class SpikeballBlock {
 			new Vector(x, y).add(Vector.unit(yDirection)),
 			new Vector(x, y).add(Vector.unit(xDirection)).add(Vector.unit(yDirection)),
 		);
-		const intersecting = [...world.entities.entitiesIntersecting(spikeball.hitbox)].filter(
-			e => e instanceof Collideable && e.hitboxes().some(h => h.intersects(spikeball.hitbox)),
-		);
-		if(intersecting.length === 0) {
+		const intersecting = world.entities.collideablesIntersecting(spikeball.hitbox);
+		if(intersecting.size === 0) {
 			this.spikeballs.push(spikeball);
 			world.entities.addEntity(spikeball);
 			return spikeball;

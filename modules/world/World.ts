@@ -170,7 +170,7 @@ export class World {
 	}
 	displayGlowEffects(canvasIO: CanvasIO) {
 		const entityRegion = this.visibleRegion(canvasIO, WorldData.GLOW_RENDER_DISTANCE);
-		for(const entity of this.entities.entitiesIntersecting(entityRegion)) {
+		for(const entity of this.entities.entitiesPossiblyIntersecting(entityRegion)) {
 			entity.displayGlowEffect(canvasIO);
 		}
 		for(const { tile, x, y } of this.entities.allTileEntities()) {
@@ -262,7 +262,7 @@ export class World {
 	}
 	displayEntities(canvasIO: CanvasIO) {
 		const region = this.visibleRegion(canvasIO, WorldData.ENTITY_RENDER_DISTANCE);
-		for(const entity of this.entities.entitiesIntersecting(region)) {
+		for(const entity of this.entities.entitiesPossiblyIntersecting(region)) {
 			entity.display(canvasIO, this);
 		}
 	}
@@ -281,7 +281,7 @@ export class World {
 	}
 	displayDebugInfo(canvasIO: CanvasIO) {
 		const region = this.visibleRegion(canvasIO, WorldData.ENTITY_RENDER_DISTANCE);
-		for(const entity of this.entities.entitiesIntersecting(region)) {
+		for(const entity of this.entities.entitiesPossiblyIntersecting(region)) {
 			entity.displayDebug(canvasIO);
 		}
 	}
@@ -307,7 +307,7 @@ export class World {
 	}
 	updateEntities(canvasIO: CanvasIO) {
 		const region = this.visibleRegion(canvasIO, WorldData.ENTITY_UPDATE_DISTANCE);
-		for(const entity of this.entities.entitiesIntersecting(region)) {
+		for(const entity of this.entities.entitiesPossiblyIntersecting(region)) {
 			entity.update(this, canvasIO);
 		}
 	}
@@ -425,17 +425,8 @@ export class World {
 		}
 		return tiles;
 	}
-	collidingEntities(rectangle: Rectangle, collides: (object: { x: number, y: number, tile: Tile } | Entity) => boolean = () => true) {
-		const solids = [];
-		for(const entity of this.entities.entitiesIntersecting(rectangle)) {
-			if(entity instanceof Collideable && collides(entity) && entity.hitboxes().some(b => rectangle.intersects(b))) {
-				solids.push(entity);
-			}
-		}
-		return solids;
-	}
 	isInSolid(rectangle: Rectangle, collides: (object: { x: number, y: number, tile: Tile } | Entity) => boolean = () => true) {
-		return this.collidingTiles(rectangle, collides).length !== 0 || this.collidingEntities(rectangle, collides).length !== 0;
+		return this.collidingTiles(rectangle, collides).length !== 0 || this.entities.collideablesIntersecting(rectangle, collides).size !== 0;
 	}
 	isBoundarySolid(worldPosition: Vector, direction: Direction, ignoredTiles: Tile[] = []) {
 		const tilePosition = (
@@ -536,7 +527,7 @@ export class World {
 		let result = Infinity;
 		const furthestEndpoint = position.add(direction.multiply(maxLength));
 		const rectangle = Rectangle.fromOppositeCorners(position, furthestEndpoint);
-		for(const entity of this.entities.entitiesIntersecting(rectangle)) {
+		for(const entity of this.entities.entitiesPossiblyIntersecting(rectangle)) {
 			if(!(entity instanceof Collideable) || !collides(entity)) { continue; }
 			for(const hitbox of entity.hitboxes()) {
 				result = Math.min(result, GameUtils.rayIntersectsRectangle(position, direction, hitbox));
@@ -656,10 +647,8 @@ export class World {
 		if(this.player.hitbox.intersects(hurtbox)) {
 			this.player.damage(hurtbox, this);
 		}
-		for(const entity of this.entities.entitiesIntersecting(hurtbox)) {
-			if(entity instanceof Collideable && entity.hitboxes().some(h => h.intersects(hurtbox))) {
-				entity.damage(hurtbox, this, canvasIO);
-			}
+		for(const entity of this.entities.collideablesIntersecting(hurtbox)) {
+			entity.damage(hurtbox, this, canvasIO);
 		}
 	}
 
