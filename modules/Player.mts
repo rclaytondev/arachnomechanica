@@ -118,16 +118,10 @@ export class Player extends RectangularEntity {
 	}
 
 	crouch() {
-		this.hitbox = Rectangle.fromBounds(
-			this.hitbox.left(), this.hitbox.right(),
-			this.hitbox.bottom() - PlayerData.CROUCHED_HITBOX_HEIGHT, this.hitbox.bottom(),
-		);
+		this.hitbox = this.hitbox.extend("up", PlayerData.CROUCHED_HITBOX_HEIGHT - this.hitbox.height);
 	}
 	uncrouch(world: World) {
-		const newHitbox = Rectangle.fromBounds(
-			this.hitbox.left(), this.hitbox.right(),
-			this.hitbox.bottom() - PlayerData.HITBOX_HEIGHT, this.hitbox.bottom(),
-		);
+		const newHitbox = this.hitbox.extend("up", PlayerData.HITBOX_HEIGHT - this.hitbox.height);
 		if(!world.isInSolid(newHitbox, o => o !== this)) {
 			this.hitbox = newHitbox;
 		}
