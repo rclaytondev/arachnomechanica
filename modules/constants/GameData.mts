@@ -133,7 +133,7 @@ export class GateData {
 	// static INNER_ACCENT_INSET = 2 * WorldData.TILE_ACCENT_INSET;
 	static INNER_ACCENT_INSET = WorldData.TILE_ACCENT_INSET + (WorldData.TILE_SIZE / 2 - WorldData.TILE_ACCENT_INSET) / 2;
 
-	static TOGGLE_DISTANCE = 0;
+	static TOGGLE_DISTANCE = 5;
 	static SPEED = 0.2;
 	static MIN_DISPLAY_SIZE = 0.15;
 	static HITBOX_SIZE = 0.8;
