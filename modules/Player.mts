@@ -42,6 +42,9 @@ export class Player extends RectangularEntity {
 		this.coyoteTime --;
 		if(this.onGround(world)) {
 			this.hasDoubleJump = true;
+			if(this.isCrouched()) {
+				this.velocity.x *= PlayerData.CROUCHED_FRICTION;
+			}
 		}
 		this.velocity.y += canvasIO.keys.KeyZ && this.velocity.y <= 0 ? PlayerData.GRAVITY_WHILE_JUMPING : PlayerData.GRAVITY;
 		this.velocity.x = MathUtils.constrain(this.velocity.x, -PlayerData.MAX_X_VELOCITY, PlayerData.MAX_X_VELOCITY);
