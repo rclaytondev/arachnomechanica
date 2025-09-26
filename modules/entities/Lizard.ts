@@ -115,23 +115,34 @@ export class Lizard extends Collideable {
 	displayLegs(canvasIO: CanvasIO) {
 		canvasIO.linePointedness = LizardData.LEG_POINTEDNESS;
 		canvasIO.ctx.lineWidth = LizardData.LEG_WIDTH;
+		for(const { connection, knee, foot } of this.legDisplaySegments(0)) {
+			canvasIO.strokeLine(connection.x, connection.y, knee.x, knee.y);
+			canvasIO.halfPointedLine(knee.x, knee.y, foot.x, foot.y);
+		}
+	}
+	legDisplaySegments(startDistance: number = 0) {
+		const results = [];
 		for(let i = 1; i * LizardData.LEG_SPACING < this.length; i ++) {
+			if(i * LizardData.LEG_SPACING < startDistance) { continue; }
 			const multiplier = (i % 2 === 0) ? 1 : -1;
 			const [position] = this.getPointOnBody(i * LizardData.LEG_SPACING);
 			const tangentAngle = this.getLegAngle(i * LizardData.LEG_SPACING);
 			const tangentVector = new Vector(Math.cos(tangentAngle), -Math.sin(tangentAngle));
 			const normalVector = new Vector(-tangentVector.y, tangentVector.x);
-
 			const knee1 = position.add(normalVector.multiply(LizardData.LEG_DISTANCE).add(tangentVector.multiply(this.legPosition * multiplier)));
 			const knee2 = position.add(normalVector.multiply(-LizardData.LEG_DISTANCE).add(tangentVector.multiply(-this.legPosition * multiplier)));
-			canvasIO.strokeLine(position.x, position.y, knee1.x, knee1.y);
-			canvasIO.strokeLine(position.x, position.y, knee2.x, knee2.y);
-
-			const foot1 = knee1.add(tangentVector.multiply(LizardData.LOWER_LEG_LENGTH));
-			const foot2 = knee2.add(tangentVector.multiply(LizardData.LOWER_LEG_LENGTH));
-			canvasIO.halfPointedLine(knee1.x, knee1.y, foot1.x, foot1.y);
-			canvasIO.halfPointedLine(knee2.x, knee2.y, foot2.x, foot2.y);
+			results.push({
+				connection: position,
+				knee: knee1,
+				foot: knee1.add(tangentVector.multiply(LizardData.LOWER_LEG_LENGTH)),
+			});
+			results.push({
+				connection: position,
+				knee: knee2,
+				foot: knee2.add(tangentVector.multiply(LizardData.LOWER_LEG_LENGTH)),
+			});
 		}
+		return results;
 	}
 	transformToHead(canvasIO: CanvasIO) {
 		canvasIO.ctx.translate(this.position.x, this.position.y);
