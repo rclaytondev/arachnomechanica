@@ -10,7 +10,7 @@ Things to do:
 - [ ] Non-flat walls outside the tower
 - [ ] Fancier overlay text (add lines above and below where it says "Floor 01")
 - [ ] Add behavior for when the block under a spider gets destroyed
-- [ ] Lizard death animations
+- [x] Lizard death animations
 - [ ] Tile breaking animations
 - [ ] Chains (graphical only)
 - [ ] Teeth on the lizards

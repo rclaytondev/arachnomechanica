@@ -11,6 +11,7 @@ import { LizardData, WorldData } from "../constants/GameData.mjs";
 import { FireSpawner } from "../game-utilities/FireSpawner.mjs";
 import { Player } from "../Player.mjs";
 import { Collideable } from "../game-utilities/Collideable.mjs";
+import { Particle } from "../game-utilities/Particle.mjs";
 
 type Joint = { position: Vector, direction: Direction };
 
@@ -367,15 +368,67 @@ export class Lizard extends Collideable {
 		const length = this.lengthAfterDamage(rectangle);
 		return (Math.floor(length / WorldData.TILE_SIZE - 1/2) + 1/2) * WorldData.TILE_SIZE;
 	}
-	damage(rectangle: Rectangle, world: World) {
+	damage(rectangle: Rectangle, world: World, canvasIO: CanvasIO) {
 		const length = this.roundedLengthAfterDamage(rectangle);;
 		this.roundedLengthAfterDamage(rectangle);
 		if(length < (LizardData.MIN_LENGTH + 1/2) * WorldData.TILE_SIZE) {
 			world.entities.removeEntity(this);
+			this.spawnDamageParticles(0, world, canvasIO);
 		}
 		else {
+			this.spawnDamageParticles(length, world, canvasIO);
 			this.length = length;
 		}
+	}
+	spawnDamageParticles(newLength: number, world: World, canvasIO: CanvasIO) {
+		this.spawnLegDamageParticles(newLength, world, canvasIO);
+		this.spawnBodyDamageParticles(newLength, world, canvasIO);
+	}
+	spawnLegDamageParticles(newLength: number, world: World, canvasIO: CanvasIO) {
+		for(const { connection, knee, foot } of this.legDisplaySegments(newLength)) {
+			this.spawnDamageParticle(connection, knee, world, canvasIO);
+			this.spawnDamageParticle(knee, foot, world, canvasIO);
+		}
+	}
+	spawnBodyDamageParticles(newLength: number, world: World, canvasIO: CanvasIO) {
+		const [endpoint] = this.getPointOnBody(this.length);
+		const [newEndpoint] = this.getPointOnBody(newLength);
+		let distance = 0;
+		const joints = [
+			{ position: this.position },
+			...this.joints,
+			{ position: endpoint },
+		];
+		for(let i = 0; i < joints.length - 1; i ++) {
+			const [joint, next] = [joints[i], joints[i+1]];
+			const segmentLength = Vector.dist(joint.position, next.position);
+			if(distance < newLength && distance + segmentLength >= newLength) {
+				this.spawnDamageParticle(newEndpoint, next.position, world, canvasIO);
+			}
+			else if(distance >= newLength) {
+				this.spawnDamageParticle(joint.position, next.position, world, canvasIO);
+			}
+			distance += segmentLength;
+		}
+	}
+	spawnDamageParticle(endpoint1: Vector, endpoint2: Vector, world: World, canvasIO: CanvasIO) {
+		const midpoint = endpoint1.add(endpoint2).divide(2);
+		const velocity = new Vector(
+			GameUtils.random(-LizardData.DAMAGE_PARTICLES.VELOCITY.X, LizardData.DAMAGE_PARTICLES.VELOCITY.X),
+			GameUtils.random(LizardData.DAMAGE_PARTICLES.VELOCITY.Y.MIN, LizardData.DAMAGE_PARTICLES.VELOCITY.Y.MAX),
+		);
+		const settings = {
+			...LizardData.DAMAGE_PARTICLES.SETTINGS,
+			shape: (canvasIO: CanvasIO) => {
+				const point1 = endpoint1.subtract(midpoint);
+				const point2 = endpoint2.subtract(midpoint);
+				canvasIO.ctx.strokeStyle = this.color;
+				canvasIO.ctx.lineWidth = LizardData.BODY_WIDTH;
+				canvasIO.strokeLine(point1.x, point1.y, point2.x, point2.y);
+			},
+		};
+		const particle = new Particle(midpoint, velocity, settings);
+		world.addParticle(particle, canvasIO);
 	}
 
 
