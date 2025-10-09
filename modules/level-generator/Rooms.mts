@@ -1381,7 +1381,6 @@ export class Rooms {
 					...Room.gatelessPath("left", "down"),
 					...Room.gatePath("left", "left", false),
 				]),
-				0.1,
 			),
 			new Room(
 				"gate-junction",
@@ -3609,7 +3608,6 @@ export class Rooms {
 				[],
 				(exits) => !exits.has("up") && exits.size >= 2,
 				RoomData.ALL_TRAVERSABILITY,
-				3,
 			),
 			new Room(
 				"gate-platforms",
