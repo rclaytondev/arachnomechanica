@@ -390,6 +390,7 @@ export class SpikeballBlockData {
 	];
 	static BOUNCES_LEFT_BEFORE_SPAWN = 1;
 
+	static TILE_COLOR = LaserBlockData.TILE_COLOR;
 	static DOOR_COLOR = "rgb(50, 50, 50)";
 	static DOOR_OPENING_SPEED = 2;
 	static DOOR_OPENING_TIME = 30;

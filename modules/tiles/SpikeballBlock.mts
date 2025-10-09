@@ -34,7 +34,7 @@ export class SpikeballBlock {
 		);
 	}
 	display(canvasIO: CanvasIO, x: number, y: number) {
-		canvasIO.ctx.fillStyle = WorldData.TILE_COLORS.tower;
+		canvasIO.ctx.fillStyle = SpikeballBlockData.TILE_COLOR;
 		canvasIO.fillSquare(x * WorldData.TILE_SIZE, y * WorldData.TILE_SIZE, WorldData.TILE_SIZE);
 
 		const center = new Vector(x + 1/2, y + 1/2).multiply(WorldData.TILE_SIZE);
