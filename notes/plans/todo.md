@@ -1,5 +1,24 @@
 Things to do:
-- [x] Add a portal to the next level
+- [x] Spawn kill prevention
+- [x] Spikeball visual indicators (particles!)
+- [x] Speed limit when crouching
+- [x] Lizards sometimes don't see you when they should (e.g. when crouching, or when next to a wall)
+- [x] More laser visual cues
+- [x] Fix dying in gates
+- [x] Fix everything being able to push everything else
+- [x] Gates should be able to crush things (note: make Gate into an Entity)
+- [ ] Non-flat walls outside the tower
+- [ ] Fancier overlay text (add lines above and below where it says "Floor 01")
+- [ ] Add behavior for when the block under a spider gets destroyed
+- [ ] Lizard death animations
+- [ ] Tile breaking animations
+- [ ] Chains (graphical only)
+- [ ] Teeth on the lizards
+- [ ] Lizard physics improvements
+	- [ ] Standing on a lizard segment moving horirzontally
+	- [ ] Standing on a lizard segment moving vertically
+
+Future features:
 - Make lots of rooms
 	- [x] 10
 	- [x] 20
@@ -7,18 +26,10 @@ Things to do:
 	- [x] 40
 	- [ ] 50
 	- [ ] 60
-- Tweaks:
-	- [ ] Margins: if there are exits of different heights, pick the smaller (low priority, I haven't noticed this issue much)
-	- [ ] Add tile breaking animations
-	- [ ] Add lizard death animations
-	- [ ] Possible lizard graphics improvements: pulsing eye color, teeth, gears, body of nonconstant width
 - Physics tweaks (inspired by Celeste):
 	- [x] Hold up to jump higher
 	- [ ] Jumping gives a small amount of horizontal speed
 	- [ ] Buffer inputs (so far only jump inputs make sense to buffer)
 	- [ ] Coyote time
 	- [ ] Slip past corners and preserve velocity?
-- [x] Lasers can pass through blocks when facing left, it seems
-
-Refactoring:
-- [ ] Glow effects could be managed automatically by `GameUtils` instead of having each object keep track of its gradient
+- [ ] Player graphics!
