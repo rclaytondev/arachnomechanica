@@ -32,6 +32,7 @@ Items for the new system:
 - **Gate Toggler**: when used, all the gates toggle whether they are open or closed.
 	- This is a relatively weak item, but that's ok.
 	- This was an idea from before I settled on single-use items. Back then it was problematic because it allowed the player to completely ignore the gate mechanic, but as a single-use (or just limited-use) item, there's no problem.
+- **Block Collapser**: when thrown, it falls upward. After a few seconds, all blocks near it become affected by gravity and fall to the ground.
 
 # Notes About Items
 - I now don't think I actually need a starting item that lets you break blocks: if the lizards softlock you, you should always be able to get out of it since that means there will be a lizard in the room and you can use them to break the walls and escape.
@@ -41,6 +42,16 @@ Items for the new system:
 	- Idea: I could have single-use item combining devices that can be found, either randomly or at specific points.
 	- Idea: it would be epic if you could eventually combine every item in the game into 1 super-powerful item that does everything, kind of like the Ankh Shield in Terraria except this would be an active ability, not a passive ability.
 		- Problem: this doesn't really make sense. For example, would it really be useful or logical to have an item that teleports you, breaks blocks, and shields you, and does all of these things every time you press the button?
+- I really like the idea of having items that give you some effect or ability but only for a 1-level duration (i.e. only until you go through the next teleporter).
+	- Benefit: if the player finds a way to skip the teleporter, they can keep the ability, which is cool.
+	- Benefit: some items (e.g. Tractor Beam, Teleporter) seem much more fun to use if you can just use it willy-nilly without having to worry about wasting its uses, but are too strong if they are unlimited. This is a good compromise: the player can have fun teleporting all over the place without worrying about wasting its uses, but then they have to go back to playing the game normally.
+	- Problem: some items (particularly the Tractor Beam) would be way too strong if they worked like this. If the player got a Tractor Beam item, they would always be able to break a hole into the next level, and therefore would always be able to keep its effects (and therefore the effects of all other items).
+	- Problem: if you can use an item until you go through a portal, then it feels like the portal is taking away your items, which is weird.
+- Some items appear much stronger than others (especially if I make them usable for a whole level). I could make the strong items all spawn in locations that are impossible to reach by default, to make the game more balanced and less random.
+	- Item strength opinions:
+		- Strong items: shield, tractor beam, teleport, freeze, invisibility
+		- Weak items: flamethrower, drill, rocket launcher, decoy, barrier
+	- Note: it's kind of weird that some items can potentially be used much more than others (e.g. the tractor beam is usable for a whole level, while the barrier can be thrown once and that's it). One could argue that this is a more fundamental difference than just "weak vs strong", and that this is therefore bad game design.
 
 # Advanced Movement Techniques
 It would be cool to have advanced movement techniques, like in Celeste or Rain World.

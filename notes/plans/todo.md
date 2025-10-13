@@ -14,6 +14,7 @@ Things to do:
 - [ ] Tile breaking animations
 - [ ] Chains (graphical only)
 - [ ] Teeth on the lizards
+- [ ] Telegraph for the spider attack (line showing shot trajectory)
 - [ ] Lizard physics improvements
 	- [ ] Standing on a lizard segment moving horirzontally
 	- [ ] Standing on a lizard segment moving vertically
