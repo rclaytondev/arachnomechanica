@@ -17,6 +17,7 @@ import { RoomPlaceholder } from "./RoomPlaceholder.mjs";
 import { ROOMS } from "./Rooms.mjs";
 import { Portal } from "../entities/Portal.mjs";
 import { SpawnPoint } from "../entities/SpawnPoint.mjs";
+import { HealthPickup } from "../entities/HealthPickup.mjs";
 
 export class WorldGenerator {
 	path: Vector[] = [];
@@ -31,6 +32,7 @@ export class WorldGenerator {
 		this.generatePath();
 		this.generateExitsOnPath();
 		this.generateExitsOffPath();
+		this.generateHealthPickupRooms();
 		this.generateRooms();
 		this.addRooms(world);
 		this.addBorders(world);
@@ -133,6 +135,25 @@ export class WorldGenerator {
 		}
 		this.rooms.set(position, new RoomPlaceholder(exits, ROOMS.find(r => r.name === "control-room-junction")!));
 		return true;
+	}
+
+	generateHealthPickupRooms() {
+		const allPositions = this.levelRectangle().squares();
+		const offPath = allPositions.filter(p => !this.path.some(q => p.equals(q)));
+		const positions = [
+			...GameUtils.randomPermutation(offPath),
+			...GameUtils.randomPermutation(this.path),
+		];
+		const healthPickupRooms = ROOMS.filter(r => r.entities.some(e => e instanceof HealthPickup));
+		for(const room of GameUtils.randomPermutation(healthPickupRooms)) {
+			for(const position of positions) {
+				const roomPlaceholder = this.rooms.get(position);
+				if(roomPlaceholder != null && room.canSpawnWithExits(roomPlaceholder.exits)) {
+					roomPlaceholder.room = room;
+					roomPlaceholder.generated = true;
+				}
+			}
+		}
 	}
 
 
