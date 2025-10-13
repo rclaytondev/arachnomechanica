@@ -543,3 +543,7 @@ export class PhysicsData {
 		// },
 	};
 }
+
+export class HealthPickupData {
+	static SIZE = WorldData.TILE_SIZE;
+}
