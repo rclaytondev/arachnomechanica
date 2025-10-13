@@ -152,7 +152,7 @@ export class WorldGenerator {
 		const possibleRooms = Utils.groupBy(
 			ROOMS.filter(r => (
 				r.canSpawnWithExits(roomPlaceholder.exits)
-				&& r.originalName !== "level-exit"
+				&& r.entities.length === 0
 			)),
 			r => Room.connectivity(r.traversability, roomPlaceholder.exits),
 		);

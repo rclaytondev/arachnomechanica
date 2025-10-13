@@ -67,7 +67,7 @@ export class RoomEditor {
 			}
 			else if(this.mode === "portal") {
 				const portalPosition = this.getPortalPosition(position);
-				if(!this.room.entities.some(p => p.position.equals(portalPosition))) {
+				if(!this.room.entities.some(p => p instanceof Portal && p.position.equals(portalPosition))) {
 					this.room.entities.push(new Portal(portalPosition));
 					this.world.entities.addEntity(new Portal(portalPosition));
 				}
@@ -91,7 +91,7 @@ export class RoomEditor {
 			}
 			else {
 				const portalPosition = this.getPortalPosition(position);
-				this.room.entities = this.room.entities.filter(e => !e.position.equals(portalPosition));
+				this.room.entities = this.room.entities.filter(e => !(e instanceof Portal && e.position.equals(portalPosition)));
 				for(const entity of this.world.entities.allEntities()) {
 					if(entity instanceof Portal && entity.position.equals(portalPosition)) {
 						this.world.entities.removeEntity(entity);
