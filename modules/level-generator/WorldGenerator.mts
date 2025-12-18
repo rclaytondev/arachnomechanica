@@ -151,6 +151,7 @@ export class WorldGenerator {
 				if(roomPlaceholder != null && room.canSpawnWithExits(roomPlaceholder.exits)) {
 					roomPlaceholder.room = room;
 					roomPlaceholder.generated = true;
+					return;
 				}
 			}
 		}
