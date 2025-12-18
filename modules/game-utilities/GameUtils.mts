@@ -271,6 +271,19 @@ export class GameUtils {
 		return `rgb(${color.red}, ${color.green}, ${color.blue})`;
 	}
 
+	static loadImage(filePath: string, width: number, height: number) {
+		const element = document.createElement("img");
+		element.src = filePath;
+		const canvas = document.createElement("canvas");
+		canvas.width = width;
+		canvas.height = height;
+		const ctx = canvas.getContext("2d")!;
+		element.onload = () => {
+			ctx.drawImage(element, 0, 0, width, height);
+		};
+		return canvas;
+	}
+
 	static rayIntersectsVertical(rayStart: Vector, rayDirection: Vector, verticalLineX: number) {
 		if((rayDirection.x < 0 && rayStart.x < verticalLineX) || (rayDirection.x > 0 && rayStart.x > verticalLineX)) {
 			return Infinity;

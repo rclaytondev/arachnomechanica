@@ -1,6 +1,8 @@
 import { canvasIO } from "../utils-ts/modules/CanvasIO.mjs";
 import { Rectangle } from "../utils-ts/modules/geometry/Rectangle.mjs";
+import { Vector } from "../utils-ts/modules/geometry/Vector.mjs";
 import { DEBUG_SETTINGS } from "./constants/DebugSettings.mjs";
+import { HealthPickup } from "./entities/HealthPickup.mjs";
 import { Main } from "./Main.js";
 import { BasicTile } from "./tiles/BasicTile.mjs";
 import { World } from "./world/World.js";
@@ -8,6 +10,8 @@ import { World } from "./world/World.js";
 const world = new World(false);
 
 world.tiles.fillRect(new Rectangle(-5, 0, 9, 3), new BasicTile("full", "tower"));
+
+world.entities.addEntity(new HealthPickup(new Vector(-2, -2)));
 
 Main.screen = world;
 if(DEBUG_SETTINGS.GENERATOR_VISUALIZATION.ENABLED && Main.screen instanceof World) {

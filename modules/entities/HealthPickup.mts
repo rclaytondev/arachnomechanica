@@ -1,3 +1,4 @@
+import { CanvasIO } from "../../utils-ts/modules/CanvasIO.mjs";
 import { Rectangle } from "../../utils-ts/modules/geometry/Rectangle.mjs";
 import { Vector } from "../../utils-ts/modules/geometry/Vector.mjs";
 import { HealthPickupData, RoomData, WorldData } from "../constants/GameData.mjs";
@@ -12,7 +13,10 @@ export class HealthPickup extends RectangularCollideable {
 		));
 	}
 
-	display() {}
+	display(canvasIO: CanvasIO) {
+		const image = HealthPickupData.IMAGE;
+		canvasIO.ctx.drawImage(image, this.hitbox.x, this.hitbox.y);
+	}
 	update() {}
 
 	copy() {
