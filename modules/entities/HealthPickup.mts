@@ -3,6 +3,7 @@ import { Rectangle } from "../../utils-ts/modules/geometry/Rectangle.mjs";
 import { Vector } from "../../utils-ts/modules/geometry/Vector.mjs";
 import { HealthPickupData, RoomData, WorldData } from "../constants/GameData.mjs";
 import { RectangularCollideable } from "../game-utilities/Collideable.mjs";
+import { World } from "../world/World";
 
 export class HealthPickup extends RectangularCollideable {
 	constructor(tilePosition: Vector) {
@@ -17,7 +18,19 @@ export class HealthPickup extends RectangularCollideable {
 		const image = HealthPickupData.IMAGE;
 		canvasIO.ctx.drawImage(image, this.hitbox.x, this.hitbox.y);
 	}
-	update() {}
+	update(world: World) {
+		const hitbox = Rectangle.fromBounds(
+			this.hitbox.left() - HealthPickupData.HITBOX_RADIUS,
+			this.hitbox.right() + HealthPickupData.HITBOX_RADIUS,
+			this.hitbox.top() - HealthPickupData.HITBOX_RADIUS,
+			this.hitbox.bottom() + HealthPickupData.HITBOX_RADIUS,
+		);
+		const player = world.player.hitbox;
+		if(player.intersects(hitbox)) {
+			world.player.health ++;
+			world.entities.removeEntity(this);
+		}
+	}
 
 	copy() {
 		return new HealthPickup(this.hitbox.getCorner("top-left").divide(WorldData.TILE_SIZE));

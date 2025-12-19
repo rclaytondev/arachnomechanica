@@ -549,4 +549,5 @@ export class HealthPickupData {
 	static SIZE = WorldData.TILE_SIZE;
 
 	static IMAGE = GameUtils.loadImage("graphics/health-pickup.png", WorldData.TILE_SIZE, WorldData.TILE_SIZE);
+	static HITBOX_RADIUS = 10;
 }

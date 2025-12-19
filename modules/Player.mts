@@ -19,6 +19,7 @@ export class Player extends RectangularCollideable {
 	timeSinceDeath: number = 0;
 	facing: "left" | "right" = "left";
 	coyoteTime: number = 0;
+	health: number = 3;
 
 	equippedItems: [Item | null, Item | null] = [null, null];
 
