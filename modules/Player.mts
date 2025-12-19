@@ -19,7 +19,8 @@ export class Player extends RectangularCollideable {
 	timeSinceDeath: number = 0;
 	facing: "left" | "right" = "left";
 	coyoteTime: number = 0;
-	health: number = 3;
+	health: number = PlayerData.INITIAL_HEALTH;
+	invulnerabilityTime: number = 0;
 
 	equippedItems: [Item | null, Item | null] = [null, null];
 
@@ -42,6 +43,7 @@ export class Player extends RectangularCollideable {
 		}
 		this.checkInputs(world, canvasIO);
 		this.coyoteTime --;
+		this.invulnerabilityTime --;
 		if(this.onGround(world)) {
 			this.hasDoubleJump = true;
 			if(this.isCrouched()) {
@@ -115,8 +117,14 @@ export class Player extends RectangularCollideable {
 		return !this.canMove("down", world);
 	}
 	damage(hurtbox: Rectangle, world: World) {
-		this.dead = true;
-		world.entities.removeEntity(this);
+		if(this.invulnerabilityTime < 0) {
+			this.health --;
+			this.invulnerabilityTime = PlayerData.INVULNERABIlITY_TIME;
+			if(this.health <= 0) {
+				this.dead = true;
+				world.entities.removeEntity(this);
+			}
+		}
 	}
 
 	crouch() {

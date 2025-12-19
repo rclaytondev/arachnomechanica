@@ -85,6 +85,8 @@ export class PlayerData {
 	static MAX_X_VELOCITY = 8;
 	static FRICTION_X = 0.7;
 	static COYOTE_FRAMES = 4;
+	static INITIAL_HEALTH = 3;
+	static INVULNERABIlITY_TIME = 30;
 	static CROUCHED_FRICTION = 0.8;
 
 	static GLOW_SIZE = 200;
