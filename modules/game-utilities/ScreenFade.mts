@@ -3,7 +3,7 @@ import { MathUtils } from "../../utils-ts/modules/math/MathUtils.mjs";
 import { Main } from "../Main.js";
 import { GameUtils } from "./GameUtils.mjs";
 
-type FadeType = "transition-start-delay" | "transition-pause" | "transition-fade-out" | "transition-fade-in";
+type FadeType = "damage-flash" | "transition-start-delay" | "transition-pause" | "transition-fade-out" | "transition-fade-in";
 
 export class ScreenFade {
 	startOpacity: number;

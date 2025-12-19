@@ -7,6 +7,7 @@ import { Spikeball } from "./entities/Spikeball.mjs";
 import { RectangularCollideable } from "./game-utilities/Collideable.mjs";
 import { Entity } from "./game-utilities/Entity.mjs";
 import { GameUtils } from "./game-utilities/GameUtils.mjs";
+import { ScreenFade } from "./game-utilities/ScreenFade.mjs";
 import { Item } from "./items/Item.mjs";
 import { Main } from "./Main.js";
 import { RoomEditor } from "./RoomEditor.mjs";
@@ -114,6 +115,12 @@ export class Player extends RectangularCollideable {
 	damage(hurtbox: Rectangle, world: World) {
 		if(this.invulnerabilityTime < 0) {
 			this.health --;
+			Main.screenFades.push(new ScreenFade(
+				PlayerData.DAMAGE_FLASH_TIME,
+				PlayerData.DAMAGE_FLASH_OPACITY, 0,
+				PlayerData.DAMAGE_FLASH_COLOR,
+				"damage-flash",
+			));
 			this.invulnerabilityTime = PlayerData.INVULNERABIlITY_TIME;
 			if(this.health <= 0 && !this.dead) {
 				Main.beginDeathTransition();

@@ -92,6 +92,10 @@ export class PlayerData {
 	static GLOW_SIZE = 200;
 	static GLOW_INTENSITY = 1/3;
 
+	static DAMAGE_FLASH_TIME = 30;
+	static DAMAGE_FLASH_COLOR = "rgb(255, 0, 0)";
+	static DAMAGE_FLASH_OPACITY = 0.3;
+
 	static DEATH_RESET_DELAY = 90;
 	static FADE_DURATION = 30;
 	static FADE_DELAY = 30;
