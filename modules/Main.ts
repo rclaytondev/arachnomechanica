@@ -1,12 +1,13 @@
 import { CanvasIO, canvasIO } from "../utils-ts/modules/CanvasIO.mjs";
 import { DEBUG_SETTINGS } from "./constants/DebugSettings.mjs";
-import {PlayerData } from "./constants/GameData.mjs";
 import { GameUtils } from "./game-utilities/GameUtils.mjs";
 import { Room } from "./level-generator/Room.mjs";
 import { RoomEditor } from "./RoomEditor.mjs";
 import { ROOMS, Rooms } from "./level-generator/Rooms.mjs";
 import { World } from "./world/World.js";
 import { WorldGenerator } from "./level-generator/WorldGenerator.mjs";
+import { ScreenFade } from "./game-utilities/ScreenFade.mjs";
+import { PlayerData } from "./constants/GameData.mjs";
 
 const recordedRNG: number[] = [];
 let rngOverrideIndex = 0;
@@ -29,9 +30,7 @@ Room.addRoomVariants();
 export class Main {
 	static screen: World | RoomEditor = new World(true).initializeGeneration();
 
-	static fadingOpacity: number = 0;
-	static fadingDestination: number = 0;
-	static fadingTimer: number = 0;
+	static screenFades: ScreenFade[] = [];
 
 	static update(canvasIO: CanvasIO) {
 		this.screen.update(canvasIO);
@@ -41,28 +40,29 @@ export class Main {
 			// eslint-disable-next-line no-console
 			console.log(recordedRNG.join(", "));
 		}
-		Main.updateFading();
+		Main.updateScreenFades();
 	}
-	static updateFading() {
-		if(this.screen instanceof World && this.screen.player.timeSinceDeath > PlayerData.DEATH_RESET_DELAY) {
-			Main.fadingDestination = 1;
-		}
-		Main.fadingOpacity = GameUtils.moveTowards(Main.fadingOpacity, Main.fadingDestination, PlayerData.FADE_SPEED);
-		if(Main.fadingOpacity === 1) {
-			Main.fadingTimer ++;
-		}
-		if(Main.fadingTimer > PlayerData.FADE_DELAY) {
-			Main.fadingTimer = 0;
-			Main.fadingDestination = 0;
-			throw new Error("Unimplemented: should reset world.");
+	static updateScreenFades() {
+		for(const screenFade of Main.screenFades) {
+			screenFade.update();
 		}
 	}
 	static display(canvasIO: CanvasIO) {
 		this.screen.display(canvasIO);
-		Main.displayFading(canvasIO);
+		Main.displayScreenFades(canvasIO);
 	}
-	static displayFading(canvasIO: CanvasIO) {
-		canvasIO.fillCanvas(`rgba(0, 0, 0, ${this.fadingOpacity})`);
+	static displayScreenFades(canvasIO: CanvasIO) {
+		for(const screenFade of this.screenFades) {
+			screenFade.display(canvasIO);
+		}
+	}
+
+	static beginDeathTransition() {
+		const delay = new ScreenFade(PlayerData.DEATH_RESET_DELAY, 0, 0, "black", "transition-start-delay");
+		const fadeOut = new ScreenFade(PlayerData.FADE_DURATION, 0, 1, "black", "transition-fade-out");
+		const pause = new ScreenFade(PlayerData.FADE_DELAY, 1, 1, "black", "transition-pause");
+		const fadeIn = new ScreenFade(PlayerData.FADE_DURATION, 1, 0, "black", "transition-fade-in");
+		Main.screenFades.push(ScreenFade.sequence(delay, fadeOut, pause, fadeIn));
 	}
 }
 

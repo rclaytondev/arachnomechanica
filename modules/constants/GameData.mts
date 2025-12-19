@@ -93,7 +93,7 @@ export class PlayerData {
 	static GLOW_INTENSITY = 1/3;
 
 	static DEATH_RESET_DELAY = 90;
-	static FADE_SPEED = 0.03;
+	static FADE_DURATION = 30;
 	static FADE_DELAY = 30;
 }
 

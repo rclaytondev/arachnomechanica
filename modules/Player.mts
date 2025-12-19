@@ -16,7 +16,6 @@ export class Player extends RectangularCollideable {
 	velocity: Vector = new Vector(0, 0);
 	hasDoubleJump: boolean = false;
 	dead: boolean = false;
-	timeSinceDeath: number = 0;
 	facing: "left" | "right" = "left";
 	coyoteTime: number = 0;
 	health: number = PlayerData.INITIAL_HEALTH;
@@ -37,10 +36,6 @@ export class Player extends RectangularCollideable {
 
 	update(world: World, canvasIO: CanvasIO) {
 		if(Main.screen instanceof RoomEditor) { return; }
-		if(this.dead) {
-			this.timeSinceDeath ++;
-			return;
-		}
 		this.checkInputs(world, canvasIO);
 		this.coyoteTime --;
 		this.invulnerabilityTime --;
@@ -120,7 +115,8 @@ export class Player extends RectangularCollideable {
 		if(this.invulnerabilityTime < 0) {
 			this.health --;
 			this.invulnerabilityTime = PlayerData.INVULNERABIlITY_TIME;
-			if(this.health <= 0) {
+			if(this.health <= 0 && !this.dead) {
+				Main.beginDeathTransition();
 				this.dead = true;
 				world.entities.removeEntity(this);
 			}
