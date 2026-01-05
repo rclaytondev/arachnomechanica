@@ -149,8 +149,14 @@ export class Player extends RectangularCollideable {
 		}
 		return (this.facing === "left") ? ItemData.THROW_VELOCITY.reflectX() : ItemData.THROW_VELOCITY.clone();
 	}
+	throwDirection(canvasIO: CanvasIO) {
+		if(canvasIO.keys.ArrowDown) {
+			return "down";
+		}
+		return this.facing;
+	}
 	throw(item: ItemEntity, world: World, canvasIO: CanvasIO) {
-		const direction = (canvasIO.keys.ArrowDown ? "down" : this.facing);
+		const direction = this.throwDirection(canvasIO);
 		const size = (direction === "down" ? item.hitbox.height : item.hitbox.width);
 		const throwStartCenter = this.hitbox.edgeCenter(direction).add(Vector.unit(direction).multiply(ItemData.THROW_OFFSET + size / 2));
 		const throwStart = new Vector(throwStartCenter.x - item.hitbox.width / 2, throwStartCenter.y - item.hitbox.height / 2);

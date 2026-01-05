@@ -8,14 +8,16 @@ import { World } from "../../world/World";
 
 export abstract class ThrowableItemEntity extends RectangularCollideable {
 	velocity: Vector = new Vector(0, 0);
+	gravity: number = PlayerData.GRAVITY;
+	friction: number = ItemData.FRICTION_X;
 
 	constructor(hitbox: Rectangle) {
 		super(hitbox);
 	}
 
 	update(world: World, _canvas: CanvasIO) {
-		this.velocity.x *= ItemData.FRICTION_X;
-		this.velocity.y += PlayerData.GRAVITY;
+		this.velocity.x *= this.friction;
+		this.velocity.y += this.gravity;
 		this.move(this.velocity, world, {
 			onCollision: (direction) => {
 				if(Directions.isVertical(direction)) {

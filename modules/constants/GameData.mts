@@ -538,6 +538,15 @@ export class ItemData {
 		SIZE: WorldData.TILE_SIZE * 0.6,
 		FIRE_OFFSET: 15,
 	};
+
+	static DRILL = {
+		LENGTH: WorldData.TILE_SIZE * 0.8,
+		WIDTH: WorldData.TILE_SIZE * 0.3,
+		SPEED: 3,
+		DESTRUCTION_DISTANCE: 10,
+		DESTRUCTION_WIDTH: WorldData.TILE_SIZE * 0.3,
+		DESTRUCTIONS: 3,
+	};
 }
 
 export class PhysicsData {
