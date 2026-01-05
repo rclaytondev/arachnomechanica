@@ -1,14 +1,12 @@
 import { CanvasIO } from "../../../utils-ts/modules/CanvasIO.mjs";
-import { Directions } from "../../../utils-ts/modules/geometry/Direction.mjs";
 import { Rectangle } from "../../../utils-ts/modules/geometry/Rectangle.mjs";
 import { Vector } from "../../../utils-ts/modules/geometry/Vector.mjs";
-import { ItemData, LizardData, PlayerData } from "../../constants/GameData.mjs";
-import { RectangularCollideable } from "../../game-utilities/Collideable.mjs";
+import { ItemData, LizardData } from "../../constants/GameData.mjs";
 import { FireSpawner } from "../../game-utilities/FireSpawner.mjs";
 import { World } from "../../world/World";
+import { ThrowableItemEntity } from "./ThrowableItemEntity.mjs";
 
-export class FlameturretEntity extends RectangularCollideable {
-	velocity: Vector = new Vector(0, 0);
+export class FlameturretEntity extends ThrowableItemEntity {
 	fireSpawnerLeft: FireSpawner;
 	fireSpawnerRight: FireSpawner;
 
@@ -26,18 +24,7 @@ export class FlameturretEntity extends RectangularCollideable {
 	}
 
 	update(world: World, canvasIO: CanvasIO) {
-		this.velocity.x *= ItemData.FRICTION_X;
-		this.velocity.y += PlayerData.GRAVITY;
-		this.move(this.velocity, world, {
-			onCollision: (direction) => {
-				if(Directions.isVertical(direction)) {
-					this.velocity.y = 0;
-				}
-			},
-			collides: (obj) => obj !== this,
-		});
-		world.entities.moveEntity(this);
-
+		super.update(world, canvasIO);
 		this.updateFire(world, canvasIO);
 	}
 	updateFire(world: World, canvasIO: CanvasIO) {
