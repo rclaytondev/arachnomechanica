@@ -272,8 +272,11 @@ export class World {
 	displayEntities(canvasIO: CanvasIO) {
 		const region = this.visibleRegion(canvasIO, WorldData.ENTITY_RENDER_DISTANCE);
 		for(const entity of this.entities.entitiesPossiblyIntersecting(region)) {
-			entity.display(canvasIO, this);
+			if(!(entity instanceof Player)) {
+				entity.display(canvasIO, this);
+			}
 		}
+		this.player.display(canvasIO);
 	}
 	displayParticles(canvasIO: CanvasIO) {
 		for(const particle of this.particles) {
