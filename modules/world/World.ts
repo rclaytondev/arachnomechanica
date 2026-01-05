@@ -127,7 +127,7 @@ export class World {
 		this.displayParticles(canvasIO);
 		this.displayEntities(canvasIO);
 		this.displayTiles(canvasIO, visibleTileRegion);
-		this.displaytTileAccents(canvasIO, visibleTileRegion);
+		this.displayTileAccents(canvasIO, visibleTileRegion);
 		this.displayDebugInfo(canvasIO);
 		canvasIO.ctx.restore();
 
@@ -255,7 +255,7 @@ export class World {
 			position.x * WorldData.TILE_SIZE + accentEnd, accentY,
 		);
 	}
-	displaytTileAccents(canvasIO: CanvasIO, region: Rectangle) {
+	displayTileAccents(canvasIO: CanvasIO, region: Rectangle) {
 		for(let x = region.left(); x < region.right(); x ++) {
 			for(let y = region.top(); y < region.bottom(); y ++) {
 				const position = new Vector(x, y);
