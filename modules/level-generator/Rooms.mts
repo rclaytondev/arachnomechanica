@@ -5565,7 +5565,7 @@ export class Rooms {
 				],
 				[
 				],
-				(exits) => !exits.has("up") && exits.size > 2,
+				(exits) => !exits.has("left") && exits.has("down") && exits.size >= 2,
 				Room.getTraversability([
 					...Room.gatelessPath("up", "right"),
 					...Room.gatePath("down", "right", false),
@@ -6103,7 +6103,7 @@ export class Rooms {
 					{ x: 0, y: 7, direction: "left" },
 				],
 				[
-					new HealthPickup(new Vector(5, 8))
+					new HealthPickup(new Vector(5, 8)),
 				],
 				(exits) => Utils.setEquals(exits, ["left", "right"]),
 				[],
