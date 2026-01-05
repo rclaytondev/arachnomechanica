@@ -149,9 +149,8 @@ export class WorldGenerator {
 			for(const position of positions) {
 				const roomPlaceholder = this.rooms.get(position);
 				if(roomPlaceholder != null && room.canSpawnWithExits(roomPlaceholder.exits)) {
-					roomPlaceholder.room = room;
-					roomPlaceholder.generated = true;
-					return;
+					const spawned = this.attemptRoomSpawn(roomPlaceholder, room);
+					if(spawned) { return; }
 				}
 			}
 		}
@@ -170,7 +169,6 @@ export class WorldGenerator {
 		}
 	}
 	generateRoom(roomPlaceholder: RoomPlaceholder) {
-		const originalRoom = roomPlaceholder.room;
 		const possibleRooms = Utils.groupBy(
 			ROOMS.filter(r => (
 				r.canSpawnWithExits(roomPlaceholder.exits)
@@ -180,8 +178,8 @@ export class WorldGenerator {
 		);
 		while(possibleRooms.size > 0) {
 			const room = this.getRoomCandidate(possibleRooms);
-			roomPlaceholder.room = room;
-			if(this.isConnected()) { return; }
+			const spawned = this.attemptRoomSpawn(roomPlaceholder, room);
+			if(spawned) { return; }
 			for(const connectedness of [...possibleRooms.keys()]) {
 				const group = possibleRooms.get(connectedness)!;
 				possibleRooms.set(connectedness, group.filter(r => !Utils.isSubset(
@@ -193,7 +191,16 @@ export class WorldGenerator {
 				}
 			}
 		}
-		roomPlaceholder.room = originalRoom;
+	}
+	attemptRoomSpawn(roomPlaceholder: RoomPlaceholder, room: Room) {
+		const previousRoom = roomPlaceholder.room;
+		roomPlaceholder.room = room;
+		if(this.isConnected()) {
+			return true;
+		}
+		roomPlaceholder.room = previousRoom;
+		roomPlaceholder.generated = true;
+		return false;
 	}
 	getRoomCandidate(roomsWithConnectivities: Map<number, Room[]>) {
 		const minConnectivity = Math.min(...roomsWithConnectivities.keys());
