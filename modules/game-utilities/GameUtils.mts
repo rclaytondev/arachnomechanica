@@ -1,10 +1,10 @@
 import { CanvasIO } from "../../utils-ts/modules/CanvasIO.mjs";
+import { ArrayUtils } from "../../utils-ts/modules/core-extensions/ArrayUtils.mjs";
 import { Direction, Directions } from "../../utils-ts/modules/geometry/Direction.mjs";
 import { Rectangle } from "../../utils-ts/modules/geometry/Rectangle.mjs";
 import { Vector } from "../../utils-ts/modules/geometry/Vector.mjs";
 import { HashSet } from "../../utils-ts/modules/HashSet.mjs";
 import { MathUtils } from "../../utils-ts/modules/math/MathUtils.mjs";
-import { Utils } from "../../utils-ts/modules/Utils.mjs";
 import { World } from "../world/World";
 import { Particle, ParticleSettings } from "./Particle.mjs";
 
@@ -42,7 +42,7 @@ export class GameUtils {
 	}
 	static lerpAngle(value: number, min1: number, max1: number, min2: number, max2: number) {
 		/* As `value` moves from `min1` to `max1`, the output will move from `min2` to `max2`, taking the shorter path around the circle. */
-		const closest = Utils.minValue(
+		const closest = ArrayUtils.minValue(
 			[max2, max2 + 2 * Math.PI, max2 - 2 * Math.PI],
 			n => MathUtils.dist(min2, n),
 		);
@@ -51,7 +51,7 @@ export class GameUtils {
 	static moveAngleTowards(angle: number, target: number, speed: number) {
 		angle = MathUtils.generalizedModulo(angle, 2 * Math.PI);
 		target = MathUtils.generalizedModulo(target, 2 * Math.PI);
-		const closest = Utils.minValue(
+		const closest = ArrayUtils.minValue(
 			[target, target + 2 * Math.PI, target - 2 * Math.PI],
 			n => MathUtils.dist(angle, n),
 		);
@@ -66,7 +66,7 @@ export class GameUtils {
 	static signedModularDistance(num1: number, num2: number, modulo: number) {
 		num1 = MathUtils.generalizedModulo(num1, modulo);
 		num2 = MathUtils.generalizedModulo(num2, modulo);
-		return Utils.minValue([
+		return ArrayUtils.minValue([
 			num2 - num1,
 			num2 + modulo - num1,
 			num2 - modulo - num1,
@@ -109,7 +109,7 @@ export class GameUtils {
 		items = [...items];
 		const result = [];
 		while(items.length > 0) {
-			const index = Utils.randomIndex(items);
+			const index = ArrayUtils.randomIndex(items);
 			result.push(items[index]);
 			items.splice(index, 1);
 		}
@@ -117,7 +117,7 @@ export class GameUtils {
 	}
 	static weightedRandom<T>(items: T[], weights: number[]) {
 		if(weights.every(w => w === 0)) {
-			return Utils.randomItem(items);
+			return ArrayUtils.randomItem(items);
 		}
 
 		const sum = MathUtils.sum(weights);
@@ -154,9 +154,9 @@ export class GameUtils {
 				result.push(candidates[0]);
 			}
 			else {
-				result.push(Utils.maxValue(
+				result.push(ArrayUtils.maxValue(
 					candidates,
-					point => Utils.minOutput(previous, p => options.metric(point, p))),
+					point => ArrayUtils.minOutput(previous, p => options.metric(point, p))),
 				);
 			}
 		}

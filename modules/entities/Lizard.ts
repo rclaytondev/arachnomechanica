@@ -2,7 +2,6 @@ import { CanvasIO } from "../../utils-ts/modules/CanvasIO.mjs";
 import { Direction, Directions } from "../../utils-ts/modules/geometry/Direction.mjs";
 import { Vector } from "../../utils-ts/modules/geometry/Vector.mjs";
 import { MathUtils } from "../../utils-ts/modules/math/MathUtils.mjs";
-import { Utils } from "../../utils-ts/modules/Utils.mjs";
 import { GameUtils } from "../game-utilities/GameUtils.mjs";
 import { DEBUG_SETTINGS } from "../constants/DebugSettings.mjs";
 import { World } from "../world/World.js";
@@ -12,6 +11,7 @@ import { FireSpawner } from "../game-utilities/FireSpawner.mjs";
 import { Player } from "../Player.mjs";
 import { Collideable } from "../game-utilities/Collideable.mjs";
 import { Particle } from "../game-utilities/Particle.mjs";
+import { ArrayUtils } from "../../utils-ts/modules/core-extensions/ArrayUtils.mjs";
 
 type Joint = { position: Vector, direction: Direction };
 
@@ -278,7 +278,7 @@ export class Lizard extends Collideable {
 		}
 	}
 	updateHeadAngle() {
-		const minValue = Utils.minValue(
+		const minValue = ArrayUtils.minValue(
 			[this.headAngle, this.headAngle - 2 * Math.PI, this.headAngle + 2 * Math.PI],
 			angle => MathUtils.dist(angle, this.targetHeadAngle),
 		);
@@ -541,7 +541,7 @@ export class Lizard extends Collideable {
 		);
 	}
 	static spawn(tilePosition: Vector, world: World) {
-		const [_, direction, maxLength] = Utils.maxEntry(Directions.DIRECTIONS, (direction) => {
+		const [_, direction, maxLength] = ArrayUtils.maxEntry(Directions.DIRECTIONS, (direction) => {
 			for(let i = 0; i <= LizardData.MAX_LENGTH / WorldData.TILE_SIZE; i ++) {
 				if(world.tiles.get(tilePosition.add(Vector.unit(direction).multiply(i))) !== "empty") {
 					return i - 1;

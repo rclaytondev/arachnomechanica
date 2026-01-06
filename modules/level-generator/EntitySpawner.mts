@@ -1,7 +1,6 @@
 import { Directions } from "../../utils-ts/modules/geometry/Direction.mjs";
 import { Rectangle } from "../../utils-ts/modules/geometry/Rectangle.mjs";
 import { Vector } from "../../utils-ts/modules/geometry/Vector.mjs";
-import { Utils } from "../../utils-ts/modules/Utils.mjs";
 import { LaserBlockData, LizardData, RoomData, SpiderData, SpikeballBlockData } from "../constants/GameData.mjs";
 import { Lizard } from "../entities/Lizard.js";
 import { Spider } from "../entities/Spider.mjs";
@@ -11,6 +10,7 @@ import { LaserBlock } from "../tiles/LaserBlock.mjs";
 import { BasicTile } from "../tiles/BasicTile.mjs";
 import { SpikeballBlock } from "../tiles/SpikeballBlock.mjs";
 import { World } from "../world/World.js";
+import { ArrayUtils } from "../../utils-ts/modules/core-extensions/ArrayUtils.mjs";
 
 type Feature = "lizards" | "spiders" | "lasers" | "spikeballs";
 
@@ -44,7 +44,7 @@ export class EntitySpawner {
 		const spawnedPositions: Vector[] = [];
 		while(spawnedPositions.length < amount && possiblePositions.length > 0) {
 			const [position] = GameUtils.randomEvenlySpaced({
-				generate: () => Utils.randomItem(possiblePositions),
+				generate: () => ArrayUtils.randomItem(possiblePositions),
 				metric: Vector.dist,
 				amount: 1,
 				trials: evenness,
@@ -143,7 +143,7 @@ export class EntitySpawner {
 				SpikeballBlock.canSpawn,
 			],
 			(position: Vector, world: World) => {
-				world.addTile(position, new SpikeballBlock(Utils.randomItem(SpikeballBlockData.PATTERNS)));
+				world.addTile(position, new SpikeballBlock(ArrayUtils.randomItem(SpikeballBlockData.PATTERNS)));
 				return true;
 			},
 			safeRegion,

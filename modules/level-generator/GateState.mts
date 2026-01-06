@@ -1,6 +1,6 @@
+import { SetUtils } from "../../utils-ts/modules/core-extensions/SetUtils.mjs";
 import { Direction, Directions } from "../../utils-ts/modules/geometry/Direction.mjs";
 import { Vector } from "../../utils-ts/modules/geometry/Vector.mjs";
-import { Utils } from "../../utils-ts/modules/Utils.mjs";
 import { Traversability } from "./Room.mjs";
 
 export class GateState {
@@ -50,7 +50,7 @@ export class GateState {
 		return `${this.exit}, ${this.toggled}`;
 	}
 	static traversabilityEquals(traversability1: Traversability, traversability2: Traversability) {
-		return Utils.setEquals(
+		return SetUtils.equals(
 			traversability1.map(({ start, end }) => `(${start.toString()}), (${end.toString()})`),
 			traversability2.map(({ start, end }) => `(${start.toString()}), (${end.toString()})`),
 		);

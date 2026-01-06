@@ -24,11 +24,11 @@ import { EntitySpawner } from "../level-generator/EntitySpawner.mjs";
 import { Entities } from "./Entities.mjs";
 import { FlameturretEntity } from "../items/item-entities/FlameturretEntity.mjs";
 import { Entity } from "../game-utilities/Entity.mjs";
-import { Utils } from "../../utils-ts/modules/Utils.mjs";
 import { Collideable } from "../game-utilities/Collideable.mjs";
 import { SpawnPoint } from "../entities/SpawnPoint.mjs";
 import { DrillEntity } from "../items/item-entities/DrillEntity.mjs";
 import { ThrowableTileEntity } from "../items/item-entities/ThrowableTileEntity.mjs";
+import { ArrayUtils } from "../../utils-ts/modules/core-extensions/ArrayUtils.mjs";
 
 export type TileEntity = BasicTile | Gate | LaserBlock | SpikeballBlock;
 export type Tile = (typeof WorldData.STRING_TILE_TYPES)[number] | TileEntity;
@@ -98,7 +98,7 @@ export class World {
 				emptyTiles.push(position);
 			}
 		}
-		return Utils.randomItem(emptyTiles);
+		return ArrayUtils.randomItem(emptyTiles);
 	}
 	generateNextLevel() {
 		this.levelsGenerated ++;

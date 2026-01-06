@@ -1,8 +1,8 @@
 import { CanvasIO } from "../../utils-ts/modules/CanvasIO.mjs";
+import { ArrayUtils } from "../../utils-ts/modules/core-extensions/ArrayUtils.mjs";
 import { Rectangle } from "../../utils-ts/modules/geometry/Rectangle.mjs";
 import { Vector } from "../../utils-ts/modules/geometry/Vector.mjs";
 import { MathUtils } from "../../utils-ts/modules/math/MathUtils.mjs";
-import { Utils } from "../../utils-ts/modules/Utils.mjs";
 import { WorldData } from "../constants/GameData.mjs";
 import { GameUtils } from "../game-utilities/GameUtils.mjs";
 import { World } from "../world/World";
@@ -26,11 +26,11 @@ export class StoneTile {
 		for(const point of points) {
 			const others = points.filter(p => p !== point).sort((a, b) => StoneTile.distance(a, point) - StoneTile.distance(b, point));
 			for(const otherPoint of others.slice(0, WorldData.STONE_CONNECTIONS)) {
-				const closestX = Utils.minValue(
+				const closestX = ArrayUtils.minValue(
 					[otherPoint.x, otherPoint.x - WorldData.STONE_PATTERN_WIDTH, otherPoint.x + WorldData.STONE_PATTERN_WIDTH],
 					x => MathUtils.dist(x, point.x),
 				);
-				const closestY = Utils.minValue(
+				const closestY = ArrayUtils.minValue(
 					[otherPoint.y, otherPoint.y - WorldData.STONE_PATTERN_HEIGHT, otherPoint.y + WorldData.STONE_PATTERN_HEIGHT],
 					y => MathUtils.dist(y, point.y),
 				);

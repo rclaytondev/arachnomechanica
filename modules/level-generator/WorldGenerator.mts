@@ -4,7 +4,6 @@ import { Rectangle } from "../../utils-ts/modules/geometry/Rectangle.mjs";
 import { Vector } from "../../utils-ts/modules/geometry/Vector.mjs";
 import { Grid } from "../../utils-ts/modules/Grid.mjs";
 import { MathUtils } from "../../utils-ts/modules/math/MathUtils.mjs";
-import { Utils } from "../../utils-ts/modules/Utils.mjs";
 import { DEBUG_SETTINGS } from "../constants/DebugSettings.mjs";
 import { LevelGeneratorData, RoomData } from "../constants/GameData.mjs";
 import { GameUtils } from "../game-utilities/GameUtils.mjs";
@@ -18,6 +17,9 @@ import { ROOMS } from "./Rooms.mjs";
 import { Portal } from "../entities/Portal.mjs";
 import { SpawnPoint } from "../entities/SpawnPoint.mjs";
 import { HealthPickup } from "../entities/HealthPickup.mjs";
+import { ArrayUtils } from "../../utils-ts/modules/core-extensions/ArrayUtils.mjs";
+import { MapUtils } from "../../utils-ts/modules/core-extensions/MapUtils.mjs";
+import { SetUtils } from "../../utils-ts/modules/core-extensions/SetUtils.mjs";
 
 export class WorldGenerator {
 	path: Vector[] = [];
@@ -48,7 +50,7 @@ export class WorldGenerator {
 		portalRoom.generated = true;
 		this.rooms.set(x, y, portalRoom);
 		while(y < LevelGeneratorData.HEIGHT - 1) {
-			const nextDirection = Utils.randomItem(this.possibleNextDirections(x, y));
+			const nextDirection = ArrayUtils.randomItem(this.possibleNextDirections(x, y));
 			const nextPosition = Vector.unit(nextDirection).add(x, y);
 			this.path.push(nextPosition);
 			this.rooms.set(nextPosition, new RoomPlaceholder([Directions.opposite[nextDirection]], defaultRoom));
@@ -56,7 +58,7 @@ export class WorldGenerator {
 			[x, y] = [nextPosition.x, nextPosition.y];
 		}
 		const startRoom = this.rooms.get(this.path[this.path.length - 1])!;
-		startRoom.room = Utils.randomItem(ROOMS.filter(r => r.entities.some(e => e instanceof SpawnPoint)));
+		startRoom.room = ArrayUtils.randomItem(ROOMS.filter(r => r.entities.some(e => e instanceof SpawnPoint)));
 		startRoom.generated = true;
 	}
 	possibleNextDirections(x: number, y: number): Direction[] {
@@ -169,7 +171,7 @@ export class WorldGenerator {
 		}
 	}
 	generateRoom(roomPlaceholder: RoomPlaceholder) {
-		const possibleRooms = Utils.groupBy(
+		const possibleRooms = MapUtils.groupBy(
 			ROOMS.filter(r => (
 				r.canSpawnWithExits(roomPlaceholder.exits)
 				&& r.entities.length === 0
@@ -182,7 +184,7 @@ export class WorldGenerator {
 			if(spawned) { return; }
 			for(const connectedness of [...possibleRooms.keys()]) {
 				const group = possibleRooms.get(connectedness)!;
-				possibleRooms.set(connectedness, group.filter(r => !Utils.isSubset(
+				possibleRooms.set(connectedness, group.filter(r => !SetUtils.isSubset(
 					Room.filterTraversability(r.traversability, roomPlaceholder.exits).map(s => `${s.end}, ${s.start}`),
 					Room.filterTraversability(room.traversability, roomPlaceholder.exits).map(s => `${s.end}, ${s.start}`),
 				)));

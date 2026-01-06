@@ -8,9 +8,9 @@ import { Slope, World } from "../world/World.js";
 import { Portal } from "../entities/Portal.mjs";
 import { BasicTile } from "../tiles/BasicTile.mjs";
 import { ROOMS } from "./Rooms.mjs";
-import { Utils } from "../../utils-ts/modules/Utils.mjs";
 import { SpawnPoint } from "../entities/SpawnPoint.mjs";
 import { HealthPickup } from "../entities/HealthPickup.mjs";
+import { GenUtils } from "../../utils-ts/modules/core-extensions/GenUtils.mjs";
 
 export type Traversability = { start: GateState, end: GateState }[];
 export type RoomTile = "empty" | "platform" | BasicTile | Gate;
@@ -199,7 +199,7 @@ export class Room {
 	getGeneratability() {
 		if(this.generatability) { return this.generatability; }
 		return this.generatability = (
-			[...Utils.subsets(new Set(Directions.DIRECTIONS))]
+			[...GenUtils.subsets(new Set(Directions.DIRECTIONS))]
 			.filter(s => this.canSpawnWithExits(s))
 			.length
 		) / (2 ** 4);

@@ -5,8 +5,8 @@ import { Room } from "./Room.mjs";
 import { Gate } from "../tiles/Gate.mjs";
 import { Portal } from "../entities/Portal.mjs";
 import { SpawnPoint } from "../entities/SpawnPoint.mjs";
-import { Utils } from "../../utils-ts/modules/Utils.mjs";
 import { HealthPickup } from "../entities/HealthPickup.mjs";
+import { SetUtils } from "../../utils-ts/modules/core-extensions/SetUtils.mjs";
 
 export let ROOMS: Room[] = [];
 
@@ -5868,7 +5868,7 @@ export class Rooms {
 				[
 					new HealthPickup(new Vector(3, 3)),
 				],
-				(exits) => Utils.setEquals(exits, ["left", "right"]),
+				(exits) => SetUtils.equals(exits, ["left", "right"]),
 			),
 			new Room(
 				"health-pickup-cliff",
@@ -5966,7 +5966,7 @@ export class Rooms {
 				[
 					new HealthPickup(new Vector(9, 3)),
 				],
-				(exits) => Utils.setEquals(exits, ["left"]),
+				(exits) => SetUtils.equals(exits, ["left"]),
 			),
 			new Room(
 				"health-pickup-gate-hallway",
@@ -6105,7 +6105,7 @@ export class Rooms {
 				[
 					new HealthPickup(new Vector(5, 8)),
 				],
-				(exits) => Utils.setEquals(exits, ["left", "right"]),
+				(exits) => SetUtils.equals(exits, ["left", "right"]),
 				[],
 			),
 		];

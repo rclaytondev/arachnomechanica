@@ -1,11 +1,11 @@
 import { Rectangle } from "../../utils-ts/modules/geometry/Rectangle.mjs";
 import { Vector } from "../../utils-ts/modules/geometry/Vector.mjs";
 import { Grid } from "../../utils-ts/modules/Grid.mjs";
-import { Utils } from "../../utils-ts/modules/Utils.mjs";
 import { WorldData } from "../constants/GameData.mjs";
 import { TileEntity, TileEntityWithPosition } from "./World";
 import { Entity } from "../game-utilities/Entity.mjs";
 import { Collideable } from "../game-utilities/Collideable.mjs";
+import { SetUtils } from "../../utils-ts/modules/core-extensions/SetUtils.mjs";
 
 export class Entities {
 	positions: Map<Entity, Vector[]> = new Map();
@@ -54,7 +54,7 @@ export class Entities {
 	}
 	allEntities() {
 		const values = [...this.entities.values()].filter(v => v != null);
-		return Utils.union(...values);
+		return SetUtils.union(...values);
 	}
 	entitiesPossiblyIntersecting(rectangle: Rectangle) {
 		const positions = [...this.entityGridPositions(rectangle).squares()];
