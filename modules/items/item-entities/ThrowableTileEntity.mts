@@ -1,12 +1,13 @@
 import { CanvasIO } from "../../../utils-ts/modules/CanvasIO.mjs";
 import { Rectangle } from "../../../utils-ts/modules/geometry/Rectangle.mjs";
+import { Vector } from "../../../utils-ts/modules/geometry/Vector.mjs";
 import { WorldData } from "../../constants/GameData.mjs";
 import { ThrowableTile } from "../ThrowableTile.mjs";
 import { ThrowableItemEntity } from "./ThrowableItemEntity.mjs";
 
 export class ThrowableTileEntity extends ThrowableItemEntity {
-	constructor() {
-		super(Rectangle.square(0, 0, WorldData.TILE_SIZE));
+	constructor(position: Vector = new Vector(0, 0)) {
+		super(Rectangle.square(position.x, position.y, WorldData.TILE_SIZE));
 	}
 
 	getItem() {

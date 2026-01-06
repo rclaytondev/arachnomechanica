@@ -1,7 +1,7 @@
 import { Directions } from "../../utils-ts/modules/geometry/Direction.mjs";
 import { Rectangle } from "../../utils-ts/modules/geometry/Rectangle.mjs";
 import { Vector } from "../../utils-ts/modules/geometry/Vector.mjs";
-import { LaserBlockData, LizardData, RoomData, SpiderData, SpikeballBlockData } from "../constants/GameData.mjs";
+import { ItemData, LaserBlockData, LizardData, RoomData, SpiderData, SpikeballBlockData, WorldData } from "../constants/GameData.mjs";
 import { Lizard } from "../entities/Lizard.js";
 import { Spider } from "../entities/Spider.mjs";
 import { GameUtils } from "../game-utilities/GameUtils.mjs";
@@ -11,6 +11,7 @@ import { BasicTile } from "../tiles/BasicTile.mjs";
 import { SpikeballBlock } from "../tiles/SpikeballBlock.mjs";
 import { World } from "../world/World.js";
 import { ArrayUtils } from "../../utils-ts/modules/core-extensions/ArrayUtils.mjs";
+import { ThrowableTileEntity } from "../items/item-entities/ThrowableTileEntity.mjs";
 
 type Feature = "lizards" | "spiders" | "lasers" | "spikeballs";
 
@@ -34,6 +35,7 @@ export class EntitySpawner {
 		if(features.includes("spiders")) {
 			this.spawnSpiders(tileRegion, safeRegion, world);
 		}
+		this.spawnThrowableBlocks(tileRegion, world);
 	}
 
 
@@ -110,6 +112,11 @@ export class EntitySpawner {
 		notOnFloor: (position: Vector, world: World) => {
 			return world.tiles.get(position.add(0, -1)) !== "empty";
 		},
+		leftOrRightEmpty: (position: Vector, world: World) => (
+			world.tiles.get(position.add(-1, 0)) === "empty" ||
+			world.tiles.get(position.add(1, 0)) === "empty"
+		),
+		solidBelow: (position: Vector, world: World) => World.isFullBasicTile(world.tiles.get(position.add(0, 1))),
 	};
 	static spawnLasers(tileRegion: Rectangle, safeRegion: Rectangle, world: World) {
 		this.spawnEntities(
@@ -172,6 +179,26 @@ export class EntitySpawner {
 			],
 			Spider.spawn,
 			safeRegion,
+			world,
+		);
+	}
+	static spawnThrowableBlocks(tileRegion: Rectangle, world: World) {
+		this.spawnEntities(
+			tileRegion.area() / (RoomData.SIZE ** 2) * ItemData.BLOCK.BLOCKS_PER_ROOM,
+			ItemData.BLOCK.BLOCKS_SPAWN_EVENNESS,
+			tileRegion,
+			[
+				EntitySpawner.spawnRequirements.replaceSolid,
+				EntitySpawner.spawnRequirements.noAdjacentGates,
+				EntitySpawner.spawnRequirements.leftOrRightEmpty,
+				EntitySpawner.spawnRequirements.solidBelow,
+			],
+			(position: Vector, world: World) => {
+				world.removeTile(position);
+				world.entities.addEntity(new ThrowableTileEntity(position.multiply(WorldData.TILE_SIZE)));
+				return true;
+			},
+			new Rectangle(0, 0, 0, 0),
 			world,
 		);
 	}

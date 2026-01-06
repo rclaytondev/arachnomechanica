@@ -633,6 +633,10 @@ export class World {
 			this.entities.addTileEntity(tile, position);
 		}
 	}
+	removeTile(position: Vector) {
+		this.entities.removeTileEntity(position);
+		this.tiles.set(position, "empty");
+	}
 	addOriginalTile(position: Vector, tile: Tile) {
 		this.addTile(position, tile);
 		this.originalTiles.set(position, tile);
@@ -674,6 +678,9 @@ export class World {
 	}
 	static isSlopeTile(value: unknown): value is BasicTile & { shape: Slope } {
 		return value instanceof BasicTile && (WorldData.SLOPES as readonly unknown[]).includes(value.shape);
+	}
+	static isFullBasicTile(value: unknown): value is BasicTile & { shape: "full" } {
+		return value instanceof BasicTile && value.shape === "full";
 	}
 	static isTileEntity(value: unknown): value is TileEntity {
 		return value instanceof Gate || value instanceof LaserBlock || value instanceof SpikeballBlock;

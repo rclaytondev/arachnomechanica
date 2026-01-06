@@ -548,6 +548,11 @@ export class ItemData {
 		DESTRUCTION_WIDTH: WorldData.TILE_SIZE * 0.3,
 		DESTRUCTIONS: 3,
 	};
+
+	static BLOCK = {
+		BLOCKS_PER_ROOM: 0.3,
+		BLOCKS_SPAWN_EVENNESS: 4,
+	};
 }
 
 export class PhysicsData {
