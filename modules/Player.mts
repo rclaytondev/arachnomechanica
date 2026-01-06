@@ -1,4 +1,5 @@
 import { CanvasIO } from "../utils-ts/modules/CanvasIO.mjs";
+import { ArrayUtils } from "../utils-ts/modules/core-extensions/ArrayUtils.mjs";
 import { Rectangle } from "../utils-ts/modules/geometry/Rectangle.mjs";
 import { Vector } from "../utils-ts/modules/geometry/Vector.mjs";
 import { MathUtils } from "../utils-ts/modules/math/MathUtils.mjs";
@@ -8,6 +9,7 @@ import { RectangularCollideable } from "./game-utilities/Collideable.mjs";
 import { Entity } from "./game-utilities/Entity.mjs";
 import { GameUtils } from "./game-utilities/GameUtils.mjs";
 import { ScreenFade } from "./game-utilities/ScreenFade.mjs";
+import { ThrowableItemEntity } from "./items/item-entities/ThrowableItemEntity.mjs";
 import { Item } from "./items/Item.mjs";
 import { Main } from "./Main.js";
 import { RoomEditor } from "./RoomEditor.mjs";
@@ -92,9 +94,11 @@ export class Player extends RectangularCollideable {
 
 		if(canvasIO.keys.KeyX && !GameUtils.pastKeys.KeyX) {
 			this.equippedItems[0]?.use(world, canvasIO);
+			this.equippedItems[0] = null;
 		}
 		if(canvasIO.keys.KeyC && !GameUtils.pastKeys.KeyC) {
 			this.equippedItems[1]?.use(world, canvasIO);
+			this.equippedItems[1] = null;
 		}
 		if(canvasIO.keys.ArrowDown && this.onGround(world)) {
 			this.crouch();
@@ -103,6 +107,9 @@ export class Player extends RectangularCollideable {
 			(!canvasIO.keys.ArrowDown && this.onGround(world)) ||
 			(this.velocity.y > 0)
 		) { this.uncrouch(world); }
+		if(canvasIO.keys.Space && !GameUtils.pastKeys.Space) {
+			this.collectNearestItem(world);
+		}
 	}
 	checkDamagingCollisions(collisions: (Entity | TileWithPosition)[], world: World) {
 		for(const obj of collisions.filter(c => c instanceof Spikeball)) {
@@ -164,6 +171,21 @@ export class Player extends RectangularCollideable {
 			item.translate(throwStart);
 			item.velocity = this.itemThrowVelocity(canvasIO);
 			world.entities.addEntity(item);
+		}
+	}
+	collectNearestItem(world: World) {
+		const rect = this.hitbox.extend("all", ItemData.PICKUP_DISTANCE);
+		const allItems = [...world.entities.collideablesIntersecting(rect)].filter(i => i instanceof ThrowableItemEntity);
+		if(allItems.length !== 0) {
+			const closest = ArrayUtils.minValue(allItems, item => item.hitbox.distanceToRect(this.hitbox));
+			this.collect(closest, world);
+		}
+	}
+	collect(itemEntity: ThrowableItemEntity, world: World) {
+		const firstEmptySlot = this.equippedItems.indexOf(null);
+		if(firstEmptySlot !== -1) {
+			this.equippedItems[firstEmptySlot] = itemEntity.getItem();
+			world.entities.removeEntity(itemEntity);
 		}
 	}
 }

@@ -5,6 +5,7 @@ import { Vector } from "../../../utils-ts/modules/geometry/Vector.mjs";
 import { ItemData, PlayerData } from "../../constants/GameData.mjs";
 import { RectangularCollideable } from "../../game-utilities/Collideable.mjs";
 import { World } from "../../world/World";
+import { Item } from "../Item.mjs";
 
 export abstract class ThrowableItemEntity extends RectangularCollideable {
 	velocity: Vector = new Vector(0, 0);
@@ -14,6 +15,8 @@ export abstract class ThrowableItemEntity extends RectangularCollideable {
 	constructor(hitbox: Rectangle) {
 		super(hitbox);
 	}
+
+	abstract getItem(): Item;
 
 	update(world: World, _canvas: CanvasIO) {
 		this.velocity.x *= this.friction;

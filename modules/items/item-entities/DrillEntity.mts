@@ -4,6 +4,7 @@ import { Rectangle } from "../../../utils-ts/modules/geometry/Rectangle.mjs";
 import { Vector } from "../../../utils-ts/modules/geometry/Vector.mjs";
 import { ItemData } from "../../constants/GameData.mjs";
 import { World } from "../../world/World";
+import { Drill } from "../Drill.mjs";
 import { ThrowableItemEntity } from "./ThrowableItemEntity.mjs";
 
 export class DrillEntity extends ThrowableItemEntity {
@@ -22,6 +23,8 @@ export class DrillEntity extends ThrowableItemEntity {
 		this.gravity = 0;
 		this.friction = 1;
 	}
+
+	getItem() { return new Drill(); }
 
 	display(canvasIO: CanvasIO) {
 		canvasIO.ctx.fillStyle = "black";

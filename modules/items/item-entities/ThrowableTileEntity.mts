@@ -1,11 +1,16 @@
 import { CanvasIO } from "../../../utils-ts/modules/CanvasIO.mjs";
 import { Rectangle } from "../../../utils-ts/modules/geometry/Rectangle.mjs";
 import { WorldData } from "../../constants/GameData.mjs";
+import { ThrowableTile } from "../ThrowableTile.mjs";
 import { ThrowableItemEntity } from "./ThrowableItemEntity.mjs";
 
 export class ThrowableTileEntity extends ThrowableItemEntity {
 	constructor() {
 		super(Rectangle.square(0, 0, WorldData.TILE_SIZE));
+	}
+
+	getItem() {
+		return new ThrowableTile();
 	}
 
 	display(canvasIO: CanvasIO) {

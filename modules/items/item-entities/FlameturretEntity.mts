@@ -4,6 +4,7 @@ import { Vector } from "../../../utils-ts/modules/geometry/Vector.mjs";
 import { ItemData, LizardData } from "../../constants/GameData.mjs";
 import { FireSpawner } from "../../game-utilities/FireSpawner.mjs";
 import { World } from "../../world/World";
+import { Flameturret } from "../Flameturret.mjs";
 import { ThrowableItemEntity } from "./ThrowableItemEntity.mjs";
 
 export class FlameturretEntity extends ThrowableItemEntity {
@@ -16,6 +17,8 @@ export class FlameturretEntity extends ThrowableItemEntity {
 		this.fireSpawnerLeft = new FireSpawner(center.add(-ItemData.FLAMETURRET.FIRE_OFFSET, 0), "left", LizardData.FIRE);
 		this.fireSpawnerRight = new FireSpawner(center.add(ItemData.FLAMETURRET.FIRE_OFFSET, 0), "right", LizardData.FIRE);
 	}
+
+	getItem() { return new Flameturret(); }
 
 	display(canvasIO: CanvasIO) {
 		const center = this.hitbox.center();
