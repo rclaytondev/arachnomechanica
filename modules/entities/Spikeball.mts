@@ -69,7 +69,7 @@ export class Spikeball extends RectangularCollideable {
 		canvasIO.ctx.restore();
 	}
 
-	onCollision(direction: Direction, collisions: (Entity | TileWithPosition)[], world: World) {
+	collide(direction: Direction, collisions: (Entity | TileWithPosition)[], world: World) {
 		if(collisions.includes(world.player)) {
 			world.player.damage(this.hitbox, world);
 		}
@@ -84,7 +84,7 @@ export class Spikeball extends RectangularCollideable {
 	update(world: World, canvasIO: CanvasIO) {
 		this.move(this.velocity, world, {
 			collides: (obj) => this.collides(obj),
-			onCollision: (direction, collisions) => this.onCollision(direction, collisions, world),
+			onCollision: (direction, collisions) => this.collide(direction, collisions, world),
 		});
 		world.entities.moveEntity(this);
 		if(this.bounces < 0) {

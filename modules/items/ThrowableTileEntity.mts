@@ -33,14 +33,19 @@ export class ThrowableTileEntity extends RectangularCollideable {
 		return new ThrowableTile(this.modifiers);
 	}
 
-	update(world: World, _canvas: CanvasIO) {
+	update(world: World, canvasIO: CanvasIO) {
 		this.velocity.x *= this.frictionX;
 		this.velocity.y *= this.frictionY;
 		this.velocity.y += this.gravity;
 		this.move(this.velocity, world, {
-			onCollision: (direction) => {
+			onCollision: (direction, collisions) => {
 				if(Directions.isVertical(direction)) {
 					this.velocity.y = 0;
+				}
+				for(const modifier of this.modifiers) {
+					for(const collision of collisions) {
+						modifier.onCollision(this, collision, direction, world, canvasIO);
+					}
 				}
 			},
 			collides: (obj) => obj !== this,

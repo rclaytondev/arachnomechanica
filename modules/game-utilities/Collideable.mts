@@ -10,8 +10,8 @@ import { Entity } from "./Entity.mjs";
 
 type MoveOptions = {
 	collides?: (object: { x: number, y: number, tile: Tile } | Entity) => boolean,
-	onCollision?: (direction: Direction, collisions: (Entity | TileWithPosition)[]) => void,
-	onMoveFail?: (direction: Direction, unpushables: (Entity | TileWithPosition)[]) => void,
+	onCollision?: (direction: Direction, collisions: (Collideable | TileWithPosition)[]) => void,
+	onMoveFail?: (direction: Direction, unpushables: (Collideable | TileWithPosition)[]) => void,
 	slideUpSlopes?: boolean,
 	slideDownSlopes?: boolean
 };
@@ -27,6 +27,7 @@ export abstract class Collideable extends Entity {
 	subpixel: Vector = new Vector(0, 0);
 	abstract hitboxes(): Rectangle[];
 	abstract translate(amount: Vector): void;
+	onCollision(collider: Collideable | TileWithPosition, direction: Direction, world: World) {}
 
 
 
@@ -81,6 +82,7 @@ export abstract class Collideable extends Entity {
 				},
 				queryOnly: options.queryOnly,
 			});
+			pushable.onCollision(this, originalDirection, world);
 		}
 		if(collidingObjects.length !== 0) {
 			options.onCollision?.(originalDirection, collidingObjects);
