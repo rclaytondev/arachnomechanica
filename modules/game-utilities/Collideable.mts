@@ -27,16 +27,16 @@ export abstract class Collideable extends Entity {
 	subpixel: Vector = new Vector(0, 0);
 	abstract hitboxes(): Rectangle[];
 	abstract translate(amount: Vector): void;
-	onCollision(collider: Collideable | TileWithPosition, direction: Direction, world: World) {}
+	onCollision(collider: Collideable | TileWithPosition, direction: Direction, world: World, canvasIO: CanvasIO) { }
 
 
 
-	move(amount: Vector, world: World, options: MoveOptions) {
+	move(amount: Vector, world: World, canvasIO: CanvasIO, options: MoveOptions) {
 		this.subpixel = this.subpixel.add(amount);
 		for(const axis of ["x", "y"] as const) {
 			while(this.subpixel[axis] < 0) {
 				const direction = (axis === "x") ? "left" : "up";
-				const moved = this.moveUnit(direction, world, options);
+				const moved = this.moveUnit(direction, world, canvasIO, options);
 				this.subpixel[axis] ++;
 				if(!moved) {
 					this.subpixel[axis] = 0;
@@ -45,7 +45,7 @@ export abstract class Collideable extends Entity {
 			}
 			while(this.subpixel[axis] >= 1) {
 				const direction = (axis === "x") ? "right" : "down";
-				const moved = this.moveUnit(direction, world, options);
+				const moved = this.moveUnit(direction, world, canvasIO, options);
 				this.subpixel[axis] --;
 				if(!moved) {
 					this.subpixel[axis] = 0;
@@ -54,27 +54,35 @@ export abstract class Collideable extends Entity {
 			}
 		}
 	}
-	moveUnit(direction: Direction, world: World, options: MoveUnitOptions): boolean {
+	moveUnit(direction: Direction, world: World, canvasIO: CanvasIO, options: MoveUnitOptions): boolean {
 		if(Directions.isHorizontal(direction)) {
 			const offsetY = this.slopeOffsetY(direction, world, options.slideUpSlopes, options.slideDownSlopes);
 			if(offsetY !== 0) {
-				const moved = this.moveDiagonal(direction, new Vector(Vector.unit(direction).x, offsetY), world, options);
+				const moved = this.moveDiagonal(direction, new Vector(Vector.unit(direction).x, offsetY), world, canvasIO, options);
 				if(moved) { return true; }
 			}
 		}
-		return this.moveOrthogonal(direction, world, options);
+		return this.moveOrthogonal(direction, world, options, canvasIO);
 	}
-	private moveDiagonal(originalDirection: "left" | "right", diagonal: Vector, world: World, options: MoveUnitOptions): boolean {
+	private moveDiagonal(originalDirection: "left" | "right", diagonal: Vector, world: World, canvasIO: CanvasIO, options: MoveUnitOptions): boolean {
 		const collidingObjects = this.collidingObjects(diagonal, world, options.collides ?? (() => true));
 		const translatedY = this.hitboxes().map(h => h.translate(new Vector(0, diagonal.y)));
 		const pushables = collidingObjects.filter(
 			o => this.canPush(o) && o.hitboxes().every(h => translatedY.every(h2 => !h.intersects(h2))),
 		) as Collideable[];
+		if(!options.queryOnly) {
+			for(const collideable of collidingObjects) {
+				if(collideable instanceof Collideable) {
+					collideable.onCollision(this, Directions.opposite[originalDirection], world, canvasIO);
+				}
+				this.onCollision(collideable, originalDirection, world, canvasIO);
+			}
+		}
 		if(pushables.length < collidingObjects.length) {
 			return false;
 		}
 		for(const pushable of pushables) {
-			pushable.moveUnit(originalDirection, world, {
+			pushable.moveUnit(originalDirection, world, canvasIO, {
 				onMoveFail: () => {
 					for(const collidingHitbox of this.collidingHitboxes(pushable, diagonal)) {
 						pushable.damage(collidingHitbox, world, canvasIO!);
@@ -82,7 +90,6 @@ export abstract class Collideable extends Entity {
 				},
 				queryOnly: options.queryOnly,
 			});
-			pushable.onCollision(this, originalDirection, world);
 		}
 		if(collidingObjects.length !== 0) {
 			options.onCollision?.(originalDirection, collidingObjects);
@@ -92,18 +99,26 @@ export abstract class Collideable extends Entity {
 		}
 		return true;
 	}
-	private moveOrthogonal(direction: Direction, world: World, options: MoveUnitOptions): boolean {
+	private moveOrthogonal(direction: Direction, world: World, options: MoveUnitOptions, canvasIO: CanvasIO): boolean {
 		const collidingObjects = this.collidingObjects(Vector.unit(direction), world, options.collides ?? (() => true));
 		if(collidingObjects.length !== 0) {
 			options.onCollision?.(direction, collidingObjects);
 		}
 		const pushables = collidingObjects.filter(o => this.canPush(o));
+		if(!options.queryOnly) {
+			for(const collideable of collidingObjects) {
+				if(collideable instanceof Collideable) {
+					collideable.onCollision(this, Directions.opposite[direction], world, canvasIO);
+				}
+				this.onCollision(collideable, direction, world, canvasIO);
+			}
+		}
 		if(pushables.length < collidingObjects.length) {
 			options.onMoveFail?.(direction, collidingObjects.filter(o => !this.canPush(o)));
 			return false;
 		}
 		for(const pushable of pushables) {
-			pushable.moveUnit(direction, world, {
+			pushable.moveUnit(direction, world, canvasIO, {
 				onMoveFail: () => {
 					for(const collidingHitbox of this.collidingHitboxes(pushable, Vector.unit(direction))) {
 						pushable.damage(collidingHitbox, world, canvasIO!);
@@ -165,8 +180,8 @@ export abstract class Collideable extends Entity {
 		}
 		return false;
 	}
-	canMove(direction: Direction, world: World) {
-		return this.moveUnit(direction, world, { queryOnly: true });
+	canMove(direction: Direction, world: World, canvasIO: CanvasIO) {
+		return this.moveUnit(direction, world, canvasIO, { queryOnly: true });
 	}
 	intersects(entity: Collideable) {
 		const hitboxes1 = this.hitboxes();
@@ -200,12 +215,12 @@ export abstract class RectangularCollideable extends Collideable {
 		this.hitbox.y += amount.y;
 	}
 
-	extend(amount: number, direction: Direction, world: World, options: MoveUnitOptions) {
+	extend(amount: number, direction: Direction, world: World, canvasIO: CanvasIO, options: MoveUnitOptions) {
 		if(amount < 0) {
 			this.hitbox = this.hitbox.extend(direction, Math.floor(amount));
 		}
 		for(let i = 0; i < amount; i ++) {
-			const moved = this.moveUnit(direction, world, options);
+			const moved = this.moveUnit(direction, world, canvasIO, options);
 			if(moved) {
 				this.hitbox = this.hitbox.extend(Directions.opposite[direction], 1);
 			}

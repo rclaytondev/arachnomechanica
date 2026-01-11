@@ -522,6 +522,14 @@ export class ItemData {
 		BLOCKS_PER_ROOM: 0.3,
 		BLOCKS_SPAWN_EVENNESS: 4,
 	};
+
+	static TILE_MODIFIERS = {
+		MOVING: {
+			SPEED: 4,
+			ACCELERATION: 0.4,
+			COOLDOWN: 3,
+		},
+	};
 }
 
 export class PhysicsData {

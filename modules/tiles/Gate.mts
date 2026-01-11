@@ -100,22 +100,22 @@ export class Gate {
 		}
 		canvasIO.ctx.restore();
 	}
-	update(world: World, x: number, y: number) {
+	update(world: World, x: number, y: number, canvasIO: CanvasIO) {
 		if(this.lastFrameUpdated !== GameUtils.frameCount - 1) {
 			this.initialize(world.player, x, y);
 		}
 		this.lastFrameUpdated = GameUtils.frameCount;
 		this.checkPlayer(world, x, y);
-		this.updateOpenness(world, x, y);
+		this.updateOpenness(world, x, y, canvasIO);
 	}
-	updateOpenness(world: World, x: number, y: number) {
+	updateOpenness(world: World, x: number, y: number, canvasIO: CanvasIO) {
 		const target = this.opennessTarget();
 		if(this.openness > target) {
 			const box = new InvisibleRectangle(this.getPhysicsBox(x, y));
 			const extension = ((1 - target) - (1 - this.openness)) * WorldData.TILE_SIZE;
 			const collides = (o: Entity | TileWithPosition) => !("tile" in o && o.tile === this);
 			world.entities.addEntity(box);
-			box.extend(extension, this.direction, world, { collides });
+			box.extend(extension, this.direction, world, canvasIO, { collides });
 			world.entities.removeEntity(box);
 		}
 		this.openness = target;

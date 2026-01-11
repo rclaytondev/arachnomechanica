@@ -42,7 +42,7 @@ export class Player extends RectangularCollideable {
 		this.checkInputs(world, canvasIO);
 		this.coyoteTime --;
 		this.invulnerabilityTime --;
-		if(this.onGround(world)) {
+		if(this.onGround(world, canvasIO)) {
 			this.hasDoubleJump = true;
 			if(this.isCrouched()) {
 				this.velocity.x *= PlayerData.CROUCHED_FRICTION;
@@ -50,7 +50,7 @@ export class Player extends RectangularCollideable {
 		}
 		this.velocity.y += canvasIO.keys.KeyZ && this.velocity.y <= 0 ? PlayerData.GRAVITY_WHILE_JUMPING : PlayerData.GRAVITY;
 		this.velocity.x = MathUtils.constrain(this.velocity.x, -PlayerData.MAX_X_VELOCITY, PlayerData.MAX_X_VELOCITY);
-		this.move(new Vector(this.velocity.x, 0), world, {
+		this.move(new Vector(this.velocity.x, 0), world, canvasIO, {
 			onCollision: (direction, collisions) => {
 				this.velocity.x = 0;
 				this.checkDamagingCollisions(collisions, world);
@@ -58,7 +58,7 @@ export class Player extends RectangularCollideable {
 			slideUpSlopes: true,
 			slideDownSlopes: true,
 		});
-		this.move(new Vector(0, this.velocity.y), world, {
+		this.move(new Vector(0, this.velocity.y), world, canvasIO, {
 			onCollision: (direction, collisions) => {
 				this.velocity.y = 0;
 				this.checkDamagingCollisions(collisions, world);
@@ -82,7 +82,7 @@ export class Player extends RectangularCollideable {
 		) {
 			this.velocity.x *= PlayerData.FRICTION_X;
 		}
-		const onGround = this.onGround(world);
+		const onGround = this.onGround(world, canvasIO);
 		if(onGround) {
 			this.coyoteTime = PlayerData.COYOTE_FRAMES;
 		}
@@ -100,11 +100,11 @@ export class Player extends RectangularCollideable {
 			const used = this.equippedItems[1]?.use(world, canvasIO);
 			if(used) { this.equippedItems[1] = null; }
 		}
-		if(canvasIO.keys.ArrowDown && this.onGround(world)) {
+		if(canvasIO.keys.ArrowDown && this.onGround(world, canvasIO)) {
 			this.crouch();
 		}
 		if(
-			(!canvasIO.keys.ArrowDown && this.onGround(world)) ||
+			(!canvasIO.keys.ArrowDown && this.onGround(world, canvasIO)) ||
 			(this.velocity.y > 0)
 		) { this.uncrouch(world); }
 		if(canvasIO.keys.Space && !GameUtils.pastKeys.Space) {
@@ -116,8 +116,8 @@ export class Player extends RectangularCollideable {
 			this.damage(obj.hitbox, world);
 		}
 	}
-	onGround(world: World) {
-		return !this.canMove("down", world);
+	onGround(world: World, canvasIO: CanvasIO) {
+		return !this.canMove("down", world, canvasIO);
 	}
 	damage(hurtbox: Rectangle, world: World) {
 		if(this.invulnerabilityTime < 0) {

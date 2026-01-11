@@ -344,8 +344,8 @@ export class Spider extends RectangularCollideable {
 		}
 	}
 
-	update(world: World) {
-		this.moveAlongSurface(this.getSpeed(), world);
+	update(world: World, canvasIO: CanvasIO) {
+		this.moveAlongSurface(this.getSpeed(), world, canvasIO);
 		this.updateAngle();
 		this.updateLegs();
 		this.checkProjectile(world);
@@ -427,7 +427,7 @@ export class Spider extends RectangularCollideable {
 		if(onLeftEnd) { this.movement = "clockwise"; }
 	}
 
-	moveAlongSurface(amount: number, world: World) {
+	moveAlongSurface(amount: number, world: World, canvasIO: CanvasIO) {
 		this.moveBasepoint(amount, world);
 		const distance = this.wallDistance(world);
 		const normal = this.smoothedNormal(world);
@@ -436,6 +436,7 @@ export class Spider extends RectangularCollideable {
 		this.move(
 			newPosition.subtract(this.hitbox.getCorner("top-left")),
 			world,
+			canvasIO,
 			{
 				collides: (obj) => obj !== this && !(obj instanceof SpiderProjectile && obj.spider === this),
 				onCollision: () => this.switchDirection(),
@@ -539,7 +540,7 @@ export class SpiderProjectile extends RectangularCollideable {
 
 	update(world: World, canvasIO: CanvasIO) {
 		this.velocity = this.velocity.add(this.acceleration);
-		this.move(this.velocity, world, {
+		this.move(this.velocity, world, canvasIO, {
 			collides: (obj) => obj !== this.spider,
 			onCollision: () => this.explode(world, canvasIO),
 		});

@@ -10,7 +10,7 @@ export abstract class TileModifier {
 	gravity: "normal" | "none" | "reverse" = "normal";
 	frictionY: number | null = 1;
 
-	update(world: World, canvasIO: CanvasIO) { }
+	update(tile: ThrowableTileEntity, world: World, canvasIO: CanvasIO) { }
 	abstract displayIcon(canvasIO: CanvasIO, world: World): void;
 	onCollision(tile: ThrowableTileEntity, collider: Collideable | TileWithPosition, direction: Direction, world: World, canvasIO: CanvasIO) { }
 }

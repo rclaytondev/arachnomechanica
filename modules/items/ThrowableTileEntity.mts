@@ -1,10 +1,10 @@
 import { CanvasIO } from "../../utils-ts/modules/CanvasIO.mjs";
-import { Directions } from "../../utils-ts/modules/geometry/Direction.mjs";
+import { Direction, Directions } from "../../utils-ts/modules/geometry/Direction.mjs";
 import { Rectangle } from "../../utils-ts/modules/geometry/Rectangle.mjs";
 import { Vector } from "../../utils-ts/modules/geometry/Vector.mjs";
 import { ItemData, PlayerData, WorldData } from "../constants/GameData.mjs";
-import { RectangularCollideable } from "../game-utilities/Collideable.mjs";
-import { World } from "../world/World";
+import { Collideable, RectangularCollideable } from "../game-utilities/Collideable.mjs";
+import { TileWithPosition, World } from "../world/World";
 import { ThrowableTile } from "./ThrowableTile.mjs";
 import { TileModifier } from "./TileModifier.mjs";
 
@@ -37,20 +37,22 @@ export class ThrowableTileEntity extends RectangularCollideable {
 		this.velocity.x *= this.frictionX;
 		this.velocity.y *= this.frictionY;
 		this.velocity.y += this.gravity;
-		this.move(this.velocity, world, {
-			onCollision: (direction, collisions) => {
+		this.move(this.velocity, world, canvasIO, {
+			onCollision: (direction) => {
 				if(Directions.isVertical(direction)) {
 					this.velocity.y = 0;
 				}
-				for(const modifier of this.modifiers) {
-					for(const collision of collisions) {
-						modifier.onCollision(this, collision, direction, world, canvasIO);
-					}
+				else {
+					this.velocity.x = 0;
 				}
 			},
 			collides: (obj) => obj !== this,
 		});
 		world.entities.moveEntity(this);
+
+		for(const modifier of this.modifiers) {
+			modifier.update(this, world, canvasIO);
+		}
 	}
 	display(canvasIO: CanvasIO) {
 		canvasIO.ctx.fillStyle = WorldData.TILE_COLORS.tower;
@@ -75,5 +77,11 @@ export class ThrowableTileEntity extends RectangularCollideable {
 			this.hitbox.right() - WorldData.TILE_ACCENT_INSET,
 			this.hitbox.y + WorldData.TILE_ACCENT_INSET,
 		);
+	}
+
+	onCollision(collider: Collideable | TileWithPosition, direction: Direction, world: World, canvasIO: CanvasIO): void {
+		for(const modifier of this.modifiers) {
+			modifier.onCollision(this, collider, direction, world, canvasIO);
+		}
 	}
 }
