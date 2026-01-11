@@ -518,20 +518,6 @@ export class ItemData {
 	static THROW_OFFSET = 5;
 	static PICKUP_DISTANCE = 10;
 
-	static FLAMETURRET = {
-		SIZE: WorldData.TILE_SIZE * 0.6,
-		FIRE_OFFSET: 15,
-	};
-
-	static DRILL = {
-		LENGTH: WorldData.TILE_SIZE * 0.8,
-		WIDTH: WorldData.TILE_SIZE * 0.3,
-		SPEED: 3,
-		DESTRUCTION_DISTANCE: 10,
-		DESTRUCTION_WIDTH: WorldData.TILE_SIZE * 0.3,
-		DESTRUCTIONS: 3,
-	};
-
 	static BLOCK = {
 		BLOCKS_PER_ROOM: 0.3,
 		BLOCKS_SPAWN_EVENNESS: 4,
