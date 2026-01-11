@@ -93,12 +93,12 @@ export class Player extends RectangularCollideable {
 		}
 
 		if(canvasIO.keys.KeyX && !GameUtils.pastKeys.KeyX) {
-			this.equippedItems[0]?.use(world, canvasIO);
-			this.equippedItems[0] = null;
+			const used = this.equippedItems[0]?.use(world, canvasIO);
+			if(used) { this.equippedItems[0] = null; }
 		}
 		if(canvasIO.keys.KeyC && !GameUtils.pastKeys.KeyC) {
-			this.equippedItems[1]?.use(world, canvasIO);
-			this.equippedItems[1] = null;
+			const used = this.equippedItems[1]?.use(world, canvasIO);
+			if(used) { this.equippedItems[1] = null; }
 		}
 		if(canvasIO.keys.ArrowDown && this.onGround(world)) {
 			this.crouch();
@@ -171,7 +171,9 @@ export class Player extends RectangularCollideable {
 			item.translate(throwStart);
 			item.velocity = this.itemThrowVelocity(canvasIO);
 			world.entities.addEntity(item);
+			return true;
 		}
+		return false;
 	}
 	collectNearestItem(world: World) {
 		const rect = this.hitbox.extend("all", ItemData.PICKUP_DISTANCE);

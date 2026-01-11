@@ -13,6 +13,6 @@ export class ThrowableTile {
 
 	use(world: World, canvasIO: CanvasIO) {
 		const entity = new ThrowableTileEntity(new Vector(0, 0), this.modifiers);
-		world.player.throw(entity, world, canvasIO);
+		return world.player.throw(entity, world, canvasIO);
 	}
 }
