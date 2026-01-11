@@ -52,3 +52,39 @@ Items for the new system:
 		- Strong items: shield, tractor beam, teleport, freeze, invisibility
 		- Weak items: flamethrower, drill, rocket launcher, decoy, barrier
 	- Note: it's kind of weird that some items can potentially be used much more than others (e.g. the tractor beam is usable for a whole level, while the barrier can be thrown once and that's it). One could argue that this is a more fundamental difference than just "weak vs strong", and that this is therefore bad game design.
+
+# Alternate Item System: Everything is a Block?
+I was playing around with a 1-tile throwable block and thought it was quite fun. This led me to the following idea: what if every item was a 1x1 block, but with some unique trait? In this new system, it would be more like a sandbox: the items wouldn't be created with a specific use in mind (like some of the ones above were), but would instead be there to allow the player to interact with the world in cool ways. (Some of the old ideas could still perhaps be ported over to new block-y versions.)
+
+New ideas:
+- **Basic Block**: it does nothing special, but it is solid and can be thrown around.
+- **Reverse Gravity Block**: it falls upward instead of downward.
+	- Problem: I don't want to allow arbitrary upwards mobility, because then the player can get an arbitrarily high score just by going outside the tower, throwing a reverse-gravity block underneath them, and zooming upwards.
+		- Solution: I could make it so it only works when inside the tower.
+- **No-Gravity Block**: it can be pushed around like usual, but is not affected by gravity.
+- **Explosive Block**: it explodes under some circumstance. Perhaps it could have a button on the bottom and explodes when the button is pressed (i.e. when it falls and lands on something below it). Or perhaps it could explode after any kind of collision (except when it's just colliding with the ground below it while not moving).
+- **Conveyor Belt Block**: it has a conveyor-belt-like surface on top. Perhaps it could be very strong so that it flings you with a large amount of momentum.
+	- Is this really that interesting?
+- **Horizontal Mover Block**: when pushed in one direction, it begins moving in that direction and continues until hitting a wall.
+- **Heavy Block**: unlike other blocks, it is heavy enough to crush the player and enemies (and other blocks?)
+	- Problem: this could make it way too easy to defeat enemies.
+- **Wind Block**: it emits a force on some sides (perhaps left/right) that pushes entities away from it.
+
+Old item ideas as blocks:
+- **Vertical Laser Block** (based on old Drill): after landing on the ground, it shoots a laser downwards, destroying some number of blocks beneath it.
+- **Teleport Block** (based on old Teleporter): when an entity steps on it, they teleport as far as they can in the direction they are facing until they encounter a solid.
+	- Alternate idea: it could teleport both the block and the entity on top, instead of just the entity. This makes it more like a vehicle, and could be cool.
+	- This is less convenient to use than the old teleporter item, so unlike the old version, I don't imagine the player would spam this ability. This is an improvement over the old version.
+- **Expanding Block** (based on old Barrier): after landing on the ground, it expands vertically.
+- **Decoy Block** (based on old Decoy): it's the same thing as the decoy, but square.
+	- Problem: if it is already in "activated" mode when it spawns, it will probably get destroyed by enemies before the player ever sees it.
+- **Flamethrower Block** (based on old Flamethrower): it's the same thing as the flamethrower, but square.
+- **Collapsing Block** (based on old Ceiling Collapser): when it hits a solid, all the blocks around it become affected by gravity and fall one-by-one.
+	- The old version had antigravity as well (to make it stand out from the others), but here I would imagine thait would be a separate block, because part of the benefit of the blocks system is that it would make the set of items feel more cohesive. Furthermore, the antigravity+collapsing behavior could still be achieved if I chose to make blocks combinable (see below).
+
+Other ideas:
+- **Combining blocks**: what if there was a way to combine blocks together to get a single block with both their properties? The possibilities could be endless!
+	- Problem: how would I visually indicate which properties a block has? I imagine it could very quickly become visually cluttered.
+		- Solution?: each modifier could be represented by an icon that's around 1/4 the size of a block (1/2 the width and 1/2 the height). Then I could conveniently display up to 4 icons, and I could limit the player to have no more than 4 modifiers.
+- **Jenga-like tower?**: my game engine already very elegantly supports non-rectangular objects. So consider the following: the tower could be made out of non-rectangular blocks (polyominoes) that are affected by gravity, but are placed by the world generation algorithm in a way such that each block is supported by the blocks below it. Then the player could strategically cause some parts of the tower to collapse by cleverly moving various blocks depending on the layout.
+	- This is a very cool and unique idea, but would be a large departure from what I already have, and would be a very large amount of work to implement. (The world generation algorithm would become much more complicated).

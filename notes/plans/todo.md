@@ -1,23 +1,22 @@
 Things to do:
-- [x] Spawn kill prevention
-- [x] Spikeball visual indicators (particles!)
-- [x] Speed limit when crouching
-- [x] Lizards sometimes don't see you when they should (e.g. when crouching, or when next to a wall)
-- [x] More laser visual cues
-- [x] Fix dying in gates
-- [x] Fix everything being able to push everything else
-- [x] Gates should be able to crush things (note: make Gate into an Entity)
-- [ ] Non-flat walls outside the tower
-- [ ] Fancier overlay text (add lines above and below where it says "Floor 01")
-- [ ] Add behavior for when the block under a spider gets destroyed
-- [x] Lizard death animations
-- [ ] Tile breaking animations
-- [ ] Chains (graphical only)
-- [ ] Teeth on the lizards
-- [ ] Telegraph for the spider attack (line showing shot trajectory)
-- [ ] Lizard physics improvements
-	- [ ] Standing on a lizard segment moving horirzontally
-	- [ ] Standing on a lizard segment moving vertically
+- Bug fixes / remaining unimplemented behavior:
+	- [ ] Fix lighting order
+	- [ ] Spider bugfixes:
+		- [ ] Add behavior for when the block under a spider gets destroyed
+		- [ ] Improve spider collision with entities (e.g. throwable tiles - they should be able to walk on them)
+		- [ ] Fix spider interaction with weird layouts (e.g. a common bug is when there's a  ceiling slope above platform)
+	- [ ] Improve lizards (make them use the new collision engine)
+- Small / medium-size features:
+	- [ ] Non-flat walls outside the tower
+- Small gameplay improvements:
+	- [ ] Telegraph for the spider attack (line showing shot trajectory)
+	- [ ] Indicator for spikeball direction (a triangle on the spikeball)
+	- [ ] Higher friction for objects on ground
+- Graphical improvements:
+	- [ ] Tile breaking animations
+	- [ ] Fancier overlay text (add lines above and below where it says "Floor 01")
+	- [ ] Chains
+	- [ ] Teeth on the lizards
 
 Future features:
 - Make lots of rooms
@@ -25,12 +24,13 @@ Future features:
 	- [x] 20
 	- [x] 30
 	- [x] 40
-	- [ ] 50
+	- [x] 50
 	- [ ] 60
-- Physics tweaks (inspired by Celeste):
+- Physics tweaks (some inspired by Celeste):
 	- [x] Hold up to jump higher
 	- [ ] Jumping gives a small amount of horizontal speed
 	- [ ] Buffer inputs (so far only jump inputs make sense to buffer)
 	- [ ] Coyote time
 	- [ ] Slip past corners and preserve velocity?
+	- [ ] Leniency when throwing items (if the throw is obstructed, try nudging it a little)
 - [ ] Player graphics!
