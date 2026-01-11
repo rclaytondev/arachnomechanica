@@ -22,12 +22,9 @@ import { StoneTile } from "../tiles/StoneTile.mjs";
 import { WorldGenerator } from "../level-generator/WorldGenerator.mjs";
 import { EntitySpawner } from "../level-generator/EntitySpawner.mjs";
 import { Entities } from "./Entities.mjs";
-import { FlameturretEntity } from "../items/item-entities/FlameturretEntity.mjs";
 import { Entity } from "../game-utilities/Entity.mjs";
 import { Collideable } from "../game-utilities/Collideable.mjs";
 import { SpawnPoint } from "../entities/SpawnPoint.mjs";
-import { DrillEntity } from "../items/item-entities/DrillEntity.mjs";
-import { ThrowableTileEntity } from "../items/item-entities/ThrowableTileEntity.mjs";
 import { ArrayUtils } from "../../utils-ts/modules/core-extensions/ArrayUtils.mjs";
 
 export type TileEntity = BasicTile | Gate | LaserBlock | SpikeballBlock;
@@ -35,7 +32,6 @@ export type Tile = (typeof WorldData.STRING_TILE_TYPES)[number] | TileEntity;
 export type Slope = (typeof WorldData.SLOPES)[number];
 export type TileWithPosition = { x: number, y: number, tile: Tile };
 export type TileEntityWithPosition = { x: number, y: number, tile: TileEntity };
-export type ItemEntity = FlameturretEntity | DrillEntity | ThrowableTileEntity;
 
 export class World {
 	tiles: Grid<Tile> = new Grid("empty");

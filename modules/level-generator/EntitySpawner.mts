@@ -11,7 +11,7 @@ import { BasicTile } from "../tiles/BasicTile.mjs";
 import { SpikeballBlock } from "../tiles/SpikeballBlock.mjs";
 import { World } from "../world/World.js";
 import { ArrayUtils } from "../../utils-ts/modules/core-extensions/ArrayUtils.mjs";
-import { ThrowableTileEntity } from "../items/item-entities/ThrowableTileEntity.mjs";
+import { ThrowableTileEntity } from "../items/ThrowableTileEntity.mjs";
 
 type Feature = "lizards" | "spiders" | "lasers" | "spikeballs";
 

@@ -1,7 +1,7 @@
 import { CanvasIO } from "../../utils-ts/modules/CanvasIO.mjs";
 import { Vector } from "../../utils-ts/modules/geometry/Vector.mjs";
 import { World } from "../world/World";
-import { ThrowableTileEntity } from "./item-entities/ThrowableTileEntity.mjs";
+import { ThrowableTileEntity } from "./ThrowableTileEntity.mjs";
 import { TileModifier } from "./TileModifier.mjs";
 
 export class ThrowableTile {

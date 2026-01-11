@@ -9,11 +9,11 @@ import { RectangularCollideable } from "./game-utilities/Collideable.mjs";
 import { Entity } from "./game-utilities/Entity.mjs";
 import { GameUtils } from "./game-utilities/GameUtils.mjs";
 import { ScreenFade } from "./game-utilities/ScreenFade.mjs";
-import { ThrowableItemEntity } from "./items/item-entities/ThrowableItemEntity.mjs";
-import { Item } from "./items/Item.mjs";
+import { ThrowableTile } from "./items/ThrowableTile.mjs";
+import { ThrowableTileEntity } from "./items/ThrowableTileEntity.mjs";
 import { Main } from "./Main.js";
 import { RoomEditor } from "./RoomEditor.mjs";
-import { ItemEntity, TileWithPosition, World } from "./world/World.js";
+import { TileWithPosition, World } from "./world/World.js";
 
 export class Player extends RectangularCollideable {
 	velocity: Vector = new Vector(0, 0);
@@ -24,7 +24,7 @@ export class Player extends RectangularCollideable {
 	health: number = PlayerData.INITIAL_HEALTH;
 	invulnerabilityTime: number = 0;
 
-	equippedItems: [Item | null, Item | null] = [null, null];
+	equippedItems: [ThrowableTile | null, ThrowableTile | null] = [null, null];
 
 	constructor() {
 		super(new Rectangle(0, -WorldData.TILE_SIZE, PlayerData.HITBOX_WIDTH, PlayerData.HITBOX_HEIGHT));
@@ -162,7 +162,7 @@ export class Player extends RectangularCollideable {
 		}
 		return this.facing;
 	}
-	throw(item: ItemEntity, world: World, canvasIO: CanvasIO) {
+	throw(item: ThrowableTileEntity, world: World, canvasIO: CanvasIO) {
 		const direction = this.throwDirection(canvasIO);
 		const size = (direction === "down" ? item.hitbox.height : item.hitbox.width);
 		const throwStartCenter = this.hitbox.edgeCenter(direction).add(Vector.unit(direction).multiply(ItemData.THROW_OFFSET + size / 2));
@@ -175,13 +175,13 @@ export class Player extends RectangularCollideable {
 	}
 	collectNearestItem(world: World) {
 		const rect = this.hitbox.extend("all", ItemData.PICKUP_DISTANCE);
-		const allItems = [...world.entities.collideablesIntersecting(rect)].filter(i => i instanceof ThrowableItemEntity);
+		const allItems = [...world.entities.collideablesIntersecting(rect)].filter(i => i instanceof ThrowableTileEntity);
 		if(allItems.length !== 0) {
 			const closest = ArrayUtils.minValue(allItems, item => item.hitbox.distanceToRect(this.hitbox));
 			this.collect(closest, world);
 		}
 	}
-	collect(itemEntity: ThrowableItemEntity, world: World) {
+	collect(itemEntity: ThrowableTileEntity, world: World) {
 		const firstEmptySlot = this.equippedItems.indexOf(null);
 		if(firstEmptySlot !== -1) {
 			this.equippedItems[firstEmptySlot] = itemEntity.getItem();
