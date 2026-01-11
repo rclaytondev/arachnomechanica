@@ -21,7 +21,7 @@ export class DrillEntity extends ThrowableItemEntity {
 		this.direction = direction;
 
 		this.gravity = 0;
-		this.friction = 1;
+		this.frictionX = 1;
 	}
 
 	getItem() { return new Drill(); }

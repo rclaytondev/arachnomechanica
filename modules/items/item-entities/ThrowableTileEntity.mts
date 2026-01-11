@@ -1,17 +1,29 @@
 import { CanvasIO } from "../../../utils-ts/modules/CanvasIO.mjs";
 import { Rectangle } from "../../../utils-ts/modules/geometry/Rectangle.mjs";
 import { Vector } from "../../../utils-ts/modules/geometry/Vector.mjs";
-import { WorldData } from "../../constants/GameData.mjs";
+import { PlayerData, WorldData } from "../../constants/GameData.mjs";
 import { ThrowableTile } from "../ThrowableTile.mjs";
+import { TileModifier } from "../TileModifier.mjs";
 import { ThrowableItemEntity } from "./ThrowableItemEntity.mjs";
 
 export class ThrowableTileEntity extends ThrowableItemEntity {
-	constructor(position: Vector = new Vector(0, 0)) {
+	modifiers: TileModifier[] = [];
+
+	constructor(position: Vector = new Vector(0, 0), modifiers: TileModifier[]) {
 		super(Rectangle.square(position.x, position.y, WorldData.TILE_SIZE));
+		this.gravity = ThrowableTileEntity.getGravity(modifiers);
+		this.modifiers = modifiers;
+		this.frictionY = Math.min(1, ...modifiers.map(m => m.frictionY ?? Infinity));
+	}
+	static getGravity(modifiers: TileModifier[]) {
+		const values = new Set(modifiers.map(m => m.gravity));
+		if(values.has("reverse")) {return -PlayerData.GRAVITY; }
+		else if(values.has("none")) { return 0; }
+		else { return PlayerData.GRAVITY; }
 	}
 
 	getItem() {
-		return new ThrowableTile();
+		return new ThrowableTile(this.modifiers);
 	}
 
 	display(canvasIO: CanvasIO) {

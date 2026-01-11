@@ -195,7 +195,7 @@ export class EntitySpawner {
 			],
 			(position: Vector, world: World) => {
 				world.removeTile(position);
-				world.entities.addEntity(new ThrowableTileEntity(position.multiply(WorldData.TILE_SIZE)));
+				world.entities.addEntity(new ThrowableTileEntity(position.multiply(WorldData.TILE_SIZE), []));
 				return true;
 			},
 			new Rectangle(0, 0, 0, 0),

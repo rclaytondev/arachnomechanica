@@ -10,7 +10,8 @@ import { Item } from "../Item.mjs";
 export abstract class ThrowableItemEntity extends RectangularCollideable {
 	velocity: Vector = new Vector(0, 0);
 	gravity: number = PlayerData.GRAVITY;
-	friction: number = ItemData.FRICTION_X;
+	frictionX: number = ItemData.FRICTION_X;
+	frictionY: number = 1;
 
 	constructor(hitbox: Rectangle) {
 		super(hitbox);
@@ -19,7 +20,8 @@ export abstract class ThrowableItemEntity extends RectangularCollideable {
 	abstract getItem(): Item;
 
 	update(world: World, _canvas: CanvasIO) {
-		this.velocity.x *= this.friction;
+		this.velocity.x *= this.frictionX;
+		this.velocity.y *= this.frictionY;
 		this.velocity.y += this.gravity;
 		this.move(this.velocity, world, {
 			onCollision: (direction) => {
