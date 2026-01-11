@@ -13,6 +13,7 @@ import { World } from "../world/World";
 import { Entity } from "../game-utilities/Entity.mjs";
 import { BasicTile } from "../tiles/BasicTile.mjs";
 import { RectangularCollideable } from "../game-utilities/Collideable.mjs";
+import { Explosion } from "../game-utilities/Explosion.mjs";
 
 export class Surface {
 	start: Vector;
@@ -500,8 +501,7 @@ export class Spider extends RectangularCollideable {
 	}
 	explode(world: World, canvasIO: CanvasIO) {
 		const center = this.hitbox.center();
-		const projectile = new SpiderProjectile(center, new Vector(0, 0), new Vector(0, 0), this);
-		projectile.explode(world, canvasIO);
+		new Explosion(center).explode(world, canvasIO);
 	}
 
 	switchDirection() {
@@ -560,43 +560,8 @@ export class SpiderProjectile extends RectangularCollideable {
 
 	explode(world: World, canvasIO: CanvasIO) {
 		world.entities.removeEntity(this);
-		world.screenShakeTimer = SpiderData.PROJECTILE_EXPLOSION.SCREEN_SHAKE_TIME;
-		world.screenShakeIntensity = SpiderData.PROJECTILE_EXPLOSION.SCREEN_SHAKE_INTENSITY;
 
-		this.destroyTiles(world);
-		this.addExplosionParticles(world, canvasIO);
-		this.explosionDamage(world, canvasIO);
-	}
-	destroyTiles(world: World) {
 		const center = this.hitbox.center();
-		const tileExplosion = Rectangle.fromCenter(
-			center.x, center.y,
-			SpiderData.PROJECTILE_EXPLOSION.DESTRUCTION_RADIUS * 2,
-			SpiderData.PROJECTILE_EXPLOSION.DESTRUCTION_RADIUS * 2,
-		);
-		for(const { position } of world.getTilesAt(tileExplosion)) {
-			world.destroyNonGateTile(position);
-		}
-	}
-	addExplosionParticles(world: World, canvasIO: CanvasIO) {
-		const center = this.hitbox.center();
-		const area = Math.PI * SpiderData.PROJECTILE_EXPLOSION.VISUAL_RADIUS ** 2;
-		const numParticles = Math.floor(area / (WorldData.TILE_SIZE ** 2) * SpiderData.PROJECTILE_EXPLOSION.PARTICLE_DENSITY);
-		for(let i = 0; i < numParticles; i ++) {
-			const position = GameUtils.randomInCircle(center.x, center.y, SpiderData.PROJECTILE_EXPLOSION.VISUAL_RADIUS);
-			world.addParticle(new Particle(
-				position,
-				new Vector(0, 0),
-				SpiderData.PROJECTILE_EXPLOSION_SETTINGS,
-			), canvasIO);
-		}
-	}
-	explosionDamage(world: World, canvasIO: CanvasIO) {
-		const center = this.hitbox.center();
-		world.damage(Rectangle.fromCenter(
-			center.x, center.y,
-			2 * SpiderData.PROJECTILE_EXPLOSION.DAMAGE_RADIUS,
-			2 * SpiderData.PROJECTILE_EXPLOSION.DAMAGE_RADIUS,
-		), canvasIO);
+		new Explosion(center).explode(world, canvasIO);
 	}
 }
