@@ -1,15 +1,15 @@
 import "./Initializer.mjs";
-import { canvasIO } from "../utils-ts/modules/CanvasIO.mjs";
-import { Rectangle } from "../utils-ts/modules/geometry/Rectangle.mjs";
-import { Vector } from "../utils-ts/modules/geometry/Vector.mjs";
-import { DEBUG_SETTINGS } from "./constants/DebugSettings.mjs";
-import { HealthPickup } from "./entities/HealthPickup.mjs";
-import { ThrowableTile } from "./items/ThrowableTile.mjs";
-import { MovingModifier } from "./items/tile-modifiers/MovingModifier.mjs";
-import { WorldGenerator } from "./level-generator/WorldGenerator.mjs";
-import { Main } from "./Main.mjs";
-import { BasicTile } from "./tiles/BasicTile.mjs";
-import { World } from "./world/World.mjs";
+import { canvasIO } from "../../utils-ts/modules/CanvasIO.mjs";
+import { Rectangle } from "../../utils-ts/modules/geometry/Rectangle.mjs";
+import { Vector } from "../../utils-ts/modules/geometry/Vector.mjs";
+import { DEBUG_SETTINGS } from "../constants/DebugSettings.mjs";
+import { HealthPickup } from "../entities/HealthPickup.mjs";
+import { ThrowableTile } from "../items/ThrowableTile.mjs";
+import { MovingModifier } from "../items/tile-modifiers/MovingModifier.mjs";
+import { WorldGenerator } from "../level-generator/WorldGenerator.mjs";
+import { Main } from "../Main.mjs";
+import { BasicTile } from "../tiles/BasicTile.mjs";
+import { World } from "../world/World.mjs";
 
 const world = new World(false);
 
