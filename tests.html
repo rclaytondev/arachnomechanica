@@ -8,11 +8,18 @@
 		<div id="mocha"></div>
 
 		<script src="node_modules/mocha/mocha.js"></script>
-		<script type="module" src="node_modules/chai/chai.js"></script>
 
 		<script>
 			mocha.setup("bdd");
 			mocha.checkLeaks();
+		</script>
+
+		<script type="importmap">
+			{
+				"imports": {
+					"chai": "./node_modules/chai/chai.js"
+				}
+			}
 		</script>
 
 		<script type="module" src="compiled/modules/tests/TestMain.mjs"></script>

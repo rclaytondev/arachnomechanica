@@ -1,4 +1,4 @@
-import { assert } from "../../../node_modules/chai/chai.js";
+import { assert } from "chai";
 
 describe("hello world", () => {
 	it("succeeds", () => {
