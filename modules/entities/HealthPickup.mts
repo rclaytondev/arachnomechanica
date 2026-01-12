@@ -2,7 +2,7 @@ import { CanvasIO } from "../../utils-ts/modules/CanvasIO.mjs";
 import { Rectangle } from "../../utils-ts/modules/geometry/Rectangle.mjs";
 import { Vector } from "../../utils-ts/modules/geometry/Vector.mjs";
 import { HealthPickupData, RoomData, WorldData } from "../constants/GameData.mjs";
-import { RectangularCollideable } from "../game-utilities/Collideable.mjs";
+import { RectangularCollideable } from "../game-utilities/physics-engine/RectangularCollideable.mjs";
 import { World } from "../world/World.mjs";
 
 export class HealthPickup extends RectangularCollideable {

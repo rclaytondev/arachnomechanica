@@ -6,7 +6,7 @@ import { GameUtils } from "../game-utilities/GameUtils.mjs";
 import { Tile, TileWithPosition, World } from "../world/World.mjs";
 import { Entity } from "../game-utilities/Entity.mjs";
 import { Direction, Directions } from "../../utils-ts/modules/geometry/Direction.mjs";
-import { RectangularCollideable } from "../game-utilities/Collideable.mjs";
+import { RectangularCollideable } from "../game-utilities/physics-engine/RectangularCollideable.mjs";
 
 export class Spikeball extends RectangularCollideable {
 	velocity: Vector;

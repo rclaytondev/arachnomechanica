@@ -4,7 +4,7 @@ import { Grid } from "../../utils-ts/modules/Grid.mjs";
 import { WorldData } from "../constants/GameData.mjs";
 import { TileEntity, TileEntityWithPosition } from "./World.mjs";
 import { Entity } from "../game-utilities/Entity.mjs";
-import { Collideable } from "../game-utilities/Collideable.mjs";
+import { Collideable } from "../game-utilities/physics-engine/Collideable.mjs";
 import { SetUtils } from "../../utils-ts/modules/core-extensions/SetUtils.mjs";
 
 export class Entities {

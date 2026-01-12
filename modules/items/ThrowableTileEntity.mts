@@ -3,7 +3,8 @@ import { Direction, Directions } from "../../utils-ts/modules/geometry/Direction
 import { Rectangle } from "../../utils-ts/modules/geometry/Rectangle.mjs";
 import { Vector } from "../../utils-ts/modules/geometry/Vector.mjs";
 import { ItemData, PlayerData, WorldData } from "../constants/GameData.mjs";
-import { Collideable, RectangularCollideable } from "../game-utilities/Collideable.mjs";
+import { Collideable } from "../game-utilities/physics-engine/Collideable.mjs";
+import { RectangularCollideable } from "../game-utilities/physics-engine/RectangularCollideable.mjs";
 import { TileWithPosition, World } from "../world/World.mjs";
 import { ThrowableTile } from "./ThrowableTile.mjs";
 import { TileModifier } from "./TileModifier.mjs";

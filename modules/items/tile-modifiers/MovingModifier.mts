@@ -1,6 +1,6 @@
 import { Direction, Directions } from "../../../utils-ts/modules/geometry/Direction.mjs";
 import { ItemData } from "../../constants/GameData.mjs";
-import { Collideable } from "../../game-utilities/Collideable.mjs";
+import { Collideable } from "../../game-utilities/physics-engine/Collideable.mjs";
 import { GameUtils } from "../../game-utilities/GameUtils.mjs";
 import { TileWithPosition } from "../../world/World.mjs";
 import { ThrowableTileEntity } from "../ThrowableTileEntity.mjs";

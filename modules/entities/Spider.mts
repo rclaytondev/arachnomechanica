@@ -12,7 +12,7 @@ import { Player } from "../Player.mjs";
 import { World } from "../world/World.mjs";
 import { Entity } from "../game-utilities/Entity.mjs";
 import { BasicTile } from "../tiles/BasicTile.mjs";
-import { RectangularCollideable } from "../game-utilities/Collideable.mjs";
+import { RectangularCollideable } from "../game-utilities/physics-engine/RectangularCollideable.mjs";
 import { Explosion } from "../game-utilities/Explosion.mjs";
 
 export class Surface {

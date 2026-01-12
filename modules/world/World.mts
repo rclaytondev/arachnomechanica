@@ -23,7 +23,7 @@ import { WorldGenerator } from "../level-generator/WorldGenerator.mjs";
 import { EntitySpawner } from "../level-generator/EntitySpawner.mjs";
 import { Entities } from "./Entities.mjs";
 import { Entity } from "../game-utilities/Entity.mjs";
-import { Collideable } from "../game-utilities/Collideable.mjs";
+import { Collideable } from "../game-utilities/physics-engine/Collideable.mjs";
 import { SpawnPoint } from "../entities/SpawnPoint.mjs";
 import { ArrayUtils } from "../../utils-ts/modules/core-extensions/ArrayUtils.mjs";
 
