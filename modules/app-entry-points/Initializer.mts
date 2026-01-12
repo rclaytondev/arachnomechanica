@@ -5,11 +5,12 @@ import { Room } from "../level-generator/Room.mjs";
 import { Rooms } from "../level-generator/Rooms.mjs";
 import { Main } from "../Main.mjs";
 import { World } from "../world/World.mjs";
+import { WorldScreen } from "../world/WorldScreen.mjs";
 
 Debug.initializeRNGOverride();
 Rooms.initialize();
 Room.addRoomVariants();
-Main.screen = new World(true).initializeGeneration();
+Main.screen = new WorldScreen(new World(true).initializeGeneration());
 
 const FRAMERATE = 60;
 window.setInterval(() => {

@@ -10,6 +10,7 @@ import { WorldGenerator } from "../level-generator/WorldGenerator.mjs";
 import { Main } from "../Main.mjs";
 import { BasicTile } from "../tiles/BasicTile.mjs";
 import { World } from "../world/World.mjs";
+import { WorldScreen } from "../world/WorldScreen.mjs";
 
 const world = new World(false);
 
@@ -20,8 +21,8 @@ world.entities.addEntity(new HealthPickup(new Vector(-2, -2)));
 
 world.player.equippedItems[0] = new ThrowableTile([new MovingModifier()]);
 
-Main.screen = world;
-if(DEBUG_SETTINGS.GENERATOR_VISUALIZATION.ENABLED && Main.screen instanceof World) {
+Main.screen = new WorldScreen(world);
+if(DEBUG_SETTINGS.GENERATOR_VISUALIZATION.ENABLED && Main.screen instanceof WorldScreen) {
 	// eslint-disable-next-line no-console
 	console.time("generating chunk");
 	const debugWorld = new World(false);
