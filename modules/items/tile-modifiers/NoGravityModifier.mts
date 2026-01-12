@@ -7,4 +7,6 @@ export class NoGravityModifier extends TileModifier {
 	displayIcon() {
 		// TODO
 	}
+
+	reset() { }
 }

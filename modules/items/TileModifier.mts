@@ -13,4 +13,5 @@ export abstract class TileModifier {
 	update(tile: ThrowableTileEntity, world: World, canvasIO: CanvasIO) { }
 	abstract displayIcon(canvasIO: CanvasIO, world: World): void;
 	onCollision(tile: ThrowableTileEntity, collider: Collideable | TileWithPosition, direction: Direction, world: World, canvasIO: CanvasIO) { }
+	abstract reset(): void;
 }

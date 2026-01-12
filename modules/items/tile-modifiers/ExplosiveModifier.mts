@@ -15,4 +15,6 @@ export class ExplosiveModifier extends TileModifier {
 	displayIcon(): void {
 		// TODO
 	}
+
+	reset() { }
 }

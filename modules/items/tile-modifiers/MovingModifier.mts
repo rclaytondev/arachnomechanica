@@ -34,4 +34,9 @@ export class MovingModifier extends TileModifier {
 			this.direction = Directions.opposite[direction];
 		}
 	}
+
+	reset() {
+		this.direction = "none";
+		this.movingCooldown = -1;
+	}
 }

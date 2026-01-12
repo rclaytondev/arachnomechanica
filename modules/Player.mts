@@ -187,6 +187,9 @@ export class Player extends RectangularCollideable {
 		const firstEmptySlot = this.equippedItems.indexOf(null);
 		if(firstEmptySlot !== -1) {
 			this.equippedItems[firstEmptySlot] = itemEntity.getItem();
+			for(const modifier of this.equippedItems[firstEmptySlot].modifiers) {
+				modifier.reset();
+			}
 			world.entities.removeEntity(itemEntity);
 		}
 	}

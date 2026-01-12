@@ -84,4 +84,10 @@ export class ThrowableTileEntity extends RectangularCollideable {
 			modifier.onCollision(this, collider, direction, world, canvasIO);
 		}
 	}
+
+	reset() {
+		for(const modifier of this.modifiers) {
+			modifier.reset();
+		}
+	}
 }

@@ -6,4 +6,6 @@ export class AntigravityModififer extends TileModifier {
 	displayIcon() {
 		// TODO
 	}
+
+	reset() {}
 }
