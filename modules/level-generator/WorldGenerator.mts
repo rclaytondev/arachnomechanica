@@ -9,7 +9,7 @@ import { LevelGeneratorData, RoomData } from "../constants/GameData.mjs";
 import { GameUtils } from "../game-utilities/GameUtils.mjs";
 import { Gate } from "../tiles/Gate.mjs";
 import { BasicTile } from "../tiles/BasicTile.mjs";
-import { World } from "../world/World.js";
+import { World } from "../world/World.mjs";
 import { GateState } from "./GateState.mjs";
 import { Room } from "./Room.mjs";
 import { RoomPlaceholder } from "./RoomPlaceholder.mjs";

@@ -1,3 +1,4 @@
+import "./Initializer.mjs";
 import { canvasIO } from "../utils-ts/modules/CanvasIO.mjs";
 import { Rectangle } from "../utils-ts/modules/geometry/Rectangle.mjs";
 import { Vector } from "../utils-ts/modules/geometry/Vector.mjs";
@@ -5,9 +6,10 @@ import { DEBUG_SETTINGS } from "./constants/DebugSettings.mjs";
 import { HealthPickup } from "./entities/HealthPickup.mjs";
 import { ThrowableTile } from "./items/ThrowableTile.mjs";
 import { MovingModifier } from "./items/tile-modifiers/MovingModifier.mjs";
-import { Main } from "./Main.js";
+import { WorldGenerator } from "./level-generator/WorldGenerator.mjs";
+import { Main } from "./Main.mjs";
 import { BasicTile } from "./tiles/BasicTile.mjs";
-import { World } from "./world/World.js";
+import { World } from "./world/World.mjs";
 
 const world = new World(false);
 
@@ -27,6 +29,13 @@ if(DEBUG_SETTINGS.GENERATOR_VISUALIZATION.ENABLED && Main.screen instanceof Worl
 	debugWorld.worldGenerator.visualize(canvasIO!, false);
 	// eslint-disable-next-line no-console
 	console.timeEnd("generating chunk");
+	// eslint-disable-next-line no-debugger
+	debugger;
+}
+
+if(DEBUG_SETTINGS.GENERATOR_VISUALIZATION.ROOM_FREQUENCY_TRIALS !== 0) {
+	// eslint-disable-next-line no-console
+	console.log(WorldGenerator.roomFrequencies(DEBUG_SETTINGS.GENERATOR_VISUALIZATION.ROOM_FREQUENCY_TRIALS));
 	// eslint-disable-next-line no-debugger
 	debugger;
 }

@@ -2,7 +2,7 @@ import { CanvasIO } from "../../utils-ts/modules/CanvasIO.mjs";
 import { Rectangle } from "../../utils-ts/modules/geometry/Rectangle.mjs";
 import { Vector } from "../../utils-ts/modules/geometry/Vector.mjs";
 import { WorldData } from "../constants/GameData.mjs";
-import { World } from "../world/World";
+import { World } from "../world/World.mjs";
 import { GameUtils } from "./GameUtils.mjs";
 import { Particle, ParticleSettings } from "./Particle.mjs";
 

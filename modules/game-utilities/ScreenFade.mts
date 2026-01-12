@@ -1,6 +1,6 @@
 import { CanvasIO } from "../../utils-ts/modules/CanvasIO.mjs";
 import { MathUtils } from "../../utils-ts/modules/math/MathUtils.mjs";
-import { Main } from "../Main.js";
+import { Main } from "../Main.mjs";
 import { GameUtils } from "./GameUtils.mjs";
 
 type FadeType = "damage-flash" | "transition-start-delay" | "transition-pause" | "transition-fade-out" | "transition-fade-in";

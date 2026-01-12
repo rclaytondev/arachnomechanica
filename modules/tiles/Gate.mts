@@ -7,7 +7,7 @@ import { InvisibleRectangle } from "../game-utilities/Collideable.mjs";
 import { Entity } from "../game-utilities/Entity.mjs";
 import { GameUtils } from "../game-utilities/GameUtils.mjs";
 import { Player } from "../Player.mjs";
-import { TileWithPosition, World } from "../world/World.js";
+import { TileWithPosition, World } from "../world/World.mjs";
 
 export class Gate {
 	static cooldown = 0;

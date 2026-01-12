@@ -2,7 +2,7 @@ import { Direction, Directions } from "../../../utils-ts/modules/geometry/Direct
 import { ItemData } from "../../constants/GameData.mjs";
 import { Collideable } from "../../game-utilities/Collideable.mjs";
 import { GameUtils } from "../../game-utilities/GameUtils.mjs";
-import { TileWithPosition } from "../../world/World";
+import { TileWithPosition } from "../../world/World.mjs";
 import { ThrowableTileEntity } from "../ThrowableTileEntity.mjs";
 import { TileModifier } from "../TileModifier.mjs";
 

@@ -1,7 +1,7 @@
 import { CanvasIO } from "../../utils-ts/modules/CanvasIO.mjs";
 import { Direction } from "../../utils-ts/modules/geometry/Direction.mjs";
 import { Collideable } from "../game-utilities/Collideable.mjs";
-import { TileWithPosition, World } from "../world/World";
+import { TileWithPosition, World } from "../world/World.mjs";
 import { ThrowableTileEntity } from "./ThrowableTileEntity.mjs";
 
 /* eslint @typescript-eslint/no-unused-vars: 0 */

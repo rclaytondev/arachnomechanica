@@ -4,7 +4,7 @@ import { Rectangle } from "../../utils-ts/modules/geometry/Rectangle.mjs";
 import { Vector } from "../../utils-ts/modules/geometry/Vector.mjs";
 import { Grid } from "../../utils-ts/modules/Grid.mjs";
 import { BackgroundData, LevelGeneratorData, PlayerData, RoomData, WorldData } from "../constants/GameData.mjs";
-import { Main } from "../Main.js";
+import { Main } from "../Main.mjs";
 import { DEBUG_SETTINGS } from "../constants/DebugSettings.mjs";
 import { Particle } from "../game-utilities/Particle.mjs";
 import { Player } from "../Player.mjs";

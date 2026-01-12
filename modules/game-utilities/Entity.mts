@@ -3,7 +3,7 @@ import { Direction, Directions } from "../../utils-ts/modules/geometry/Direction
 import { Rectangle } from "../../utils-ts/modules/geometry/Rectangle.mjs";
 import { Vector } from "../../utils-ts/modules/geometry/Vector.mjs";
 import { WorldData } from "../constants/GameData.mjs";
-import { Tile, TileWithPosition, World } from "../world/World";
+import { Tile, TileWithPosition, World } from "../world/World.mjs";
 
 /* eslint @typescript-eslint/no-unused-vars: 0 */
 

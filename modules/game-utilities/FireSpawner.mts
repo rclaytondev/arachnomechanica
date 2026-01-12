@@ -3,7 +3,7 @@ import { Direction, Directions } from "../../utils-ts/modules/geometry/Direction
 import { Rectangle } from "../../utils-ts/modules/geometry/Rectangle.mjs";
 import { Vector } from "../../utils-ts/modules/geometry/Vector.mjs";
 import { Gate } from "../tiles/Gate.mjs";
-import { Tile, World } from "../world/World";
+import { Tile, World } from "../world/World.mjs";
 import { GameUtils } from "./GameUtils.mjs";
 import { Particle, ParticleSettings } from "./Particle.mjs";
 

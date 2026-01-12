@@ -2,7 +2,7 @@ import { CanvasIO } from "../../utils-ts/modules/CanvasIO.mjs";
 import { Vector } from "../../utils-ts/modules/geometry/Vector.mjs";
 import { MathUtils } from "../../utils-ts/modules/math/MathUtils.mjs";
 import { WorldData } from "../constants/GameData.mjs";
-import { Slope } from "../world/World";
+import { Slope } from "../world/World.mjs";
 
 export class BasicTile {
 	readonly shape: "full" | Slope;

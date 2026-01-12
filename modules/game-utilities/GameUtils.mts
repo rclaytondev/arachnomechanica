@@ -5,7 +5,7 @@ import { Rectangle } from "../../utils-ts/modules/geometry/Rectangle.mjs";
 import { Vector } from "../../utils-ts/modules/geometry/Vector.mjs";
 import { HashSet } from "../../utils-ts/modules/HashSet.mjs";
 import { MathUtils } from "../../utils-ts/modules/math/MathUtils.mjs";
-import { World } from "../world/World";
+import { World } from "../world/World.mjs";
 import { Particle, ParticleSettings } from "./Particle.mjs";
 
 type RandomEvenlySpacedOptions<T> = {

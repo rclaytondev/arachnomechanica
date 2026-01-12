@@ -9,7 +9,7 @@ import { SpiderData, WorldData } from "../constants/GameData.mjs";
 import { GameUtils } from "../game-utilities/GameUtils.mjs";
 import { Particle } from "../game-utilities/Particle.mjs";
 import { Player } from "../Player.mjs";
-import { World } from "../world/World";
+import { World } from "../world/World.mjs";
 import { Entity } from "../game-utilities/Entity.mjs";
 import { BasicTile } from "../tiles/BasicTile.mjs";
 import { RectangularCollideable } from "../game-utilities/Collideable.mjs";

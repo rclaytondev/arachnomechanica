@@ -5,7 +5,7 @@ import { Vector } from "../../utils-ts/modules/geometry/Vector.mjs";
 import { MathUtils } from "../../utils-ts/modules/math/MathUtils.mjs";
 import { WorldData } from "../constants/GameData.mjs";
 import { GameUtils } from "../game-utilities/GameUtils.mjs";
-import { World } from "../world/World";
+import { World } from "../world/World.mjs";
 import { BasicTile } from "./BasicTile.mjs";
 
 export class StoneTile {

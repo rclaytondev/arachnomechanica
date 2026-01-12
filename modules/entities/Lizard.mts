@@ -4,7 +4,7 @@ import { Vector } from "../../utils-ts/modules/geometry/Vector.mjs";
 import { MathUtils } from "../../utils-ts/modules/math/MathUtils.mjs";
 import { GameUtils } from "../game-utilities/GameUtils.mjs";
 import { DEBUG_SETTINGS } from "../constants/DebugSettings.mjs";
-import { World } from "../world/World.js";
+import { World } from "../world/World.mjs";
 import { Rectangle } from "../../utils-ts/modules/geometry/Rectangle.mjs";
 import { LizardData, WorldData } from "../constants/GameData.mjs";
 import { FireSpawner } from "../game-utilities/FireSpawner.mjs";

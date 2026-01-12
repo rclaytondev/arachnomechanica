@@ -11,9 +11,9 @@ import { GameUtils } from "./game-utilities/GameUtils.mjs";
 import { ScreenFade } from "./game-utilities/ScreenFade.mjs";
 import { ThrowableTile } from "./items/ThrowableTile.mjs";
 import { ThrowableTileEntity } from "./items/ThrowableTileEntity.mjs";
-import { Main } from "./Main.js";
+import { Main } from "./Main.mjs";
 import { RoomEditor } from "./RoomEditor.mjs";
-import { TileWithPosition, World } from "./world/World.js";
+import { TileWithPosition, World } from "./world/World.mjs";
 
 export class Player extends RectangularCollideable {
 	velocity: Vector = new Vector(0, 0);

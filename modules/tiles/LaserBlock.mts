@@ -5,7 +5,7 @@ import { MathUtils } from "../../utils-ts/modules/math/MathUtils.mjs";
 import { LaserBlockData, WorldData } from "../constants/GameData.mjs";
 import { GameUtils } from "../game-utilities/GameUtils.mjs";
 import { Particle } from "../game-utilities/Particle.mjs";
-import { World } from "../world/World.js";
+import { World } from "../world/World.mjs";
 
 export class LaserBlock {
 	lasers: number;

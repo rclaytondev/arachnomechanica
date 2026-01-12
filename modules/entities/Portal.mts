@@ -5,7 +5,7 @@ import { PortalData, RoomData, WorldData } from "../constants/GameData.mjs";
 import { Entity } from "../game-utilities/Entity.mjs";
 import { GameUtils } from "../game-utilities/GameUtils.mjs";
 import { Particle } from "../game-utilities/Particle.mjs";
-import { World } from "../world/World.js";
+import { World } from "../world/World.mjs";
 import { SpawnPoint } from "./SpawnPoint.mjs";
 
 export class Portal extends Entity {

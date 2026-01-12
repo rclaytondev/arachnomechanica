@@ -2,7 +2,7 @@ import { Rectangle } from "../../utils-ts/modules/geometry/Rectangle.mjs";
 import { Vector } from "../../utils-ts/modules/geometry/Vector.mjs";
 import { Grid } from "../../utils-ts/modules/Grid.mjs";
 import { WorldData } from "../constants/GameData.mjs";
-import { TileEntity, TileEntityWithPosition } from "./World";
+import { TileEntity, TileEntityWithPosition } from "./World.mjs";
 import { Entity } from "../game-utilities/Entity.mjs";
 import { Collideable } from "../game-utilities/Collideable.mjs";
 import { SetUtils } from "../../utils-ts/modules/core-extensions/SetUtils.mjs";

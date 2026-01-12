@@ -3,7 +3,7 @@ import { Rectangle } from "../../utils-ts/modules/geometry/Rectangle.mjs";
 import { Vector } from "../../utils-ts/modules/geometry/Vector.mjs";
 import { SpikeballData, WorldData } from "../constants/GameData.mjs";
 import { GameUtils } from "../game-utilities/GameUtils.mjs";
-import { Tile, TileWithPosition, World } from "../world/World.js";
+import { Tile, TileWithPosition, World } from "../world/World.mjs";
 import { Entity } from "../game-utilities/Entity.mjs";
 import { Direction, Directions } from "../../utils-ts/modules/geometry/Direction.mjs";
 import { RectangularCollideable } from "../game-utilities/Collideable.mjs";

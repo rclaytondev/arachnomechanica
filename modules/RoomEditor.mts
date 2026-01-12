@@ -4,7 +4,7 @@ import { Vector } from "../utils-ts/modules/geometry/Vector.mjs";
 import { Room, RoomTile } from "./level-generator/Room.mjs";
 import { DEBUG_SETTINGS } from "./constants/DebugSettings.mjs";
 import { Gate } from "./tiles/Gate.mjs";
-import { Tile, World } from "./world/World.js";
+import { Tile, World } from "./world/World.mjs";
 import { PortalData, WorldData } from "./constants/GameData.mjs";
 import { Rectangle } from "../utils-ts/modules/geometry/Rectangle.mjs";
 import { ROOMS } from "./level-generator/Rooms.mjs";

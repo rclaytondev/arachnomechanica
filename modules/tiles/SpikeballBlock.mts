@@ -4,7 +4,7 @@ import { Vector } from "../../utils-ts/modules/geometry/Vector.mjs";
 import { SpikeballBlockData, SpikeballData, SpikeballPattern, WorldData } from "../constants/GameData.mjs";
 import { Spikeball } from "../entities/Spikeball.mjs";
 import { GameUtils } from "../game-utilities/GameUtils.mjs";
-import { World } from "../world/World";
+import { World } from "../world/World.mjs";
 import { Diagonal } from "../../utils-ts/modules/geometry/Direction.mjs";
 import { Particle } from "../game-utilities/Particle.mjs";
 
