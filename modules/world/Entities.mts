@@ -52,6 +52,11 @@ export class Entities {
 		}
 		this.positions.delete(entity);
 	}
+	clear() {
+		this.positions = new Map();
+		this.entities = new Grid(null);
+		this.tileEntities = new Grid(null);
+	}
 	allEntities() {
 		const values = [...this.entities.values()].filter(v => v != null);
 		return SetUtils.union(...values);

@@ -1,3 +1,3 @@
-import "../tests/hello-world-test.mjs";
+import "../tests/Collideable-test.mjs";
 
 mocha.run();
