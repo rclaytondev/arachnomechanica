@@ -80,25 +80,23 @@ export abstract class Collideable extends Entity {
 	}
 	private moveWithoutSlopes(direction: Direction, world: World, options: MoveUnitOptions, canvasIO: CanvasIO): boolean {
 		const collidingObjects = this.collidingObjects(Vector.unit(direction), world, options.collides ?? (() => true));
-		const pushables = collidingObjects.filter(o => this.canPush(o));
-		if(pushables.length < collidingObjects.length) {
+		const unpushables = collidingObjects.filter(o => !this.canPush(o));
+		if(unpushables.length > 0) {
 			if(!options.queryOnly) {
-				this.callCollisionHandlers(direction, collidingObjects, pushables, options.onCollision ?? (() => {}), world, canvasIO);
+				this.callCollisionHandlers(direction, unpushables, false, options.onCollision ?? (() => {}), world, canvasIO);
 			}
 			return false;
 		}
 
-		const uncrushables = pushables.filter(p => !this.canCrush(p));
-		const movableUncrushables = uncrushables.filter(u => u.canMove(direction, world, canvasIO));
-		if(movableUncrushables.length < uncrushables.length) {
+		const immovableUncrushables = (collidingObjects as Collideable[]).filter(c => !this.canCrush(c) && !c.canMove(direction, world, canvasIO));
+		if(immovableUncrushables.length > 0) {
 			if(!options.queryOnly) {
-				const immovableUncrushables = uncrushables.filter(u => !u.canMove(direction, world, canvasIO));
-				const others = (collidingObjects as Collideable[]).filter(c => !immovableUncrushables.includes(c));
-				this.callCollisionHandlers(direction, collidingObjects, others, options.onCollision ?? (() => {}), world, canvasIO);
+				this.callCollisionHandlers(direction, immovableUncrushables, false, options.onCollision ?? (() => {}), world, canvasIO);
 			}
 			return false;
 		}
-		for(const pushable of pushables) {
+
+		for(const pushable of collidingObjects as Collideable[]) {
 			pushable.moveUnit(direction, world, canvasIO, {
 				onCollision: (collision: CollisionEvent) => {
 					if(!collision.moveSuccessful) {
@@ -111,15 +109,13 @@ export abstract class Collideable extends Entity {
 			});
 		}
 		if(!options.queryOnly) {
-			this.callCollisionHandlers(direction, pushables, pushables, options.onCollision ?? (() => {}), world, canvasIO);
+			this.callCollisionHandlers(direction, collidingObjects, true, options.onCollision ?? (() => {}), world, canvasIO);
 			this.translate(Vector.unit(direction));
 		}
 		return true;
 	}
-	callCollisionHandlers(direction: Direction, collidingObjects: (Collideable | TileWithPosition)[], pushables: Collideable[], onCollision: (collision: CollisionEvent, world: World, canvasIO: CanvasIO) => void, world: World, canvasIO: CanvasIO) {
-		const moveSuccessful = (pushables.length === collidingObjects.length);
-		const toBeHandled = moveSuccessful ? collidingObjects : SetUtils.difference(collidingObjects, pushables);
-		for(const collidingObject of toBeHandled) {
+	callCollisionHandlers(direction: Direction, objects: (Collideable | TileWithPosition)[], moveSuccessful: boolean, onCollision: (collision: CollisionEvent, world: World, canvasIO: CanvasIO) => void, world: World, canvasIO: CanvasIO) {
+		for(const collidingObject of objects) {
 			const collision = new CollisionEvent(this, collidingObject, direction, moveSuccessful);
 			this.onCollision(collision, world, canvasIO);
 			onCollision(collision, world, canvasIO);
