@@ -186,6 +186,6 @@ export abstract class Collideable extends Entity {
 	intersects(entity: Collideable) {
 		const hitboxes1 = this.hitboxes();
 		const hitboxes2 = entity.hitboxes();
-		return hitboxes1.some(h1 => hitboxes2.some(h2 => h1.intersects(h2)));
+		return hitboxes1.some(h1 => hitboxes2.some(h2 => h1.interiorIntersects(h2)));
 	}
 }

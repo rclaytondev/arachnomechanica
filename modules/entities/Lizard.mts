@@ -298,7 +298,7 @@ export class Lizard extends Collideable {
 	}
 	checkForPlayerFire(world: World) {
 		const hurtbox = this.fireSpawner.hurtbox(this.fireSpawner.maxHurtboxSize);
-		if(!world.player.dead && world.player.hitbox.intersects(hurtbox)) {
+		if(!world.player.dead && world.player.hitbox.interiorIntersects(hurtbox)) {
 			this.fireSpawner.startFire(LizardData.FIRE_DURATION);
 		}
 	}

@@ -423,7 +423,7 @@ export class World {
 			const { x, y } = position;
 			if(collides({ x, y, tile }) && (
 				tile instanceof BasicTile && tile.shape === "full" ||
-				(tile instanceof Gate && tile.openness !== 1 && rectangle.intersects(tile.getPhysicsBox(x, y))) ||
+				(tile instanceof Gate && tile.openness !== 1 && rectangle.interiorIntersects(tile.getPhysicsBox(x, y))) ||
 				tile instanceof LaserBlock ||
 				tile instanceof SpikeballBlock ||
 				(World.isSlopeTile(tile) && this.intersectsSlope(rectangle, position, tile.shape))

@@ -62,7 +62,7 @@ export class Entities {
 	}
 	collideablesIntersecting(rectangle: Rectangle, collides: (collideable: Collideable) => boolean = () => true) {
 		return new Set([...this.entitiesPossiblyIntersecting(rectangle)].filter(
-			e => e instanceof Collideable && collides(e) && e.hitboxes().some(h => h.intersects(rectangle)),
+			e => e instanceof Collideable && collides(e) && e.hitboxes().some(h => h.interiorIntersects(rectangle)),
 		)) as Set<Collideable>;
 	}
 
