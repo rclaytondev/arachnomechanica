@@ -11,14 +11,16 @@ import { WorldData } from "../constants/GameData.mjs";
 class CollideableSpy extends RectangularCollideable {
 	name: string;
 	pushable: boolean;
+	crushable: boolean;
 	collisions: number = 0;
 	destroyed: boolean = false;
 	amountTranslated: Vector = new Vector(0, 0);
 
-	constructor(hitbox: Rectangle, name: string, pushable: boolean) {
+	constructor(hitbox: Rectangle, name: string, pushable: boolean, crushable: boolean = pushable) {
 		super(hitbox);
 		this.name = name;
 		this.pushable = pushable;
+		this.crushable = crushable;
 	}
 
 	display() { }
@@ -33,6 +35,9 @@ class CollideableSpy extends RectangularCollideable {
 			return obj.pushable;
 		}
 		return false;
+	}
+	canCrush(obj: Collideable) {
+		return obj instanceof CollideableSpy && obj.crushable;
 	}
 
 	damage(hurtbox: Rectangle, world: World): void {
@@ -156,6 +161,38 @@ describe("Collideable.moveUnit", () => {
 		assert.deepEqual(middle2.amountTranslated, new Vector(1, 0));
 		assert.deepEqual(last.amountTranslated, new Vector(1, 0));
 		assert.deepEqual(uninvolved.amountTranslated, new Vector(0, 0));
+	});
+
+	it("does not move when the pushed object is obstructed and pushable but not crushable", () => {
+		let pusher, pushable, unpushable;
+		const world = createWorld([
+			pusher = new CollideableSpy(new Rectangle(0, 0, 10, 10), "pusher", true),
+			pushable = new CollideableSpy(new Rectangle(10, 0, 10, 10), "pushable", true, false),
+			unpushable = new CollideableSpy(new Rectangle(20, 0, 10, 10), "unpushable", false),
+		]);
+		pusher.moveUnit("right", world, canvasIO!, {});
+
+		assert.deepEqual(pusher.amountTranslated, new Vector(0, 0));
+		assert.deepEqual(pushable.amountTranslated, new Vector(0, 0));
+		assert.deepEqual(unpushable.amountTranslated, new Vector(0, 0));
+	});
+	it("does not collide if the move is blocked simultaneously by a pushable-but-not-crushable object", () => {
+		let pusher, pushable, pushableButUncrushable, unpushable;
+		const world = createWorld([
+			pusher = new CollideableSpy(new Rectangle(0, 0, 10, 20), "pusher", true),
+			pushable = new CollideableSpy(new Rectangle(10, 0, 10, 10), "pushable", true),
+			pushableButUncrushable = new CollideableSpy(new Rectangle(10, 10, 10, 10), "pushableButUncrushable", true, false),
+			unpushable = new CollideableSpy(new Rectangle(20, 10, 10, 10), "unpushable", false),
+		]);
+		pusher.moveUnit("right", world, canvasIO!, {});
+
+		assert.deepEqual(pusher.amountTranslated, new Vector(0, 0));
+		assert.deepEqual(pushable.amountTranslated, new Vector(0, 0));
+		assert.deepEqual(pushableButUncrushable.amountTranslated, new Vector(0, 0));
+		assert.deepEqual(unpushable.amountTranslated, new Vector(0, 0));
+
+		assert.equal(pusher.collisions, 1);
+		assert.equal(pushable.collisions, 0);
 	});
 
 	it("correctly moves Collideables down slopes of type slope-floor-left", () => {

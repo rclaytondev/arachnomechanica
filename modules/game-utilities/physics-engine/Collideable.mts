@@ -97,10 +97,21 @@ export abstract class Collideable extends Entity {
 	private moveOrthogonal(direction: Direction, world: World, options: MoveUnitOptions, canvasIO: CanvasIO): boolean {
 		const collidingObjects = this.collidingObjects(Vector.unit(direction), world, options.collides ?? (() => true));
 		const pushables = collidingObjects.filter(o => this.canPush(o));
-		if(!options.queryOnly) {
-			this.callCollisionHandlers(direction, collidingObjects, pushables, options.onCollision ?? (() => {}), world, canvasIO);
-		}
 		if(pushables.length < collidingObjects.length) {
+			if(!options.queryOnly) {
+				this.callCollisionHandlers(direction, collidingObjects, pushables, options.onCollision ?? (() => {}), world, canvasIO);
+			}
+			return false;
+		}
+
+		const uncrushables = pushables.filter(p => !this.canCrush(p));
+		const movableUncrushables = uncrushables.filter(u => u.canMove(direction, world, canvasIO));
+		if(movableUncrushables.length < uncrushables.length) {
+			if(!options.queryOnly) {
+				const immovableUncrushables = uncrushables.filter(u => !u.canMove(direction, world, canvasIO));
+				const others = (collidingObjects as Collideable[]).filter(c => !immovableUncrushables.includes(c));
+				this.callCollisionHandlers(direction, collidingObjects, others, options.onCollision ?? (() => {}), world, canvasIO);
+			}
 			return false;
 		}
 		for(const pushable of pushables) {
@@ -116,6 +127,7 @@ export abstract class Collideable extends Entity {
 			});
 		}
 		if(!options.queryOnly) {
+			this.callCollisionHandlers(direction, pushables, pushables, options.onCollision ?? (() => {}), world, canvasIO);
 			this.translate(Vector.unit(direction));
 		}
 		return true;
@@ -179,6 +191,9 @@ export abstract class Collideable extends Entity {
 			// return PhysicsData.CAN_PUSH[this.entityType][obj.entityType];
 		}
 		return false;
+	}
+	canCrush(obj: Collideable) {
+		return this.canPush(obj);
 	}
 	canMove(direction: Direction, world: World, canvasIO: CanvasIO) {
 		return this.moveUnit(direction, world, canvasIO, { queryOnly: true });
