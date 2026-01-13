@@ -14,6 +14,7 @@ import { Entity } from "../game-utilities/Entity.mjs";
 import { BasicTile } from "../tiles/BasicTile.mjs";
 import { RectangularCollideable } from "../game-utilities/physics-engine/RectangularCollideable.mjs";
 import { Explosion } from "../game-utilities/Explosion.mjs";
+import { CollisionEvent } from "../game-utilities/physics-engine/CollisionEvent.mjs";
 
 export class Surface {
 	start: Vector;
@@ -439,7 +440,6 @@ export class Spider extends RectangularCollideable {
 			canvasIO,
 			{
 				collides: (obj) => obj !== this && !(obj instanceof SpiderProjectile && obj.spider === this),
-				onCollision: () => this.switchDirection(),
 			},
 		);
 		world.entities.moveEntity(this);
@@ -494,6 +494,12 @@ export class Spider extends RectangularCollideable {
 		);
 	}
 
+	onCollision(collision: CollisionEvent): void {
+		if(collision.movingObject === this) {
+			this.switchDirection();
+		}
+	}
+
 	damage(hurtbox: Rectangle, world: World, canvasIO: CanvasIO) {
 		if(!hurtbox.intersects(this.hitbox)) { return; }
 
@@ -542,7 +548,6 @@ export class SpiderProjectile extends RectangularCollideable {
 		this.velocity = this.velocity.add(this.acceleration);
 		this.move(this.velocity, world, canvasIO, {
 			collides: (obj) => obj !== this.spider,
-			onCollision: () => this.explode(world, canvasIO),
 		});
 		world.entities.moveEntity(this);
 
@@ -559,6 +564,10 @@ export class SpiderProjectile extends RectangularCollideable {
 
 	display() { }
 
+
+	onCollision(collision: CollisionEvent, world: World, canvasIO: CanvasIO): void {
+		this.explode(world, canvasIO);
+	}
 	explode(world: World, canvasIO: CanvasIO) {
 		world.entities.removeEntity(this);
 

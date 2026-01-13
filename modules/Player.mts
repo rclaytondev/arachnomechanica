@@ -1,5 +1,6 @@
 import { CanvasIO } from "../utils-ts/modules/CanvasIO.mjs";
 import { ArrayUtils } from "../utils-ts/modules/core-extensions/ArrayUtils.mjs";
+import { Directions } from "../utils-ts/modules/geometry/Direction.mjs";
 import { Rectangle } from "../utils-ts/modules/geometry/Rectangle.mjs";
 import { Vector } from "../utils-ts/modules/geometry/Vector.mjs";
 import { MathUtils } from "../utils-ts/modules/math/MathUtils.mjs";
@@ -7,6 +8,7 @@ import { ItemData, PlayerData, WorldData } from "./constants/GameData.mjs";
 import { Spikeball } from "./entities/Spikeball.mjs";
 import { Entity } from "./game-utilities/Entity.mjs";
 import { GameUtils } from "./game-utilities/GameUtils.mjs";
+import { CollisionEvent } from "./game-utilities/physics-engine/CollisionEvent.mjs";
 import { RectangularCollideable } from "./game-utilities/physics-engine/RectangularCollideable.mjs";
 import { ScreenFade } from "./game-utilities/ScreenFade.mjs";
 import { ThrowableTile } from "./items/ThrowableTile.mjs";
@@ -51,20 +53,26 @@ export class Player extends RectangularCollideable {
 		this.velocity.y += canvasIO.keys.KeyZ && this.velocity.y <= 0 ? PlayerData.GRAVITY_WHILE_JUMPING : PlayerData.GRAVITY;
 		this.velocity.x = MathUtils.constrain(this.velocity.x, -PlayerData.MAX_X_VELOCITY, PlayerData.MAX_X_VELOCITY);
 		this.move(new Vector(this.velocity.x, 0), world, canvasIO, {
-			onCollision: (direction, collisions) => {
-				this.velocity.x = 0;
-				this.checkDamagingCollisions(collisions, world);
-			},
 			slideUpSlopes: true,
 			slideDownSlopes: true,
 		});
-		this.move(new Vector(0, this.velocity.y), world, canvasIO, {
-			onCollision: (direction, collisions) => {
-				this.velocity.y = 0;
-				this.checkDamagingCollisions(collisions, world);
-			},
-		});
+		this.move(new Vector(0, this.velocity.y), world, canvasIO, {});
 		world.entities.moveEntity(this);
+	}
+	onCollision(collision: CollisionEvent, world: World): void {
+		if(collision.movingObject === this) {
+			if(Directions.isVertical(collision.direction)) {
+				this.velocity.y = 0;
+			}
+			else {
+				this.velocity.x = 0;
+			}
+		}
+
+		const collidingObject = collision.collidingObject(this);
+		if(collidingObject instanceof Spikeball) {
+			this.damage(collidingObject.hitbox, world);
+		}
 	}
 	checkInputs(world: World, canvasIO: CanvasIO) {
 		if(canvasIO.keys.ArrowRight && !canvasIO.keys.ArrowLeft) {

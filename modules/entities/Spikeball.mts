@@ -3,10 +3,11 @@ import { Rectangle } from "../../utils-ts/modules/geometry/Rectangle.mjs";
 import { Vector } from "../../utils-ts/modules/geometry/Vector.mjs";
 import { SpikeballData, WorldData } from "../constants/GameData.mjs";
 import { GameUtils } from "../game-utilities/GameUtils.mjs";
-import { Tile, TileWithPosition, World } from "../world/World.mjs";
+import { Tile, World } from "../world/World.mjs";
 import { Entity } from "../game-utilities/Entity.mjs";
-import { Direction, Directions } from "../../utils-ts/modules/geometry/Direction.mjs";
+import { Directions } from "../../utils-ts/modules/geometry/Direction.mjs";
 import { RectangularCollideable } from "../game-utilities/physics-engine/RectangularCollideable.mjs";
+import { CollisionEvent } from "../game-utilities/physics-engine/CollisionEvent.mjs";
 
 export class Spikeball extends RectangularCollideable {
 	velocity: Vector;
@@ -69,22 +70,20 @@ export class Spikeball extends RectangularCollideable {
 		canvasIO.ctx.restore();
 	}
 
-	collide(direction: Direction, collisions: (Entity | TileWithPosition)[], world: World) {
-		if(collisions.includes(world.player)) {
-			world.player.damage(this.hitbox, world);
-		}
-		this.bounces --;
-		if(Directions.isHorizontal(direction)) {
-			this.velocity.x *= -1;
-		}
-		else {
-			this.velocity.y *= -1;
+	onCollision(collision: CollisionEvent) {
+		if(collision.movingObject === this) {
+			this.bounces --;
+			if(Directions.isHorizontal(collision.direction)) {
+				this.velocity.x *= -1;
+			}
+			else {
+				this.velocity.y *= -1;
+			}
 		}
 	}
 	update(world: World, canvasIO: CanvasIO) {
 		this.move(this.velocity, world, canvasIO, {
 			collides: (obj) => this.collides(obj),
-			onCollision: (direction, collisions) => this.collide(direction, collisions, world),
 		});
 		world.entities.moveEntity(this);
 		if(this.bounces < 0) {

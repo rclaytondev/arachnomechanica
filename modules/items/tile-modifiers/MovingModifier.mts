@@ -1,10 +1,9 @@
-import { Direction, Directions } from "../../../utils-ts/modules/geometry/Direction.mjs";
+import { Directions } from "../../../utils-ts/modules/geometry/Direction.mjs";
 import { ItemData } from "../../constants/GameData.mjs";
-import { Collideable } from "../../game-utilities/physics-engine/Collideable.mjs";
 import { GameUtils } from "../../game-utilities/GameUtils.mjs";
-import { TileWithPosition } from "../../world/World.mjs";
 import { ThrowableTileEntity } from "../ThrowableTileEntity.mjs";
 import { TileModifier } from "../TileModifier.mjs";
+import { CollisionEvent } from "../../game-utilities/physics-engine/CollisionEvent.mjs";
 
 export class MovingModifier extends TileModifier {
 	displayIcon(): void {
@@ -25,7 +24,8 @@ export class MovingModifier extends TileModifier {
 	direction: "left" | "right" | "none" = "none";
 	movingCooldown: number = 0;
 
-	onCollision(tile: ThrowableTileEntity, collider: Collideable | TileWithPosition, direction: Direction): void {
+	onCollision(tile: ThrowableTileEntity, collision: CollisionEvent): void {
+		const direction = collision.directionOf(tile);
 		if(this.direction === direction) {
 			this.direction = "none";
 			this.movingCooldown = ItemData.TILE_MODIFIERS.MOVING.COOLDOWN;

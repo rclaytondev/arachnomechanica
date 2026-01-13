@@ -1,6 +1,7 @@
 import { CanvasIO } from "../../utils-ts/modules/CanvasIO.mjs";
 import { Direction } from "../../utils-ts/modules/geometry/Direction.mjs";
 import { Collideable } from "../game-utilities/physics-engine/Collideable.mjs";
+import { CollisionEvent } from "../game-utilities/physics-engine/CollisionEvent.mjs";
 import { TileWithPosition, World } from "../world/World.mjs";
 import { ThrowableTileEntity } from "./ThrowableTileEntity.mjs";
 
@@ -12,6 +13,6 @@ export abstract class TileModifier {
 
 	update(tile: ThrowableTileEntity, world: World, canvasIO: CanvasIO) { }
 	abstract displayIcon(canvasIO: CanvasIO, world: World): void;
-	onCollision(tile: ThrowableTileEntity, collider: Collideable | TileWithPosition, direction: Direction, world: World, canvasIO: CanvasIO) { }
+	onCollision(tile: ThrowableTileEntity, collision: CollisionEvent, world: World, canvasIO: CanvasIO) { }
 	abstract reset(): void;
 }
