@@ -200,4 +200,65 @@ describe("Collideable.moveUnit", () => {
 
 		assert.deepEqual(collideable.amountTranslated, new Vector(1, -1));
 	});
+
+	it("works when an object pushes another object up a slope", () => {
+		let pusher, pushed;
+		const world = createWorld([
+			pusher = new CollideableSpy(new Rectangle(-10, WorldData.TILE_SIZE - 20, 10, 20), true),
+			pushed = new CollideableSpy(new Rectangle(0, WorldData.TILE_SIZE - 20, 10, 10), true),
+		], [
+			{ x: 0, y: 0, tile: new BasicTile("slope-floor-right", "tower") },
+		]);
+		pusher.moveUnit("right", world, canvasIO!, { });
+
+		assert.deepEqual(pusher.amountTranslated, new Vector(1, -1));
+		assert.deepEqual(pushed.amountTranslated, new Vector(1, -1));
+		assert.equal(pusher.collisions, 1);
+		assert.equal(pushed.collisions, 1);
+		assert.isFalse(pusher.destroyed);
+		assert.isFalse(pushed.destroyed);
+	});
+	it("does not move the object when the object tries to move up a slope but is blocked from above, even by a pushable object", () => {
+		let pusher, pushable;
+		const world = createWorld([
+			pusher = new CollideableSpy(new Rectangle(-10, WorldData.TILE_SIZE - 10, 10, 10), true),
+			pushable = new CollideableSpy(new Rectangle(-10, WorldData.TILE_SIZE - 20, 10, 10), true),
+		], [
+			{ x: 0, y: 0, tile: new BasicTile("slope-floor-right", "tower") },
+		]);
+		pusher.moveUnit("right", world, canvasIO!, { });
+
+		assert.deepEqual(pusher.amountTranslated, new Vector(0, 0));
+		assert.deepEqual(pushable.amountTranslated, new Vector(0, 0));
+		assert.isFalse(pusher.destroyed);
+		assert.isFalse(pushable.destroyed);
+	});
+	it("works when an object pushes another object down a slope", () => {
+		let pusher, pushed;
+		const world = createWorld([
+			pusher = new CollideableSpy(new Rectangle(0, -10, 10, 10), true),
+			pushed = new CollideableSpy(new Rectangle(10, -10, 10, 20), true),
+		], [
+			{ x: 0, y: 0, tile: new BasicTile("slope-floor-left", "tower") },
+		]);
+		pusher.moveUnit("right", world, canvasIO!, { });
+
+		assert.deepEqual(pusher.amountTranslated, new Vector(1, 1));
+		assert.deepEqual(pushed.amountTranslated, new Vector(1, 1));
+	});
+	it("moves horizontally when the object tries to move down a slope but is blocked from below, even by a pushable object", () => {
+		let pusher, pushable;
+		const world = createWorld([
+			pusher = new CollideableSpy(new Rectangle(0, -10, 20, 10), true),
+			pushable = new CollideableSpy(new Rectangle(10, 0, 10, 10), true),
+		], [
+			{ x: 0, y: 0, tile: new BasicTile("slope-floor-left", "tower") },
+		]);
+		pusher.moveUnit("right", world, canvasIO!, { });
+
+		assert.deepEqual(pusher.amountTranslated, new Vector(1, 0));
+		assert.deepEqual(pushable.amountTranslated, new Vector(0, 0));
+		assert.isFalse(pusher.destroyed);
+		assert.isFalse(pushable.destroyed);
+	});
 });
