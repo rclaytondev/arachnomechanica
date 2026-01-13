@@ -58,43 +58,27 @@ export abstract class Collideable extends Entity {
 	moveUnit(direction: Direction, world: World, canvasIO: CanvasIO, options: MoveUnitOptions): boolean {
 		if(Directions.isHorizontal(direction)) {
 			const offsetY = this.slopeOffsetY(direction, world, this.slideUpSlopes, this.slideDownSlopes);
-			if(offsetY !== 0) {
-				const moved = this.moveDiagonal(direction, new Vector(Vector.unit(direction).x, offsetY), world, canvasIO, options);
-				if(moved) { return true; }
+			if(offsetY === 1) {
+				const moved = this.moveWithoutSlopes(direction, world, options, canvasIO);
+				if(moved) {
+					this.translateIfUnobstructed("down", options.collides ?? (() => true), world);
+					return true;
+				}
+			}
+			else if(offsetY === -1) {
+				const translated = this.translateIfUnobstructed("up", options.collides ?? (() => true), world);
+				if(!translated) { return false; }
+				const moved = this.moveWithoutSlopes(direction, world, options, canvasIO);
+				if(!moved) {
+					this.translateIfUnobstructed("down", options.collides ?? (() => true), world);
+					return false;
+				}
+				return true;
 			}
 		}
-		return this.moveOrthogonal(direction, world, options, canvasIO);
+		return this.moveWithoutSlopes(direction, world, options, canvasIO);
 	}
-	private moveDiagonal(originalDirection: "left" | "right", diagonal: Vector, world: World, canvasIO: CanvasIO, options: MoveUnitOptions): boolean {
-		const collidingObjects = this.collidingObjects(diagonal, world, options.collides ?? (() => true));
-		const translatedY = this.hitboxes().map(h => h.translate(new Vector(0, diagonal.y)));
-		const pushables = collidingObjects.filter(
-			o => this.canPush(o) && !o.intersectsRects(translatedY),
-		) as Collideable[];
-		if(!options.queryOnly) {
-			this.callCollisionHandlers(originalDirection, collidingObjects, pushables, options.onCollision ?? (() => {}), world, canvasIO);
-		}
-		if(pushables.length < collidingObjects.length) {
-			return false;
-		}
-		for(const pushable of pushables) {
-			pushable.moveUnit(originalDirection, world, canvasIO, {
-				onCollision: (collision: CollisionEvent) => {
-					if(!collision.moveSuccessful) {
-						for(const collidingHitbox of this.collidingHitboxes(pushable, diagonal)) {
-							pushable.damage(collidingHitbox, world, canvasIO!);
-						}
-					}
-				},
-				queryOnly: options.queryOnly,
-			});
-		}
-		if(!options.queryOnly) {
-			this.translate(diagonal);
-		}
-		return true;
-	}
-	private moveOrthogonal(direction: Direction, world: World, options: MoveUnitOptions, canvasIO: CanvasIO): boolean {
+	private moveWithoutSlopes(direction: Direction, world: World, options: MoveUnitOptions, canvasIO: CanvasIO): boolean {
 		const collidingObjects = this.collidingObjects(Vector.unit(direction), world, options.collides ?? (() => true));
 		const pushables = collidingObjects.filter(o => this.canPush(o));
 		if(pushables.length < collidingObjects.length) {
@@ -203,5 +187,13 @@ export abstract class Collideable extends Entity {
 	}
 	intersectsRects(rectangles: Rectangle[]) {
 		return this.hitboxes().some(h => rectangles.some(r => h.interiorIntersects(r)));
+	}
+	translateIfUnobstructed(direction: Direction, collides: (e: Entity | TileWithPosition) => boolean, world: World) {
+		const obstructed = this.collidingObjects(direction, world, collides).length !== 0;
+		if(!obstructed) {
+			this.translate(Vector.unit(direction));
+			return true;
+		}
+		return false;
 	}
 }
