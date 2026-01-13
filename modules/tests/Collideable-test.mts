@@ -5,6 +5,8 @@ import { canvasIO } from "../../utils-ts/modules/CanvasIO.mjs";
 import { RectangularCollideable } from "../game-utilities/physics-engine/RectangularCollideable.mjs";
 import { Collideable } from "../game-utilities/physics-engine/Collideable.mjs";
 import { Vector } from "../../utils-ts/modules/geometry/Vector.mjs";
+import { BasicTile } from "../tiles/BasicTile.mjs";
+import { WorldData } from "../constants/GameData.mjs";
 
 class CollideableSpy extends RectangularCollideable {
 	pushable: boolean;
@@ -43,9 +45,12 @@ class CollideableSpy extends RectangularCollideable {
 }
 
 describe("Collideable.moveUnit", () => {
-	const createWorld = (collideables: Collideable[]) => {
+	const createWorld = (collideables: Collideable[], tiles: TileWithPosition[] = []) => {
 		const world = new World(false);
 		world.entities.clear();
+		for(const { tile, x, y } of tiles) {
+			world.tiles.set(x, y, tile);
+		}
 		for(const collideable of collideables) {
 			const added = world.addEntityIfEmpty(collideable);
 			if(!added) {
@@ -149,5 +154,50 @@ describe("Collideable.moveUnit", () => {
 		assert.deepEqual(middle2.amountTranslated, new Vector(1, 0));
 		assert.deepEqual(last.amountTranslated, new Vector(1, 0));
 		assert.deepEqual(uninvolved.amountTranslated, new Vector(0, 0));
+	});
+
+	it("correctly moves Collideables down slopes of type slope-floor-left", () => {
+		let collideable;
+		const world = createWorld([
+			collideable = new CollideableSpy(new Rectangle(0, -10, 10, 10), true),
+		], [
+			{ x: 0, y: 0, tile: new BasicTile("slope-floor-left", "tower") },
+		]);
+		collideable.moveUnit("right", world, canvasIO!, { slideDownSlopes: true });
+
+		assert.deepEqual(collideable.amountTranslated, new Vector(1, 1));
+	});
+	it("correctly moves Collideables down slopes of type slope-floor-right", () => {
+		let collideable;
+		const world = createWorld([
+			collideable = new CollideableSpy(new Rectangle(WorldData.TILE_SIZE - 10, -10, 10, 10), true),
+		], [
+			{ x: 0, y: 0, tile: new BasicTile("slope-floor-right", "tower") },
+		]);
+		collideable.moveUnit("left", world, canvasIO!, { slideDownSlopes: true });
+
+		assert.deepEqual(collideable.amountTranslated, new Vector(-1, 1));
+	});
+	it("correctly moves Collideables up slopes of type slope-floor-left", () => {
+		let collideable;
+		const world = createWorld([
+			collideable = new CollideableSpy(new Rectangle(WorldData.TILE_SIZE, WorldData.TILE_SIZE - 10, 10, 10), true),
+		], [
+			{ x: 0, y: 0, tile: new BasicTile("slope-floor-left", "tower") },
+		]);
+		collideable.moveUnit("left", world, canvasIO!, { slideUpSlopes: true });
+
+		assert.deepEqual(collideable.amountTranslated, new Vector(-1, -1));
+	});
+	it("correctly moves Collideables up slopes of type slope-floor-right", () => {
+		let collideable;
+		const world = createWorld([
+			collideable = new CollideableSpy(new Rectangle(-10, WorldData.TILE_SIZE - 10, 10, 10), true),
+		], [
+			{ x: 0, y: 0, tile: new BasicTile("slope-floor-right", "tower") },
+		]);
+		collideable.moveUnit("right", world, canvasIO!, { slideUpSlopes: true });
+
+		assert.deepEqual(collideable.amountTranslated, new Vector(1, -1));
 	});
 });

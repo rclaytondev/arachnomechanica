@@ -133,12 +133,12 @@ export abstract class Collideable extends Entity {
 		}
 	}
 	slopeOffsetY(direction: "left" | "right", world: World, slideUpSlopes: boolean = false, slideDownSlopes: boolean = false) {
-		if(slideUpSlopes && this.hitboxes().some(h => world.onSlope(h, `slope-floor-${direction}`))) {
+		if(slideUpSlopes && this.hitboxes().some(h => world.onSlope(h, `slope-floor-${direction}`, "up"))) {
 			return -1;
 		}
 
 		const opposite = Directions.opposite[direction];
-		if(slideDownSlopes && this.hitboxes().some(h => world.onSlope(h, `slope-floor-${opposite}`))) {
+		if(slideDownSlopes && this.hitboxes().some(h => world.onSlope(h, `slope-floor-${opposite}`, "down"))) {
 			return 1;
 		}
 		return 0;

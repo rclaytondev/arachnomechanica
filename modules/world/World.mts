@@ -403,16 +403,19 @@ export class World {
 	intersectsSlope(rectangle: Rectangle, position: Vector, slope: Slope) {
 		return this.slopeIntersectionDistance(rectangle, position, slope) > 0;
 	}
-	onSlope(rectangle: Rectangle, slope: Slope) {
+	onSlope(rectangle: Rectangle, slope: Slope, mode: "up" | "down") {
 		const corner = rectangle.getCorner(({
 			"slope-floor-right": "bottom-right",
 			"slope-floor-left": "bottom-left",
 			"slope-ceiling-right": "bottom-right",
 			"slope-ceiling-left": "bottom-left",
 		} as const)[slope]);
-		const position = new Vector(
+		const position = (mode === "up") ? new Vector(
 			(slope === "slope-floor-left" || slope === "slope-ceiling-left") ? Math.ceil(corner.x / WorldData.TILE_SIZE) - 1 : Math.floor(corner.x / WorldData.TILE_SIZE),
 			Math.ceil(corner.y / WorldData.TILE_SIZE) - 1,
+		) : new Vector(
+			(slope === "slope-floor-left" || slope === "slope-ceiling-left") ? Math.floor(corner.x / WorldData.TILE_SIZE) : Math.ceil(corner.x / WorldData.TILE_SIZE) - 1,
+			Math.floor(corner.y / WorldData.TILE_SIZE),
 		);
 		const tile = this.tiles.get(position);
 		return tile instanceof BasicTile && tile.shape === slope && this.slopeIntersectionDistance(rectangle, position, slope) === 0;

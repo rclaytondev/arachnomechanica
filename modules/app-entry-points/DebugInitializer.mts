@@ -14,8 +14,21 @@ import { WorldScreen } from "../world/WorldScreen.mjs";
 
 const world = new World(false);
 
-world.tiles.fillRect(new Rectangle(-5, -5, 10, 20), new BasicTile("full", "tower"));
-world.tiles.fillRect(new Rectangle(-4, -4, 8, 8), "empty");
+world.tiles.fillRect(new Rectangle(-1, 4, 3, 2), new BasicTile("full", "tower"));
+
+world.tiles.set(1, 4, new BasicTile("slope-floor-left", "tower"));
+world.tiles.set(2, 5, new BasicTile("slope-floor-left", "tower"));
+world.tiles.set(3, 6, new BasicTile("slope-floor-left", "tower"));
+world.tiles.set(4, 7, new BasicTile("slope-floor-left", "tower"));
+world.tiles.set(5, 8, new BasicTile("slope-floor-left", "tower"));
+world.tiles.set(6, 9, new BasicTile("full", "tower"));
+
+world.tiles.set(-1, 4, new BasicTile("slope-floor-right", "tower"));
+world.tiles.set(-2, 5, new BasicTile("slope-floor-right", "tower"));
+world.tiles.set(-3, 6, new BasicTile("slope-floor-right", "tower"));
+world.tiles.set(-4, 7, new BasicTile("slope-floor-right", "tower"));
+world.tiles.set(-5, 8, new BasicTile("slope-floor-right", "tower"));
+world.tiles.set(-6, 9, new BasicTile("full", "tower"));
 
 world.entities.addEntity(new HealthPickup(new Vector(-2, -2)));
 
