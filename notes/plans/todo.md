@@ -5,7 +5,7 @@ Things to do:
 		- [ ] Add behavior for when the block under a spider gets destroyed
 		- [ ] Improve spider collision with entities (e.g. throwable tiles - they should be able to walk on them)
 		- [ ] Fix spider interaction with weird layouts (e.g. a common bug is when there's a  ceiling slope above platform)
-	- [ ] Improve lizards (make them use the new collision engine)
+	- [x] Improve lizards (make them use the new collision engine)
 - Small / medium-size features:
 	- [ ] Non-flat walls outside the tower
 - Small gameplay improvements:

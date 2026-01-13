@@ -3,7 +3,6 @@ import { canvasIO } from "../../utils-ts/modules/CanvasIO.mjs";
 import { Rectangle } from "../../utils-ts/modules/geometry/Rectangle.mjs";
 import { Vector } from "../../utils-ts/modules/geometry/Vector.mjs";
 import { DEBUG_SETTINGS } from "../constants/DebugSettings.mjs";
-import { HealthPickup } from "../entities/HealthPickup.mjs";
 import { ThrowableTile } from "../items/ThrowableTile.mjs";
 import { MovingModifier } from "../items/tile-modifiers/MovingModifier.mjs";
 import { WorldGenerator } from "../level-generator/WorldGenerator.mjs";
@@ -11,26 +10,12 @@ import { Main } from "../Main.mjs";
 import { BasicTile } from "../tiles/BasicTile.mjs";
 import { World } from "../world/World.mjs";
 import { WorldScreen } from "../world/WorldScreen.mjs";
+import { Lizard } from "../entities/Lizard.mjs";
 
 const world = new World(false);
 
-world.tiles.fillRect(new Rectangle(-1, 4, 3, 2), new BasicTile("full", "tower"));
-
-world.tiles.set(1, 4, new BasicTile("slope-floor-left", "tower"));
-world.tiles.set(2, 5, new BasicTile("slope-floor-left", "tower"));
-world.tiles.set(3, 6, new BasicTile("slope-floor-left", "tower"));
-world.tiles.set(4, 7, new BasicTile("slope-floor-left", "tower"));
-world.tiles.set(5, 8, new BasicTile("slope-floor-left", "tower"));
-world.tiles.set(6, 9, new BasicTile("full", "tower"));
-
-world.tiles.set(-1, 4, new BasicTile("slope-floor-right", "tower"));
-world.tiles.set(-2, 5, new BasicTile("slope-floor-right", "tower"));
-world.tiles.set(-3, 6, new BasicTile("slope-floor-right", "tower"));
-world.tiles.set(-4, 7, new BasicTile("slope-floor-right", "tower"));
-world.tiles.set(-5, 8, new BasicTile("slope-floor-right", "tower"));
-world.tiles.set(-6, 9, new BasicTile("full", "tower"));
-
-world.entities.addEntity(new HealthPickup(new Vector(-2, -2)));
+world.tiles.fillRect(new Rectangle(-2, 4, 5, 3), new BasicTile("full", "tower"));
+Lizard.spawn(new Vector(3, 3), world);
 
 world.player.equippedItems[0] = new ThrowableTile([new MovingModifier()]);
 

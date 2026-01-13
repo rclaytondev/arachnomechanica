@@ -12,6 +12,7 @@ import { Player } from "../Player.mjs";
 import { Collideable } from "../game-utilities/physics-engine/Collideable.mjs";
 import { Particle } from "../game-utilities/Particle.mjs";
 import { ArrayUtils } from "../../utils-ts/modules/core-extensions/ArrayUtils.mjs";
+import { InvisibleRectangle } from "../game-utilities/physics-engine/InvisibleRectangle.mjs";
 
 type Joint = { position: Vector, direction: Direction };
 
@@ -188,8 +189,7 @@ export class Lizard extends Collideable {
 
 	update(world: World, canvasIO: CanvasIO) {
 		if(this.waitingTimer < 0) {
-			this.position = this.position.add(Vector.unit(this.direction).multiply(this.speed));
-			world.entities.moveEntity(this);
+			this.updateMotion(world, canvasIO);
 		}
 		this.waitingTimer --;
 
@@ -201,6 +201,24 @@ export class Lizard extends Collideable {
 		this.updateHeadAngle();
 		this.updateFire(world, canvasIO);
 		this.fireSpawner.updateHurtbox(world, canvasIO);
+	}
+	updateMotion(world: World, canvasIO: CanvasIO) {
+		for(let i = 0; i < this.speed; i ++) {
+			this.updateMotion1Pixel(world, canvasIO);
+		}
+	}
+	updateMotion1Pixel(world: World, canvasIO: CanvasIO) {
+		const rect = this.lookaheadRectangle(this.direction, LizardData.HITBOX_WIDTH / 2, 1, LizardData.HITBOX_WIDTH - 2);
+		const collideable = new InvisibleRectangle(rect);
+		collideable.moveUnit(this.direction, world, canvasIO, { collides: (o) => o !== this });
+		const offset = Vector.unit(this.direction);
+		this.position = this.position.add(offset);
+		if(this.hitboxes().some(h => world.isInSolid(h, (o) => o !== this))) {
+			this.position = this.position.subtract(offset);
+			return false;
+		}
+		world.entities.moveEntity(this);
+		return true;
 	}
 	updateLegs() {
 		if(this.waitingTimer < 0) {
@@ -435,18 +453,18 @@ export class Lizard extends Collideable {
 	lookaheadPoint(direction: Direction = this.direction, distance: number = LizardData.LOOKAHEAD_DISTANCE) {
 		return this.position.add(Vector.unit(direction).multiply(distance));
 	}
-	lookaheadRectangle(direction: Direction = this.direction, distance: number = LizardData.LOOKAHEAD_DISTANCE, length: number = 1) {
+	lookaheadRectangle(direction: Direction = this.direction, distance: number = LizardData.LOOKAHEAD_DISTANCE, length: number = 1, width: number = LizardData.LOOKAHEAD_WIDTH) {
 		const point = this.lookaheadPoint(direction, distance);
 		if(Directions.isHorizontal(direction)) {
 			return new Rectangle(
-				point.x - (direction === "left" ? length : 0), point.y - LizardData.LOOKAHEAD_WIDTH / 2,
-				length, LizardData.LOOKAHEAD_WIDTH,
+				point.x - (direction === "left" ? length : 0), point.y - width / 2,
+				length, width,
 			);
 		}
 		else {
 			return new Rectangle(
-				point.x - LizardData.LOOKAHEAD_WIDTH / 2, point.y - (direction === "up" ? length : 0),
-				LizardData.LOOKAHEAD_WIDTH, length,
+				point.x - width / 2, point.y - (direction === "up" ? length : 0),
+				width, length,
 			);
 		}
 	}
