@@ -40,8 +40,6 @@ export class ThrowableTileEntity extends RectangularCollideable {
 		this.velocity.y += this.gravity;
 		this.move(this.velocity, world, canvasIO, {
 			collides: (obj) => obj !== this,
-			slideUpSlopes: true,
-			slideDownSlopes: true,
 		});
 		world.entities.moveEntity(this);
 

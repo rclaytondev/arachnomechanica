@@ -163,7 +163,7 @@ describe("Collideable.moveUnit", () => {
 		], [
 			{ x: 0, y: 0, tile: new BasicTile("slope-floor-left", "tower") },
 		]);
-		collideable.moveUnit("right", world, canvasIO!, { slideDownSlopes: true });
+		collideable.moveUnit("right", world, canvasIO!, { });
 
 		assert.deepEqual(collideable.amountTranslated, new Vector(1, 1));
 	});
@@ -174,7 +174,7 @@ describe("Collideable.moveUnit", () => {
 		], [
 			{ x: 0, y: 0, tile: new BasicTile("slope-floor-right", "tower") },
 		]);
-		collideable.moveUnit("left", world, canvasIO!, { slideDownSlopes: true });
+		collideable.moveUnit("left", world, canvasIO!, { });
 
 		assert.deepEqual(collideable.amountTranslated, new Vector(-1, 1));
 	});
@@ -185,7 +185,7 @@ describe("Collideable.moveUnit", () => {
 		], [
 			{ x: 0, y: 0, tile: new BasicTile("slope-floor-left", "tower") },
 		]);
-		collideable.moveUnit("left", world, canvasIO!, { slideUpSlopes: true });
+		collideable.moveUnit("left", world, canvasIO!, { });
 
 		assert.deepEqual(collideable.amountTranslated, new Vector(-1, -1));
 	});
@@ -196,7 +196,7 @@ describe("Collideable.moveUnit", () => {
 		], [
 			{ x: 0, y: 0, tile: new BasicTile("slope-floor-right", "tower") },
 		]);
-		collideable.moveUnit("right", world, canvasIO!, { slideUpSlopes: true });
+		collideable.moveUnit("right", world, canvasIO!, { });
 
 		assert.deepEqual(collideable.amountTranslated, new Vector(1, -1));
 	});

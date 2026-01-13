@@ -52,10 +52,7 @@ export class Player extends RectangularCollideable {
 		}
 		this.velocity.y += canvasIO.keys.KeyZ && this.velocity.y <= 0 ? PlayerData.GRAVITY_WHILE_JUMPING : PlayerData.GRAVITY;
 		this.velocity.x = MathUtils.constrain(this.velocity.x, -PlayerData.MAX_X_VELOCITY, PlayerData.MAX_X_VELOCITY);
-		this.move(new Vector(this.velocity.x, 0), world, canvasIO, {
-			slideUpSlopes: true,
-			slideDownSlopes: true,
-		});
+		this.move(new Vector(this.velocity.x, 0), world, canvasIO, { });
 		this.move(new Vector(0, this.velocity.y), world, canvasIO, {});
 		world.entities.moveEntity(this);
 	}

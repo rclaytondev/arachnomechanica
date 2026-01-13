@@ -12,9 +12,7 @@ import { CollisionEvent } from "./CollisionEvent.mjs";
 
 type MoveOptions = {
 	collides?: (object: { x: number, y: number, tile: Tile } | Entity) => boolean,
-	onCollision?: (collision: CollisionEvent) => void,
-	slideUpSlopes?: boolean,
-	slideDownSlopes?: boolean
+	onCollision?: (collision: CollisionEvent) => void
 };
 export type MoveUnitOptions = MoveOptions & {
 	queryOnly?: boolean
@@ -29,6 +27,8 @@ export abstract class Collideable extends Entity {
 	abstract hitboxes(): Rectangle[];
 	abstract translate(amount: Vector): void;
 	onCollision(collision: CollisionEvent, world: World, canvasIO: CanvasIO) { }
+	slideUpSlopes: boolean = true;
+	slideDownSlopes: boolean = true;
 
 
 
@@ -57,7 +57,7 @@ export abstract class Collideable extends Entity {
 	}
 	moveUnit(direction: Direction, world: World, canvasIO: CanvasIO, options: MoveUnitOptions): boolean {
 		if(Directions.isHorizontal(direction)) {
-			const offsetY = this.slopeOffsetY(direction, world, options.slideUpSlopes, options.slideDownSlopes);
+			const offsetY = this.slopeOffsetY(direction, world, this.slideUpSlopes, this.slideDownSlopes);
 			if(offsetY !== 0) {
 				const moved = this.moveDiagonal(direction, new Vector(Vector.unit(direction).x, offsetY), world, canvasIO, options);
 				if(moved) { return true; }
@@ -69,7 +69,7 @@ export abstract class Collideable extends Entity {
 		const collidingObjects = this.collidingObjects(diagonal, world, options.collides ?? (() => true));
 		const translatedY = this.hitboxes().map(h => h.translate(new Vector(0, diagonal.y)));
 		const pushables = collidingObjects.filter(
-			o => this.canPush(o) && o.hitboxes().every(h => translatedY.every(h2 => !h.intersects(h2))),
+			o => this.canPush(o) && o.hitboxes().every(h => translatedY.every(h2 => !h.interiorIntersects(h2))),
 		) as Collideable[];
 		if(!options.queryOnly) {
 			this.callCollisionHandlers(originalDirection, collidingObjects, pushables, options.onCollision ?? (() => {}), world, canvasIO);
