@@ -124,7 +124,7 @@ export abstract class Collideable extends Entity {
 		const moveSuccessful = (pushables.length === collidingObjects.length);
 		const toBeHandled = moveSuccessful ? collidingObjects : SetUtils.difference(collidingObjects, pushables);
 		for(const collidingObject of toBeHandled) {
-			const collision = new CollisionEvent(this, collidingObject, direction, true);
+			const collision = new CollisionEvent(this, collidingObject, direction, moveSuccessful);
 			this.onCollision(collision, world, canvasIO);
 			onCollision(collision, world, canvasIO);
 			if(collidingObject instanceof Collideable) {

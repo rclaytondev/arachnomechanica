@@ -71,4 +71,37 @@ describe("Collideable.moveUnit", () => {
 		assert.equal(pusher.collisions, 1);
 		assert.equal(pushed.collisions, 1);
 	});
+	it("does not move if the next object is not pushable", () => {
+		let pusher, pushed;
+		const world = createWorld([
+			pusher = new CollideableSpy(new Rectangle(0, 0, 10, 10), true),
+			pushed = new CollideableSpy(new Rectangle(10, 0, 10, 10), false),
+		]);
+		pusher.moveUnit("right", world, canvasIO!, {});
+
+		assert.deepEqual(pusher.hitbox, new Rectangle(0, 0, 10, 10));
+		assert.deepEqual(pushed.hitbox, new Rectangle(10, 0, 10, 10));
+		assert.equal(pusher.collisions, 1);
+		assert.equal(pushed.collisions, 1);
+	});
+	it("destroys the next object if the object after that one is unpushable", () => {
+		let pusher, pushed, unpushable;
+		const world = createWorld([
+			pusher = new CollideableSpy(new Rectangle(0, 0, 10, 10), true),
+			pushed = new CollideableSpy(new Rectangle(10, 0, 10, 10), true),
+			unpushable = new CollideableSpy(new Rectangle(20, 0, 10, 10), false),
+		]);
+		pusher.moveUnit("right", world, canvasIO!, {});
+
+		assert.deepEqual(pusher.hitbox, new Rectangle(1, 0, 10, 10));
+		assert.deepEqual(unpushable.hitbox, new Rectangle(20, 0, 10, 10));
+
+		assert.equal(pusher.collisions, 1);
+		assert.equal(pushed.collisions, 2);
+		assert.equal(unpushable.collisions, 1);
+
+		assert.isFalse(pusher.destroyed);
+		assert.isTrue(pushed.destroyed);
+		assert.isFalse(unpushable.destroyed);
+	});
 });
