@@ -4,11 +4,13 @@ import { TileWithPosition, World } from "../world/World.mjs";
 import { canvasIO } from "../../utils-ts/modules/CanvasIO.mjs";
 import { RectangularCollideable } from "../game-utilities/physics-engine/RectangularCollideable.mjs";
 import { Collideable } from "../game-utilities/physics-engine/Collideable.mjs";
+import { Vector } from "../../utils-ts/modules/geometry/Vector.mjs";
 
 class CollideableSpy extends RectangularCollideable {
 	pushable: boolean;
 	collisions: number = 0;
 	destroyed: boolean = false;
+	amountTranslated: Vector = new Vector(0, 0);
 
 	constructor(hitbox: Rectangle, pushable: boolean) {
 		super(hitbox);
@@ -32,6 +34,11 @@ class CollideableSpy extends RectangularCollideable {
 	damage(hurtbox: Rectangle, world: World): void {
 		world.entities.removeEntity(this);
 		this.destroyed = true;
+	}
+
+	translate(amount: Vector): void {
+		super.translate(amount);
+		this.amountTranslated = this.amountTranslated.add(amount);
 	}
 }
 
@@ -103,5 +110,44 @@ describe("Collideable.moveUnit", () => {
 		assert.isFalse(pusher.destroyed);
 		assert.isTrue(pushed.destroyed);
 		assert.isFalse(unpushable.destroyed);
+	});
+	it("does not destroy the object or call any collision handler if the move is blocked simultaneously", () => {
+		let pusher, pushable, unpushable1, unpushable2;
+		const world = createWorld([
+			pusher = new CollideableSpy(new Rectangle(0, 0, 10, 20), true),
+			pushable = new CollideableSpy(new Rectangle(10, 0, 10, 10), true),
+			unpushable1 = new CollideableSpy(new Rectangle(10, 10, 10, 10), false),
+			unpushable2 = new CollideableSpy(new Rectangle(20, 0, 10, 10), false),
+		]);
+		pusher.moveUnit("right", world, canvasIO!, {});
+
+		assert.deepEqual(pusher.amountTranslated, new Vector(0, 0));
+		assert.deepEqual(pushable.amountTranslated, new Vector(0, 0));
+		assert.deepEqual(unpushable1.amountTranslated, new Vector(0, 0));
+		assert.deepEqual(unpushable2.amountTranslated, new Vector(0, 0));
+
+		assert.isFalse(pusher.destroyed);
+
+		assert.equal(pusher.collisions, 1);
+		assert.equal(pushable.collisions, 0);
+		assert.equal(unpushable1.collisions, 1);
+		assert.equal(unpushable2.collisions, 0);
+	});
+	it("moves everything the correct amount even when the collision graph is not a tree", () => {
+		let first, middle1, middle2, last, uninvolved;
+		const world = createWorld([
+			first = new CollideableSpy(new Rectangle(0, 0, 10, 20), true),
+			middle1 = new CollideableSpy(new Rectangle(10, 0, 10, 10), true),
+			middle2 = new CollideableSpy(new Rectangle(10, 10, 10, 10), true),
+			last = new CollideableSpy(new Rectangle(20, 0, 10, 10), true),
+			uninvolved = new CollideableSpy(new Rectangle(40, 0, 10, 10), true),
+		]);
+		first.moveUnit("right", world, canvasIO!, {});
+
+		assert.deepEqual(first.amountTranslated, new Vector(1, 0));
+		assert.deepEqual(middle1.amountTranslated, new Vector(1, 0));
+		assert.deepEqual(middle2.amountTranslated, new Vector(1, 0));
+		assert.deepEqual(last.amountTranslated, new Vector(1, 0));
+		assert.deepEqual(uninvolved.amountTranslated, new Vector(0, 0));
 	});
 });
