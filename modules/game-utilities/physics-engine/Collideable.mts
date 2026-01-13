@@ -69,7 +69,7 @@ export abstract class Collideable extends Entity {
 		const collidingObjects = this.collidingObjects(diagonal, world, options.collides ?? (() => true));
 		const translatedY = this.hitboxes().map(h => h.translate(new Vector(0, diagonal.y)));
 		const pushables = collidingObjects.filter(
-			o => this.canPush(o) && o.hitboxes().every(h => translatedY.every(h2 => !h.interiorIntersects(h2))),
+			o => this.canPush(o) && !o.intersectsRects(translatedY),
 		) as Collideable[];
 		if(!options.queryOnly) {
 			this.callCollisionHandlers(originalDirection, collidingObjects, pushables, options.onCollision ?? (() => {}), world, canvasIO);
@@ -184,8 +184,9 @@ export abstract class Collideable extends Entity {
 		return this.moveUnit(direction, world, canvasIO, { queryOnly: true });
 	}
 	intersects(entity: Collideable) {
-		const hitboxes1 = this.hitboxes();
-		const hitboxes2 = entity.hitboxes();
-		return hitboxes1.some(h1 => hitboxes2.some(h2 => h1.interiorIntersects(h2)));
+		return this.intersectsRects(entity.hitboxes());
+	}
+	intersectsRects(rectangles: Rectangle[]) {
+		return this.hitboxes().some(h => rectangles.some(r => h.interiorIntersects(r)));
 	}
 }
