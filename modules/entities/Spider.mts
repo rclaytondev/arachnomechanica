@@ -556,10 +556,6 @@ export class SpiderProjectile extends RectangularCollideable {
 			new Vector(0, 0),
 			SpiderData.PROJECTILE_PARTICLE_SETTINGS,
 		), canvasIO);
-
-		if(this.hitbox.intersects(world.player.hitbox)) {
-			this.explode(world, canvasIO);
-		}
 	}
 
 	display() { }
