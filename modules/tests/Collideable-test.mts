@@ -9,13 +9,15 @@ import { BasicTile } from "../tiles/BasicTile.mjs";
 import { WorldData } from "../constants/GameData.mjs";
 
 class CollideableSpy extends RectangularCollideable {
+	name: string;
 	pushable: boolean;
 	collisions: number = 0;
 	destroyed: boolean = false;
 	amountTranslated: Vector = new Vector(0, 0);
 
-	constructor(hitbox: Rectangle, pushable: boolean) {
+	constructor(hitbox: Rectangle, name: string, pushable: boolean) {
 		super(hitbox);
+		this.name = name;
 		this.pushable = pushable;
 	}
 
@@ -63,7 +65,7 @@ describe("Collideable.moveUnit", () => {
 	it("moves the Collideable if there is no obstruction", () => {
 		let collideable;
 		const world = createWorld([
-			collideable = new CollideableSpy(new Rectangle(0, 0, 10, 10), true),
+			collideable = new CollideableSpy(new Rectangle(0, 0, 10, 10), "collideable", true),
 		]);
 		collideable.moveUnit("right", world, canvasIO!, {});
 
@@ -73,8 +75,8 @@ describe("Collideable.moveUnit", () => {
 	it("pushes the next Collideable if there is a collision and it is pushable", () => {
 		let pusher, pushed;
 		const world = createWorld([
-			pusher = new CollideableSpy(new Rectangle(0, 0, 10, 10), true),
-			pushed = new CollideableSpy(new Rectangle(10, 0, 10, 10), true),
+			pusher = new CollideableSpy(new Rectangle(0, 0, 10, 10), "pusher", true),
+			pushed = new CollideableSpy(new Rectangle(10, 0, 10, 10), "pushed", true),
 		]);
 		pusher.moveUnit("right", world, canvasIO!, {});
 
@@ -86,8 +88,8 @@ describe("Collideable.moveUnit", () => {
 	it("does not move if the next object is not pushable", () => {
 		let pusher, pushed;
 		const world = createWorld([
-			pusher = new CollideableSpy(new Rectangle(0, 0, 10, 10), true),
-			pushed = new CollideableSpy(new Rectangle(10, 0, 10, 10), false),
+			pusher = new CollideableSpy(new Rectangle(0, 0, 10, 10), "pusher", true),
+			pushed = new CollideableSpy(new Rectangle(10, 0, 10, 10), "pushed", false),
 		]);
 		pusher.moveUnit("right", world, canvasIO!, {});
 
@@ -99,9 +101,9 @@ describe("Collideable.moveUnit", () => {
 	it("destroys the next object if the object after that one is unpushable", () => {
 		let pusher, pushed, unpushable;
 		const world = createWorld([
-			pusher = new CollideableSpy(new Rectangle(0, 0, 10, 10), true),
-			pushed = new CollideableSpy(new Rectangle(10, 0, 10, 10), true),
-			unpushable = new CollideableSpy(new Rectangle(20, 0, 10, 10), false),
+			pusher = new CollideableSpy(new Rectangle(0, 0, 10, 10), "pusher", true),
+			pushed = new CollideableSpy(new Rectangle(10, 0, 10, 10), "pushed", true),
+			unpushable = new CollideableSpy(new Rectangle(20, 0, 10, 10), "unpushable", false),
 		]);
 		pusher.moveUnit("right", world, canvasIO!, {});
 
@@ -119,10 +121,10 @@ describe("Collideable.moveUnit", () => {
 	it("does not destroy the object or call any collision handler if the move is blocked simultaneously", () => {
 		let pusher, pushable, unpushable1, unpushable2;
 		const world = createWorld([
-			pusher = new CollideableSpy(new Rectangle(0, 0, 10, 20), true),
-			pushable = new CollideableSpy(new Rectangle(10, 0, 10, 10), true),
-			unpushable1 = new CollideableSpy(new Rectangle(10, 10, 10, 10), false),
-			unpushable2 = new CollideableSpy(new Rectangle(20, 0, 10, 10), false),
+			pusher = new CollideableSpy(new Rectangle(0, 0, 10, 20), "pusher", true),
+			pushable = new CollideableSpy(new Rectangle(10, 0, 10, 10), "pushable", true),
+			unpushable1 = new CollideableSpy(new Rectangle(10, 10, 10, 10), "unpushable1", false),
+			unpushable2 = new CollideableSpy(new Rectangle(20, 0, 10, 10), "unpushable2", false),
 		]);
 		pusher.moveUnit("right", world, canvasIO!, {});
 
@@ -141,11 +143,11 @@ describe("Collideable.moveUnit", () => {
 	it("moves everything the correct amount even when the collision graph is not a tree", () => {
 		let first, middle1, middle2, last, uninvolved;
 		const world = createWorld([
-			first = new CollideableSpy(new Rectangle(0, 0, 10, 20), true),
-			middle1 = new CollideableSpy(new Rectangle(10, 0, 10, 10), true),
-			middle2 = new CollideableSpy(new Rectangle(10, 10, 10, 10), true),
-			last = new CollideableSpy(new Rectangle(20, 0, 10, 10), true),
-			uninvolved = new CollideableSpy(new Rectangle(40, 0, 10, 10), true),
+			first = new CollideableSpy(new Rectangle(0, 0, 10, 20), "first", true),
+			middle1 = new CollideableSpy(new Rectangle(10, 0, 10, 10), "middle1", true),
+			middle2 = new CollideableSpy(new Rectangle(10, 10, 10, 10), "middle2", true),
+			last = new CollideableSpy(new Rectangle(20, 0, 10, 10), "last", true),
+			uninvolved = new CollideableSpy(new Rectangle(40, 0, 10, 10), "uninvolved", true),
 		]);
 		first.moveUnit("right", world, canvasIO!, {});
 
@@ -159,7 +161,7 @@ describe("Collideable.moveUnit", () => {
 	it("correctly moves Collideables down slopes of type slope-floor-left", () => {
 		let collideable;
 		const world = createWorld([
-			collideable = new CollideableSpy(new Rectangle(0, -10, 10, 10), true),
+			collideable = new CollideableSpy(new Rectangle(0, -10, 10, 10), "collideable", true),
 		], [
 			{ x: 0, y: 0, tile: new BasicTile("slope-floor-left", "tower") },
 		]);
@@ -170,7 +172,7 @@ describe("Collideable.moveUnit", () => {
 	it("correctly moves Collideables down slopes of type slope-floor-right", () => {
 		let collideable;
 		const world = createWorld([
-			collideable = new CollideableSpy(new Rectangle(WorldData.TILE_SIZE - 10, -10, 10, 10), true),
+			collideable = new CollideableSpy(new Rectangle(WorldData.TILE_SIZE - 10, -10, 10, 10), "collideable", true),
 		], [
 			{ x: 0, y: 0, tile: new BasicTile("slope-floor-right", "tower") },
 		]);
@@ -181,7 +183,7 @@ describe("Collideable.moveUnit", () => {
 	it("correctly moves Collideables up slopes of type slope-floor-left", () => {
 		let collideable;
 		const world = createWorld([
-			collideable = new CollideableSpy(new Rectangle(WorldData.TILE_SIZE, WorldData.TILE_SIZE - 10, 10, 10), true),
+			collideable = new CollideableSpy(new Rectangle(WorldData.TILE_SIZE, WorldData.TILE_SIZE - 10, 10, 10), "collideable", true),
 		], [
 			{ x: 0, y: 0, tile: new BasicTile("slope-floor-left", "tower") },
 		]);
@@ -192,7 +194,7 @@ describe("Collideable.moveUnit", () => {
 	it("correctly moves Collideables up slopes of type slope-floor-right", () => {
 		let collideable;
 		const world = createWorld([
-			collideable = new CollideableSpy(new Rectangle(-10, WorldData.TILE_SIZE - 10, 10, 10), true),
+			collideable = new CollideableSpy(new Rectangle(-10, WorldData.TILE_SIZE - 10, 10, 10), "collideable", true),
 		], [
 			{ x: 0, y: 0, tile: new BasicTile("slope-floor-right", "tower") },
 		]);
@@ -204,8 +206,8 @@ describe("Collideable.moveUnit", () => {
 	it("works when an object pushes another object up a slope", () => {
 		let pusher, pushed;
 		const world = createWorld([
-			pusher = new CollideableSpy(new Rectangle(-10, WorldData.TILE_SIZE - 20, 10, 20), true),
-			pushed = new CollideableSpy(new Rectangle(0, WorldData.TILE_SIZE - 20, 10, 10), true),
+			pusher = new CollideableSpy(new Rectangle(-10, WorldData.TILE_SIZE - 20, 10, 20), "pusher", true),
+			pushed = new CollideableSpy(new Rectangle(0, WorldData.TILE_SIZE - 20, 10, 10), "pushed", true),
 		], [
 			{ x: 0, y: 0, tile: new BasicTile("slope-floor-right", "tower") },
 		]);
@@ -221,8 +223,8 @@ describe("Collideable.moveUnit", () => {
 	it("does not move the object when the object tries to move up a slope but is blocked from above, even by a pushable object", () => {
 		let pusher, pushable;
 		const world = createWorld([
-			pusher = new CollideableSpy(new Rectangle(-10, WorldData.TILE_SIZE - 10, 10, 10), true),
-			pushable = new CollideableSpy(new Rectangle(-10, WorldData.TILE_SIZE - 20, 10, 10), true),
+			pusher = new CollideableSpy(new Rectangle(-10, WorldData.TILE_SIZE - 10, 10, 10), "pusher", true),
+			pushable = new CollideableSpy(new Rectangle(-10, WorldData.TILE_SIZE - 20, 10, 10), "pushable", true),
 		], [
 			{ x: 0, y: 0, tile: new BasicTile("slope-floor-right", "tower") },
 		]);
@@ -236,8 +238,8 @@ describe("Collideable.moveUnit", () => {
 	it("works when an object pushes another object down a slope", () => {
 		let pusher, pushed;
 		const world = createWorld([
-			pusher = new CollideableSpy(new Rectangle(0, -10, 10, 10), true),
-			pushed = new CollideableSpy(new Rectangle(10, -10, 10, 20), true),
+			pusher = new CollideableSpy(new Rectangle(0, -10, 10, 10), "pusher", true),
+			pushed = new CollideableSpy(new Rectangle(10, -10, 10, 20), "pushed", true),
 		], [
 			{ x: 0, y: 0, tile: new BasicTile("slope-floor-left", "tower") },
 		]);
@@ -249,8 +251,8 @@ describe("Collideable.moveUnit", () => {
 	it("moves horizontally when the object tries to move down a slope but is blocked from below, even by a pushable object", () => {
 		let pusher, pushable;
 		const world = createWorld([
-			pusher = new CollideableSpy(new Rectangle(0, -10, 20, 10), true),
-			pushable = new CollideableSpy(new Rectangle(10, 0, 10, 10), true),
+			pusher = new CollideableSpy(new Rectangle(0, -10, 20, 10), "pusher", true),
+			pushable = new CollideableSpy(new Rectangle(10, 0, 10, 10), "pushable", true),
 		], [
 			{ x: 0, y: 0, tile: new BasicTile("slope-floor-left", "tower") },
 		]);
