@@ -15,6 +15,7 @@ import { BasicTile } from "../tiles/BasicTile.mjs";
 import { RectangularCollideable } from "../game-utilities/physics-engine/RectangularCollideable.mjs";
 import { Explosion } from "../game-utilities/Explosion.mjs";
 import { CollisionEvent } from "../game-utilities/physics-engine/CollisionEvent.mjs";
+import { Collideable } from "../game-utilities/physics-engine/Collideable.mjs";
 
 export class Surface {
 	start: Vector;
@@ -410,7 +411,7 @@ export class Spider extends RectangularCollideable {
 		const direction = player.subtract(center).normalize();
 		const velocity = direction.multiply(SpiderData.PROJECTILE_SPEED);
 		const acceleration = direction.multiply(SpiderData.PROJECTILE_ACCELERATION);
-		const projectile = new SpiderProjectile(center, velocity, acceleration, this);
+		const projectile = new SpiderProjectile(center, velocity, acceleration, [this]);
 		world.entities.addEntity(projectile);
 	}
 	checkPlatformEnds(world: World) {
@@ -439,7 +440,7 @@ export class Spider extends RectangularCollideable {
 			world,
 			canvasIO,
 			{
-				collides: (obj) => obj !== this && !(obj instanceof SpiderProjectile && obj.spider === this),
+				collides: (obj) => obj !== this && !(obj instanceof SpiderProjectile && obj.ignoredEntities.includes(this)),
 			},
 		);
 		world.entities.moveEntity(this);
@@ -535,19 +536,19 @@ export class Spider extends RectangularCollideable {
 export class SpiderProjectile extends RectangularCollideable {
 	velocity: Vector;
 	acceleration: Vector;
-	spider: Spider;
+	ignoredEntities: Collideable[];
 
-	constructor(position: Vector, velocity: Vector, acceleration: Vector, spider: Spider) {
+	constructor(position: Vector, velocity: Vector, acceleration: Vector, ignoredEntities: Collideable[]) {
 		super(Rectangle.square(position.x, position.y, 1));
 		this.velocity = velocity;
 		this.acceleration = acceleration;
-		this.spider = spider;
+		this.ignoredEntities = ignoredEntities;
 	}
 
 	update(world: World, canvasIO: CanvasIO) {
 		this.velocity = this.velocity.add(this.acceleration);
 		this.move(this.velocity, world, canvasIO, {
-			collides: (obj) => obj !== this.spider,
+			collides: (obj) => !(this.ignoredEntities as unknown[]).includes(obj),
 		});
 		world.entities.moveEntity(this);
 
