@@ -118,7 +118,7 @@ describe("PointOnSurface.nextPointCW", () => {
 		world.entities.addEntity(new InvisibleRectangle(new Rectangle(10, -10, 10, 10)));
 
 		const point = new PointOnSurface(new Vector(10, 0), "up");
-		const next = point.nextPointCW(world);
+		const next = point.nextPointCW(world, () => true);
 		assert.isNotNull(next);
 		assert.deepEqual(next, new PointOnSurface(new Vector(10, -1), "left"));
 	});

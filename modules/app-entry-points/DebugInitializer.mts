@@ -14,7 +14,8 @@ import { CrawlingMovementData, PointOnSurface, Spider } from "../entities/Spider
 
 const world = new World(false);
 
-world.tiles.fillRect(new Rectangle(-2, 4, 10, 3), new BasicTile("full", "tower"));
+world.tiles.fillRect(new Rectangle(-2, 4, 3, 2), new BasicTile("full", "tower"));
+world.tiles.fillRect(new Rectangle(0, 1, 1, 1), new BasicTile("full", "tower"));
 // Spider.spawn(new Vector(3, 3), world);
 world.entities.addEntity(new Spider(new Vector(0, 0), new CrawlingMovementData(
 	new PointOnSurface(new Vector(0, 4 * 50), "up"),

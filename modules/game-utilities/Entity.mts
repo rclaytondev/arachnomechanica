@@ -10,7 +10,7 @@ import { Tile, TileWithPosition, World } from "../world/World.mjs";
 export abstract class Entity {
 	abstract display(canvasIO: CanvasIO, world: World): void;
 	displayGlowEffect(canvasIO: CanvasIO) { }
-	displayDebug(canvasIO: CanvasIO) { }
+	displayDebug(canvasIO: CanvasIO, world: World) { }
 
 	abstract update(world: World, canvasIO: CanvasIO): void;
 	abstract boundingBox(): Rectangle;
