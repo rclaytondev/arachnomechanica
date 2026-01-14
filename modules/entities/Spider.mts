@@ -211,7 +211,7 @@ export class SpiderLeg {
 }
 
 export class Spider extends RectangularCollideable {
-	movement: "clockwise" | "counterclockwise" = "clockwise";
+	direction: "clockwise" | "counterclockwise" = "clockwise";
 	basepoint: PointOnSurface | null = null;
 	angle: number = 0;
 	rechargeTime: number = -1;
@@ -398,10 +398,10 @@ export class Spider extends RectangularCollideable {
 		const playerCenter = player.hitbox.center();
 		if(!this.basepoint) { return; }
 		const distance = Vector.dist(this.basepoint.position(), playerCenter);
-		const direction = this.basepoint.surface.tangentVectorCW().multiply(this.movement === "clockwise" ? 1 : -1);
+		const direction = this.basepoint.surface.tangentVectorCW().multiply(this.direction === "clockwise" ? 1 : -1);
 		const nextDistance = Vector.dist(this.basepoint.position().add(direction), playerCenter);
 		if(nextDistance < distance) {
-			this.movement = (this.movement === "clockwise" ? "counterclockwise" : "clockwise");
+			this.direction = (this.direction === "clockwise" ? "counterclockwise" : "clockwise");
 		}
 	}
 	shootProjectile(world: World) {
@@ -419,13 +419,13 @@ export class Spider extends RectangularCollideable {
 			this.basepoint.surface.nextSurfaceCW(world) === null &&
 			this.basepoint.distance > this.basepoint.surface.length() / 2
 		);
-		if(onRightEnd) { this.movement = "counterclockwise"; }
+		if(onRightEnd) { this.direction = "counterclockwise"; }
 		const onLeftEnd = (
 			this.basepoint &&
 			this.basepoint.surface.nextSurfaceCCW(world) === null &&
 			this.basepoint.distance < this.basepoint.surface.length() / 2
 		);
-		if(onLeftEnd) { this.movement = "clockwise"; }
+		if(onLeftEnd) { this.direction = "clockwise"; }
 	}
 
 	moveAlongSurface(amount: number, world: World, canvasIO: CanvasIO) {
@@ -445,7 +445,7 @@ export class Spider extends RectangularCollideable {
 		world.entities.moveEntity(this);
 	}
 	moveBasepoint(amount: number, world: World) {
-		this.basepoint = this.basepoint!.moveAlongSurface(amount * (this.movement === "clockwise" ? 1 : -1), world);
+		this.basepoint = this.basepoint!.moveAlongSurface(amount * (this.direction === "clockwise" ? 1 : -1), world);
 	}
 	smoothedNormal(world: World) {
 		const defaultNormal = Vector.unit(this.basepoint!.surface.outwardNormal);
@@ -512,7 +512,7 @@ export class Spider extends RectangularCollideable {
 	}
 
 	switchDirection() {
-		this.movement = (this.movement === "clockwise") ? "counterclockwise" : "clockwise";
+		this.direction = (this.direction === "clockwise") ? "counterclockwise" : "clockwise";
 	}
 
 	static spawn(position: Vector, world: World) {
