@@ -5,7 +5,9 @@ import { Rectangle } from "../../../utils-ts/modules/geometry/Rectangle.mjs";
 import { Vector } from "../../../utils-ts/modules/geometry/Vector.mjs";
 import { DEBUG_SETTINGS } from "../../constants/DebugSettings.mjs";
 import { WorldData } from "../../constants/GameData.mjs";
-import { World, Tile, TileWithPosition } from "../../world/World.mjs";
+import { Platform } from "../../tiles/Platform.mjs";
+import { Tile } from "../../tiles/Tile.mjs";
+import { World, TileWithPosition } from "../../world/World.mjs";
 import { Entity } from "../Entity.mjs";
 import { CollisionEvent } from "./CollisionEvent.mjs";
 
@@ -159,8 +161,8 @@ export abstract class Collideable extends Entity {
 			const left = world.getTileX(hitbox.left());
 			const right = world.getTileX(hitbox.right() - 1);
 			for(let x = left; x <= right; x ++) {
-				if(world.tiles.get(x, hitbox.bottom() / WorldData.TILE_SIZE) === "platform") {
-					platforms.push({ x: x, y: hitbox.bottom() / WorldData.TILE_SIZE, tile: "platform" });
+				if(world.tiles.get(x, hitbox.bottom() / WorldData.TILE_SIZE) === Platform.PLATFORM) {
+					platforms.push({ x: x, y: hitbox.bottom() / WorldData.TILE_SIZE, tile: Platform.PLATFORM });
 				}
 			}
 		}

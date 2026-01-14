@@ -3,12 +3,14 @@ import { Vector } from "../../utils-ts/modules/geometry/Vector.mjs";
 import { MathUtils } from "../../utils-ts/modules/math/MathUtils.mjs";
 import { WorldData } from "../constants/GameData.mjs";
 import { Slope } from "../world/World.mjs";
+import { Tile } from "./Tile.mjs";
 
-export class BasicTile {
+export class BasicTile extends Tile {
 	readonly shape: "full" | Slope;
 	readonly texture: "tower" | "stone";
 
 	constructor(shape: "full" | Slope, texture: "tower" | "stone") {
+		super();
 		this.shape = shape;
 		this.texture = texture;
 	}
@@ -48,10 +50,10 @@ export class BasicTile {
 		}
 	}
 
-	static displayTile(position: Vector, canvasIO: CanvasIO, tile: BasicTile) {
-		canvasIO.ctx.fillStyle = WorldData.TILE_COLORS[tile.texture];
+	display(canvasIO: CanvasIO, x: number, y: number): void {
+		canvasIO.ctx.fillStyle = WorldData.TILE_COLORS[this.texture];
 		canvasIO.ctx.beginPath();
-		tile.addToPath(position, canvasIO);
+		this.addToPath(new Vector(x, y), canvasIO);
 		canvasIO.ctx.fill();
 	}
 }

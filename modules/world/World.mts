@@ -26,17 +26,19 @@ import { Entity } from "../game-utilities/Entity.mjs";
 import { Collideable } from "../game-utilities/physics-engine/Collideable.mjs";
 import { SpawnPoint } from "../entities/SpawnPoint.mjs";
 import { ArrayUtils } from "../../utils-ts/modules/core-extensions/ArrayUtils.mjs";
+import { EmptyTile } from "../tiles/EmptyTile.mjs";
+import { Tile } from "../tiles/Tile.mjs";
+import { Platform } from "../tiles/Platform.mjs";
 
 export type TileEntity = BasicTile | Gate | LaserBlock | SpikeballBlock;
-export type Tile = (typeof WorldData.STRING_TILE_TYPES)[number] | TileEntity;
 export type Slope = (typeof WorldData.SLOPES)[number];
 export type TileWithPosition = { x: number, y: number, tile: Tile };
 export type TileEntityWithPosition = { x: number, y: number, tile: TileEntity };
 export type Tiles = Grid<Tile>;
 
 export class World {
-	tiles: Grid<Tile> = new Grid("empty");
-	originalTiles: Grid<Tile> = new Grid("empty");
+	tiles: Grid<Tile> = new Grid(EmptyTile.EMPTY);
+	originalTiles: Grid<Tile> = new Grid(EmptyTile.EMPTY);
 	entities: Entities = new Entities();
 	particles: Particle[] = [];
 	gearsBackground: GearsBackground = GearsBackground.generate();
@@ -91,7 +93,7 @@ export class World {
 		const emptyTiles = [];
 		for(const position of Rectangle.square(translatedStartRoom.x, translatedStartRoom.y, RoomData.SIZE).squares()) {
 			const tileBelow = this.tiles.get(position.x, position.y + 1);
-			if(this.tiles.get(position) === "empty" && tileBelow instanceof BasicTile && tileBelow.shape === "full") {
+			if(this.tiles.get(position) === EmptyTile.EMPTY && tileBelow instanceof BasicTile && tileBelow.shape === "full") {
 				emptyTiles.push(position);
 			}
 		}
@@ -213,18 +215,15 @@ export class World {
 		for(const position of region.squares()) {
 			const tile = this.tiles.get(position);
 			if(typeof tile !== "string" && !(tile instanceof LaserBlock) && !(tile instanceof BasicTile)) {
-				tile.display(canvasIO, position.x, position.y);
+				tile.display(canvasIO, position.x, position.y, this);
 			}
 		}
 	}
 	displayBasicTiles(canvasIO: CanvasIO, region: Rectangle) {
 		for(const position of region.squares()) {
 			const tile = this.tiles.get(position);
-			if(tile instanceof BasicTile) {
-				BasicTile.displayTile(position, canvasIO, tile);
-			}
-			else if(tile === "platform") {
-				this.displayPlatform(canvasIO, position);
+			if(tile instanceof BasicTile || tile instanceof Platform) {
+				tile.display(canvasIO, position.x, position.y, this);
 			}
 		}
 
@@ -233,24 +232,6 @@ export class World {
 		this.displayBasicTiles(canvasIO, region);
 		this.displayTileEntities(canvasIO, region);
 		StoneTile.displayStoneTiles(this, canvasIO, region);
-	}
-	displayPlatform(canvasIO: CanvasIO, position: Vector) {
-		canvasIO.ctx.fillStyle = WorldData.TILE_COLORS.tower;
-		canvasIO.ctx.fillRect(
-			position.x * WorldData.TILE_SIZE, position.y * WorldData.TILE_SIZE,
-			WorldData.TILE_SIZE + 1, 2 * WorldData.TILE_ACCENT_INSET,
-		);
-		const platformLeft = (this.tiles.get(position.x - 1, position.y) === "platform");
-		const platformRight = (this.tiles.get(position.x + 1, position.y) === "platform");
-		const accentStart = platformLeft ? -1 : WorldData.TILE_ACCENT_INSET;
-		const accentEnd = WorldData.TILE_SIZE- (platformRight ? -1 : WorldData.TILE_ACCENT_INSET);
-		const accentY = position.y * WorldData.TILE_SIZE + WorldData.TILE_ACCENT_INSET;
-		canvasIO.ctx.strokeStyle = WorldData.TILE_ACCENT_COLOR;
-		canvasIO.ctx.lineWidth = WorldData.TILE_ACCENT_THICKNESS;
-		canvasIO.strokeLine(
-			position.x * WorldData.TILE_SIZE + accentStart, accentY,
-			position.x * WorldData.TILE_SIZE + accentEnd, accentY,
-		);
 	}
 	displayTileAccents(canvasIO: CanvasIO, region: Rectangle) {
 		for(let x = region.left(); x < region.right(); x ++) {
@@ -451,7 +432,7 @@ export class World {
 			: new Vector(Math.round(worldPosition.x / WorldData.TILE_SIZE) - 1, Math.floor(worldPosition.y / WorldData.TILE_SIZE))
 		);
 		const adjacentPosition = tilePosition.add(Vector.unit(direction));
-		if(direction === "down" && this.tiles.get(adjacentPosition) === "platform") {
+		if(direction === "down" && this.tiles.get(adjacentPosition) === Platform.PLATFORM) {
 			return true;
 		}
 
@@ -602,7 +583,7 @@ export class World {
 
 	destroyTile(position: Vector) {
 		const tile = this.tiles.get(position);
-		this.tiles.set(position, "empty");
+		this.tiles.set(position, EmptyTile.EMPTY);
 		for(const direction of Directions.DIRECTIONS) {
 			const adjacentPosition = position.add(Vector.unit(direction));
 			const adjacentTile = this.tiles.get(adjacentPosition);
@@ -627,7 +608,7 @@ export class World {
 			if(World.isTileEntity(this.tiles.get(position))) {
 				this.entities.removeTileEntity(position);
 			}
-			this.tiles.set(position, "empty");
+			this.tiles.set(position, EmptyTile.EMPTY);
 		}
 	}
 	addTile(position: Vector, tile: Tile) {
@@ -638,7 +619,7 @@ export class World {
 	}
 	removeTile(position: Vector) {
 		this.entities.removeTileEntity(position);
-		this.tiles.set(position, "empty");
+		this.tiles.set(position, EmptyTile.EMPTY);
 	}
 	addOriginalTile(position: Vector, tile: Tile) {
 		this.addTile(position, tile);
@@ -700,11 +681,11 @@ export class World {
 			World.isFullTile(tile)
 			|| (tile instanceof Gate && tile.openness !== 1)
 			|| tile instanceof BasicTile
-			|| (includePlaforms && tile === "platform")
+			|| (includePlaforms && tile === Platform.PLATFORM)
 		);
 	}
 	static reflectTile(tile: Tile) {
-		if(tile === "empty" || tile === "platform") {
+		if(tile === EmptyTile.EMPTY || tile === Platform.PLATFORM) {
 			return tile;
 		}
 		else if(tile instanceof BasicTile && World.isSlopeTile(tile)) {
@@ -744,7 +725,7 @@ export class World {
 		if(World.isEdgeBasicSolid(tile, direction)) { return true; }
 		return !basicOnly && (
 			(tile instanceof LaserBlock || tile instanceof SpikeballBlock)
-			|| (tile === "platform" && direction === "up")
+			|| (tile === Platform.PLATFORM && direction === "up")
 			|| (tile instanceof Gate && tile.openness === 0)
 		);
 	}

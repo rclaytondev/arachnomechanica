@@ -3,11 +3,12 @@ import { Rectangle } from "../../utils-ts/modules/geometry/Rectangle.mjs";
 import { Vector } from "../../utils-ts/modules/geometry/Vector.mjs";
 import { SpikeballData, WorldData } from "../constants/GameData.mjs";
 import { GameUtils } from "../game-utilities/GameUtils.mjs";
-import { Tile, World } from "../world/World.mjs";
+import { World } from "../world/World.mjs";
 import { Entity } from "../game-utilities/Entity.mjs";
 import { Directions } from "../../utils-ts/modules/geometry/Direction.mjs";
 import { RectangularCollideable } from "../game-utilities/physics-engine/RectangularCollideable.mjs";
 import { CollisionEvent } from "../game-utilities/physics-engine/CollisionEvent.mjs";
+import { Tile } from "../tiles/Tile.mjs";
 
 export class Spikeball extends RectangularCollideable {
 	velocity: Vector;

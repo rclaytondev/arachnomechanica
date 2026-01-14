@@ -7,6 +7,7 @@ import { GameUtils } from "../game-utilities/GameUtils.mjs";
 import { World } from "../world/World.mjs";
 import { Diagonal } from "../../utils-ts/modules/geometry/Direction.mjs";
 import { Particle } from "../game-utilities/Particle.mjs";
+import { EmptyTile } from "./EmptyTile.mjs";
 
 export class SpikeballBlock {
 	timeUntilSpawn: number = 0;
@@ -175,7 +176,7 @@ export class SpikeballBlock {
 		const tileX = world.tiles.get(Vector.unit(xDirection).add(x, y));
 		const tileY = world.tiles.get(Vector.unit(yDirection).add(x, y));
 		const tileDiagonal = world.tiles.get(Vector.unit(xDirection).add(Vector.unit(yDirection)).add(x, y));
-		return (tileX === "empty" || tileY === "empty") && tileDiagonal === "empty";
+		return (tileX === EmptyTile.EMPTY || tileY === EmptyTile.EMPTY) && tileDiagonal === EmptyTile.EMPTY;
 	}
 	spawnSpikeball(x: number, y: number, xDirection: Direction, yDirection: Direction, world: World) {
 		const spikeball = new Spikeball(

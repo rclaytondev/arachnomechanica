@@ -11,9 +11,11 @@ import { ROOMS } from "./Rooms.mjs";
 import { SpawnPoint } from "../entities/SpawnPoint.mjs";
 import { HealthPickup } from "../entities/HealthPickup.mjs";
 import { GenUtils } from "../../utils-ts/modules/core-extensions/GenUtils.mjs";
+import { EmptyTile } from "../tiles/EmptyTile.mjs";
+import { Platform } from "../tiles/Platform.mjs";
 
 export type Traversability = { start: GateState, end: GateState }[];
-export type RoomTile = "empty" | "platform" | BasicTile | Gate;
+export type RoomTile = EmptyTile | Platform | BasicTile | Gate;
 
 export class Room {
 	originalName: string;
@@ -31,12 +33,13 @@ export class Room {
 			this.tiles = tiles;
 		}
 		else {
-			this.tiles = new Grid("empty");
+			this.tiles = new Grid(EmptyTile.EMPTY);
 			for(const { x, y, type } of tiles) {
 				const tile = (
 					type === "solid" ? new BasicTile("full", "tower")
 					: World.isSlope(type as string) ? new BasicTile(type as Slope, "tower")
-					: (type as "platform" | Gate)
+					: (type === "platform") ? Platform.PLATFORM
+					: (type as Gate)
 				);
 				this.tiles.set(x, y, tile);
 			}
@@ -126,6 +129,12 @@ export class Room {
 			}
 			else if(t1 instanceof BasicTile) {
 				return t2 instanceof BasicTile && t1.equals(t2);
+			}
+			else if(t1 instanceof EmptyTile) {
+				return t2 instanceof EmptyTile;
+			}
+			else if(t1 instanceof Platform) {
+				return t2 instanceof Platform;
 			}
 			return t2 instanceof Gate && t1.open === t2.open;
 		});

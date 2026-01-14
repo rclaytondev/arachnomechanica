@@ -4,13 +4,16 @@ import { Vector } from "../utils-ts/modules/geometry/Vector.mjs";
 import { Room, RoomTile } from "./level-generator/Room.mjs";
 import { DEBUG_SETTINGS } from "./constants/DebugSettings.mjs";
 import { Gate } from "./tiles/Gate.mjs";
-import { Tile, World } from "./world/World.mjs";
+import { World } from "./world/World.mjs";
 import { PortalData, WorldData } from "./constants/GameData.mjs";
 import { Rectangle } from "../utils-ts/modules/geometry/Rectangle.mjs";
 import { ROOMS } from "./level-generator/Rooms.mjs";
 import { GameUtils } from "./game-utilities/GameUtils.mjs";
 import { Portal } from "./entities/Portal.mjs";
 import { BasicTile } from "./tiles/BasicTile.mjs";
+import { EmptyTile } from "./tiles/EmptyTile.mjs";
+import { Platform } from "./tiles/Platform.mjs";
+import { Tile } from "./tiles/Tile.mjs";
 
 export class RoomEditor {
 	room: Room;
@@ -51,10 +54,10 @@ export class RoomEditor {
 		const position = this.world.getTileCoordinates(canvasIO.mouse.position);
 		if(canvasIO.mouse.button === "left") {
 			if(this.mode === "solid") {
-				this.setTile(position, canvasIO.mouse.button === "left" ? new BasicTile("full", "tower") : "empty");
+				this.setTile(position, canvasIO.mouse.button === "left" ? new BasicTile("full", "tower") : EmptyTile.EMPTY);
 			}
 			else if(this.mode === "platform") {
-				this.setTile(position, canvasIO.mouse.button === "left" ? "platform" : "empty");
+				this.setTile(position, canvasIO.mouse.button === "left" ? Platform.PLATFORM : EmptyTile.EMPTY);
 			}
 			else if(this.mode === "exit" && Directions.isDirection(this.direction)) {
 				this.room.exitTiles.set(position, this.direction);
@@ -87,7 +90,7 @@ export class RoomEditor {
 				this.room.exitTiles.set(position, "none");
 			}
 			else if(this.mode !== "portal") {
-				this.setTile(position, "empty");
+				this.setTile(position, EmptyTile.EMPTY);
 			}
 			else {
 				const portalPosition = this.getPortalPosition(position);
@@ -196,8 +199,11 @@ export class RoomEditor {
 	}
 
 	getTileString(tile: Tile) {
-		if(typeof tile === "string"){
-			return `"${tile}"`;
+		if(tile instanceof EmptyTile){
+			return "\"empty\"";
+		}
+		else if(tile instanceof Platform){
+			return "\"platform\"";
 		}
 		else if(tile instanceof BasicTile) {
 			return `"${tile.shape === "full" ? "solid" : tile.shape}"`;

@@ -13,6 +13,7 @@ import { Collideable } from "../game-utilities/physics-engine/Collideable.mjs";
 import { Particle } from "../game-utilities/Particle.mjs";
 import { ArrayUtils } from "../../utils-ts/modules/core-extensions/ArrayUtils.mjs";
 import { InvisibleRectangle } from "../game-utilities/physics-engine/InvisibleRectangle.mjs";
+import { EmptyTile } from "../tiles/EmptyTile.mjs";
 
 type Joint = { position: Vector, direction: Direction };
 
@@ -555,7 +556,7 @@ export class Lizard extends Collideable {
 	static spawn(tilePosition: Vector, world: World) {
 		const [_, direction, maxLength] = ArrayUtils.maxEntry(Directions.DIRECTIONS, (direction) => {
 			for(let i = 0; i <= LizardData.MAX_LENGTH / WorldData.TILE_SIZE; i ++) {
-				if(world.tiles.get(tilePosition.add(Vector.unit(direction).multiply(i))) !== "empty") {
+				if(world.tiles.get(tilePosition.add(Vector.unit(direction).multiply(i))) !== EmptyTile.EMPTY) {
 					return i - 1;
 				}
 			}
