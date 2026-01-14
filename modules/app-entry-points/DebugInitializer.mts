@@ -10,12 +10,16 @@ import { Main } from "../Main.mjs";
 import { BasicTile } from "../tiles/BasicTile.mjs";
 import { World } from "../world/World.mjs";
 import { WorldScreen } from "../world/WorldScreen.mjs";
-import { Spider } from "../entities/Spider.mjs";
+import { CrawlingMovementData, PointOnSurface, Spider } from "../entities/Spider.mjs";
 
 const world = new World(false);
 
 world.tiles.fillRect(new Rectangle(-2, 4, 10, 3), new BasicTile("full", "tower"));
-Spider.spawn(new Vector(3, 3), world);
+// Spider.spawn(new Vector(3, 3), world);
+world.entities.addEntity(new Spider(new Vector(0, 0), new CrawlingMovementData(
+	new PointOnSurface(new Vector(0, 4 * 50), "up"),
+	"clockwise",
+)));
 
 world.player.equippedItems[0] = new ThrowableTile([new MovingModifier()]);
 

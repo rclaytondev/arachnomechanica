@@ -1,7 +1,8 @@
+import { CanvasIO } from "../../utils-ts/modules/CanvasIO.mjs";
 import { Diagonal, Direction, Directions } from "../../utils-ts/modules/geometry/Direction.mjs";
 import { Rectangle } from "../../utils-ts/modules/geometry/Rectangle.mjs";
 import { Vector } from "../../utils-ts/modules/geometry/Vector.mjs";
-import { WorldData } from "../constants/GameData.mjs";
+import { SpiderData, WorldData } from "../constants/GameData.mjs";
 import { RectangularCollideable } from "../game-utilities/physics-engine/RectangularCollideable.mjs";
 import { Entities } from "../world/Entities.mjs";
 import { Tiles, TileWithPosition, World } from "../world/World.mjs";
@@ -63,6 +64,25 @@ export class Octants {
 		const hitboxes = [...nearEntities].flatMap(e => e.hitboxes());
 		return [...new Set(hitboxes.flatMap(h => Octants.octantsOfRect(point, h)))];
 	}
+
+	static nextOctant(octant: Octant, direction: "clockwise" | "counterclockwise") {
+		if(direction === "clockwise") {
+			return Directions.rotateClockwise45[octant];
+		}
+		else {
+			return Directions.rotateCounterclockwise45[octant];
+		}
+	}
+	static nextOctantIn(octants: Octant[], start: Direction | Diagonal, direction: "clockwise" | "counterclockwise") {
+		if(octants.length === 0) {
+			return null;
+		}
+		let current = start;
+		while(!octants.includes(current)) {
+			current = Octants.nextOctant(current, direction);
+		}
+		return current;
+	}
 }
 
 export class PointOnSurface {
@@ -71,6 +91,22 @@ export class PointOnSurface {
 	constructor(point: Vector, normal: Direction | Diagonal) {
 		this.point = point;
 		this.normal = normal;
+	}
+
+	nextPointCW(world: World) {
+		const tangentCW = Directions.rotateClockwise[this.normal];
+		const tangentCCW = Directions.rotateCounterclockwise[this.normal];
+
+		const octants = Octants.getSolidOctants(this.point, world);
+		const next = Octants.nextOctantIn(octants, tangentCCW, "clockwise");
+		if(next === null) { return null; }
+		const newNormal = Directions.rotateCounterclockwise[next];
+		if(newNormal === this.normal) {
+			return new PointOnSurface(this.point.add(Vector.gridUnit(tangentCW)), this.normal);
+		}
+		else {
+			return new PointOnSurface(this.point, newNormal);
+		}
 	}
 }
 
@@ -82,11 +118,42 @@ export class CrawlingMovementData {
 		this.pointOnSurface = pointOnSurface;
 		this.direction = direction;
 	}
+
+	nextPoint(world: World) {
+		if(this.direction === "clockwise") {
+			return this.pointOnSurface.nextPointCW(world);
+		}
+		else {
+			throw new Error("Counterclockwise movement is not yet implemented.");
+		}
+	}
 }
 
 export class Spider extends RectangularCollideable {
 	display() { }
-	update() { }
+	displayDebug(canvasIO: CanvasIO): void {
+		const point = this.movement.pointOnSurface.point;
+		const normalEndpoint = point.add(Vector.unit(this.movement.pointOnSurface.normal).multiply(20));
+		canvasIO.ctx.strokeStyle = "red";
+		canvasIO.ctx.lineWidth = 3;
+		canvasIO.strokeLine(point.x, point.y, normalEndpoint.x, normalEndpoint.y);
+	}
+
+	update(world: World) {
+		const nextPoint = this.movement.nextPoint(world);
+		if(nextPoint != null) {
+			this.movement.pointOnSurface = nextPoint;
+		}
+		else {
+			throw new Error("Falling off objects is not yet implemented.");
+		}
+	}
+
+	movement: CrawlingMovementData;
+	constructor(position: Vector, movement: CrawlingMovementData) {
+		super(Rectangle.square(position.x, position.y, SpiderData.HITBOX_SIZE));
+		this.movement = movement;
+	}
 
 	static spawn(_position: Vector, _world: World): boolean {
 		throw new Error("Unimplemented.");
