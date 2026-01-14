@@ -3,6 +3,7 @@ import { Diagonal, Direction, Directions } from "../../utils-ts/modules/geometry
 import { Rectangle } from "../../utils-ts/modules/geometry/Rectangle.mjs";
 import { Vector } from "../../utils-ts/modules/geometry/Vector.mjs";
 import { SpiderData, WorldData } from "../constants/GameData.mjs";
+import { GameUtils } from "../game-utilities/GameUtils.mjs";
 import { RectangularCollideable } from "../game-utilities/physics-engine/RectangularCollideable.mjs";
 import { Entities } from "../world/Entities.mjs";
 import { Tiles, TileWithPosition, World } from "../world/World.mjs";
@@ -100,6 +101,46 @@ export class PointOnSurface {
 		const newNormal = Directions.rotateCounterclockwise[newTangent];
 		return new PointOnSurface(this.point.add(Vector.gridUnit(newTangent)), newNormal);
 	}
+	nextPoint(world: World, direction: "clockwise" | "counterclockwise") {
+		if(direction === "clockwise") {
+			return this.nextPointCW(world);
+		}
+		else {
+			throw new Error("Turning counterclockwise is not yet supported.");
+		}
+	}
+
+
+	distanceToTurn(world: World, direction: "clockwise" | "counterclockwise", max: number) {
+		// eslint-disable-next-line @typescript-eslint/no-this-alias
+		let point: PointOnSurface | null = this;
+		let iterations = 0;
+		while(point != null && point.normal === this.normal && iterations < max) {
+			point = point.nextPoint(world, direction);
+			iterations ++;
+		}
+		return iterations;
+	}
+	nextNormal(world: World, direction: "clockwise" | "counterclockwise", maxDistance: number) {
+		// eslint-disable-next-line @typescript-eslint/no-this-alias
+		let point: PointOnSurface | null = this;
+		let iterations = 0;
+		while(point != null && point.normal === this.normal && iterations < maxDistance) {
+			point = point.nextPoint(world, direction);
+			iterations ++;
+		}
+		return point?.normal ?? this.normal;
+	}
+	nextTurn(world: World, direction: "clockwise" | "counterclockwise", maxDistance: number): [number, Direction | Diagonal] {
+		// eslint-disable-next-line @typescript-eslint/no-this-alias
+		let point: PointOnSurface | null = this;
+		let iterations = 0;
+		while(point != null && point.normal === this.normal && iterations < maxDistance) {
+			point = point.nextPoint(world, direction);
+			iterations ++;
+		}
+		return [iterations, point?.normal ?? this.normal];
+	}
 }
 
 export class CrawlingMovementData {
@@ -119,6 +160,59 @@ export class CrawlingMovementData {
 			throw new Error("Counterclockwise movement is not yet implemented.");
 		}
 	}
+
+	wallDistance(world: World, nextTurnDistance: number, previousTurnDistance: number) {
+		const distanceToTurn = Math.min(nextTurnDistance, previousTurnDistance);
+		if(distanceToTurn >= SpiderData.TURN_WALL_DURATION) {
+			return SpiderData.SIZE / 2;
+		}
+		return SpiderData.SIZE / 2 + GameUtils.lerp(
+			distanceToTurn,
+			0, SpiderData.TURN_WALL_DURATION,
+			SpiderData.TURN_WALL_DISTANCE, 0,
+		);
+	}
+	smoothedNormalAngle(nextTurnDistance: number, nextTurnNormal: Direction | Diagonal, previousTurnDistance: number, previousTurnNormal: Direction | Diagonal) {
+		if(previousTurnDistance + nextTurnDistance < 2 * SpiderData.TURN_WALL_DURATION) {
+			return GameUtils.lerp(
+				previousTurnDistance,
+				0, previousTurnDistance + nextTurnDistance,
+				Directions.angle[previousTurnNormal], Directions.angle[nextTurnNormal],
+			);
+		}
+		else if(previousTurnDistance < SpiderData.TURN_WALL_DURATION) {
+			return GameUtils.lerp(
+				previousTurnDistance,
+				0, SpiderData.TURN_WALL_DISTANCE,
+				Directions.angle[previousTurnNormal], Directions.angle[this.pointOnSurface.normal],
+			);
+		}
+		else if(nextTurnDistance < SpiderData.TURN_WALL_DURATION) {
+			return GameUtils.lerp(
+				nextTurnDistance,
+				0, SpiderData.TURN_WALL_DISTANCE,
+				Directions.angle[nextTurnNormal], Directions.angle[this.pointOnSurface.normal],
+			);
+		}
+		else {
+			return Directions.angle[this.pointOnSurface.normal];
+		}
+	}
+	scaledSmoothedNormal(world: World) {
+		const opposite = (this.direction === "clockwise" ? "counterclockwise" : "clockwise");
+		const [nextTurnDistance, nextTurnNormal] = this.pointOnSurface.nextTurn(world, this.direction, SpiderData.TURN_WALL_DURATION);
+		const [previousTurnDistance, previousTurnNormal] = this.pointOnSurface.nextTurn(world, opposite, SpiderData.TURN_WALL_DURATION);
+		const wallDistance = this.wallDistance(world, nextTurnDistance, previousTurnDistance);
+		const angle = this.smoothedNormalAngle(nextTurnDistance, nextTurnNormal, previousTurnDistance, previousTurnNormal);
+		return new Vector(Math.cos(angle), Math.sin(angle)).multiply(wallDistance);
+	}
+
+	updateHitbox(spider: Spider, world: World, canvasIO: CanvasIO) {
+		const normal = this.scaledSmoothedNormal(world);
+		const preferredCenter = this.pointOnSurface.point.add(normal);
+		const offset = preferredCenter.subtract(spider.hitbox.center());
+		spider.move(offset, world, canvasIO, { });
+	}
 }
 
 export class Spider extends RectangularCollideable {
@@ -131,10 +225,11 @@ export class Spider extends RectangularCollideable {
 		canvasIO.strokeLine(point.x, point.y, normalEndpoint.x, normalEndpoint.y);
 	}
 
-	update(world: World) {
+	update(world: World, canvasIO: CanvasIO) {
 		const nextPoint = this.movement.nextPoint(world);
 		if(nextPoint != null) {
 			this.movement.pointOnSurface = nextPoint;
+			this.movement.updateHitbox(this, world, canvasIO);
 		}
 		else {
 			throw new Error("Falling off objects is not yet implemented.");
