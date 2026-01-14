@@ -111,8 +111,8 @@ export class PointOnSurface {
 		const newNormal = Directions.rotateCounterclockwise[newTangent];
 		return new PointOnSurface(this.point.add(Vector.gridUnit(newTangent)), newNormal);
 	}
-	nextPoint(spider: Spider, world: World, direction: "clockwise" | "counterclockwise") {
-		const octants = Octants.getSolidOctants(this.point, world, e => e !== spider);
+	nextPoint(self: Collideable, world: World, direction: "clockwise" | "counterclockwise") {
+		const octants = Octants.getSolidOctants(this.point, world, e => e !== self);
 		const collidingOctant = Octants.nextOctantIn(octants, this.normal, direction);
 		if(collidingOctant === null) { return null; }
 		const newTangent = Octants.edge(collidingOctant, direction === "clockwise" ? "counterclockwise" : "clockwise");
@@ -121,32 +121,32 @@ export class PointOnSurface {
 	}
 
 
-	distanceToTurn(spider: Spider, world: World, direction: "clockwise" | "counterclockwise", max: number) {
+	distanceToTurn(self: Collideable, world: World, direction: "clockwise" | "counterclockwise", max: number) {
 		// eslint-disable-next-line @typescript-eslint/no-this-alias
 		let point: PointOnSurface | null = this;
 		let iterations = 0;
 		while(point != null && point.normal === this.normal && iterations < max) {
-			point = point.nextPoint(spider, world, direction);
+			point = point.nextPoint(self, world, direction);
 			iterations ++;
 		}
 		return iterations;
 	}
-	nextNormal(spider: Spider, world: World, direction: "clockwise" | "counterclockwise", maxDistance: number) {
+	nextNormal(self: Collideable, world: World, direction: "clockwise" | "counterclockwise", maxDistance: number) {
 		// eslint-disable-next-line @typescript-eslint/no-this-alias
 		let point: PointOnSurface | null = this;
 		let iterations = 0;
 		while(point != null && point.normal === this.normal && iterations < maxDistance) {
-			point = point.nextPoint(spider, world, direction);
+			point = point.nextPoint(self, world, direction);
 			iterations ++;
 		}
 		return point?.normal ?? this.normal;
 	}
-	nextTurn(spider: Spider, world: World, direction: "clockwise" | "counterclockwise", maxDistance: number): [number, Direction | Diagonal] {
+	nextTurn(self: Collideable, world: World, direction: "clockwise" | "counterclockwise", maxDistance: number): [number, Direction | Diagonal] {
 		// eslint-disable-next-line @typescript-eslint/no-this-alias
 		let point: PointOnSurface | null = this;
 		let iterations = 0;
 		while(point != null && point.normal === this.normal && iterations < maxDistance) {
-			point = point.nextPoint(spider, world, direction);
+			point = point.nextPoint(self, world, direction);
 			iterations ++;
 		}
 		return [iterations, point?.normal ?? this.normal];
@@ -163,9 +163,9 @@ export class CrawlingMovementData {
 		this.direction = direction;
 	}
 
-	nextPoint(spider: Spider, world: World) {
+	nextPoint(self: Collideable, world: World) {
 		if(this.direction === "clockwise") {
-			return this.pointOnSurface.nextPointCW(world, e => e !== spider);
+			return this.pointOnSurface.nextPointCW(world, e => e !== self);
 		}
 		else {
 			throw new Error("Counterclockwise movement is not yet implemented.");
@@ -218,10 +218,10 @@ export class CrawlingMovementData {
 			return Directions.angle[this.pointOnSurface.normal];
 		}
 	}
-	scaledSmoothedNormal(spider: Spider, world: World) {
+	scaledSmoothedNormal(self: Spider, world: World) {
 		const opposite = (this.direction === "clockwise" ? "counterclockwise" : "clockwise");
-		const [nextTurnDistance, nextTurnNormal] = this.pointOnSurface.nextTurn(spider, world, this.direction, 2 * SpiderData.TURN_WALL_DURATION);
-		const [previousTurnDistance, previousTurnNormal] = this.pointOnSurface.nextTurn(spider, world, opposite, 2 * SpiderData.TURN_WALL_DURATION);
+		const [nextTurnDistance, nextTurnNormal] = this.pointOnSurface.nextTurn(self, world, this.direction, 2 * SpiderData.TURN_WALL_DURATION);
+		const [previousTurnDistance, previousTurnNormal] = this.pointOnSurface.nextTurn(self, world, opposite, 2 * SpiderData.TURN_WALL_DURATION);
 		const wallDistance = this.wallDistance(world, nextTurnDistance, previousTurnDistance);
 		const angle = this.smoothedNormalAngle(nextTurnDistance, nextTurnNormal, previousTurnDistance, previousTurnNormal);
 		return new Vector(Math.cos(angle), -Math.sin(angle)).multiply(wallDistance);
