@@ -7,7 +7,6 @@ import { MathUtils } from "../../utils-ts/modules/math/MathUtils.mjs";
 import { DEBUG_SETTINGS } from "../constants/DebugSettings.mjs";
 import { SpiderData, WorldData } from "../constants/GameData.mjs";
 import { GameUtils } from "../game-utilities/GameUtils.mjs";
-import { Particle } from "../game-utilities/Particle.mjs";
 import { Player } from "../Player.mjs";
 import { World } from "../world/World.mjs";
 import { Entity } from "../game-utilities/Entity.mjs";
@@ -15,7 +14,7 @@ import { BasicTile } from "../tiles/BasicTile.mjs";
 import { RectangularCollideable } from "../game-utilities/physics-engine/RectangularCollideable.mjs";
 import { Explosion } from "../game-utilities/Explosion.mjs";
 import { CollisionEvent } from "../game-utilities/physics-engine/CollisionEvent.mjs";
-import { Collideable } from "../game-utilities/physics-engine/Collideable.mjs";
+import { Fireball } from "./Fireball.mjs";
 
 export class Surface {
 	start: Vector;
@@ -411,7 +410,7 @@ export class Spider extends RectangularCollideable {
 		const direction = player.subtract(center).normalize();
 		const velocity = direction.multiply(SpiderData.PROJECTILE_SPEED);
 		const acceleration = direction.multiply(SpiderData.PROJECTILE_ACCELERATION);
-		const projectile = new SpiderProjectile(center, velocity, acceleration, [this]);
+		const projectile = new Fireball(center, velocity, acceleration, [this]);
 		world.entities.addEntity(projectile);
 	}
 	checkPlatformEnds(world: World) {
@@ -440,7 +439,7 @@ export class Spider extends RectangularCollideable {
 			world,
 			canvasIO,
 			{
-				collides: (obj) => obj !== this && !(obj instanceof SpiderProjectile && obj.ignoredEntities.includes(this)),
+				collides: (obj) => obj !== this && !(obj instanceof Fireball && obj.ignoredEntities.includes(this)),
 			},
 		);
 		world.entities.moveEntity(this);
@@ -530,45 +529,5 @@ export class Spider extends RectangularCollideable {
 			WorldData.TILE_SIZE / 2,
 		);
 		return world.addEntityIfEmpty(spider);
-	}
-}
-
-export class SpiderProjectile extends RectangularCollideable {
-	velocity: Vector;
-	acceleration: Vector;
-	ignoredEntities: Collideable[];
-
-	constructor(position: Vector, velocity: Vector, acceleration: Vector, ignoredEntities: Collideable[]) {
-		super(Rectangle.square(position.x, position.y, 1));
-		this.velocity = velocity;
-		this.acceleration = acceleration;
-		this.ignoredEntities = ignoredEntities;
-	}
-
-	update(world: World, canvasIO: CanvasIO) {
-		this.velocity = this.velocity.add(this.acceleration);
-		this.move(this.velocity, world, canvasIO, {
-			collides: (obj) => !(this.ignoredEntities as unknown[]).includes(obj),
-		});
-		world.entities.moveEntity(this);
-
-		world.addParticle(new Particle(
-			this.hitbox.center(),
-			new Vector(0, 0),
-			SpiderData.PROJECTILE_PARTICLE_SETTINGS,
-		), canvasIO);
-	}
-
-	display() { }
-
-
-	onCollision(collision: CollisionEvent, world: World, canvasIO: CanvasIO): void {
-		this.explode(world, canvasIO);
-	}
-	explode(world: World, canvasIO: CanvasIO) {
-		world.entities.removeEntity(this);
-
-		const center = this.hitbox.center();
-		new Explosion(center).explode(world, canvasIO);
 	}
 }
