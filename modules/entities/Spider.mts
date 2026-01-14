@@ -2,6 +2,7 @@ import { CanvasIO } from "../../utils-ts/modules/CanvasIO.mjs";
 import { Diagonal, Direction, Directions } from "../../utils-ts/modules/geometry/Direction.mjs";
 import { Rectangle } from "../../utils-ts/modules/geometry/Rectangle.mjs";
 import { Vector } from "../../utils-ts/modules/geometry/Vector.mjs";
+import { MathUtils } from "../../utils-ts/modules/math/MathUtils.mjs";
 import { SpiderData, WorldData } from "../constants/GameData.mjs";
 import { GameUtils } from "../game-utilities/GameUtils.mjs";
 import { Collideable } from "../game-utilities/physics-engine/Collideable.mjs";
@@ -236,6 +237,11 @@ export class CrawlingMovementData {
 			}
 		}
 		this.updateHitbox(spider, world, canvasIO);
+
+		const opposite = (this.direction === "clockwise" ? "counterclockwise" : "clockwise");
+		const [nextTurnDistance, nextTurnNormal] = this.pointOnSurface.nextTurn(spider, world, this.direction, 2 * SpiderData.TURN_WALL_DURATION);
+		const [previousTurnDistance, previousTurnNormal] = this.pointOnSurface.nextTurn(spider, world, opposite, 2 * SpiderData.TURN_WALL_DURATION);
+		spider.angle = GameUtils.moveAngleTowards(spider.angle, this.smoothedNormalAngle(nextTurnDistance, nextTurnNormal, previousTurnDistance, previousTurnNormal), SpiderData.ANGULAR_SPEED);
 	}
 	updateHitbox(spider: Spider, world: World, canvasIO: CanvasIO) {
 		const normal = this.scaledSmoothedNormal(spider, world);
@@ -246,7 +252,35 @@ export class CrawlingMovementData {
 }
 
 export class Spider extends RectangularCollideable {
-	display() { }
+	angle: number = 0;
+
+	display(canvasIO: CanvasIO) {
+		this.displayBody(canvasIO);
+		this.displayEyes(canvasIO);
+	}
+	displayBody(canvasIO: CanvasIO) {
+		canvasIO.ctx.save();
+		const position = this.hitbox.center();
+		canvasIO.ctx.translate(position.x, position.y);
+		canvasIO.ctx.rotate(-this.angle);
+		canvasIO.ctx.fillStyle = SpiderData.COLOR;
+		canvasIO.fillRegularPoly(new Vector(0, 0), SpiderData.SIZE / 2, 6);
+		canvasIO.ctx.restore();
+	}
+	displayEyes(canvasIO: CanvasIO) {
+		const center = this.hitbox.center();
+		const numGlowing = this.numGlowingEyes();
+		let count = 0;
+		for(let angle = 0; angle < 360; angle += 360 / SpiderData.NUM_EYES) {
+			const position = new Vector(0, -SpiderData.EYE_DISTANCE).rotate(angle + 90 + MathUtils.toDegrees(-this.angle));
+			canvasIO.ctx.fillStyle = (count < numGlowing) ? SpiderData.EYE_COLOR : SpiderData.UNLIT_EYE_COLOR;
+			canvasIO.fillDiamond(center.x + position.x, center.y + position.y, SpiderData.EYE_SIZE);
+			count ++;
+		}
+	}
+	numGlowingEyes() {
+		return 3;
+	}
 	displayDebug(canvasIO: CanvasIO, world: World): void {
 		const point = this.movement.pointOnSurface.point;
 		const normalEndpoint = point.add(Vector.unit(this.movement.pointOnSurface.normal).multiply(20));
