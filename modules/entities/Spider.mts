@@ -59,7 +59,9 @@ export class Octants {
 		)).flat(2);
 	}
 	static getEntityOctants(point: Vector, entities: Entities): Octant[] {
-		return []; // TODO
+		const nearEntities = entities.collideablesIntersecting(Rectangle.square(point.x - 1, point.y - 1, 2));
+		const hitboxes = [...nearEntities].flatMap(e => e.hitboxes());
+		return [...new Set(hitboxes.flatMap(h => Octants.octantsOfRect(point, h)))];
 	}
 }
 
