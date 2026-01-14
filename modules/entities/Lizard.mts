@@ -171,12 +171,6 @@ export class Lizard extends Collideable {
 		canvasIO.ctx.restore();
 	}
 	displayDebug(canvasIO: CanvasIO) {
-		const hitboxes = this.hitboxes();
-		for(const box of hitboxes) {
-			canvasIO.ctx.strokeStyle = DEBUG_SETTINGS.LIZARD_HITBOX_COLOR;
-			canvasIO.strokeRect(box);
-		}
-
 		const hurtbox = this.fireSpawner.hurtbox();
 		canvasIO.ctx.strokeStyle = DEBUG_SETTINGS.LIZARD_HURTBOX_COLOR;
 		canvasIO.strokeRect(hurtbox);

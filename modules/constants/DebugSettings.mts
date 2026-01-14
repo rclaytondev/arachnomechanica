@@ -7,7 +7,6 @@ export const DEBUG_SETTINGS = {
 	SHOW_FRAMERATE: true,
 	EDITOR_UI_COLOR: "rgb(255, 150, 0)",
 	GATE_VISUALIZATION_COLOR: "rgb(255, 150, 0)",
-	LIZARD_HITBOX_COLOR: "rgb(0, 128, 255)",
 	LIZARD_LOOKAHEAD_COLOR: "rgb(255, 0, 0)",
 	LIZARD_HURTBOX_COLOR: "rgba(255, 0, 255, 0)",
 	PRINT_RNG_KEY: "KeyR" as string | null,
