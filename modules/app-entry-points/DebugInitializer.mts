@@ -10,12 +10,12 @@ import { Main } from "../Main.mjs";
 import { BasicTile } from "../tiles/BasicTile.mjs";
 import { World } from "../world/World.mjs";
 import { WorldScreen } from "../world/WorldScreen.mjs";
-import { Lizard } from "../entities/Lizard.mjs";
+import { Spider } from "../entities/Spider.mjs";
 
 const world = new World(false);
 
-world.tiles.fillRect(new Rectangle(-2, 4, 5, 3), new BasicTile("full", "tower"));
-Lizard.spawn(new Vector(3, 3), world);
+world.tiles.fillRect(new Rectangle(-2, 4, 10, 3), new BasicTile("full", "tower"));
+Spider.spawn(new Vector(3, 3), world);
 
 world.player.equippedItems[0] = new ThrowableTile([new MovingModifier()]);
 
