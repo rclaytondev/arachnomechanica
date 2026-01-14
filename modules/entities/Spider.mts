@@ -104,13 +104,6 @@ export class PointOnSurface {
 		this.normal = normal;
 	}
 
-	nextPointCW(world: World, collides: (e: Collideable) => boolean) {
-		const octants = Octants.getSolidOctants(this.point, world, collides);
-		const newTangent = Octants.nextOctantIn(octants, this.normal, "clockwise");
-		if(newTangent === null) { return null; }
-		const newNormal = Directions.rotateCounterclockwise[newTangent];
-		return new PointOnSurface(this.point.add(Vector.gridUnit(newTangent)), newNormal);
-	}
 	nextPoint(self: Collideable, world: World, direction: "clockwise" | "counterclockwise") {
 		const octants = Octants.getSolidOctants(this.point, world, e => e !== self);
 		const collidingOctant = Octants.nextOctantIn(octants, this.normal, direction);
@@ -161,15 +154,6 @@ export class CrawlingMovementData {
 	constructor(pointOnSurface: PointOnSurface, direction: "clockwise" | "counterclockwise") {
 		this.pointOnSurface = pointOnSurface;
 		this.direction = direction;
-	}
-
-	nextPoint(self: Collideable, world: World) {
-		if(this.direction === "clockwise") {
-			return this.pointOnSurface.nextPointCW(world, e => e !== self);
-		}
-		else {
-			throw new Error("Counterclockwise movement is not yet implemented.");
-		}
 	}
 
 	wallDistance(world: World, nextTurnDistance: number, previousTurnDistance: number) {
@@ -231,7 +215,7 @@ export class CrawlingMovementData {
 		this.subpixel += SpiderData.SPEED;
 		while(this.subpixel >= 1) {
 			this.subpixel --;
-			const nextPoint = this.nextPoint(spider, world);
+			const nextPoint = this.pointOnSurface.nextPoint(spider, world, this.direction);
 			if(nextPoint != null) {
 				this.pointOnSurface = nextPoint;
 			}

@@ -111,14 +111,14 @@ describe("Octant.getSolidOctants", () => {
 	});
 });
 
-describe("PointOnSurface.nextPointCW", () => {
+describe("PointOnSurface.nextPoint", () => {
 	it("works when moving from a tile to an entity", () => {
 		const world = new World(false);
 		world.tiles.set(0, 0, new BasicTile("full", "tower"));
 		world.entities.addEntity(new InvisibleRectangle(new Rectangle(10, -10, 10, 10)));
 
 		const point = new PointOnSurface(new Vector(10, 0), "up");
-		const next = point.nextPointCW(world, () => true);
+		const next = point.nextPoint(new InvisibleRectangle(new Rectangle(-100, -100, 1, 1)), world, "clockwise");
 		assert.isNotNull(next);
 		assert.deepEqual(next, new PointOnSurface(new Vector(10, -1), "left"));
 	});
