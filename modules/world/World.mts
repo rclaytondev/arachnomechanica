@@ -32,6 +32,7 @@ export type Tile = (typeof WorldData.STRING_TILE_TYPES)[number] | TileEntity;
 export type Slope = (typeof WorldData.SLOPES)[number];
 export type TileWithPosition = { x: number, y: number, tile: Tile };
 export type TileEntityWithPosition = { x: number, y: number, tile: TileEntity };
+export type Tiles = Grid<Tile>;
 
 export class World {
 	tiles: Grid<Tile> = new Grid("empty");
