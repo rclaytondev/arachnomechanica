@@ -1,7 +1,7 @@
 import { assert } from "chai";
 import { Vector } from "../../utils-ts/modules/geometry/Vector.mjs";
 import { WorldData } from "../constants/GameData.mjs";
-import { Octants } from "../entities/Spider.mjs";
+import { Octants, PointOnSurface } from "../entities/Spider.mjs";
 import { BasicTile } from "../tiles/BasicTile.mjs";
 import { World } from "../world/World.mjs";
 import { Directions } from "../../utils-ts/modules/geometry/Direction.mjs";
@@ -108,5 +108,18 @@ describe("Octant.getSolidOctants", () => {
 
 		const octantsLeft = Octants.getSolidOctants(new Vector(0, 1), world);
 		assert.sameMembers(octantsLeft, ["up", "up-right", "right", "down-right"]);
+	});
+});
+
+describe("PointOnSurface.nextPointCW", () => {
+	it("works when moving from a tile to an entity", () => {
+		const world = new World(false);
+		world.tiles.set(0, 0, new BasicTile("full", "tower"));
+		world.entities.addEntity(new InvisibleRectangle(new Rectangle(10, -10, 10, 10)));
+
+		const point = new PointOnSurface(new Vector(10, 0), "up");
+		const next = point.nextPointCW(world);
+		assert.isNotNull(next);
+		assert.deepEqual(next, new PointOnSurface(new Vector(10, -1), "left"));
 	});
 });

@@ -94,19 +94,11 @@ export class PointOnSurface {
 	}
 
 	nextPointCW(world: World) {
-		const tangentCW = Directions.rotateClockwise[this.normal];
-		const tangentCCW = Directions.rotateCounterclockwise[this.normal];
-
 		const octants = Octants.getSolidOctants(this.point, world);
-		const next = Octants.nextOctantIn(octants, tangentCCW, "clockwise");
-		if(next === null) { return null; }
-		const newNormal = Directions.rotateCounterclockwise[next];
-		if(newNormal === this.normal) {
-			return new PointOnSurface(this.point.add(Vector.gridUnit(tangentCW)), this.normal);
-		}
-		else {
-			return new PointOnSurface(this.point, newNormal);
-		}
+		const newTangent = Octants.nextOctantIn(octants, this.normal, "clockwise");
+		if(newTangent === null) { return null; }
+		const newNormal = Directions.rotateCounterclockwise[newTangent];
+		return new PointOnSurface(this.point.add(Vector.gridUnit(newTangent)), newNormal);
 	}
 }
 
@@ -156,6 +148,6 @@ export class Spider extends RectangularCollideable {
 	}
 
 	static spawn(_position: Vector, _world: World): boolean {
-		throw new Error("Unimplemented.");
+		return true;
 	}
 }
