@@ -155,6 +155,7 @@ export class PointOnSurface {
 export class CrawlingMovementData {
 	pointOnSurface: PointOnSurface;
 	direction: "clockwise" | "counterclockwise";
+	subpixel: number = 0;
 
 	constructor(pointOnSurface: PointOnSurface, direction: "clockwise" | "counterclockwise") {
 		this.pointOnSurface = pointOnSurface;
@@ -225,6 +226,17 @@ export class CrawlingMovementData {
 		return new Vector(Math.cos(angle), -Math.sin(angle)).multiply(wallDistance);
 	}
 
+	update(spider: Spider, world: World, canvasIO: CanvasIO) {
+		this.subpixel += SpiderData.SPEED;
+		while(this.subpixel >= 1) {
+			this.subpixel --;
+			const nextPoint = this.nextPoint(spider, world);
+			if(nextPoint != null) {
+				this.pointOnSurface = nextPoint;
+			}
+		}
+		this.updateHitbox(spider, world, canvasIO);
+	}
 	updateHitbox(spider: Spider, world: World, canvasIO: CanvasIO) {
 		const normal = this.scaledSmoothedNormal(spider, world);
 		const preferredCenter = this.pointOnSurface.point.add(normal);
@@ -250,15 +262,7 @@ export class Spider extends RectangularCollideable {
 	}
 
 	update(world: World, canvasIO: CanvasIO) {
-		// if(GameUtils.frameCount === 1) { debugger; }
-		const nextPoint = this.movement.nextPoint(this, world);
-		if(nextPoint != null) {
-			this.movement.pointOnSurface = nextPoint;
-			this.movement.updateHitbox(this, world, canvasIO);
-		}
-		else {
-			// throw new Error("Falling off objects is not yet implemented.");
-		}
+		this.movement.update(this, world, canvasIO);
 	}
 
 	movement: CrawlingMovementData;
