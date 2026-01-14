@@ -292,6 +292,9 @@ export class World {
 		const region = this.visibleRegion(canvasIO, WorldData.ENTITY_RENDER_DISTANCE);
 		for(const entity of this.entities.entitiesPossiblyIntersecting(region)) {
 			entity.displayDebug(canvasIO);
+			if(entity instanceof Collideable) {
+				entity.displayHitboxes(canvasIO);
+			}
 		}
 	}
 	displayOverlayText(canvasIO: CanvasIO) {

@@ -3,6 +3,7 @@ import { SetUtils } from "../../../utils-ts/modules/core-extensions/SetUtils.mjs
 import { Direction, Directions } from "../../../utils-ts/modules/geometry/Direction.mjs";
 import { Rectangle } from "../../../utils-ts/modules/geometry/Rectangle.mjs";
 import { Vector } from "../../../utils-ts/modules/geometry/Vector.mjs";
+import { DEBUG_SETTINGS } from "../../constants/DebugSettings.mjs";
 import { WorldData } from "../../constants/GameData.mjs";
 import { World, Tile, TileWithPosition } from "../../world/World.mjs";
 import { Entity } from "../Entity.mjs";
@@ -191,5 +192,12 @@ export abstract class Collideable extends Entity {
 			return true;
 		}
 		return false;
+	}
+
+	displayHitboxes(canvasIO: CanvasIO) {
+		canvasIO.ctx.strokeStyle = DEBUG_SETTINGS.HITBOX_COLOR;
+		for(const hitbox of this.hitboxes()) {
+			canvasIO.strokeRect(hitbox);
+		}
 	}
 }
