@@ -132,7 +132,8 @@ export class EntitySpawner {
 				LaserBlock.canSpawn,
 			],
 			(position, world) => {
-				world.addTile(position, LaserBlock.generate());
+				world.removeTile(position);
+				world.entities.addEntity(LaserBlock.generate(position));
 				return true;
 			},
 			safeRegion,

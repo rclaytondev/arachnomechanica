@@ -30,7 +30,7 @@ import { Tile } from "../tiles/Tile.mjs";
 import { Platform } from "../tiles/Platform.mjs";
 import { Tiles } from "./Tiles.mjs";
 
-export type TileEntity = LaserBlock | SpikeballBlock;
+export type TileEntity = SpikeballBlock;
 export type Slope = (typeof WorldData.SLOPES)[number];
 export type TileWithPosition = { x: number, y: number, tile: Tile };
 export type TileEntityWithPosition = { x: number, y: number, tile: TileEntity };
@@ -120,8 +120,6 @@ export class World {
 		const translation = this.translationToCamera(canvasIO);
 		canvasIO.ctx.translate(translation.x, translation.y);
 		this.displayGlowEffects(canvasIO);
-		this.displayLaserBlocks(canvasIO, visibleTileRegion);
-		this.displayLasers(canvasIO);
 		this.displayParticles(canvasIO);
 		this.displayEntities(canvasIO);
 		this.displayTiles(canvasIO, visibleTileRegion);
@@ -181,33 +179,13 @@ export class World {
 			entity.displayGlowEffect(canvasIO);
 		}
 		for(const { tile, x, y } of this.entities.allTileEntities()) {
-			if(tile instanceof LaserBlock) {
-				tile.displayLaserGlow(canvasIO, x, y);
-			}
-			else if(tile instanceof SpikeballBlock) {
+			if(tile instanceof SpikeballBlock) {
 				tile.displayGlow(canvasIO, x, y);
 			}
 		}
 
 		for(const particle of this.particles) {
 			particle.displayGlow(canvasIO);
-		}
-	}
-	displayLaserBlocks(canvasIO: CanvasIO, visibleTileRegion: Rectangle) {
-		for(let x = visibleTileRegion.left(); x < visibleTileRegion.right(); x ++) {
-			for(let y = visibleTileRegion.top(); y < visibleTileRegion.bottom(); y ++) {
-				const tile = this.tiles.get(x, y);
-				if(tile instanceof LaserBlock) {
-					tile.display(canvasIO, x, y);
-				}
-			}
-		}
-	}
-	displayLasers(canvasIO: CanvasIO) {
-		for(const { tile, x, y } of this.entities.allTileEntities()) {
-			if(tile instanceof LaserBlock) {
-				tile.displayLasers(canvasIO, x, y);
-			}
 		}
 	}
 	displayTileEntities(canvasIO: CanvasIO, region: Rectangle) {
