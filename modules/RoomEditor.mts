@@ -15,6 +15,8 @@ import { EmptyTile } from "./tiles/EmptyTile.mjs";
 import { Platform } from "./tiles/Platform.mjs";
 import { Tile } from "./tiles/Tile.mjs";
 import { Tiles } from "./world/Tiles.mjs";
+import { HealthPickup } from "./entities/HealthPickup.mjs";
+import { SpawnPoint } from "./entities/SpawnPoint.mjs";
 
 export class RoomEditor {
 	room: Room;
@@ -68,16 +70,13 @@ export class RoomEditor {
 				const gateExists = Gate.isGateAt(position, this.world);
 				if(!gateExists) {
 					const gate = Gate.atTile(position, this.direction, (this.mode === "gate-open"));
-					this.room.entities.push(gate);
-					this.world.entities.addEntity(gate);
+					this.addEntity(gate);
 				}
 			}
 			else if(this.mode === "portal") {
 				const portalPosition = this.getPortalPosition(position);
 				if(!this.room.entities.some(p => p instanceof Portal && p.position.equals(portalPosition))) {
-					// TODO: refactor this! (extract a method RoomEditor.addEntity)
-					this.room.entities.push(new Portal(portalPosition));
-					this.world.entities.addEntity(new Portal(portalPosition));
+					this.addEntity(new Portal(portalPosition));
 				}
 			}
 			else if(this.mode === "slope" && Directions.isDiagonal(this.direction)) {
@@ -99,20 +98,9 @@ export class RoomEditor {
 			}
 			else {
 				const portalPosition = this.getPortalPosition(position);
-				this.room.entities = this.room.entities.filter(e => !(e instanceof Portal && e.position.equals(portalPosition)));
-				for(const entity of this.world.entities.allEntities()) {
-					if(entity instanceof Portal && entity.position.equals(portalPosition)) {
-						this.world.entities.removeEntity(entity);
-					}
-				}
+				this.filterEntities(e => !(e instanceof Portal && e.position.equals(portalPosition)));
 			}
-			// TODO: refactor this! (extract a method removeEntities)
-			this.room.entities = this.room.entities.filter(e => !(e instanceof Gate && e.tilePosition().equals(position)));
-			for(const entity of this.world.entities.allEntities()) {
-				if(entity instanceof Gate && entity.tilePosition().equals(position)) {
-					this.world.entities.removeEntity(entity);
-				}
-			}
+			this.filterEntities(e => !(e instanceof Gate && e.tilePosition().equals(position)));
 		}
 	}
 	getPortalPosition(tilePosition: Vector) {
@@ -172,6 +160,20 @@ export class RoomEditor {
 		this.displayExits(canvasIO);
 		this.displayGates(canvasIO);
 		this.displayInfo(canvasIO);
+	}
+
+	addEntity(entity: Portal | HealthPickup | SpawnPoint | Gate) {
+		this.room.entities.push(entity);
+		this.world.entities.addEntity(entity);
+	}
+	filterEntities(callback: (entity: Portal | HealthPickup | SpawnPoint | Gate) => boolean) {
+		this.room.entities = this.room.entities.filter(callback);
+		for(const entity of this.world.entities.allEntities()) {
+			const valid = (entity instanceof Portal || entity instanceof HealthPickup || entity instanceof SpawnPoint || entity instanceof Gate);
+			if(valid && !callback(entity)) {
+				this.world.entities.removeEntity(entity);
+			}
+		}
 	}
 
 
