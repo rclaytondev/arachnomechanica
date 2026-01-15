@@ -125,19 +125,7 @@ export class Room {
 		);
 	}
 	equals(room: Room) {
-		return this.tiles.equals(room.tiles, (t1, t2) => {
-			// TODO: refactor this!
-			if(typeof t1 === "string") {
-				return t1 === t2;
-			}
-			else if(t1 instanceof BasicTile) {
-				return t2 instanceof BasicTile && t1.equals(t2);
-			}
-			else if(t1 instanceof EmptyTile) {
-				return t2 instanceof EmptyTile;
-			}
-			return t2 instanceof Platform;
-		});
+		return this.tiles.equals(room.tiles, (t1, t2) => t1.equals(t2));
 	}
 	toggleGates() {
 		const copy = this.copy();
