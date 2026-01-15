@@ -66,7 +66,6 @@ export class RoomEditor {
 				this.room.exitTiles.set(position, this.direction);
 			}
 			else if((this.mode === "gate-open" || this.mode === "gate-closed") && Directions.isDirection(this.direction)) {
-				this.setTile(position, Gate.atTile(position, this.direction, true));
 				const gateExists = Gate.isGateAt(position, this.world);
 				if(!gateExists) {
 					const gate = Gate.atTile(position, this.direction, (this.mode === "gate-open"));
