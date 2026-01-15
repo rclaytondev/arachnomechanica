@@ -9,8 +9,11 @@ import { Diagonal } from "../../utils-ts/modules/geometry/Direction.mjs";
 import { Particle } from "../game-utilities/Particle.mjs";
 import { EmptyTile } from "./EmptyTile.mjs";
 import { Tile } from "./Tile.mjs";
+import { RectangularCollideable } from "../game-utilities/physics-engine/RectangularCollideable.mjs";
+import { Rectangle } from "../../utils-ts/modules/geometry/Rectangle.mjs";
+import { Tiles } from "../world/Tiles.mjs";
 
-export class SpikeballBlock extends Tile {
+export class SpikeballBlock extends RectangularCollideable {
 	timeUntilSpawn: number = 0;
 	timeSinceSpawn: number = 0;
 	pattern: SpikeballPattern;
@@ -23,24 +26,29 @@ export class SpikeballBlock extends Tile {
 		"down-right": 0,
 	};
 
-	constructor(pattern: SpikeballPattern = SpikeballBlockData.PATTERNS[0]) {
-		super();
+	constructor(position: Vector, pattern: SpikeballPattern = SpikeballBlockData.PATTERNS[0]) {
+		super(Rectangle.square(position.x, position.y, WorldData.TILE_SIZE));
 		this.pattern = pattern;
 	}
+	static atTile(tilePosition: Vector, pattern: SpikeballPattern = SpikeballBlockData.PATTERNS[0]) {
+		return new SpikeballBlock(tilePosition.multiply(WorldData.TILE_SIZE), pattern);
+	}
 
-	displayGlow(canvasIO: CanvasIO, x: number, y: number) {
+
+	displayGlowEffect(canvasIO: CanvasIO) {
+		const center = this.hitbox.center();
 		GameUtils.glowCircle(
-			(x + 1/2) * WorldData.TILE_SIZE, (y + 1/2) * WorldData.TILE_SIZE, SpikeballBlockData.GLOW_SIZE,
+			center.x, center.y, SpikeballBlockData.GLOW_SIZE,
 			SpikeballBlockData.GLOW_INTENSITY,
 			canvasIO,
 			SpikeballData.ACCENT_COLOR.red, SpikeballData.ACCENT_COLOR.green, SpikeballData.ACCENT_COLOR.blue,
 		);
 	}
-	display(canvasIO: CanvasIO, x: number, y: number) {
+	display(canvasIO: CanvasIO) {
 		canvasIO.ctx.fillStyle = SpikeballBlockData.TILE_COLOR;
-		canvasIO.fillSquare(x * WorldData.TILE_SIZE, y * WorldData.TILE_SIZE, WorldData.TILE_SIZE);
+		canvasIO.fillRect(this.hitbox);
 
-		const center = new Vector(x + 1/2, y + 1/2).multiply(WorldData.TILE_SIZE);
+		const center = this.hitbox.center();
 
 		for(const direction of Directions.DIAGONALS) {
 			canvasIO.ctx.save();
@@ -89,11 +97,11 @@ export class SpikeballBlock extends Tile {
 		}
 	}
 
-	update(world: World, x: number, y: number, canvasIO: CanvasIO) {
-		this.updateSpikeballs(world, x, y);
-		this.updateDoors(world, x, y, canvasIO);
+	update(world: World, canvasIO: CanvasIO) {
+		this.updateSpikeballs(world);
+		this.updateDoors(world, canvasIO);
 	}
-	updateSpikeballs(world: World, x: number, y: number) {
+	updateSpikeballs(world: World) {
 		this.spikeballs = this.spikeballs.filter(
 			s => world.entities.hasEntity(s) && s.bounces > SpikeballBlockData.BOUNCES_LEFT_BEFORE_SPAWN,
 		);
@@ -102,12 +110,12 @@ export class SpikeballBlock extends Tile {
 		}
 		this.timeSinceSpawn ++;
 		if(this.timeUntilSpawn < 0) {
-			this.spawnSpikeballs(world, x, y);
+			this.spawnSpikeballs(world);
 			this.timeUntilSpawn = SpikeballBlockData.SPAWN_FREQUENCY;
 			this.timeSinceSpawn = 0;
 		}
 	}
-	updateDoors(world: World, x: number, y: number, canvasIO: CanvasIO) {
+	updateDoors(world: World, canvasIO: CanvasIO) {
 		for(const xDirection of ["left", "right"] as const) {
 			for(const yDirection of ["up", "down"] as const) {
 				const patternStep = this.pattern[this.patternStep];
@@ -122,12 +130,13 @@ export class SpikeballBlock extends Tile {
 				const target = open ? SpikeballBlockData.DOOR_OPENNESS : 0;
 				this.doors[direction] = GameUtils.moveTowards(this.doors[direction], target, SpikeballBlockData.DOOR_OPENING_SPEED);
 				if(open) {
-					this.spawnParticles(x, y, xDirection, yDirection, world, canvasIO);
+					this.spawnParticles(xDirection, yDirection, world, canvasIO);
 				}
 			}
 		}
 	}
-	spawnParticles(x: number, y: number, xDirection: "left" | "right", yDirection: "up" | "down", world: World, canvasIO: CanvasIO) {
+	spawnParticles(xDirection: "left" | "right", yDirection: "up" | "down", world: World, canvasIO: CanvasIO) {
+		const center = this.hitbox.center();
 		const diagonal = `${yDirection}-${xDirection}` as Diagonal;
 		const perpendicular = Directions.rotateClockwise[diagonal];
 		for(let i = 0; i < SpikeballBlockData.PARTICLE_SPAWN_ATTEMPTS; i ++) {
@@ -135,7 +144,7 @@ export class SpikeballBlock extends Tile {
 				const offset = GameUtils.random(-SpikeballBlockData.PARTICLE_PERPENDICULAR_OFFSET, SpikeballBlockData.PARTICLE_PERPENDICULAR_OFFSET);
 				const velocity = GameUtils.random(SpikeballBlockData.PARTICLE_MIN_VELOCITY, SpikeballBlockData.PARTICLE_MAX_VELOCITY);
 				world.addParticle(new Particle(
-					new Vector(x + 1/2, y + 1/2).multiply(WorldData.TILE_SIZE).add(Vector.unit(perpendicular).multiply(offset)),
+					center.add(Vector.unit(perpendicular).multiply(offset)),
 					Vector.unit(diagonal).multiply(velocity),
 					SpikeballBlockData.PARTICLE_SETTINGS,
 				), canvasIO);
@@ -143,11 +152,11 @@ export class SpikeballBlock extends Tile {
 		}
 	}
 
-	spawnSpikeballs(world: World, x: number, y: number) {
+	spawnSpikeballs(world: World) {
 		const spikeballs = [];
 		for(const [xDirection, yDirection] of this.pattern[this.patternStep]) {
-			if(this.canSpawnSpikeball(x, y, xDirection, yDirection, world)) {
-				const spikeball = this.spawnSpikeball(x, y, xDirection, yDirection, world);
+			if(this.canSpawnSpikeball(xDirection, yDirection, world)) {
+				const spikeball = this.spawnSpikeball(xDirection, yDirection, world);
 				if(spikeball != null) {
 					spikeballs.push(spikeball);
 				}
@@ -160,38 +169,40 @@ export class SpikeballBlock extends Tile {
 			}
 		}
 
-		this.nextPatternStep(world, x, y);
+		this.nextPatternStep(world);
 	}
-	nextPatternStep(world: World, x: number, y: number) {
+	nextPatternStep(world: World) {
 		let foundSpawnable = false;
 		while(!foundSpawnable) {
 			this.patternStep ++;
 			this.patternStep %= this.pattern.length;
 			for(const [xDirection, yDirection] of this.pattern[this.patternStep]) {
-				if(this.canSpawnSpikeball(x, y, xDirection, yDirection, world)) {
+				if(this.canSpawnSpikeball(xDirection, yDirection, world)) {
 					foundSpawnable = true;
 				}
 			}
 		}
 	}
-	canSpawnSpikeball(x: number, y: number, xDirection: Direction, yDirection: Direction, world: World) {
-		const tileX = world.tiles.get(Vector.unit(xDirection).add(x, y));
-		const tileY = world.tiles.get(Vector.unit(yDirection).add(x, y));
-		const tileDiagonal = world.tiles.get(Vector.unit(xDirection).add(Vector.unit(yDirection)).add(x, y));
+	canSpawnSpikeball(xDirection: Direction, yDirection: Direction, world: World) {
+		const tilePosition = this.tilePosition();
+		const tileX = world.tiles.get(tilePosition.add(Vector.unit(xDirection)));
+		const tileY = world.tiles.get(tilePosition.add(Vector.unit(yDirection)));
+		const tileDiagonal = world.tiles.get(tilePosition.add(Vector.unit(xDirection)).add(Vector.unit(yDirection)));
 		return (tileX === EmptyTile.EMPTY || tileY === EmptyTile.EMPTY) && tileDiagonal === EmptyTile.EMPTY;
 	}
-	spawnSpikeball(x: number, y: number, xDirection: Direction, yDirection: Direction, world: World) {
+	spawnSpikeball(xDirection: Direction, yDirection: Direction, world: World) {
 		const spikeball = new Spikeball(
-			new Vector(x + 1/2, y + 1/2).multiply(WorldData.TILE_SIZE).subtract(SpikeballData.RADIUS, SpikeballData.RADIUS),
+			this.hitbox.center().subtract(SpikeballData.RADIUS, SpikeballData.RADIUS),
 			Vector.unit(xDirection).add(Vector.unit(yDirection)).multiply(SpikeballData.SPEED),
 		);
+		const tilePosition = this.tilePosition();
 		spikeball.overlappingObjects.push(
-			new Vector(x, y),
-			new Vector(x, y).add(Vector.unit(xDirection)),
-			new Vector(x, y).add(Vector.unit(yDirection)),
-			new Vector(x, y).add(Vector.unit(xDirection)).add(Vector.unit(yDirection)),
+			this,
+			tilePosition.add(Vector.unit(xDirection)),
+			tilePosition.add(Vector.unit(yDirection)),
+			tilePosition.add(Vector.unit(xDirection)).add(Vector.unit(yDirection)),
 		);
-		const intersecting = world.entities.collideablesIntersecting(spikeball.hitbox);
+		const intersecting = world.entities.collideablesIntersecting(spikeball.hitbox, (o) => o !== this);
 		if(intersecting.size === 0) {
 			this.spikeballs.push(spikeball);
 			world.entities.addEntity(spikeball);
@@ -201,7 +212,7 @@ export class SpikeballBlock extends Tile {
 	}
 
 	copy() {
-		const copy = new SpikeballBlock([]);
+		const copy = new SpikeballBlock(this.hitbox.getCorner("top-left"));
 		copy.timeUntilSpawn = this.timeUntilSpawn;
 		return copy;
 	}
@@ -210,12 +221,19 @@ export class SpikeballBlock extends Tile {
 	}
 
 	static canSpawn(position: Vector, world: World) {
-		const block = new SpikeballBlock([]);
-		return (
-			block.canSpawnSpikeball(position.x, position.y, "left", "up", world)
-			|| block.canSpawnSpikeball(position.x, position.y, "left", "down", world)
-			|| block.canSpawnSpikeball(position.x, position.y, "right", "up", world)
-			|| block.canSpawnSpikeball(position.x, position.y, "right", "down", world)
-		);
+		const diagonals: [Direction, Direction][] = [
+			["left", "up"],
+			["left", "down"],
+			["right", "up"],
+			["right", "down"],
+		];
+		return diagonals.some(([xDirection, yDirection]) => {
+			const block = SpikeballBlock.atTile(position);
+			return block.canSpawnSpikeball(xDirection, yDirection, world);
+		});
+	}
+
+	tilePosition() {
+		return Tiles.getTileCoordinates(this.hitbox.center());
 	}
 }

@@ -178,11 +178,6 @@ export class World {
 		for(const entity of this.entities.entitiesPossiblyIntersecting(entityRegion)) {
 			entity.displayGlowEffect(canvasIO);
 		}
-		for(const { tile, x, y } of this.entities.allTileEntities()) {
-			if(tile instanceof SpikeballBlock) {
-				tile.displayGlow(canvasIO, x, y);
-			}
-		}
 
 		for(const particle of this.particles) {
 			particle.displayGlow(canvasIO);
@@ -268,7 +263,6 @@ export class World {
 
 	update(canvasIO: CanvasIO) {
 		this.updateEntities(canvasIO);
-		this.updateTiles(canvasIO);
 		this.updateParticles();
 		this.updateGeneration();
 		this.screenShakeTimer --;
@@ -281,14 +275,6 @@ export class World {
 			entity.update(this, canvasIO);
 		}
 		Gate.update(this);
-	}
-	updateTiles(canvasIO: CanvasIO) {
-		const region = this.visibleTileRegion(canvasIO, WorldData.TILE_UPDATE_DISTANCE);
-		for(const { tile, x, y } of this.entities.tileEntitiesIntersecting(region)) {
-			if("update" in tile) {
-				tile.update(this, x, y, canvasIO);
-			}
-		}
 	}
 	updateParticles() {
 		for(const particle of this.particles) {

@@ -9,13 +9,14 @@ import { Directions } from "../../utils-ts/modules/geometry/Direction.mjs";
 import { RectangularCollideable } from "../game-utilities/physics-engine/RectangularCollideable.mjs";
 import { CollisionEvent } from "../game-utilities/physics-engine/CollisionEvent.mjs";
 import { Tile } from "../tiles/Tile.mjs";
+import { SpikeballBlock } from "../tiles/SpikeballBlock.mjs";
 
 export class Spikeball extends RectangularCollideable {
 	velocity: Vector;
 	angle: number = 0;
 	age: number = 0;
 	bounces: number = SpikeballData.BOUNCES;
-	overlappingObjects: (Spikeball | Vector)[] = [];
+	overlappingObjects: (Spikeball | SpikeballBlock | Vector)[] = [];
 
 	constructor(position: Vector, velocity: Vector) {
 		super(new Rectangle(position.x, position.y, 2 * SpikeballData.RADIUS, 2 * SpikeballData.RADIUS));
@@ -23,7 +24,7 @@ export class Spikeball extends RectangularCollideable {
 	}
 
 	collides(object: { x: number, y: number, tile: Tile } | Entity) {
-		if(object instanceof Spikeball) {
+		if(object instanceof Spikeball || object instanceof SpikeballBlock) {
 			return !this.overlappingObjects.includes(object);
 		}
 		else if("tile" in object) {
@@ -95,7 +96,7 @@ export class Spikeball extends RectangularCollideable {
 		this.age ++;
 		if(this.age > (WorldData.TILE_SIZE - 2 * SpikeballData.RADIUS) / SpikeballData.SPEED) {
 			this.overlappingObjects = this.overlappingObjects.filter(s => (
-				(s instanceof Spikeball && s.intersects(this))
+				((s instanceof Spikeball || s instanceof SpikeballBlock) && s.intersects(this))
 				|| (s instanceof Vector && this.hitbox.intersects(Rectangle.square(s.x, s.y, 1).scale(WorldData.TILE_SIZE)))
 			));
 		}

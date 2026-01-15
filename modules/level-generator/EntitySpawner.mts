@@ -152,7 +152,8 @@ export class EntitySpawner {
 				SpikeballBlock.canSpawn,
 			],
 			(position: Vector, world: World) => {
-				world.addTile(position, new SpikeballBlock(ArrayUtils.randomItem(SpikeballBlockData.PATTERNS)));
+				world.tiles.set(position, EmptyTile.EMPTY);
+				world.entities.addEntity(SpikeballBlock.atTile(position, ArrayUtils.randomItem(SpikeballBlockData.PATTERNS)));
 				return true;
 			},
 			safeRegion,

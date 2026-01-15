@@ -12,6 +12,7 @@ import { World } from "../world/World.mjs";
 import { WorldScreen } from "../world/WorldScreen.mjs";
 import { CrawlingMovementData, PointOnSurface, Spider } from "../entities/Spider.mjs";
 import { Gate } from "../tiles/Gate.mjs";
+import { SpikeballBlock } from "../tiles/SpikeballBlock.mjs";
 
 const world = new World(false);
 
@@ -26,6 +27,7 @@ world.entities.addEntity(new Spider(new Vector(0, 0), new CrawlingMovementData(
 world.player.equippedItems[0] = new ThrowableTile([new MovingModifier()]);
 
 world.entities.addEntity(Gate.atTile(new Vector(0, 1), "left", true));
+world.entities.addEntity(SpikeballBlock.atTile(new Vector(-2, 1)));
 
 // debugger;
 // console.log(new Gate(new Vector(8, 4), "left", false));
