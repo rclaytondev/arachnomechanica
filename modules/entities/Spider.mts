@@ -8,7 +8,8 @@ import { GameUtils } from "../game-utilities/GameUtils.mjs";
 import { Collideable } from "../game-utilities/physics-engine/Collideable.mjs";
 import { RectangularCollideable } from "../game-utilities/physics-engine/RectangularCollideable.mjs";
 import { Entities } from "../world/Entities.mjs";
-import { Tiles, TileWithPosition, World } from "../world/World.mjs";
+import { Tiles } from "../world/Tiles.mjs";
+import { TileWithPosition, World } from "../world/World.mjs";
 
 export type Octant = Direction | Diagonal; // convention: the diagonal is the direction of the start of the octant when going around clockwise.
 

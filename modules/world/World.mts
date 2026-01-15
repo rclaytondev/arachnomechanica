@@ -2,7 +2,6 @@ import { CanvasIO } from "../../utils-ts/modules/CanvasIO.mjs";
 import { Direction, Directions } from "../../utils-ts/modules/geometry/Direction.mjs";
 import { Rectangle } from "../../utils-ts/modules/geometry/Rectangle.mjs";
 import { Vector } from "../../utils-ts/modules/geometry/Vector.mjs";
-import { Grid } from "../../utils-ts/modules/Grid.mjs";
 import { BackgroundData, LevelGeneratorData, PlayerData, RoomData, WorldData } from "../constants/GameData.mjs";
 import { Main } from "../Main.mjs";
 import { DEBUG_SETTINGS } from "../constants/DebugSettings.mjs";
@@ -29,16 +28,16 @@ import { ArrayUtils } from "../../utils-ts/modules/core-extensions/ArrayUtils.mj
 import { EmptyTile } from "../tiles/EmptyTile.mjs";
 import { Tile } from "../tiles/Tile.mjs";
 import { Platform } from "../tiles/Platform.mjs";
+import { Tiles } from "./Tiles.mjs";
 
 export type TileEntity = BasicTile | Gate | LaserBlock | SpikeballBlock;
 export type Slope = (typeof WorldData.SLOPES)[number];
 export type TileWithPosition = { x: number, y: number, tile: Tile };
 export type TileEntityWithPosition = { x: number, y: number, tile: TileEntity };
-export type Tiles = Grid<Tile>;
 
 export class World {
-	tiles: Grid<Tile> = new Grid(EmptyTile.EMPTY);
-	originalTiles: Grid<Tile> = new Grid(EmptyTile.EMPTY);
+	tiles: Tiles = new Tiles();
+	originalTiles: Tiles = new Tiles();
 	entities: Entities = new Entities();
 	particles: Particle[] = [];
 	gearsBackground: GearsBackground = GearsBackground.generate();
@@ -547,7 +546,7 @@ export class World {
 	angle(position: Vector, adjacentDirection: Direction, perpendicularDirection: Direction, empty: boolean = true, basicOnly: boolean = true) {
 		return World.angle(position, adjacentDirection, perpendicularDirection, empty, basicOnly, this.tiles);
 	}
-	static angle(position: Vector, adjacentDirection: Direction, perpendicularDirection: Direction, empty: boolean = true, basicOnly: boolean = true, tiles: Grid<Tile>) {
+	static angle(position: Vector, adjacentDirection: Direction, perpendicularDirection: Direction, empty: boolean = true, basicOnly: boolean = true, tiles: Tiles) {
 		/* Returns the angle before encountering a solid/empty, when first moving in `adjacentDirection` and then in `perpendicularDirection` and then in a circle after that. */
 		const tile = tiles.get(position);
 		const adjacent = tiles.get(position.add(Vector.unit(adjacentDirection)));
