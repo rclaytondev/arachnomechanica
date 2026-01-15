@@ -30,10 +30,8 @@ import { Tile } from "../tiles/Tile.mjs";
 import { Platform } from "../tiles/Platform.mjs";
 import { Tiles } from "./Tiles.mjs";
 
-export type TileEntity = SpikeballBlock;
 export type Slope = (typeof WorldData.SLOPES)[number];
 export type TileWithPosition = { x: number, y: number, tile: Tile };
-export type TileEntityWithPosition = { x: number, y: number, tile: TileEntity };
 
 export class World {
 	tiles: Tiles = new Tiles();
@@ -515,7 +513,6 @@ export class World {
 
 
 	destroyTile(position: Vector) {
-		const tile = this.tiles.get(position);
 		this.tiles.set(position, EmptyTile.EMPTY);
 		for(const direction of Directions.DIRECTIONS) {
 			const adjacentPosition = position.add(Vector.unit(direction));
@@ -524,9 +521,6 @@ export class World {
 				this.entities.removeEntity(adjacentGate);
 			}
 		}
-		if(World.isTileEntity(tile)) {
-			this.entities.removeTileEntity(position);
-		}
 	}
 	destroyNonGateTile(position: Vector) {
 		const adjacentGate = Directions.DIRECTIONS.some(d => {
@@ -534,20 +528,13 @@ export class World {
 			return gate instanceof Gate && gate.direction === d;
 		});
 		if(!adjacentGate) {
-			if(World.isTileEntity(this.tiles.get(position))) {
-				this.entities.removeTileEntity(position);
-			}
 			this.tiles.set(position, EmptyTile.EMPTY);
 		}
 	}
 	addTile(position: Vector, tile: Tile) {
 		this.tiles.set(position, tile);
-		if(World.isTileEntity(tile)) {
-			this.entities.addTileEntity(tile, position);
-		}
 	}
 	removeTile(position: Vector) {
-		this.entities.removeTileEntity(position);
 		this.tiles.set(position, EmptyTile.EMPTY);
 	}
 	addOriginalTile(position: Vector, tile: Tile) {
@@ -589,9 +576,6 @@ export class World {
 	}
 	static isFullBasicTile(value: unknown): value is BasicTile & { shape: "full" } {
 		return value instanceof BasicTile && value.shape === "full";
-	}
-	static isTileEntity(value: unknown): value is TileEntity {
-		return value instanceof LaserBlock || value instanceof SpikeballBlock;
 	}
 	static isFullTile(tile: Tile) {
 		return (
