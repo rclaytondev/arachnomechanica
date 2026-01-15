@@ -1,3 +1,5 @@
+console.log("Initializer");
+
 import { canvasIO } from "../../utils-ts/modules/CanvasIO.mjs";
 import { Debug } from "../game-utilities/Debug.mjs";
 import { GameUtils } from "../game-utilities/GameUtils.mjs";

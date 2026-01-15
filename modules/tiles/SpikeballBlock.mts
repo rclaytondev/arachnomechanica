@@ -8,8 +8,9 @@ import { World } from "../world/World.mjs";
 import { Diagonal } from "../../utils-ts/modules/geometry/Direction.mjs";
 import { Particle } from "../game-utilities/Particle.mjs";
 import { EmptyTile } from "./EmptyTile.mjs";
+import { Tile } from "./Tile.mjs";
 
-export class SpikeballBlock {
+export class SpikeballBlock extends Tile {
 	timeUntilSpawn: number = 0;
 	timeSinceSpawn: number = 0;
 	pattern: SpikeballPattern;
@@ -23,6 +24,7 @@ export class SpikeballBlock {
 	};
 
 	constructor(pattern: SpikeballPattern = SpikeballBlockData.PATTERNS[0]) {
+		super();
 		this.pattern = pattern;
 	}
 
@@ -212,5 +214,9 @@ export class SpikeballBlock {
 			|| block.canSpawnSpikeball(position.x, position.y, "right", "up", world)
 			|| block.canSpawnSpikeball(position.x, position.y, "right", "down", world)
 		);
+	}
+
+	angularMotionBlockers(tilePosition: Vector, point: Vector): (Direction | Diagonal)[] {
+		return Tile.fullAngularMotionBlockers(tilePosition, point);
 	}
 }

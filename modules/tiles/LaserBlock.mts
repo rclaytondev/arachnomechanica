@@ -1,4 +1,5 @@
 import { CanvasIO } from "../../utils-ts/modules/CanvasIO.mjs";
+import { Direction, Diagonal } from "../../utils-ts/modules/geometry/Direction.mjs";
 import { Rectangle } from "../../utils-ts/modules/geometry/Rectangle.mjs";
 import { Vector } from "../../utils-ts/modules/geometry/Vector.mjs";
 import { MathUtils } from "../../utils-ts/modules/math/MathUtils.mjs";
@@ -6,8 +7,9 @@ import { LaserBlockData, WorldData } from "../constants/GameData.mjs";
 import { GameUtils } from "../game-utilities/GameUtils.mjs";
 import { Particle } from "../game-utilities/Particle.mjs";
 import { World } from "../world/World.mjs";
+import { Tile } from "./Tile.mjs";
 
-export class LaserBlock {
+export class LaserBlock extends Tile {
 	lasers: number;
 	speed: number;
 	startAngle: number;
@@ -22,6 +24,7 @@ export class LaserBlock {
 	}
 
 	constructor(lasers: number, speed: number, startAngle: number, direction: 1 | -1) {
+		super();
 		this.lasers = lasers;
 		this.speed = speed;
 		this.startAngle = startAngle;
@@ -183,5 +186,9 @@ export class LaserBlock {
 		);
 		world.tiles.set(position, previousTile);
 		return result;
+	}
+
+	angularMotionBlockers(tilePosition: Vector, point: Vector): (Direction | Diagonal)[] {
+		return Tile.fullAngularMotionBlockers(tilePosition, point);
 	}
 }

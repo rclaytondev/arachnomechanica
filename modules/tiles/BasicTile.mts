@@ -1,4 +1,5 @@
 import { CanvasIO } from "../../utils-ts/modules/CanvasIO.mjs";
+import { Direction, Diagonal } from "../../utils-ts/modules/geometry/Direction.mjs";
 import { Vector } from "../../utils-ts/modules/geometry/Vector.mjs";
 import { MathUtils } from "../../utils-ts/modules/math/MathUtils.mjs";
 import { WorldData } from "../constants/GameData.mjs";
@@ -55,5 +56,9 @@ export class BasicTile extends Tile {
 		canvasIO.ctx.beginPath();
 		this.addToPath(new Vector(x, y), canvasIO);
 		canvasIO.ctx.fill();
+	}
+
+	angularMotionBlockers(tilePosition: Vector, point: Vector): (Direction | Diagonal)[] {
+		return Tile.fullAngularMotionBlockers(tilePosition, point);
 	}
 }

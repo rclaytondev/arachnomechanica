@@ -1,4 +1,6 @@
 import { CanvasIO } from "../../utils-ts/modules/CanvasIO.mjs";
+import { Direction, Diagonal } from "../../utils-ts/modules/geometry/Direction.mjs";
+import { Vector } from "../../utils-ts/modules/geometry/Vector.mjs";
 import { WorldData } from "../constants/GameData.mjs";
 import { World } from "../world/World.mjs";
 import { Tile } from "./Tile.mjs";
@@ -30,5 +32,17 @@ export class Platform extends Tile {
 
 	copy() {
 		return this;
+	}
+
+	angularMotionBlockers(tilePosition: Vector, point: Vector, direction: "clockwise" | "counterclockwise"): (Direction | Diagonal)[] {
+		const onTop = (
+			point.x >= tilePosition.x * WorldData.TILE_SIZE
+			&& point.x <= (tilePosition.x + 1) * WorldData.TILE_SIZE
+			&& point.y === tilePosition.y * WorldData.TILE_SIZE
+		);
+		if(onTop) {
+			return (direction === "clockwise") ? ["right"] : ["left"];
+		}
+		return [];
 	}
 }

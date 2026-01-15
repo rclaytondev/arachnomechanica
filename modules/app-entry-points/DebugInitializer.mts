@@ -11,11 +11,13 @@ import { BasicTile } from "../tiles/BasicTile.mjs";
 import { World } from "../world/World.mjs";
 import { WorldScreen } from "../world/WorldScreen.mjs";
 import { CrawlingMovementData, PointOnSurface, Spider } from "../entities/Spider.mjs";
+import { Platform } from "../tiles/Platform.mjs";
 
 const world = new World(false);
 
 world.tiles.fillRect(new Rectangle(-2, 4, 3, 2), new BasicTile("full", "tower"));
 world.tiles.fillRect(new Rectangle(0, 1, 1, 1), new BasicTile("full", "tower"));
+world.tiles.set(1, 4, Platform.PLATFORM);
 // Spider.spawn(new Vector(3, 3), world);
 world.entities.addEntity(new Spider(new Vector(0, 0), new CrawlingMovementData(
 	new PointOnSurface(new Vector(0, 4 * 50), "up"),

@@ -1,5 +1,5 @@
 import { CanvasIO } from "../../utils-ts/modules/CanvasIO.mjs";
-import { Direction, Directions } from "../../utils-ts/modules/geometry/Direction.mjs";
+import { Diagonal, Direction, Directions } from "../../utils-ts/modules/geometry/Direction.mjs";
 import { Rectangle } from "../../utils-ts/modules/geometry/Rectangle.mjs";
 import { Vector } from "../../utils-ts/modules/geometry/Vector.mjs";
 import { GateData, WorldData } from "../constants/GameData.mjs";
@@ -8,8 +8,10 @@ import { Entity } from "../game-utilities/Entity.mjs";
 import { GameUtils } from "../game-utilities/GameUtils.mjs";
 import { Player } from "../Player.mjs";
 import { TileWithPosition, World } from "../world/World.mjs";
+import { Tile } from "./Tile.mjs";
+import { Octants } from "../entities/Octant.mjs";
 
-export class Gate {
+export class Gate extends Tile {
 	static cooldown = 0;
 	static open = false;
 	static openness = 0;
@@ -31,6 +33,7 @@ export class Gate {
 	openness: number;
 
 	constructor(direction: Direction, toggled: boolean) {
+		super();
 		this.direction = direction;
 		this.toggled = toggled;
 		this.openness = toggled ? 0 : 1;
@@ -184,5 +187,11 @@ export class Gate {
 		result.playerSide = this.playerSide;
 		result.lastFrameUpdated = this.lastFrameUpdated;
 		return result;
+	}
+
+	angularMotionBlockers(tilePosition: Vector, point: Vector): (Direction | Diagonal)[] {
+		const rect = this.getPhysicsBox(tilePosition.x, tilePosition.y);
+		const octants = Octants.octantsOfRect(point, rect);
+		return Tile.angularMotionBlockersFromOctants(octants);
 	}
 }
