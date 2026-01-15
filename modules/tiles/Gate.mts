@@ -180,13 +180,12 @@ export class Gate extends RectangularCollideable {
 	}
 
 	initialize(player: Player) {
-		const center = player.hitbox.center();
 		const gate = this.hitbox.center();
 		if(Directions.isVertical(this.direction)) {
-			this.playerSide = center.x < (gate.x + 1/2) * WorldData.TILE_SIZE ? "negative" : "positive";
+			this.playerSide = player.hitbox.center().x < gate.x ? "negative" : "positive";
 		}
 		else {
-			this.playerSide = center.y < (gate.y + 1/2) * WorldData.TILE_SIZE ? "negative" : "positive";
+			this.playerSide = player.hitbox.center().y < gate.y ? "negative" : "positive";
 		}
 	}
 	copy() {
