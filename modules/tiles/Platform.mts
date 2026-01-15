@@ -31,4 +31,7 @@ export class Platform extends Tile {
 	copy() {
 		return this;
 	}
+	reflect(): Platform {
+		return this;
+	}
 }

@@ -43,6 +43,9 @@ export class LaserBlock extends Tile {
 	copy() {
 		return new LaserBlock(this.lasers, this.speed, this.startAngle, this.direction);
 	}
+	reflect(): LaserBlock {
+		return this;
+	}
 
 	display(canvasIO: CanvasIO, x: number, y: number) {
 		canvasIO.ctx.fillStyle = LaserBlockData.TILE_COLOR;

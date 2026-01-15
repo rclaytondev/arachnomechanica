@@ -205,6 +205,9 @@ export class SpikeballBlock extends Tile {
 		copy.timeUntilSpawn = this.timeUntilSpawn;
 		return copy;
 	}
+	reflect(): Tile {
+		return this;
+	}
 
 	static canSpawn(position: Vector, world: World) {
 		const block = new SpikeballBlock([]);

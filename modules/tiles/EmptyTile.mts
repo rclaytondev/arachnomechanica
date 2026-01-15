@@ -11,4 +11,7 @@ export class EmptyTile extends Tile {
 	copy() {
 		return this;
 	}
+	reflect(): EmptyTile {
+		return this;
+	}
 }

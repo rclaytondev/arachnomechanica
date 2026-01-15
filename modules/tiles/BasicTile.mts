@@ -18,6 +18,16 @@ export class BasicTile extends Tile {
 	copy() {
 		return new BasicTile(this.shape, this.texture);
 	}
+	reflect(): BasicTile {
+		const reflections: { [key: string]: "full" | Slope } = {
+			"full": "full",
+			"slope-floor-left": "slope-floor-right",
+			"slope-floor-right": "slope-floor-left",
+			"slope-ceiling-left": "slope-ceiling-right",
+			"slope-ceiling-right": "slope-ceiling-left",
+		};
+		return new BasicTile(reflections[this.shape], this.texture);
+	}
 	equals(tile: unknown) {
 		return tile instanceof BasicTile && this.shape === tile.shape && this.texture === tile.texture;
 	}

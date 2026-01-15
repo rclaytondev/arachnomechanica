@@ -683,31 +683,6 @@ export class World {
 			|| (includePlaforms && tile === Platform.PLATFORM)
 		);
 	}
-	static reflectTile(tile: Tile) {
-		if(tile === EmptyTile.EMPTY || tile === Platform.PLATFORM) {
-			return tile;
-		}
-		else if(tile instanceof BasicTile && World.isSlopeTile(tile)) {
-			const reflections: { [key: string]: Slope } = {
-				"slope-floor-left": "slope-floor-right",
-				"slope-floor-right": "slope-floor-left",
-				"slope-ceiling-left": "slope-ceiling-right",
-				"slope-ceiling-right": "slope-ceiling-left",
-			};
-			return new BasicTile(reflections[tile.shape], tile.texture);
-		}
-		else if(tile instanceof BasicTile) {
-			return tile;
-		}
-		else if(tile instanceof Gate) {
-			const result = tile.copy();
-			result.direction = Directions.reflectX[result.direction];
-			return result;
-		}
-		else {
-			throw new Error("Cannot reflect tile.");
-		}
-	}
 	static isEdgeBasicSolid(tile: Tile, direction: Direction) {
 		if(tile instanceof BasicTile && World.isSlope(tile.shape)) {
 			const edges = ({

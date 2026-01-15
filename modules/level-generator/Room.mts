@@ -102,7 +102,7 @@ export class Room {
 			for(let y = 0; y < RoomData.SIZE; y ++) {
 				const reflectedX = RoomData.SIZE - x - 1;
 				const tile = this.tiles.get(x, y);
-				reflected.tiles.set(reflectedX, y, World.reflectTile(tile));
+				reflected.tiles.set(reflectedX, y, tile.reflect());
 
 				const exitTile = this.exitTiles.get(x, y);
 				if(exitTile !== "none") {

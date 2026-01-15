@@ -187,4 +187,9 @@ export class Gate extends Tile {
 		result.lastFrameUpdated = this.lastFrameUpdated;
 		return result;
 	}
+	reflect(): Gate {
+		const result = this.copy();
+		result.direction = Directions.reflectX[result.direction];
+		return result;
+	}
 }
