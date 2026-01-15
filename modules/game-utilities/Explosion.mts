@@ -65,7 +65,7 @@ export class Explosion {
 			this.destructionRadius * 2,
 			this.destructionRadius * 2,
 		);
-		for(const { position } of world.getTilesAt(tileExplosion)) {
+		for(const { position } of world.tiles.getTilesAt(tileExplosion)) {
 			world.destroyNonGateTile(position);
 		}
 	}

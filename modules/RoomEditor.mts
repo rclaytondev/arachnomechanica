@@ -14,6 +14,7 @@ import { BasicTile } from "./tiles/BasicTile.mjs";
 import { EmptyTile } from "./tiles/EmptyTile.mjs";
 import { Platform } from "./tiles/Platform.mjs";
 import { Tile } from "./tiles/Tile.mjs";
+import { Tiles } from "./world/Tiles.mjs";
 
 export class RoomEditor {
 	room: Room;
@@ -51,7 +52,7 @@ export class RoomEditor {
 	}
 	checkForClicks(canvasIO: CanvasIO) {
 		if(!canvasIO.mouse.pressed) { return; }
-		const position = this.world.getTileCoordinates(canvasIO.mouse.position);
+		const position = Tiles.getTileCoordinates(canvasIO.mouse.position);
 		if(canvasIO.mouse.button === "left") {
 			if(this.mode === "solid") {
 				this.setTile(position, canvasIO.mouse.button === "left" ? new BasicTile("full", "tower") : EmptyTile.EMPTY);
@@ -104,7 +105,7 @@ export class RoomEditor {
 		}
 	}
 	getPortalPosition(tilePosition: Vector) {
-		return this.world.getTileCoordinates(tilePosition.multiply(WorldData.TILE_SIZE).add(PortalData.WIDTH / 2, 0))
+		return Tiles.getTileCoordinates(tilePosition.multiply(WorldData.TILE_SIZE).add(PortalData.WIDTH / 2, 0))
 			.add(0, 1).multiply(WorldData.TILE_SIZE);
 	}
 	setTile(position: Vector, tile: RoomTile) {
@@ -164,7 +165,7 @@ export class RoomEditor {
 
 
 	displayHoveredTile(canvasIO: CanvasIO) {
-		const position = this.world.getTileCoordinates(canvasIO.mouse.position).multiply(WorldData.TILE_SIZE);
+		const position = Tiles.getTileCoordinates(canvasIO.mouse.position).multiply(WorldData.TILE_SIZE);
 		canvasIO.ctx.strokeStyle = DEBUG_SETTINGS.HOVERED_TILE_COLOR;
 		canvasIO.ctx.strokeRect(position.x, position.y, WorldData.TILE_SIZE, WorldData.TILE_SIZE);
 	}

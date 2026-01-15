@@ -132,7 +132,7 @@ export class FireSpawner {
 	updateHurtbox(world: World, canvasIO: CanvasIO) {
 		if(this.hurtboxSize === 0) { return; }
 		const hurtbox = this.hurtbox();
-		for(const { position, tile } of world.getTilesAt(hurtbox)) {
+		for(const { position, tile } of world.tiles.getTilesAt(hurtbox)) {
 			if(this.shouldDestroy(tile)){
 				world.destroyTile(position);
 			}

@@ -14,6 +14,7 @@ import { Particle } from "../game-utilities/Particle.mjs";
 import { ArrayUtils } from "../../utils-ts/modules/core-extensions/ArrayUtils.mjs";
 import { InvisibleRectangle } from "../game-utilities/physics-engine/InvisibleRectangle.mjs";
 import { EmptyTile } from "../tiles/EmptyTile.mjs";
+import { Tiles } from "../world/Tiles.mjs";
 
 type Joint = { position: Vector, direction: Direction };
 
@@ -256,7 +257,7 @@ export class Lizard extends Collideable {
 				this.turn(counterclockwise);
 			}
 			else {
-				const tileCoordinates = world.getTileCoordinates(lookaheadPoint);
+				const tileCoordinates = Tiles.getTileCoordinates(lookaheadPoint);
 				this.turn((tileCoordinates.x + tileCoordinates.y) % 2 === 0 ? clockwise : counterclockwise);
 			}
 		}
@@ -465,7 +466,7 @@ export class Lizard extends Collideable {
 	}
 	isObstructed(world: World, direction: Direction = this.direction, distance: number = LizardData.LOOKAHEAD_DISTANCE, length: number = 1) {
 		const lookaheadRectangle = this.lookaheadRectangle(direction, distance, length);
-		for(const { tile } of world.getTilesAt(lookaheadRectangle)) {
+		for(const { tile } of world.tiles.getTilesAt(lookaheadRectangle)) {
 			if(World.isSemifullTile(tile, direction === "down")) {
 				return true;
 			}

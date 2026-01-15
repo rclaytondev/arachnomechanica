@@ -337,32 +337,6 @@ export class World {
 		}
 	}
 
-	getTileX(onscreenX: number) {
-		return Math.floor(onscreenX / WorldData.TILE_SIZE);
-	}
-	getTileY(onscreenY: number) {
-		return Math.floor(onscreenY / WorldData.TILE_SIZE);
-	}
-	getTileCoordinates(onscreenPosition: Vector) {
-		return new Vector(
-			Math.floor(onscreenPosition.x / WorldData.TILE_SIZE),
-			Math.floor(onscreenPosition.y / WorldData.TILE_SIZE),
-		);
-	}
-	getTileAt(onscreenPosition: Vector) {
-		return this.tiles.get(this.getTileCoordinates(onscreenPosition));
-	}
-	*getTilesAt(rectangle: Rectangle) {
-		const left = this.getTileX(rectangle.left());
-		const right = this.getTileX(rectangle.right() - 1);
-		const top = this.getTileY(rectangle.top());
-		const bottom = this.getTileY(rectangle.bottom() - 1);
-		for(let x = left; x <= right; x ++) {
-			for(let y = top; y <= bottom; y ++) {
-				yield { position: new Vector(x, y), tile: this.tiles.get(x, y) };
-			}
-		}
-	}
 	slopeIntersectionDistance(rectangle: Rectangle, position: Vector, slope: Slope) {
 		const tileRectangle = Rectangle.square(position.x, position.y, 1).scale(WorldData.TILE_SIZE);
 		if(!rectangle.intersects(tileRectangle)) { return -Infinity; }
@@ -406,7 +380,7 @@ export class World {
 	}
 	collidingTiles(rectangle: Rectangle, collides: (object: { x: number, y: number, tile: Tile } | Entity) => boolean = () => true) {
 		const tiles = [];
-		for(const { position, tile } of this.getTilesAt(rectangle)) {
+		for(const { position, tile } of this.tiles.getTilesAt(rectangle)) {
 			const { x, y } = position;
 			if(collides({ x, y, tile }) && (
 				tile instanceof BasicTile && tile.shape === "full" ||
@@ -476,7 +450,7 @@ export class World {
 		return GameUtils.rayIntersectsSegment(position, direction, tileBox.getCorner(endpoints[0]), tileBox.getCorner(endpoints[1]));
 	}
 	tileIntersectionDistance(position: Vector, direction: Vector, maxDistance: number, ignoredTiles: Tile[] = []) {
-		const tilePosition = this.getTileCoordinates(position);
+		const tilePosition = Tiles.getTileCoordinates(position);
 		let result = maxDistance;
 		for(let x = (direction.x >= 0) ? tilePosition.x + 1 : tilePosition.x; true; x += (direction.x >= 0) ? 1 : -1) {
 			if(direction.x === 0) { break; }
