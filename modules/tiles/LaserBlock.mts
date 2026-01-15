@@ -6,8 +6,9 @@ import { LaserBlockData, WorldData } from "../constants/GameData.mjs";
 import { GameUtils } from "../game-utilities/GameUtils.mjs";
 import { Particle } from "../game-utilities/Particle.mjs";
 import { World } from "../world/World.mjs";
+import { Tile } from "./Tile.mjs";
 
-export class LaserBlock {
+export class LaserBlock extends Tile {
 	lasers: number;
 	speed: number;
 	startAngle: number;
@@ -22,6 +23,7 @@ export class LaserBlock {
 	}
 
 	constructor(lasers: number, speed: number, startAngle: number, direction: 1 | -1) {
+		super();
 		this.lasers = lasers;
 		this.speed = speed;
 		this.startAngle = startAngle;

@@ -8,8 +8,9 @@ import { Entity } from "../game-utilities/Entity.mjs";
 import { GameUtils } from "../game-utilities/GameUtils.mjs";
 import { Player } from "../Player.mjs";
 import { TileWithPosition, World } from "../world/World.mjs";
+import { Tile } from "./Tile.mjs";
 
-export class Gate {
+export class Gate extends Tile {
 	static cooldown = 0;
 	static open = false;
 	static openness = 0;
@@ -31,6 +32,7 @@ export class Gate {
 	openness: number;
 
 	constructor(direction: Direction, toggled: boolean) {
+		super();
 		this.direction = direction;
 		this.toggled = toggled;
 		this.openness = toggled ? 0 : 1;
