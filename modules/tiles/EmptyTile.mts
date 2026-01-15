@@ -11,8 +11,4 @@ export class EmptyTile extends Tile {
 	copy() {
 		return this;
 	}
-
-	angularMotionBlockers() {
-		return [];
-	}
 }

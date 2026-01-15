@@ -1,8 +1,7 @@
 import { assert } from "chai";
 import { Vector } from "../../utils-ts/modules/geometry/Vector.mjs";
 import { WorldData } from "../constants/GameData.mjs";
-import { PointOnSurface } from "../entities/Spider.mjs";
-import { Octants } from "../entities/Octant.mjs";
+import { Octants, PointOnSurface } from "../entities/Spider.mjs";
 import { BasicTile } from "../tiles/BasicTile.mjs";
 import { World } from "../world/World.mjs";
 import { Directions } from "../../utils-ts/modules/geometry/Direction.mjs";
