@@ -2,7 +2,6 @@ import { CanvasIO } from "../../utils-ts/modules/CanvasIO.mjs";
 import { Direction, Directions } from "../../utils-ts/modules/geometry/Direction.mjs";
 import { Rectangle } from "../../utils-ts/modules/geometry/Rectangle.mjs";
 import { Vector } from "../../utils-ts/modules/geometry/Vector.mjs";
-import { Gate } from "../tiles/Gate.mjs";
 import { Platform } from "../tiles/Platform.mjs";
 import { Tile } from "../tiles/Tile.mjs";
 import { World } from "../world/World.mjs";
@@ -125,8 +124,7 @@ export class FireSpawner {
 	}
 	shouldDestroy(tile: Tile) {
 		return !(
-			(tile === Platform.PLATFORM && this.direction !== "down") ||
-			(tile instanceof Gate && tile.openness >= 1)
+			(tile === Platform.PLATFORM && this.direction !== "down")
 		);
 	}
 	updateHurtbox(world: World, canvasIO: CanvasIO) {

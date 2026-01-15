@@ -77,7 +77,7 @@ export class EntitySpawner {
 			Directions.DIRECTIONS.filter(d => world.tiles.get(position.add(Vector.unit(d))) === EmptyTile.EMPTY).length >= 2
 		),
 		noAdjacentGates: (position: Vector, world: World) => (
-			!position.adjacentVectors().some(v => world.tiles.get(v) instanceof Gate)
+			!position.adjacentVectors().some(v => Gate.isGateAt(v, world))
 		),
 		atLeastLine3Empty: (position: Vector, world: World) => {
 			for(const direction of Directions.DIRECTIONS) {

@@ -7,7 +7,6 @@ import { MathUtils } from "../../utils-ts/modules/math/MathUtils.mjs";
 import { DEBUG_SETTINGS } from "../constants/DebugSettings.mjs";
 import { LevelGeneratorData, RoomData } from "../constants/GameData.mjs";
 import { GameUtils } from "../game-utilities/GameUtils.mjs";
-import { Gate } from "../tiles/Gate.mjs";
 import { BasicTile } from "../tiles/BasicTile.mjs";
 import { World } from "../world/World.mjs";
 import { GateState } from "./GateState.mjs";
@@ -175,7 +174,7 @@ export class WorldGenerator {
 		const possibleRooms = MapUtils.groupBy(
 			ROOMS.filter(r => (
 				r.canSpawnWithExits(roomPlaceholder.exits)
-				&& r.entities.length === 0
+				&& r.isOrdinaryRoom()
 			)),
 			r => Room.connectivity(r.traversability, roomPlaceholder.exits),
 		);
@@ -404,9 +403,6 @@ export class WorldGenerator {
 			const exitTile = roomPlaceholder.room.exitTiles.get(tilePosition);
 			if(tile instanceof BasicTile || tile === Platform.PLATFORM || (exitTile !== "none" && !roomPlaceholder.exits.has(exitTile as Direction))) {
 				canvasIO.ctx.fillStyle = "black";
-			}
-			else if(tile instanceof Gate) {
-				canvasIO.ctx.fillStyle = tile.open ? "green" : "red";
 			}
 			else { continue; }
 			canvasIO.fillSquare(

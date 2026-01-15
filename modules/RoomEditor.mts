@@ -63,15 +63,19 @@ export class RoomEditor {
 			else if(this.mode === "exit" && Directions.isDirection(this.direction)) {
 				this.room.exitTiles.set(position, this.direction);
 			}
-			else if(this.mode === "gate-open" && Directions.isDirection(this.direction)) {
-				this.setTile(position, new Gate(this.direction, true));
-			}
-			else if(this.mode === "gate-closed" && Directions.isDirection(this.direction)) {
-				this.setTile(position, new Gate(this.direction, false));
+			else if((this.mode === "gate-open" || this.mode === "gate-closed") && Directions.isDirection(this.direction)) {
+				this.setTile(position, Gate.atTile(position, this.direction, true));
+				const gateExists = Gate.isGateAt(position, this.world);
+				if(!gateExists) {
+					const gate = Gate.atTile(position, this.direction, (this.mode === "gate-open"));
+					this.room.entities.push(gate);
+					this.world.entities.addEntity(gate);
+				}
 			}
 			else if(this.mode === "portal") {
 				const portalPosition = this.getPortalPosition(position);
 				if(!this.room.entities.some(p => p instanceof Portal && p.position.equals(portalPosition))) {
+					// TODO: refactor this! (extract a method RoomEditor.addEntity)
 					this.room.entities.push(new Portal(portalPosition));
 					this.world.entities.addEntity(new Portal(portalPosition));
 				}
@@ -100,6 +104,13 @@ export class RoomEditor {
 					if(entity instanceof Portal && entity.position.equals(portalPosition)) {
 						this.world.entities.removeEntity(entity);
 					}
+				}
+			}
+			// TODO: refactor this! (extract a method removeEntities)
+			this.room.entities = this.room.entities.filter(e => !(e instanceof Gate && e.tilePosition().equals(position)));
+			for(const entity of this.world.entities.allEntities()) {
+				if(entity instanceof Gate && entity.tilePosition().equals(position)) {
+					this.world.entities.removeEntity(entity);
 				}
 			}
 		}
@@ -209,9 +220,6 @@ export class RoomEditor {
 		else if(tile instanceof BasicTile) {
 			return `"${tile.shape === "full" ? "solid" : tile.shape}"`;
 		}
-		else if(tile instanceof Gate) {
-			return `new Gate("${tile.direction}", ${tile.open})`;
-		}
 		else {
 			throw new Error("Found unexpected tile in level editor.");
 		}
@@ -229,6 +237,10 @@ export class RoomEditor {
 		for(const entity of this.room.entities) {
 			if(entity instanceof Portal) {
 				result += `\tnew Portal(new Vector${entity.position}),\n`;
+			}
+			else if(entity instanceof Gate) {
+				const position = entity.tilePosition();
+				result += `\tGate.atTile(new Vector(${position.x}, ${position.y}), "${entity.direction}", ${entity.toggled}),\n`;
 			}
 		}
 		result += "],";

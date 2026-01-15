@@ -11,11 +11,12 @@ import { BasicTile } from "../tiles/BasicTile.mjs";
 import { World } from "../world/World.mjs";
 import { WorldScreen } from "../world/WorldScreen.mjs";
 import { CrawlingMovementData, PointOnSurface, Spider } from "../entities/Spider.mjs";
+import { Gate } from "../tiles/Gate.mjs";
 
 const world = new World(false);
 
 world.tiles.fillRect(new Rectangle(-2, 4, 3, 2), new BasicTile("full", "tower"));
-world.tiles.fillRect(new Rectangle(0, 1, 1, 1), new BasicTile("full", "tower"));
+world.tiles.fillRect(new Rectangle(-1, 1, 1, 1), new BasicTile("full", "tower"));
 // Spider.spawn(new Vector(3, 3), world);
 world.entities.addEntity(new Spider(new Vector(0, 0), new CrawlingMovementData(
 	new PointOnSurface(new Vector(0, 4 * 50), "up"),
@@ -23,6 +24,11 @@ world.entities.addEntity(new Spider(new Vector(0, 0), new CrawlingMovementData(
 )));
 
 world.player.equippedItems[0] = new ThrowableTile([new MovingModifier()]);
+
+world.entities.addEntity(Gate.atTile(new Vector(0, 1), "left", true));
+
+// debugger;
+// console.log(new Gate(new Vector(8, 4), "left", false));
 
 Main.screen = new WorldScreen(world);
 if(DEBUG_SETTINGS.GENERATOR_VISUALIZATION.ENABLED && Main.screen instanceof WorldScreen) {

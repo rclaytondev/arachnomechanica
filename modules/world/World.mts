@@ -30,7 +30,7 @@ import { Tile } from "../tiles/Tile.mjs";
 import { Platform } from "../tiles/Platform.mjs";
 import { Tiles } from "./Tiles.mjs";
 
-export type TileEntity = BasicTile | Gate | LaserBlock | SpikeballBlock;
+export type TileEntity = LaserBlock | SpikeballBlock;
 export type Slope = (typeof WorldData.SLOPES)[number];
 export type TileWithPosition = { x: number, y: number, tile: Tile };
 export type TileEntityWithPosition = { x: number, y: number, tile: TileEntity };
@@ -302,6 +302,7 @@ export class World {
 		for(const entity of this.entities.entitiesPossiblyIntersecting(region)) {
 			entity.update(this, canvasIO);
 		}
+		Gate.update(this);
 	}
 	updateTiles(canvasIO: CanvasIO) {
 		const region = this.visibleTileRegion(canvasIO, WorldData.TILE_UPDATE_DISTANCE);
@@ -310,7 +311,6 @@ export class World {
 				tile.update(this, x, y, canvasIO);
 			}
 		}
-		Gate.update(this);
 	}
 	updateParticles() {
 		for(const particle of this.particles) {
@@ -384,7 +384,6 @@ export class World {
 			const { x, y } = position;
 			if(collides({ x, y, tile }) && (
 				tile instanceof BasicTile && tile.shape === "full" ||
-				(tile instanceof Gate && tile.openness !== 1 && rectangle.interiorIntersects(tile.getPhysicsBox(x, y))) ||
 				tile instanceof LaserBlock ||
 				tile instanceof SpikeballBlock ||
 				(World.isSlopeTile(tile) && this.intersectsSlope(rectangle, position, tile.shape))
@@ -418,10 +417,7 @@ export class World {
 
 		for(const position of [tilePosition, adjacentPosition]) {
 			const tile = this.tiles.get(position);
-			if(!ignoredTiles.includes(tile) && (
-				World.isFullTile(tile) ||
-				tile instanceof Gate && tile.getPhysicsBox(position.x, position.y).contains(worldPosition)
-			)) { return true; }
+			if(!ignoredTiles.includes(tile) && World.isFullTile(tile)) { return true; }
 		}
 		return false;
 	}
@@ -559,12 +555,9 @@ export class World {
 		this.tiles.set(position, EmptyTile.EMPTY);
 		for(const direction of Directions.DIRECTIONS) {
 			const adjacentPosition = position.add(Vector.unit(direction));
-			const adjacentTile = this.tiles.get(adjacentPosition);
-			if(adjacentTile instanceof Gate && adjacentTile.direction === Directions.opposite[direction]) {
-				this.destroyTile(adjacentPosition);
-			}
-			else if(tile instanceof BasicTile && tile.shape === "full" && adjacentTile instanceof Gate && adjacentTile.direction === direction) {
-				this.destroyTile(adjacentPosition);
+			const adjacentGate = Gate.getGateAt(adjacentPosition, this);
+			if(adjacentGate instanceof Gate && adjacentGate.direction === Directions.opposite[direction]) {
+				this.entities.removeEntity(adjacentGate);
 			}
 		}
 		if(World.isTileEntity(tile)) {
@@ -572,12 +565,11 @@ export class World {
 		}
 	}
 	destroyNonGateTile(position: Vector) {
-		const isGate = this.tiles.get(position) instanceof Gate;
 		const adjacentGate = Directions.DIRECTIONS.some(d => {
-			const tile = this.tiles.get(position.add(Vector.unit(d)));
-			return tile instanceof Gate && tile.direction === d;
+			const gate = Gate.getGateAt(position.add(Vector.unit(d)), this);
+			return gate instanceof Gate && gate.direction === d;
 		});
-		if(!isGate && !adjacentGate) {
+		if(!adjacentGate) {
 			if(World.isTileEntity(this.tiles.get(position))) {
 				this.entities.removeTileEntity(position);
 			}
@@ -635,19 +627,17 @@ export class World {
 		return value instanceof BasicTile && value.shape === "full";
 	}
 	static isTileEntity(value: unknown): value is TileEntity {
-		return value instanceof Gate || value instanceof LaserBlock || value instanceof SpikeballBlock;
+		return value instanceof LaserBlock || value instanceof SpikeballBlock;
 	}
 	static isFullTile(tile: Tile) {
 		return (
 			tile instanceof BasicTile && tile.shape === "full"
-			|| (tile instanceof Gate && tile.openness === 0)
 			|| tile instanceof LaserBlock || tile instanceof SpikeballBlock
 		);
 	}
 	static isSemifullTile(tile: Tile, includePlaforms: boolean = false) {
 		return (
 			World.isFullTile(tile)
-			|| (tile instanceof Gate && tile.openness !== 1)
 			|| tile instanceof BasicTile
 			|| (includePlaforms && tile === Platform.PLATFORM)
 		);
@@ -669,7 +659,6 @@ export class World {
 		return !basicOnly && (
 			(tile instanceof LaserBlock || tile instanceof SpikeballBlock)
 			|| (tile === Platform.PLATFORM && direction === "up")
-			|| (tile instanceof Gate && tile.openness === 0)
 		);
 	}
 

@@ -15,7 +15,7 @@ import { EmptyTile } from "../tiles/EmptyTile.mjs";
 import { Platform } from "../tiles/Platform.mjs";
 
 export type Traversability = { start: GateState, end: GateState }[];
-export type RoomTile = EmptyTile | Platform | BasicTile | Gate;
+export type RoomTile = EmptyTile | Platform | BasicTile;
 
 export class Room {
 	originalName: string;
@@ -24,9 +24,9 @@ export class Room {
 	canSpawnWithExits: (exits: Set<Direction>) => boolean;
 	exitTiles: Grid<Direction | "none">;
 	traversability: Traversability;
-	entities: (Portal | SpawnPoint | HealthPickup)[];
+	entities: (Portal | SpawnPoint | HealthPickup | Gate)[];
 
-	constructor(name: string, tiles: { x: number, y: number, type: | "solid" | "platform" | Slope | Gate }[] | Grid<RoomTile>, exitTiles: { x: number, y: number, direction: Direction }[] | Grid<Direction | "none">, entities: (Portal | SpawnPoint | HealthPickup)[] = [], canSpawnWithExits: (exits: Set<Direction>) => boolean, traversability?: Traversability) {
+	constructor(name: string, tiles: { x: number, y: number, type: | "solid" | "platform" | Slope }[] | Grid<RoomTile>, exitTiles: { x: number, y: number, direction: Direction }[] | Grid<Direction | "none">, entities: (Portal | SpawnPoint | HealthPickup | Gate)[] = [], canSpawnWithExits: (exits: Set<Direction>) => boolean, traversability?: Traversability) {
 		this.originalName = name;
 		this.name = name;
 		if(tiles instanceof Grid) {
@@ -38,8 +38,7 @@ export class Room {
 				const tile = (
 					type === "solid" ? new BasicTile("full", "tower")
 					: World.isSlope(type as string) ? new BasicTile(type as Slope, "tower")
-					: (type === "platform") ? Platform.PLATFORM
-					: (type as Gate)
+					: Platform.PLATFORM
 				);
 				this.tiles.set(x, y, tile);
 			}
@@ -63,6 +62,7 @@ export class Room {
 	}
 
 	add(position: Vector, world: World, exits: Set<Direction>) {
+		let entities = this.entities;
 		for(let x = 0; x < RoomData.SIZE; x ++) {
 			for(let y = 0; y < RoomData.SIZE; y ++) {
 				const tile = this.tiles.get(x, y);
@@ -73,10 +73,11 @@ export class Room {
 				const direction = this.exitTiles.get(x, y);
 				if(direction !== "none" && !exits.has(direction)) {
 					world.addOriginalTile(worldPosition, new BasicTile("full", "tower"));
+					entities = entities.filter(e => !(e instanceof Gate && e.tilePosition().equals(x, y)));
 				}
 			}
 		}
-		for(const entity of this.entities) {
+		for(const entity of entities) {
 			world.entities.addEntity(entity.copyAndTranslate(position.multiply(WorldData.TILE_SIZE)));
 		}
 	}
@@ -124,6 +125,7 @@ export class Room {
 	}
 	equals(room: Room) {
 		return this.tiles.equals(room.tiles, (t1, t2) => {
+			// TODO: refactor this!
 			if(typeof t1 === "string") {
 				return t1 === t2;
 			}
@@ -133,21 +135,15 @@ export class Room {
 			else if(t1 instanceof EmptyTile) {
 				return t2 instanceof EmptyTile;
 			}
-			else if(t1 instanceof Platform) {
-				return t2 instanceof Platform;
-			}
-			return t2 instanceof Gate && t1.open === t2.open;
+			return t2 instanceof Platform;
 		});
 	}
 	toggleGates() {
 		const copy = this.copy();
 		copy.name += "-toggled";
-		for(const position of copy.tiles.positions()) {
-			const tile = copy.tiles.get(position);
-			if(tile instanceof Gate) {
-				const gateCopy = tile.copy();
-				gateCopy.toggled = !gateCopy.toggled;
-				copy.tiles.set(position, gateCopy);
+		for(const entity of copy.entities) {
+			if(entity instanceof Gate) {
+				entity.toggled = !entity.toggled;
 			}
 		}
 		copy.traversability = copy.traversability.map(({ start, end }) => ({
@@ -155,6 +151,10 @@ export class Room {
 			end: new GateState(end.position, end.exit, !end.toggled),
 		}));
 		return copy;
+	}
+
+	isOrdinaryRoom() {
+		return !this.entities.some(e => e instanceof Portal || e instanceof HealthPickup || e instanceof SpawnPoint);
 	}
 
 	static gatelessPath(exit1: Direction, exit2: Direction) {
