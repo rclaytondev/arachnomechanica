@@ -2,10 +2,12 @@ import { CanvasIO } from "../../utils-ts/modules/CanvasIO.mjs";
 import { Rectangle } from "../../utils-ts/modules/geometry/Rectangle.mjs";
 import { Vector } from "../../utils-ts/modules/geometry/Vector.mjs";
 import { MathUtils } from "../../utils-ts/modules/math/MathUtils.mjs";
-import { LaserBlockData, WorldData } from "../constants/GameData.mjs";
+import { LoadingManager } from "../app-entry-points/LoadingManager.mjs";
+import { LaserBlockData, RoomData, WorldData } from "../constants/GameData.mjs";
 import { GameUtils } from "../game-utilities/GameUtils.mjs";
 import { Particle } from "../game-utilities/Particle.mjs";
 import { RectangularCollideable } from "../game-utilities/physics-engine/RectangularCollideable.mjs";
+import { EntitySpawner } from "../level-generator/EntitySpawner.mjs";
 import { Tiles } from "../world/Tiles.mjs";
 import { World } from "../world/World.mjs";
 
@@ -173,3 +175,24 @@ export class LaserBlock extends RectangularCollideable {
 		return Tiles.getTileCoordinates(this.hitbox.center());
 	}
 }
+
+LoadingManager.onload(() => {
+	EntitySpawner.registerEntityType((tileRegion: Rectangle, safeRegion: Rectangle, world: World) => EntitySpawner.spawnEntities(
+		tileRegion.area() / (RoomData.SIZE ** 2) * LaserBlockData.LASERS_PER_ROOM,
+		LaserBlockData.SPAWN_EVENNESS,
+		tileRegion,
+		[
+			EntitySpawner.spawnRequirements.replaceSolid,
+			EntitySpawner.spawnRequirements.atLeast2Empty,
+			EntitySpawner.spawnRequirements.noAdjacentGates,
+			EntitySpawner.spawnRequirements.notOnFloor,
+		],
+		(position, world) => {
+			world.removeTile(position);
+			world.entities.add(LaserBlock.generate(position));
+			return true;
+		},
+		safeRegion,
+		world,
+	));
+});

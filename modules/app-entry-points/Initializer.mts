@@ -5,6 +5,11 @@ import { World } from "../world/World.mjs";
 import { WorldScreen } from "../world/WorldScreen.mjs";
 import { LoadingManager } from "./LoadingManager.mjs";
 
+import "../entities/Spider.mjs";
+import "../entities/Lizard.mjs";
+import "../tiles/LaserBlock.mjs";
+import "../tiles/SpikeballBlock.mjs";
+
 LoadingManager.loaded();
 Main.screen = new WorldScreen(new World(true).initializeGeneration());
 

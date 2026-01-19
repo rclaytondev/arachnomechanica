@@ -6,7 +6,7 @@ import { GameUtils } from "../game-utilities/GameUtils.mjs";
 import { DEBUG_SETTINGS } from "../constants/DebugSettings.mjs";
 import { World } from "../world/World.mjs";
 import { Rectangle } from "../../utils-ts/modules/geometry/Rectangle.mjs";
-import { LizardData, WorldData } from "../constants/GameData.mjs";
+import { LizardData, RoomData, WorldData } from "../constants/GameData.mjs";
 import { FireSpawner } from "../game-utilities/FireSpawner.mjs";
 import { Player } from "../Player.mjs";
 import { Collideable } from "../game-utilities/physics-engine/Collideable.mjs";
@@ -15,6 +15,8 @@ import { ArrayUtils } from "../../utils-ts/modules/core-extensions/ArrayUtils.mj
 import { InvisibleRectangle } from "../game-utilities/physics-engine/InvisibleRectangle.mjs";
 import { EmptyTile } from "../tiles/EmptyTile.mjs";
 import { Tiles } from "../world/Tiles.mjs";
+import { EntitySpawner } from "../level-generator/EntitySpawner.mjs";
+import { LoadingManager } from "../app-entry-points/LoadingManager.mjs";
 
 type Joint = { position: Vector, direction: Direction };
 
@@ -581,3 +583,17 @@ export class Lizard extends Collideable {
 		}
 	}
 }
+
+LoadingManager.onload(() => {
+	EntitySpawner.registerEntityType((tileRegion: Rectangle, safeRegion: Rectangle, world: World) => {
+		EntitySpawner.spawnEntities(
+			tileRegion.area() / (RoomData.SIZE ** 2) * LizardData.LIZARDS_PER_ROOM,
+			LizardData.SPAWN_EVENNESS,
+			tileRegion,
+			[EntitySpawner.spawnRequirements.replaceEmpty],
+			Lizard.spawn,
+			safeRegion,
+			world,
+		);
+	});
+});

@@ -4,13 +4,15 @@ import { Diagonal, Direction, Directions } from "../../utils-ts/modules/geometry
 import { Rectangle } from "../../utils-ts/modules/geometry/Rectangle.mjs";
 import { Vector } from "../../utils-ts/modules/geometry/Vector.mjs";
 import { MathUtils } from "../../utils-ts/modules/math/MathUtils.mjs";
+import { LoadingManager } from "../app-entry-points/LoadingManager.mjs";
 import { DEBUG_SETTINGS } from "../constants/DebugSettings.mjs";
-import { PlayerData, SpiderData } from "../constants/GameData.mjs";
+import { PlayerData, RoomData, SpiderData } from "../constants/GameData.mjs";
 import { Entity } from "../game-utilities/Entity.mjs";
 import { GameUtils } from "../game-utilities/GameUtils.mjs";
 import { Collideable } from "../game-utilities/physics-engine/Collideable.mjs";
 import { CollisionEvent } from "../game-utilities/physics-engine/CollisionEvent.mjs";
 import { RectangularCollideable } from "../game-utilities/physics-engine/RectangularCollideable.mjs";
+import { EntitySpawner } from "../level-generator/EntitySpawner.mjs";
 import { BasicTile } from "../tiles/BasicTile.mjs";
 import { Tiles } from "../world/Tiles.mjs";
 import { TileWithPosition, World } from "../world/World.mjs";
@@ -508,3 +510,21 @@ export class Spider extends RectangularCollideable {
 		}
 	}
 }
+
+
+LoadingManager.onload(() => {
+	EntitySpawner.registerEntityType((tileRegion: Rectangle, safeRegion: Rectangle, world: World) => {
+		EntitySpawner.spawnEntities(
+			tileRegion.area() / (RoomData.SIZE ** 2) * SpiderData.SPIDERS_PER_ROOM,
+			SpiderData.SPAWN_EVENNESS,
+			tileRegion,
+			[
+				EntitySpawner.spawnRequirements.replaceEmpty,
+				EntitySpawner.spawnRequirements.solidAdjacent,
+			],
+			Spider.spawn,
+			safeRegion,
+			world,
+		);
+	});
+});

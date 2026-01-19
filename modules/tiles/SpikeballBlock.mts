@@ -1,17 +1,19 @@
 import { CanvasIO } from "../../utils-ts/modules/CanvasIO.mjs";
 import { Direction, Directions } from "../../utils-ts/modules/geometry/Direction.mjs";
 import { Vector } from "../../utils-ts/modules/geometry/Vector.mjs";
-import { SpikeballBlockData, SpikeballData, SpikeballPattern, WorldData } from "../constants/GameData.mjs";
+import { RoomData, SpikeballBlockData, SpikeballData, SpikeballPattern, WorldData } from "../constants/GameData.mjs";
 import { Spikeball } from "../entities/Spikeball.mjs";
 import { GameUtils } from "../game-utilities/GameUtils.mjs";
 import { World } from "../world/World.mjs";
 import { Diagonal } from "../../utils-ts/modules/geometry/Direction.mjs";
 import { Particle } from "../game-utilities/Particle.mjs";
 import { EmptyTile } from "./EmptyTile.mjs";
-import { Tile } from "./Tile.mjs";
 import { RectangularCollideable } from "../game-utilities/physics-engine/RectangularCollideable.mjs";
 import { Rectangle } from "../../utils-ts/modules/geometry/Rectangle.mjs";
 import { Tiles } from "../world/Tiles.mjs";
+import { LoadingManager } from "../app-entry-points/LoadingManager.mjs";
+import { EntitySpawner } from "../level-generator/EntitySpawner.mjs";
+import { ArrayUtils } from "../../utils-ts/modules/core-extensions/ArrayUtils.mjs";
 
 export class SpikeballBlock extends RectangularCollideable {
 	timeUntilSpawn: number = 0;
@@ -228,3 +230,24 @@ export class SpikeballBlock extends RectangularCollideable {
 		return Tiles.getTileCoordinates(this.hitbox.center());
 	}
 }
+
+LoadingManager.onload(() => {
+	EntitySpawner.registerEntityType((tileRegion: Rectangle, safeRegion: Rectangle, world: World) => EntitySpawner.spawnEntities(
+		tileRegion.area() / (RoomData.SIZE ** 2) * SpikeballBlockData.SPIKEBALLS_PER_ROOM,
+		SpikeballBlockData.SPAWN_EVENNESS,
+		tileRegion,
+		[
+			EntitySpawner.spawnRequirements.replaceSolid,
+			EntitySpawner.spawnRequirements.noAdjacentGates,
+			EntitySpawner.spawnRequirements.atLeast3RectEmpty,
+			SpikeballBlock.canSpawn,
+		],
+		(position: Vector, world: World) => {
+			world.tiles.set(position, EmptyTile.EMPTY);
+			world.entities.add(SpikeballBlock.atTile(position, ArrayUtils.randomItem(SpikeballBlockData.PATTERNS)));
+			return true;
+		},
+		safeRegion,
+		world,
+	));
+});
