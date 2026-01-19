@@ -52,7 +52,7 @@ export class ScreenFade extends VisualEffect {
 			const oldOnCompletion = fade.onCompletion;
 			fade.onCompletion = () => {
 				oldOnCompletion();
-				Main.screenFades.push(next);
+				Main.visualEffects.push(next);
 			};
 		}
 		return fades[0];

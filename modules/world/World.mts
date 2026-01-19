@@ -29,6 +29,7 @@ import { EmptyTile } from "../tiles/EmptyTile.mjs";
 import { Tile } from "../tiles/Tile.mjs";
 import { Platform } from "../tiles/Platform.mjs";
 import { Tiles } from "./Tiles.mjs";
+import { OverlayText } from "../game-utilities/visual-effects/OverlayText.mjs";
 
 export type Slope = (typeof WorldData.SLOPES)[number];
 export type TileWithPosition = { x: number, y: number, tile: Tile };
@@ -46,8 +47,6 @@ export class World {
 	levelsGenerated: number = 0;
 	levelsVisited: number = 0;
 	nextPlayerSpawnRoom: Vector = new Vector(0, 0);
-	overlayText: string = "";
-	overlayTextOpacity: number = 0;
 
 	worldGenerator: WorldGenerator = new WorldGenerator();
 	enableGeneration: boolean;
@@ -124,8 +123,6 @@ export class World {
 		this.displayTileAccents(canvasIO, visibleTileRegion);
 		this.displayDebugInfo(canvasIO);
 		canvasIO.ctx.restore();
-
-		this.displayOverlayText(canvasIO);
 
 		if(DEBUG_SETTINGS.SHOW_MOUSE_COORDINATES) {
 			this.displayMouseCoordinates(canvasIO);
@@ -248,23 +245,12 @@ export class World {
 			}
 		}
 	}
-	displayOverlayText(canvasIO: CanvasIO) {
-		if(Main.screen instanceof RoomEditor) { return; }
-		canvasIO.ctx.save();
-		canvasIO.ctx.font = WorldData.OVERLAY_FONT;
-		canvasIO.ctx.fillStyle = WorldData.OVERLAY_COLOR;
-		canvasIO.ctx.globalAlpha = MathUtils.constrain(this.overlayTextOpacity, 0, 1);
-		canvasIO.ctx.textAlign = "center";
-		canvasIO.ctx.fillText(this.overlayText, canvasIO.canvas.width / 2, canvasIO.canvas.height / 2);
-		canvasIO.ctx.restore();
-	}
 
 	update(canvasIO: CanvasIO) {
 		this.updateEntities(canvasIO);
 		this.updateParticles();
 		this.updateGeneration();
 		this.screenShakeTimer --;
-		this.overlayTextOpacity -= WorldData.OVERLAY_FADE_SPEED;
 		this.updateCamera();
 	}
 	updateEntities(canvasIO: CanvasIO) {
@@ -294,8 +280,7 @@ export class World {
 		if(this.player.hitbox.top() < -(this.levelsVisited - 1) * levelHeight) {
 			this.levelsVisited ++;
 			const floorText = `${this.levelsVisited.toString().padStart(2, "0")}`;
-			this.overlayText = `Floor ${floorText}`;
-			this.overlayTextOpacity = WorldData.OVERLAY_INITIAL_OPACITY;
+			Main.visualEffects.push(new OverlayText(`Floor ${floorText}`));
 		}
 	}
 

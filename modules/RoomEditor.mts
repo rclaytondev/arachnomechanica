@@ -17,6 +17,8 @@ import { Tile } from "./tiles/Tile.mjs";
 import { Tiles } from "./world/Tiles.mjs";
 import { HealthPickup } from "./entities/HealthPickup.mjs";
 import { SpawnPoint } from "./entities/SpawnPoint.mjs";
+import { Main } from "./Main.mjs";
+import { OverlayText } from "./game-utilities/visual-effects/OverlayText.mjs";
 
 export class RoomEditor {
 	room: Room;
@@ -43,6 +45,7 @@ export class RoomEditor {
 		this.checkForClicks(canvasIO);
 		this.checkForKeyPresses(canvasIO);
 		this.world.originalTiles = this.world.tiles;
+		Main.visualEffects = Main.visualEffects.filter(v => !(v instanceof OverlayText));
 
 		const numberKeys = canvasIO.numberKeys();
 		if(numberKeys.length !== 0) {
