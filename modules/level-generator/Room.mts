@@ -7,12 +7,13 @@ import { Gate } from "../tiles/Gate.mjs";
 import { Slope, World } from "../world/World.mjs";
 import { Portal } from "../entities/Portal.mjs";
 import { BasicTile } from "../tiles/BasicTile.mjs";
-import { ROOMS } from "./Rooms.mjs";
+import { Rooms, ROOMS } from "./Rooms.mjs";
 import { SpawnPoint } from "../entities/SpawnPoint.mjs";
 import { HealthPickup } from "../entities/HealthPickup.mjs";
 import { GenUtils } from "../../utils-ts/modules/core-extensions/GenUtils.mjs";
 import { EmptyTile } from "../tiles/EmptyTile.mjs";
 import { Platform } from "../tiles/Platform.mjs";
+import { LoadingManager } from "../app-entry-points/LoadingManager.mjs";
 
 export type Traversability = { start: GateState, end: GateState }[];
 export type RoomTile = EmptyTile | Platform | BasicTile;
@@ -235,3 +236,8 @@ export class Room {
 		}
 	}
 }
+
+LoadingManager.onload(() => {
+	Rooms.initialize();
+	Room.addRoomVariants();
+});

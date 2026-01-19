@@ -3,6 +3,7 @@ import { DEBUG_SETTINGS } from "../constants/DebugSettings.mjs";
 import { ROOMS } from "../level-generator/Rooms.mjs";
 import { Main } from "../Main.mjs";
 import { RoomEditor } from "../RoomEditor.mjs";
+import { LoadingManager } from "../app-entry-points/LoadingManager.mjs";
 
 export class Debug {
 	static recordedRNG: number[] = [];
@@ -57,3 +58,5 @@ export class Debug {
 		canvasIO.ctx.fillText(`${Debug.frameTimes.length} FPS`, 0, 0);
 	}
 }
+
+LoadingManager.onload(Debug.initializeRNGOverride);
