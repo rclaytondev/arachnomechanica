@@ -1,8 +1,8 @@
-import { CanvasIO } from "../../utils-ts/modules/CanvasIO.mjs";
-import { MathUtils } from "../../utils-ts/modules/math/MathUtils.mjs";
-import { Main } from "../Main.mjs";
-import { GameUtils } from "./GameUtils.mjs";
-import { VisualEffect } from "./visual-effects/VisualEffect.mjs";
+import { CanvasIO } from "../../../utils-ts/modules/CanvasIO.mjs";
+import { MathUtils } from "../../../utils-ts/modules/math/MathUtils.mjs";
+import { Main } from "../../Main.mjs";
+import { GameUtils } from "../GameUtils.mjs";
+import { VisualEffect } from "./VisualEffect.mjs";
 
 type FadeType = "damage-flash" | "transition-start-delay" | "transition-pause" | "transition-fade-out" | "transition-fade-in";
 
