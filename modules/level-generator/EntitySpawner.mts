@@ -129,7 +129,6 @@ export class EntitySpawner {
 				EntitySpawner.spawnRequirements.atLeast2Empty,
 				EntitySpawner.spawnRequirements.noAdjacentGates,
 				EntitySpawner.spawnRequirements.notOnFloor,
-				LaserBlock.canSpawn,
 			],
 			(position, world) => {
 				world.removeTile(position);

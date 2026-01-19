@@ -547,13 +547,6 @@ export class Lizard extends Collideable {
 		return boxes;
 	}
 
-	canSpawn(world: World) {
-		const distance = Vector.dist(this.position, world.player.hitbox.center());
-		return (
-			distance > LizardData.MIN_PLAYER_SPAWN_DISTANCE &&
-			!this.hitboxes().some(box => world.isInSolid(box))
-		);
-	}
 	static spawn(tilePosition: Vector, world: World) {
 		const [_, direction, maxLength] = ArrayUtils.maxEntry(Directions.DIRECTIONS, (direction) => {
 			for(let i = 0; i <= LizardData.MAX_LENGTH / WorldData.TILE_SIZE; i ++) {

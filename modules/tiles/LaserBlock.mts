@@ -169,10 +169,6 @@ export class LaserBlock extends RectangularCollideable {
 		return this.hitbox.center().add(direction.multiply(distance));
 	}
 
-	static canSpawn() {
-		return true;
-	}
-
 	tilePosition() {
 		return Tiles.getTileCoordinates(this.hitbox.center());
 	}
