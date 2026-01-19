@@ -2,19 +2,20 @@ import { CanvasIO } from "../../utils-ts/modules/CanvasIO.mjs";
 import { MathUtils } from "../../utils-ts/modules/math/MathUtils.mjs";
 import { Main } from "../Main.mjs";
 import { GameUtils } from "./GameUtils.mjs";
+import { VisualEffect } from "./visual-effects/VisualEffect.mjs";
 
 type FadeType = "damage-flash" | "transition-start-delay" | "transition-pause" | "transition-fade-out" | "transition-fade-in";
 
-export class ScreenFade {
+export class ScreenFade extends VisualEffect {
 	startOpacity: number;
 	endOpacity: number;
 	color: string;
 	timeElapsed: number = 0;
 	duration: number;
 	type: FadeType;
-	onCompletion: () => void;
 
 	constructor(duration: number, startOpacity: number, endOpacity: number, color: string, type: FadeType, onCompletion: () => void = () => {}) {
+		super(onCompletion);
 		this.duration = duration;
 		this.startOpacity = startOpacity;
 		this.endOpacity = endOpacity;
@@ -25,10 +26,6 @@ export class ScreenFade {
 
 	update() {
 		this.timeElapsed ++;
-		if(this.timeElapsed >= this.duration) {
-			this.onCompletion();
-			Main.screenFades = Main.screenFades.filter(f => f !== this);
-		}
 	}
 	opacity() {
 		const opacity = GameUtils.lerp(
@@ -43,6 +40,9 @@ export class ScreenFade {
 		canvasIO.ctx.globalAlpha = this.opacity();
 		canvasIO.fillCanvas(this.color);
 		canvasIO.ctx.restore();
+	}
+	isComplete(): boolean {
+		return this.timeElapsed >= this.duration;
 	}
 
 	static sequence(...fades: ScreenFade[]) {

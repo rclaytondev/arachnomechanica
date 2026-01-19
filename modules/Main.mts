@@ -23,6 +23,10 @@ export class Main {
 	static updateScreenFades() {
 		for(const screenFade of Main.screenFades) {
 			screenFade.update();
+			if(screenFade.isComplete()) {
+				screenFade.onCompletion();
+				Main.screenFades = Main.screenFades.filter(s => s !== screenFade);
+			}
 		}
 	}
 	static display(canvasIO: CanvasIO) {
