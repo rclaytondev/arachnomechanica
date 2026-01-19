@@ -1,153 +1,215 @@
 import { CanvasIO } from "../../utils-ts/modules/CanvasIO.mjs";
+import { ArrayUtils } from "../../utils-ts/modules/core-extensions/ArrayUtils.mjs";
 import { Diagonal, Direction, Directions } from "../../utils-ts/modules/geometry/Direction.mjs";
-import { Line } from "../../utils-ts/modules/geometry/Line.mjs";
 import { Rectangle } from "../../utils-ts/modules/geometry/Rectangle.mjs";
 import { Vector } from "../../utils-ts/modules/geometry/Vector.mjs";
 import { MathUtils } from "../../utils-ts/modules/math/MathUtils.mjs";
 import { DEBUG_SETTINGS } from "../constants/DebugSettings.mjs";
-import { SpiderData, WorldData } from "../constants/GameData.mjs";
-import { GameUtils } from "../game-utilities/GameUtils.mjs";
-import { Particle } from "../game-utilities/Particle.mjs";
-import { Player } from "../Player.mjs";
-import { World } from "../world/World.mjs";
+import { PlayerData, SpiderData } from "../constants/GameData.mjs";
 import { Entity } from "../game-utilities/Entity.mjs";
-import { BasicTile } from "../tiles/BasicTile.mjs";
-import { RectangularCollideable } from "../game-utilities/physics-engine/RectangularCollideable.mjs";
-import { Explosion } from "../game-utilities/Explosion.mjs";
+import { GameUtils } from "../game-utilities/GameUtils.mjs";
+import { Collideable } from "../game-utilities/physics-engine/Collideable.mjs";
 import { CollisionEvent } from "../game-utilities/physics-engine/CollisionEvent.mjs";
+import { RectangularCollideable } from "../game-utilities/physics-engine/RectangularCollideable.mjs";
+import { BasicTile } from "../tiles/BasicTile.mjs";
+import { Tiles } from "../world/Tiles.mjs";
+import { TileWithPosition, World } from "../world/World.mjs";
+import { Fireball } from "./Fireball.mjs";
 
-export class Surface {
-	start: Vector;
-	outwardNormal: Direction | Diagonal;
-	constructor(start: Vector, outwardNormal: Direction | Diagonal) {
-		this.start = start;
-		this.outwardNormal = outwardNormal;
-	}
-	static tileEdgeCW(tilePosition: Vector, edge: Direction) {
-		return {
-			"left": new Surface(tilePosition.add(0, 1), "left"),
-			"right": new Surface(tilePosition.add(1, 0), "right"),
-			"up": new Surface(tilePosition, "up"),
-			"down": new Surface(tilePosition.add(1, 1), "down"),
-		}[edge];
+export class PointOnSurface {
+	readonly normal: Direction | Diagonal;
+	readonly point: Vector;
+	constructor(point: Vector, normal: Direction | Diagonal) {
+		this.point = point;
+		this.normal = normal;
 	}
 
-	tangentDirectionCW() {
-		return Directions.rotateClockwise[this.outwardNormal];
-	}
-	tangentVectorCW() {
-		return Vector.unit(this.tangentDirectionCW());
-	}
-
-	nextSurfaceCW(world: World) {
-		const tangent = this.tangentDirectionCW();
-		const tileTangent = Directions.isDirection(tangent) ? tangent : Directions.rotateClockwise45[tangent];
-		const angle = world.angle(
-			this.tilePosition(),
-			Directions.rotateCounterclockwise[tileTangent],
-			tileTangent,
-			true,
-			false,
-		) + (Directions.isDiagonal(tangent) ? 45 : 0);
-		if(angle === 360) { return null; }
-		let newTangent = Directions.opposite[tangent];
-		for(let i = 0; i < angle; i += 45) {
-			newTangent = Directions.rotateClockwise45[newTangent];
+	nextPoint(self: Collideable, world: World, direction: "clockwise" | "counterclockwise") {
+		const blockers = world.angularMotionBlockers(this.point, direction, (e) => e !== self);
+		if(blockers.length === 0) {
+			const opposite = (direction === "clockwise" ? "counterclockwise" : "clockwise");
+			const onPlatformEnd = world.angularMotionBlockers(this.point, opposite, e => e !== self).length !== 0;
+			return onPlatformEnd ? "on-platform-end" : "floating";
 		}
-		return new Surface(
-			this.end(),
-			Directions.rotateCounterclockwise[newTangent],
-		);
-	}
-	nextSurfaceCCW(world: World) {
-		const tangent = this.tangentDirectionCW();
-		const tileTangent = Directions.isDirection(tangent) ? tangent : Directions.rotateCounterclockwise45[tangent];
-		const angle = world.angle(
-			this.tilePosition(),
-			Directions.rotateCounterclockwise[tileTangent],
-			Directions.opposite[tileTangent],
-			true,
-			false,
-		) + (Directions.isDiagonal(tangent) ? 45 : 0);
-		if(angle === 360) { return null; }
-		let newTangent = Directions.opposite[tangent];
-		for(let i = 0; i < angle; i += 45) {
-			newTangent = Directions.rotateCounterclockwise45[newTangent];
-		}
-		return new Surface(
-			this.start.subtract(Vector.gridUnit(newTangent)),
-			Directions.rotateCounterclockwise[newTangent],
-		);
+		const newTangent = Directions.nextIn(blockers, this.normal, direction);
+		const newNormal = (direction === "clockwise") ? Directions.rotateCounterclockwise[newTangent] : Directions.rotateClockwise[newTangent];
+		return new PointOnSurface(this.point.add(Vector.gridUnit(newTangent)), newNormal);
 	}
 
-	tilePosition() {
-		const positions = {
-			"right": this.start,
-			"up-right": this.start.add(0, -1),
-			"up": this.start.add(0, -1),
-			"up-left": this.start.add(-1, -1),
-			"left": this.start.add(-1, -1),
-			"down-left": this.start.add(-1, 0),
-			"down": this.start.add(-1, 0),
-			"down-right": this.start,
-		};
-		return positions[this.tangentDirectionCW()];
-	}
 
-	end() {
-		return this.start.add(Vector.gridUnit(this.tangentDirectionCW()));
-	}
-	length() {
-		return WorldData.TILE_SIZE * (Directions.isDirection(this.outwardNormal) ? 1 : Math.SQRT2);
-	}
-	line() {
-		return new Line(this.start.multiply(WorldData.TILE_SIZE), this.end().multiply(WorldData.TILE_SIZE));
-	}
 
-	copy() {
-		return new Surface(this.start.clone(), this.outwardNormal);
+
+	tangentVector(direction: "clockwise" | "counterclockwise") {
+		return Directions.rotate[direction][this.normal];
 	}
 }
 
-export class PointOnSurface {
-	surface: Surface;
-	distance: number;
-	constructor(surface: Surface, distance: number) {
-		this.surface = surface;
-		this.distance = distance;
+export class CrawlingMovementData {
+	pointOnSurface: PointOnSurface;
+	direction: "clockwise" | "counterclockwise";
+	subpixel: number = 0;
+	cachedSurfaceData: CachedSurfaceData;
+
+	constructor(pointOnSurface: PointOnSurface, direction: "clockwise" | "counterclockwise") {
+		this.pointOnSurface = pointOnSurface;
+		this.direction = direction;
+		this.cachedSurfaceData = new CachedSurfaceData(pointOnSurface);
 	}
 
-	position() {
-		return this.surface.start.multiply(WorldData.TILE_SIZE).add(this.surface.tangentVectorCW().multiply(this.distance));
-	}
-
-	moveAlongSurface(amount: number, world: World) {
-		let point = this.copy();
-		point.distance += amount;
-		while(point.distance > point.surface.length()) {
-			const nextSurface = point.surface.nextSurfaceCW(world);
-			if(nextSurface === null) {
-				point.distance = point.surface.length();
-				break;
-			}
-			point = new PointOnSurface(nextSurface, point.distance - point.surface.length());
+	wallDistance(world: World, nextTurnDistance: number, previousTurnDistance: number) {
+		const distanceToTurn = Math.min(nextTurnDistance, previousTurnDistance);
+		if(distanceToTurn >= SpiderData.TURN_WALL_DURATION) {
+			return SpiderData.SIZE / 2;
 		}
-		while(point.distance < 0) {
-			const nextSurface = point.surface.nextSurfaceCCW(world);
-			if(nextSurface === null) {
-				point.distance = 0;
-				break;
-			}
-			point = new PointOnSurface(
-				nextSurface,
-				nextSurface.length() + point.distance,
+		return SpiderData.SIZE / 2 + GameUtils.lerp(
+			distanceToTurn,
+			0, SpiderData.TURN_WALL_DURATION,
+			SpiderData.TURN_WALL_DISTANCE, 0,
+		);
+	}
+	smoothedNormalAngle(nextTurnDistance: number, nextTurnNormal: Direction | Diagonal, previousTurnDistance: number, previousTurnNormal: Direction | Diagonal) {
+		if(previousTurnDistance + nextTurnDistance < 2 * SpiderData.TURN_WALL_DURATION) {
+			const halfAngle1 = GameUtils.lerpAngle(1/2, 0, 1, Directions.angle[previousTurnNormal], Directions.angle[this.pointOnSurface.normal]);
+			const halfAngle2 = GameUtils.lerpAngle(1/2, 0, 1, Directions.angle[this.pointOnSurface.normal], Directions.angle[nextTurnNormal]);
+			return GameUtils.lerpAngle(
+				previousTurnDistance,
+				0, previousTurnDistance + nextTurnDistance,
+				halfAngle1, halfAngle2,
 			);
 		}
-		return point;
+		else if(previousTurnDistance < SpiderData.TURN_WALL_DURATION) {
+			const halfAngle = GameUtils.lerpAngle(
+				1/2, 0, 1,
+				Directions.angle[this.pointOnSurface.normal], Directions.angle[previousTurnNormal],
+			);
+			return GameUtils.lerpAngle(
+				previousTurnDistance,
+				0, SpiderData.TURN_WALL_DURATION,
+				halfAngle, Directions.angle[this.pointOnSurface.normal],
+			);
+		}
+		else if(nextTurnDistance < SpiderData.TURN_WALL_DURATION) {
+			const halfAngle = GameUtils.lerpAngle(
+				1/2, 0, 1,
+				Directions.angle[this.pointOnSurface.normal], Directions.angle[nextTurnNormal],
+			);
+			const result = GameUtils.lerpAngle(
+				nextTurnDistance,
+				0, SpiderData.TURN_WALL_DURATION,
+				halfAngle, Directions.angle[this.pointOnSurface.normal],
+			);
+			return result;
+		}
+		else {
+			return Directions.angle[this.pointOnSurface.normal];
+		}
+	}
+	scaledSmoothedNormal(self: Spider, world: World) {
+		const opposite = (this.direction === "clockwise" ? "counterclockwise" : "clockwise");
+		const [nextTurnDistance, nextTurnNormal] = this.cachedSurfaceData.nextTurn(self, world, this.direction, 2 * SpiderData.TURN_WALL_DURATION);
+		const [previousTurnDistance, previousTurnNormal] = this.cachedSurfaceData.nextTurn(self, world, opposite, 2 * SpiderData.TURN_WALL_DURATION);
+		const wallDistance = this.wallDistance(world, nextTurnDistance, previousTurnDistance);
+		const angle = this.smoothedNormalAngle(nextTurnDistance, nextTurnNormal, previousTurnDistance, previousTurnNormal);
+		return new Vector(Math.cos(angle), -Math.sin(angle)).multiply(wallDistance);
 	}
 
-	copy() {
-		return new PointOnSurface(this.surface.copy(), this.distance);
+	update(spider: Spider, world: World, canvasIO: CanvasIO) {
+		if(this.isFloating(spider, world) || this.isBasepointDetached(spider)) {
+			spider.beginFalling();
+			return;
+		}
+		this.subpixel += spider.getSpeed();
+		let amountMoved = 0;
+		while(this.subpixel >= 1) {
+			amountMoved ++;
+			this.subpixel --;
+			const nextPoint = this.pointOnSurface.nextPoint(spider, world, this.direction);
+			if(nextPoint === "on-platform-end" || nextPoint === "floating") {
+				this.direction = (this.direction === "clockwise" ? "counterclockwise" : "clockwise");
+			}
+			else {
+				this.pointOnSurface = nextPoint;
+				if(amountMoved % SpiderData.MAX_DISTANCE_PER_MOVE === 0) {
+					this.cachedSurfaceData = new CachedSurfaceData(this.pointOnSurface);
+					this.updateHitbox(spider, world, canvasIO);
+				}
+			}
+		}
+		this.cachedSurfaceData = new CachedSurfaceData(this.pointOnSurface);
+		this.updateHitbox(spider, world, canvasIO);
+
+		const opposite = (this.direction === "clockwise" ? "counterclockwise" : "clockwise");
+		const [nextTurnDistance, nextTurnNormal] = this.cachedSurfaceData.nextTurn(spider, world, this.direction, 2 * SpiderData.TURN_WALL_DURATION);
+		const [previousTurnDistance, previousTurnNormal] = this.cachedSurfaceData.nextTurn(spider, world, opposite, 2 * SpiderData.TURN_WALL_DURATION);
+		spider.angle = GameUtils.moveAngleTowards(spider.angle, this.smoothedNormalAngle(nextTurnDistance, nextTurnNormal, previousTurnDistance, previousTurnNormal), SpiderData.ANGULAR_SPEED);
+	}
+	updateHitbox(spider: Spider, world: World, canvasIO: CanvasIO) {
+		const normal = this.scaledSmoothedNormal(spider, world);
+		const preferredCenter = this.pointOnSurface.point.add(normal);
+		const offset = preferredCenter.subtract(spider.hitbox.center().add(spider.subpixel));
+		const collides = (obj: Entity | TileWithPosition) => !(obj instanceof Fireball && obj.ignoredEntities.includes(spider));
+		spider.move(offset, world, canvasIO, { collides });
+		world.entities.updatePosition(spider);
+	}
+	isFloating(spider: Spider, world: World) {
+		const opposite = this.direction === "clockwise" ? "counterclockwise" : "clockwise";
+		const blockers1 = world.angularMotionBlockers(this.pointOnSurface.point, this.direction, (o) => o !== spider);
+		const blockers2 = world.angularMotionBlockers(this.pointOnSurface.point, opposite, (o) => o !== spider);
+		return blockers1.length === 0 && blockers2.length === 0;
+	}
+	isBasepointDetached(spider: Spider) {
+		const distance = Vector.dist(spider.hitbox.center(), this.pointOnSurface.point);
+		return (distance > SpiderData.MAX_BASEPOINT_DISTANCE);
+	}
+
+	runAway(point: Vector) {
+		const distance = Vector.dist(this.pointOnSurface.point, point);
+		const direction = this.pointOnSurface.tangentVector(this.direction);
+		const nextDistance = Vector.dist(this.pointOnSurface.point.add(Vector.unit(direction)), point);
+		if(nextDistance < distance) {
+			this.direction = (this.direction === "clockwise" ? "counterclockwise" : "clockwise");
+		}
+	}
+}
+
+export class CachedSurfaceData {
+	clockwise: (PointOnSurface | null)[];
+	counterclockwise: (PointOnSurface | null)[];
+
+	constructor(point: PointOnSurface) {
+		this.clockwise = [point];
+		this.counterclockwise = [point];
+	}
+
+
+	getPoint(distance: number, direction: "clockwise" | "counterclockwise", self: Collideable, world: World) {
+		const points = this[direction];
+		while(points.length < distance && ArrayUtils.last(points) != null) {
+			const last = ArrayUtils.last(points)!;
+			const next = last.nextPoint(self, world, direction);
+			if(next instanceof PointOnSurface) {
+				points.push(next);
+			}
+			else {
+				points.push(null);
+			}
+		}
+		const last = points[Math.min(distance, points.length - 1)];
+		if(last === null) {
+			return points[Math.min(distance - 1, points.length - 2)]!;
+		}
+		else {
+			return last;
+		}
+	}
+	nextTurn(self: Collideable, world: World, direction: "clockwise" | "counterclockwise", max: number): [number, Direction | Diagonal] {
+		for(let i = 0; i <= max; i ++) {
+			const point = this.getPoint(i, direction, self, world);
+			if(point.normal !== this[direction][0]!.normal) {
+				return [i, point.normal];
+			}
+		}
+		return [max, this[direction][0]!.normal];
 	}
 }
 
@@ -155,31 +217,40 @@ export class SpiderLeg {
 	minDistance: number;
 	maxDistance: number;
 	distance: number;
-	destination: number;
+	destinationDistance: number;
 	attachmentOffset: Vector;
 	length: number;
+	position: Vector = new Vector(0, 0);
 
 	constructor(length: number, attachmentOffset: Vector, minDistance: number, maxDistance: number) {
 		this.length = length;
 		this.attachmentOffset = attachmentOffset;
 		this.distance = minDistance;
-		this.destination = maxDistance;
+		this.destinationDistance = maxDistance;
 		this.minDistance = minDistance;
 		this.maxDistance = maxDistance;
 	}
 
-	update() {
+	update(spider: Spider, world: World) {
 		if(Math.abs(this.distance) <= this.minDistance || Math.sign(this.distance) !== Math.sign(this.attachmentOffset.x)) {
-			this.destination = this.maxDistance * Math.sign(this.attachmentOffset.x);
+			this.destinationDistance = this.maxDistance * Math.sign(this.attachmentOffset.x);
 		}
 		else if(Math.abs(this.distance) >= this.maxDistance && Math.sign(this.distance) === Math.sign(this.attachmentOffset.x)) {
-			this.destination = this.minDistance * Math.sign(this.attachmentOffset.x);
+			this.destinationDistance = this.minDistance * Math.sign(this.attachmentOffset.x);
 		}
 
-		this.distance = GameUtils.moveTowards(this.distance, this.destination, SpiderData.LEG_SPEED);
+		this.distance = GameUtils.moveTowards(this.distance, this.destinationDistance, SpiderData.LEG_SPEED);
+
+		const destination = this.destination(spider, world);
+		const updateSpeed = spider.getSpeed() + SpiderData.LEG_UPDATE_SPEED;
+		this.position = GameUtils.moveVectorTowards(this.position, destination, updateSpeed);
 	}
-	position(spider: Spider, world: World) {
-		return spider.basepoint!.moveAlongSurface(this.distance, world).position();
+	destination(spider: Spider, world: World) {
+		if(spider.movement instanceof FallingMovementData || spider.movement.isFloating(spider, world)) {
+			return this.position;
+		}
+		const direction = this.distance > 0 ? "clockwise" : "counterclockwise";
+		return spider.movement.cachedSurfaceData.getPoint(Math.abs(this.distance), direction, spider, world).point;
 	}
 	jointPosition(spider: Spider, position: Vector) {
 		const center = spider.hitbox.center();
@@ -190,41 +261,47 @@ export class SpiderLeg {
 		return center.add(horizontal.multiply(distance / 2)).add(up.multiply(height));
 	}
 
-	display(spider: Spider, canvasIO: CanvasIO, world: World) {
+	display(spider: Spider, canvasIO: CanvasIO) {
 		const attachment = this.attachment(spider);
-		const position = this.position(spider, world);
-		const joint = this.jointPosition(spider, position);
+		const joint = this.jointPosition(spider, this.position);
 		canvasIO.ctx.strokeStyle = "black";
 		canvasIO.ctx.lineWidth = 5;
 		canvasIO.linePointedness = 2;
 		canvasIO.pointedLine(attachment.x, attachment.y, joint.x, joint.y);
-		canvasIO.pointedLine(joint.x, joint.y, position.x, position.y);
-	}
-	displayDebug() {
-		// Unimplemented
+		canvasIO.pointedLine(joint.x, joint.y, this.position.x, this.position.y);
 	}
 
 	attachment(spider: Spider) {
 		const center = spider.hitbox.center();
-		return center.add(this.attachmentOffset.rotate(MathUtils.toDegrees(spider.angle)));
+		return center.add(this.attachmentOffset.rotate(-MathUtils.toDegrees(spider.angle) + 90));
 	}
 }
 
+export class FallingMovementData {
+	velocity: Vector = new Vector(0, 0);
+
+	update(spider: Spider, world: World, canvasIO: CanvasIO) {
+		spider.move(this.velocity, world, canvasIO, { });
+		world.entities.updatePosition(spider);
+		this.velocity = this.velocity.add(0, PlayerData.GRAVITY);
+	}
+}
+
+
 export class Spider extends RectangularCollideable {
-	movement: "clockwise" | "counterclockwise" = "clockwise";
-	basepoint: PointOnSurface | null = null;
+	movement: CrawlingMovementData | FallingMovementData;
 	angle: number = 0;
 	rechargeTime: number = -1;
 	pauseTimer: number = -1;
+	legs: SpiderLeg[] = [];
 
-	legs: SpiderLeg[];
-
-	constructor(position: Vector) {
-		super(Rectangle.fromCenter(position.x, position.y, SpiderData.HITBOX_SIZE / 2, SpiderData.HITBOX_SIZE / 2));
-		this.legs = this.initializeLegs();
+	constructor(position: Vector, movement: CrawlingMovementData | FallingMovementData, world: World) {
+		super(Rectangle.square(position.x, position.y, SpiderData.HITBOX_SIZE));
+		this.movement = movement;
+		this.legs = this.initializeLegs(world);
 	}
-	initializeLegs() {
-		return [
+	initializeLegs(world: World) {
+		const legs = [
 			new SpiderLeg(
 				SpiderData.LEG_1.LENGTH,
 				SpiderData.LEG_1.ATTACHMENT.reflectX(),
@@ -251,29 +328,40 @@ export class Spider extends RectangularCollideable {
 				SpiderData.LEG_2.MAX_DISTANCE,
 			),
 		];
+		for(const leg of legs) {
+			leg.position = leg.destination(this, world);
+		}
+		return legs;
 	}
 
 	display(canvasIO: CanvasIO, world: World) {
-		this.displayBody(canvasIO);
+		this.displayBody(canvasIO, world);
 		this.displayEyes(canvasIO);
-		this.displayLegs(canvasIO, world);
+		this.displayLegs(canvasIO);
 	}
-	displayBody(canvasIO: CanvasIO) {
+	displayBody(canvasIO: CanvasIO, world: World) {
 		canvasIO.ctx.save();
 		const position = this.hitbox.center();
 		canvasIO.ctx.translate(position.x, position.y);
-		canvasIO.ctx.rotate(this.angle);
+		canvasIO.ctx.rotate(-this.angle);
 		canvasIO.ctx.fillStyle = SpiderData.COLOR;
+		if(this.seesPlayer(world) && DEBUG_SETTINGS.SPIDER_VISUALIZATION) {
+			canvasIO.ctx.fillStyle = "green";
+		}
 		canvasIO.fillRegularPoly(new Vector(0, 0), SpiderData.SIZE / 2, 6);
 		canvasIO.ctx.restore();
 	}
-	// getEyeColor() {
-	// 	const rechargeTime = Math.max(this.rechargeTime, 0);
-	// 	const hue = GameUtils.lerp(rechargeTime, 0, SpiderData.RECHARGE_TIME, SpiderData.EYE_COLOR.hue, SpiderData.UNLIT_EYE_COLOR.hue);
-	// 	const saturation = GameUtils.lerp(rechargeTime, 0, SpiderData.RECHARGE_TIME, SpiderData.EYE_COLOR.saturation, SpiderData.UNLIT_EYE_COLOR.saturation);
-	// 	const value = GameUtils.lerp(rechargeTime, 0, SpiderData.RECHARGE_TIME, SpiderData.EYE_COLOR.value, SpiderData.UNLIT_EYE_COLOR.value);
-	// 	return `hsl(${hue}, ${saturation}%, ${value}%)`;
-	// }
+	displayEyes(canvasIO: CanvasIO) {
+		const center = this.hitbox.center();
+		const numGlowing = this.numGlowingEyes();
+		let count = 0;
+		for(let angle = 0; angle < 360; angle += 360 / SpiderData.NUM_EYES) {
+			const position = new Vector(0, -SpiderData.EYE_DISTANCE).rotate(angle + 90 + MathUtils.toDegrees(-this.angle));
+			canvasIO.ctx.fillStyle = (count < numGlowing) ? SpiderData.EYE_COLOR : SpiderData.UNLIT_EYE_COLOR;
+			canvasIO.fillDiamond(center.x + position.x, center.y + position.y, SpiderData.EYE_SIZE);
+			count ++;
+		}
+	}
 	numGlowingEyes() {
 		return Math.floor(GameUtils.lerp(
 			MathUtils.constrain(this.rechargeTime, 0, SpiderData.RECHARGE_TIME),
@@ -281,87 +369,71 @@ export class Spider extends RectangularCollideable {
 			SpiderData.NUM_EYES, 0,
 		));
 	}
-	displayEyes(canvasIO: CanvasIO) {
-		const center = this.hitbox.center();
-		const numGlowing = this.numGlowingEyes();
-		let count = 0;
-		for(let angle = 0; angle < 360; angle += 360 / SpiderData.NUM_EYES) {
-			const position = new Vector(0, -SpiderData.EYE_DISTANCE).rotate(angle + MathUtils.toDegrees(this.angle));
-			canvasIO.ctx.fillStyle = (count < numGlowing) ? SpiderData.EYE_COLOR : SpiderData.UNLIT_EYE_COLOR;
-			canvasIO.fillDiamond(center.x + position.x, center.y + position.y, SpiderData.EYE_SIZE);
-			count ++;
-		}
-	}
-	displayLegs(canvasIO: CanvasIO, world: World) {
+	displayLegs(canvasIO: CanvasIO) {
 		for(const leg of this.legs) {
-			leg.display(this, canvasIO, world);
+			leg.display(this, canvasIO);
 		}
 	}
-	displayGlowEffect(canvasIO: CanvasIO) {
-		const center = this.hitbox.center();
-		// const glowIntensity = GameUtils.lerp(
-		// 	MathUtils.constrain(this.rechargeTime, 0, SpiderData.RECHARGE_TIME),
-		// 	0, SpiderData.RECHARGE_TIME,
-		// 	SpiderData.GLOW_INTENSITY, 0,
-		// );
-		const glowIntensity = GameUtils.lerp(
-			this.numGlowingEyes(),
-			0, SpiderData.NUM_EYES,
-			0, SpiderData.GLOW_INTENSITY,
-		);
-		GameUtils.glowCircle(
-			center.x, center.y,
-			SpiderData.GLOW_SIZE, glowIntensity,
-			canvasIO,
-			SpiderData.GLOW_COLOR.red, SpiderData.GLOW_COLOR.green, SpiderData.GLOW_COLOR.blue,
-		);
-	}
-	displayDebug(canvasIO: CanvasIO) {
-		if(!DEBUG_SETTINGS.SPIDER_VISUALIZATION) { return; }
+	displayDebug(canvasIO: CanvasIO, world: World): void {
+		if(this.movement instanceof FallingMovementData || this.movement.isFloating(this, world) || !DEBUG_SETTINGS.SPIDER_VISUALIZATION) { return; }
+		const point = this.movement.pointOnSurface.point;
+		const normalEndpoint = point.add(Vector.unit(this.movement.pointOnSurface.normal).multiply(20));
+		canvasIO.ctx.strokeStyle = "red";
+		canvasIO.ctx.lineWidth = 3;
+		canvasIO.strokeLine(point.x, point.y, normalEndpoint.x, normalEndpoint.y);
 
-		if(this.basepoint) {
-			canvasIO.ctx.fillStyle = "red";
-			canvasIO.ctx.strokeStyle = "red";
-			canvasIO.ctx.lineWidth = 2;
-			const basepoint = this.basepoint.position();
-			canvasIO.fillCircle(basepoint.x, basepoint.y, 5);
-			const start = this.basepoint.surface.start.multiply(WorldData.TILE_SIZE);
-			const end = this.basepoint.surface.end().multiply(WorldData.TILE_SIZE);
-			canvasIO.strokeLine(start.x, start.y, end.x, end.y);
-
-			const tile = this.basepoint.surface.tilePosition();
-			canvasIO.ctx.save();
-			canvasIO.ctx.globalAlpha = 0.25;
-			canvasIO.fillSquare(tile.x * WorldData.TILE_SIZE, tile.y * WorldData.TILE_SIZE, WorldData.TILE_SIZE);
-			canvasIO.ctx.restore();
-		}
-
-		canvasIO.ctx.strokeStyle = "rgb(0, 255, 255)";
-		canvasIO.ctx.lineWidth = 1;
-		canvasIO.strokeRect(this.hitbox);
-
-		for(const leg of this.legs) {
-			leg.displayDebug();
-		}
+		const smoothedNormal = this.movement.scaledSmoothedNormal(this, world);
+		const smoothedEndpoint = point.add(smoothedNormal);
+		canvasIO.ctx.strokeStyle = "green";
+		canvasIO.ctx.lineWidth = 3;
+		canvasIO.strokeLine(point.x, point.y, smoothedEndpoint.x, smoothedEndpoint.y);
 	}
 
 	update(world: World, canvasIO: CanvasIO) {
-		this.moveAlongSurface(this.getSpeed(), world, canvasIO);
-		this.updateAngle();
-		this.updateLegs();
+		this.movement.update(this, world, canvasIO);
 		this.checkProjectile(world);
-		this.checkPlatformEnds(world);
-	}
-	updateAngle() {
-		const targetAngle = Math.PI / 2 - (this.basepoint ? Directions.angle[this.basepoint.surface.outwardNormal] : 0);
-		this.angle = GameUtils.moveAngleTowards(this.angle, targetAngle, SpiderData.ANGULAR_SPEED);
-	}
-	updateLegs() {
-		if(this.isPaused()) { return; }
 		for(const leg of this.legs) {
-			leg.update();
+			leg.update(this, world);
 		}
 	}
+	checkProjectile(world: World) {
+		if(this.movement instanceof FallingMovementData) { return; }
+		const seesPlayer = this.seesPlayer(world);
+		if(!seesPlayer) {
+			this.rechargeTime --;
+		}
+		if(seesPlayer) {
+			if(this.hasProjectile() && !this.isPaused()) {
+				this.pauseTimer = SpiderData.SHOT_DELAY;
+			}
+			this.rechargeTime = SpiderData.RECHARGE_TIME;
+			this.movement.runAway(world.player.hitbox.center());
+		}
+		this.pauseTimer --;
+		if(this.pauseTimer === 0) {
+			this.shootProjectile(world);
+			this.rechargeTime = SpiderData.RECHARGE_TIME;
+		}
+	}
+	seesPlayer(world: World) {
+		const center = this.hitbox.center();
+		const player = world.player.hitbox;
+		const up = new Vector(0, -1).rotate(MathUtils.toDegrees(-this.angle)).multiply(15);
+		const collides = (obj: Entity) => obj !== this && obj !== world.player;
+		return world.hasLineOfSight(center.add(up), player, collides) && world.hasLineOfSight(center.subtract(up), player, collides);
+
+	}
+	shootProjectile(world: World) {
+		const center = this.hitbox.center();
+		const player = world.player.hitbox.center();
+		const direction = player.subtract(center).normalize();
+		const velocity = direction.multiply(SpiderData.PROJECTILE_SPEED);
+		const acceleration = direction.multiply(SpiderData.PROJECTILE_ACCELERATION);
+		const projectile = new Fireball(center, velocity, acceleration, [this]);
+		world.entities.add(projectile);
+	}
+
+
 	hasProjectile() {
 		return this.rechargeTime < 0;
 	}
@@ -372,202 +444,67 @@ export class Spider extends RectangularCollideable {
 		if(this.isPaused()) { return 0; }
 		return this.hasProjectile() ? SpiderData.SPEED : SpiderData.FAST_SPEED;
 	}
-	checkProjectile(world: World) {
-		const center = this.hitbox.center();
-		const up = new Vector(0, -1).rotate(MathUtils.toDegrees(-this.angle)).multiply(15);
-		const player = world.player.hitbox;
-		const collides = (obj: Entity) => obj !== this && obj !== world.player;
-		const hasLineOfSight = world.hasLineOfSight(center.add(up), player, collides) && world.hasLineOfSight(center.subtract(up), player, collides);
-		if(!hasLineOfSight) {
-			this.rechargeTime --;
-		}
-		if(hasLineOfSight) {
-			if(this.hasProjectile() && !this.isPaused()) {
-				this.pauseTimer = SpiderData.SHOT_DELAY;
+
+	beginCrawling(world: World) {
+		const centerBottom = this.hitbox.edgeCenter("down");
+		for(let distance = 0; distance <= SpiderData.HITBOX_SIZE / 2; distance ++) {
+			for(const sign of [-1, 1]) {
+				const collides = (o: Entity) => o !== this;
+				const possibleBasepoint = new Vector(centerBottom.x + sign * distance, centerBottom.y);
+				const motionBlockers = world.angularMotionBlockers(possibleBasepoint, "clockwise", collides);
+				if(motionBlockers.some(d => ["up-left", "left", "down-left", "down-right", "right", "up-right"].includes(d))) {
+					this.movement = new CrawlingMovementData(
+						new PointOnSurface(possibleBasepoint, "up"),
+						"clockwise",
+					);
+					return true;
+				}
 			}
-			this.rechargeTime = SpiderData.RECHARGE_TIME;
-			this.runAway(world.player);
 		}
-		this.pauseTimer --;
-		if(this.pauseTimer === 0) {
-			this.shootProjectile(world);
-			this.rechargeTime = SpiderData.RECHARGE_TIME;
-		}
+		return false;
 	}
-	runAway(player: Player) {
-		const playerCenter = player.hitbox.center();
-		if(!this.basepoint) { return; }
-		const distance = Vector.dist(this.basepoint.position(), playerCenter);
-		const direction = this.basepoint.surface.tangentVectorCW().multiply(this.movement === "clockwise" ? 1 : -1);
-		const nextDistance = Vector.dist(this.basepoint.position().add(direction), playerCenter);
-		if(nextDistance < distance) {
-			this.movement = (this.movement === "clockwise" ? "counterclockwise" : "clockwise");
-		}
-	}
-	shootProjectile(world: World) {
-		const center = this.hitbox.center();
-		const player = world.player.hitbox.center();
-		const direction = player.subtract(center).normalize();
-		const velocity = direction.multiply(SpiderData.PROJECTILE_SPEED);
-		const acceleration = direction.multiply(SpiderData.PROJECTILE_ACCELERATION);
-		const projectile = new SpiderProjectile(center, velocity, acceleration, this);
-		world.entities.addEntity(projectile);
-	}
-	checkPlatformEnds(world: World) {
-		const onRightEnd = (
-			this.basepoint &&
-			this.basepoint.surface.nextSurfaceCW(world) === null &&
-			this.basepoint.distance > this.basepoint.surface.length() / 2
-		);
-		if(onRightEnd) { this.movement = "counterclockwise"; }
-		const onLeftEnd = (
-			this.basepoint &&
-			this.basepoint.surface.nextSurfaceCCW(world) === null &&
-			this.basepoint.distance < this.basepoint.surface.length() / 2
-		);
-		if(onLeftEnd) { this.movement = "clockwise"; }
+	beginFalling() {
+		this.movement = new FallingMovementData();
 	}
 
-	moveAlongSurface(amount: number, world: World, canvasIO: CanvasIO) {
-		this.moveBasepoint(amount, world);
-		const distance = this.wallDistance(world);
-		const normal = this.smoothedNormal(world);
-		const newCenter = this.basepoint!.position().add(normal.multiply(distance));
-		const newPosition = newCenter.subtract(SpiderData.HITBOX_SIZE / 2, SpiderData.HITBOX_SIZE / 2);
-		this.move(
-			newPosition.subtract(this.hitbox.getCorner("top-left")),
-			world,
-			canvasIO,
-			{
-				collides: (obj) => obj !== this && !(obj instanceof SpiderProjectile && obj.spider === this),
-			},
-		);
-		world.entities.moveEntity(this);
-	}
-	moveBasepoint(amount: number, world: World) {
-		this.basepoint = this.basepoint!.moveAlongSurface(amount * (this.movement === "clockwise" ? 1 : -1), world);
-	}
-	smoothedNormal(world: World) {
-		const defaultNormal = Vector.unit(this.basepoint!.surface.outwardNormal);
-		if(this.basepoint!.distance < SpiderData.TURN_WALL_DURATION) {
-			const nextSurface = this.basepoint!.surface.nextSurfaceCCW(world);
-			if(!nextSurface) { return defaultNormal; }
-			const angle = Directions.angle[this.basepoint!.surface.outwardNormal];
-			const nextAngle = Directions.angle[nextSurface.outwardNormal];
-			const lerpedAngle = GameUtils.lerpAngle(
-				this.basepoint!.distance,
-				-SpiderData.TURN_WALL_DURATION, SpiderData.TURN_WALL_DURATION,
-				nextAngle, angle,
-			);
-			return new Vector(Math.cos(lerpedAngle), -Math.sin(lerpedAngle));
-		}
-		if(this.basepoint!.surface.length() - this.basepoint!.distance < SpiderData.TURN_WALL_DURATION) {
-			const nextSurface = this.basepoint!.surface.nextSurfaceCW(world);
-			if(!nextSurface) { return defaultNormal; }
-			const angle = Directions.angle[this.basepoint!.surface.outwardNormal];
-			const nextAngle = Directions.angle[nextSurface.outwardNormal];
-			const lerpedAngle = GameUtils.lerpAngle(
-				this.basepoint!.distance - this.basepoint!.surface.length(),
-				-SpiderData.TURN_WALL_DURATION, SpiderData.TURN_WALL_DURATION,
-				angle, nextAngle,
-			);
-			return new Vector(Math.cos(lerpedAngle), -Math.sin(lerpedAngle));
-		}
-		return defaultNormal;
-	}
-	wallDistance(world: World) {
-		const nextSurfaceCW = this.basepoint!.surface.nextSurfaceCW(world);
-		const nextSurfaceCCW = this.basepoint!.surface.nextSurfaceCCW(world);
-		const turningCW = (nextSurfaceCW && nextSurfaceCW.outwardNormal !== this.basepoint!.surface.outwardNormal);
-		const turningCCW = (nextSurfaceCCW && nextSurfaceCCW.outwardNormal !== this.basepoint!.surface.outwardNormal);
-		const distanceToTurn = Math.min(
-			turningCCW ? this.basepoint!.distance : Infinity,
-			turningCW ? this.basepoint!.surface.length() - this.basepoint!.distance: Infinity,
-		);
-		if(distanceToTurn > SpiderData.TURN_WALL_DURATION) {
-			return SpiderData.SIZE / 2;
-		}
-		return SpiderData.SIZE / 2 + GameUtils.lerp(
-			distanceToTurn,
-			0, SpiderData.TURN_WALL_DURATION,
-			SpiderData.TURN_WALL_DISTANCE, 0,
-		);
-	}
-
-	onCollision(collision: CollisionEvent): void {
-		if(collision.movingObject === this) {
-			this.switchDirection();
-		}
-	}
-
-	damage(hurtbox: Rectangle, world: World, canvasIO: CanvasIO) {
-		if(!hurtbox.intersects(this.hitbox)) { return; }
-
-		world.entities.removeEntity(this);
-		this.explode(world, canvasIO);
-	}
-	explode(world: World, canvasIO: CanvasIO) {
-		const center = this.hitbox.center();
-		new Explosion(center).explode(world, canvasIO);
-	}
-
-	switchDirection() {
-		this.movement = (this.movement === "clockwise") ? "counterclockwise" : "clockwise";
-	}
-
-	static spawn(position: Vector, world: World) {
+	static spawn(tilePosition: Vector, world: World): boolean {
 		const direction = Directions.DIRECTIONS.find(dir => {
-			const tile = world.tiles.get(position.add(Vector.unit(dir)));
+			const tile = world.tiles.get(tilePosition.add(Vector.unit(dir)));
 			return tile instanceof BasicTile && tile.shape === "full";
 		});
 		if(!direction) {
 			return false;
 		}
-		const spider = new Spider(position.add(1/2, 1/2).multiply(WorldData.TILE_SIZE));
-		spider.basepoint = new PointOnSurface(
-			Surface.tileEdgeCW(position.add(Vector.unit(direction)), Directions.opposite[direction]),
-			WorldData.TILE_SIZE / 2,
-		);
+
+		const tileSquare = Tiles.getTileSquare(tilePosition);
+		const pointOnSurface = new PointOnSurface(tileSquare.edgeCenter(direction), Directions.opposite[direction]);
+		const movement = new CrawlingMovementData(pointOnSurface, "clockwise");
+		const position = tileSquare.center().subtract(SpiderData.HITBOX_SIZE / 2, SpiderData.HITBOX_SIZE / 2);
+		const spider = new Spider(position, movement, world);
 		return world.addEntityIfEmpty(spider);
 	}
-}
 
-export class SpiderProjectile extends RectangularCollideable {
-	velocity: Vector;
-	acceleration: Vector;
-	spider: Spider;
-
-	constructor(position: Vector, velocity: Vector, acceleration: Vector, spider: Spider) {
-		super(Rectangle.square(position.x, position.y, 1));
-		this.velocity = velocity;
-		this.acceleration = acceleration;
-		this.spider = spider;
+	onCollision(collision: CollisionEvent, world: World): void {
+		if(collision.directionOf(this) === "down" && this.movement instanceof FallingMovementData) {
+			this.beginCrawling(world);
+		}
+		else if(this.movement instanceof CrawlingMovementData) {
+			const collisionDirection = Vector.unit(collision.directionOf(this));
+			const tangent = Vector.unit(this.movement.pointOnSurface.tangentVector(this.movement.direction));
+			const opposite = (this.movement.direction === "clockwise" ? "counterclockwise" : "clockwise");
+			const oppositeTangent = Vector.unit(this.movement.pointOnSurface.tangentVector(opposite));
+			if(Vector.dist(tangent, collisionDirection) < Vector.dist(oppositeTangent, collisionDirection)) {
+				this.movement.direction = (this.movement.direction === "clockwise") ? "counterclockwise" : "clockwise";
+			}
+		}
 	}
 
-	update(world: World, canvasIO: CanvasIO) {
-		this.velocity = this.velocity.add(this.acceleration);
-		this.move(this.velocity, world, canvasIO, {
-			collides: (obj) => obj !== this.spider,
-		});
-		world.entities.moveEntity(this);
-
-		world.addParticle(new Particle(
-			this.hitbox.center(),
-			new Vector(0, 0),
-			SpiderData.PROJECTILE_PARTICLE_SETTINGS,
-		), canvasIO);
-	}
-
-	display() { }
-
-
-	onCollision(collision: CollisionEvent, world: World, canvasIO: CanvasIO): void {
-		this.explode(world, canvasIO);
-	}
-	explode(world: World, canvasIO: CanvasIO) {
-		world.entities.removeEntity(this);
-
-		const center = this.hitbox.center();
-		new Explosion(center).explode(world, canvasIO);
+	translate(amount: Vector): void {
+		super.translate(amount);
+		if(this.movement instanceof FallingMovementData) {
+			for(const leg of this.legs) {
+				leg.position = leg.position.add(amount);
+			}
+		}
 	}
 }

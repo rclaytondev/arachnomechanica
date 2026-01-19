@@ -28,7 +28,7 @@ export class HealthPickup extends RectangularCollideable {
 		const player = world.player.hitbox;
 		if(player.intersects(hitbox)) {
 			world.player.health ++;
-			world.entities.removeEntity(this);
+			world.entities.delete(this);
 		}
 	}
 

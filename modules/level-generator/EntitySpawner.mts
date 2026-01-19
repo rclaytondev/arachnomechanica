@@ -12,6 +12,7 @@ import { SpikeballBlock } from "../tiles/SpikeballBlock.mjs";
 import { World } from "../world/World.mjs";
 import { ArrayUtils } from "../../utils-ts/modules/core-extensions/ArrayUtils.mjs";
 import { ThrowableTileEntity } from "../items/ThrowableTileEntity.mjs";
+import { EmptyTile } from "../tiles/EmptyTile.mjs";
 
 type Feature = "lizards" | "spiders" | "lasers" | "spikeballs";
 
@@ -67,23 +68,23 @@ export class EntitySpawner {
 			const tile = world.tiles.get(position);
 			return tile instanceof BasicTile && tile.shape === "full";
 		},
-		replaceEmpty: (position: Vector, world: World) => world.tiles.get(position) === "empty",
+		replaceEmpty: (position: Vector, world: World) => world.tiles.get(position) === EmptyTile.EMPTY,
 		solidAdjacent: (position: Vector, world: World) => Directions.DIRECTIONS.some(direction => {
 			const tile = world.tiles.get(position.add(Vector.unit(direction)));
 			return tile instanceof BasicTile && tile.shape === "full";
 		}),
 		atLeast2Empty: (position: Vector, world: World) => (
-			Directions.DIRECTIONS.filter(d => world.tiles.get(position.add(Vector.unit(d))) === "empty").length >= 2
+			Directions.DIRECTIONS.filter(d => world.tiles.get(position.add(Vector.unit(d))) === EmptyTile.EMPTY).length >= 2
 		),
 		noAdjacentGates: (position: Vector, world: World) => (
-			!position.adjacentVectors().some(v => world.tiles.get(v) instanceof Gate)
+			!position.adjacentVectors().some(v => Gate.isGateAt(v, world))
 		),
 		atLeastLine3Empty: (position: Vector, world: World) => {
 			for(const direction of Directions.DIRECTIONS) {
 				const firstTile = world.tiles.get(position.add(Vector.unit(direction)));
 				if(firstTile instanceof BasicTile) { continue; }
 				for(let i = 2; i <= 3; i ++) {
-					if(world.tiles.get(position.add(Vector.unit(direction).multiply(i))) !== "empty") {
+					if(world.tiles.get(position.add(Vector.unit(direction).multiply(i))) !== EmptyTile.EMPTY) {
 						return false;
 					}
 				}
@@ -99,9 +100,9 @@ export class EntitySpawner {
 				if(firstTile instanceof BasicTile) { continue; }
 				for(let i = 2; i <= 3; i ++) {
 					if(
-						world.tiles.get(position.add(directionVector.multiply(i))) !== "empty" ||
-						world.tiles.get(position.add(directionVector.multiply(i)).add(perpendicular1)) !== "empty" ||
-						world.tiles.get(position.add(directionVector.multiply(i)).add(perpendicular2)) !== "empty"
+						world.tiles.get(position.add(directionVector.multiply(i))) !== EmptyTile.EMPTY ||
+						world.tiles.get(position.add(directionVector.multiply(i)).add(perpendicular1)) !== EmptyTile.EMPTY ||
+						world.tiles.get(position.add(directionVector.multiply(i)).add(perpendicular2)) !== EmptyTile.EMPTY
 					) {
 						return false;
 					}
@@ -110,11 +111,11 @@ export class EntitySpawner {
 			return true;
 		},
 		notOnFloor: (position: Vector, world: World) => {
-			return world.tiles.get(position.add(0, -1)) !== "empty";
+			return world.tiles.get(position.add(0, -1)) !== EmptyTile.EMPTY;
 		},
 		leftOrRightEmpty: (position: Vector, world: World) => (
-			world.tiles.get(position.add(-1, 0)) === "empty" ||
-			world.tiles.get(position.add(1, 0)) === "empty"
+			world.tiles.get(position.add(-1, 0)) === EmptyTile.EMPTY ||
+			world.tiles.get(position.add(1, 0)) === EmptyTile.EMPTY
 		),
 		solidBelow: (position: Vector, world: World) => World.isFullBasicTile(world.tiles.get(position.add(0, 1))),
 	};
@@ -131,7 +132,8 @@ export class EntitySpawner {
 				LaserBlock.canSpawn,
 			],
 			(position, world) => {
-				world.addTile(position, LaserBlock.generate());
+				world.removeTile(position);
+				world.entities.add(LaserBlock.generate(position));
 				return true;
 			},
 			safeRegion,
@@ -150,7 +152,8 @@ export class EntitySpawner {
 				SpikeballBlock.canSpawn,
 			],
 			(position: Vector, world: World) => {
-				world.addTile(position, new SpikeballBlock(ArrayUtils.randomItem(SpikeballBlockData.PATTERNS)));
+				world.tiles.set(position, EmptyTile.EMPTY);
+				world.entities.add(SpikeballBlock.atTile(position, ArrayUtils.randomItem(SpikeballBlockData.PATTERNS)));
 				return true;
 			},
 			safeRegion,
@@ -195,7 +198,7 @@ export class EntitySpawner {
 			],
 			(position: Vector, world: World) => {
 				world.removeTile(position);
-				world.entities.addEntity(new ThrowableTileEntity(position.multiply(WorldData.TILE_SIZE), []));
+				world.entities.add(new ThrowableTileEntity(position.multiply(WorldData.TILE_SIZE), []));
 				return true;
 			},
 			new Rectangle(0, 0, 0, 0),

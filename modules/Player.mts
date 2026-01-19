@@ -54,7 +54,7 @@ export class Player extends RectangularCollideable {
 		this.velocity.x = MathUtils.constrain(this.velocity.x, -PlayerData.MAX_X_VELOCITY, PlayerData.MAX_X_VELOCITY);
 		this.move(new Vector(this.velocity.x, 0), world, canvasIO, { });
 		this.move(new Vector(0, this.velocity.y), world, canvasIO, {});
-		world.entities.moveEntity(this);
+		world.entities.updatePosition(this);
 	}
 	onCollision(collision: CollisionEvent, world: World): void {
 		if(collision.movingObject === this) {
@@ -137,7 +137,7 @@ export class Player extends RectangularCollideable {
 			if(this.health <= 0 && !this.dead) {
 				Main.beginDeathTransition();
 				this.dead = true;
-				world.entities.removeEntity(this);
+				world.entities.delete(this);
 			}
 		}
 	}
@@ -175,7 +175,7 @@ export class Player extends RectangularCollideable {
 		if(!world.isInSolid(item.hitbox.translate(throwStart))) {
 			item.translate(throwStart);
 			item.velocity = this.itemThrowVelocity(canvasIO);
-			world.entities.addEntity(item);
+			world.entities.add(item);
 			return true;
 		}
 		return false;
@@ -195,7 +195,7 @@ export class Player extends RectangularCollideable {
 			for(const modifier of this.equippedItems[firstEmptySlot].modifiers) {
 				modifier.reset();
 			}
-			world.entities.removeEntity(itemEntity);
+			world.entities.delete(itemEntity);
 		}
 	}
 }

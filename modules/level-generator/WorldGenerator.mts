@@ -7,7 +7,6 @@ import { MathUtils } from "../../utils-ts/modules/math/MathUtils.mjs";
 import { DEBUG_SETTINGS } from "../constants/DebugSettings.mjs";
 import { LevelGeneratorData, RoomData } from "../constants/GameData.mjs";
 import { GameUtils } from "../game-utilities/GameUtils.mjs";
-import { Gate } from "../tiles/Gate.mjs";
 import { BasicTile } from "../tiles/BasicTile.mjs";
 import { World } from "../world/World.mjs";
 import { GateState } from "./GateState.mjs";
@@ -20,6 +19,7 @@ import { HealthPickup } from "../entities/HealthPickup.mjs";
 import { ArrayUtils } from "../../utils-ts/modules/core-extensions/ArrayUtils.mjs";
 import { MapUtils } from "../../utils-ts/modules/core-extensions/MapUtils.mjs";
 import { SetUtils } from "../../utils-ts/modules/core-extensions/SetUtils.mjs";
+import { Platform } from "../tiles/Platform.mjs";
 
 export class WorldGenerator {
 	path: Vector[] = [];
@@ -174,7 +174,7 @@ export class WorldGenerator {
 		const possibleRooms = MapUtils.groupBy(
 			ROOMS.filter(r => (
 				r.canSpawnWithExits(roomPlaceholder.exits)
-				&& r.entities.length === 0
+				&& r.isOrdinaryRoom()
 			)),
 			r => Room.connectivity(r.traversability, roomPlaceholder.exits),
 		);
@@ -401,11 +401,8 @@ export class WorldGenerator {
 		for(const tilePosition of Rectangle.square(0, 0, RoomData.SIZE).squares()) {
 			const tile = roomPlaceholder.room.tiles.get(tilePosition);
 			const exitTile = roomPlaceholder.room.exitTiles.get(tilePosition);
-			if(tile instanceof BasicTile || tile === "platform" || (exitTile !== "none" && !roomPlaceholder.exits.has(exitTile as Direction))) {
+			if(tile instanceof BasicTile || tile === Platform.PLATFORM || (exitTile !== "none" && !roomPlaceholder.exits.has(exitTile as Direction))) {
 				canvasIO.ctx.fillStyle = "black";
-			}
-			else if(tile instanceof Gate) {
-				canvasIO.ctx.fillStyle = tile.open ? "green" : "red";
 			}
 			else { continue; }
 			canvasIO.fillSquare(

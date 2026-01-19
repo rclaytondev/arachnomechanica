@@ -43,7 +43,7 @@ export class Portal extends Entity {
 	}
 	teleportPlayer(world: World) {
 		const nextLevel = world.nextLevelTileRectangle(world.levelsVisited).scale(WorldData.TILE_SIZE);
-		const nextSpawn = [...world.entities.entitiesPossiblyIntersecting(nextLevel)].find(e => e instanceof SpawnPoint)!;
+		const nextSpawn = [...world.entities.possiblyIntersecting(nextLevel)].find(e => e instanceof SpawnPoint)!;
 		world.player.hitbox.x = nextSpawn.position.x;
 		world.player.hitbox.y = nextSpawn.position.y;
 	}

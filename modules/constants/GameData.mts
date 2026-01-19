@@ -452,9 +452,12 @@ export class SpiderData {
 	static SPEED = 3;
 	static FAST_SPEED = 8;
 	static ANGULAR_SPEED = 0.2;
-	static TURN_WALL_DISTANCE = 10;
+	static TURN_WALL_DISTANCE = 20;
 	static TURN_WALL_DURATION = 20;
 	static LEG_SPEED = 3;
+	static LEG_UPDATE_SPEED = 2 * SpiderData.LEG_SPEED;
+	static MAX_BASEPOINT_DISTANCE = 60;
+	static MAX_DISTANCE_PER_MOVE = 3;
 
 	static LEG_1 = {
 		LENGTH: 30,

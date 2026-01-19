@@ -41,7 +41,7 @@ export class ThrowableTileEntity extends RectangularCollideable {
 		this.move(this.velocity, world, canvasIO, {
 			collides: (obj) => obj !== this,
 		});
-		world.entities.moveEntity(this);
+		world.entities.updatePosition(this);
 
 		for(const modifier of this.modifiers) {
 			modifier.update(this, world, canvasIO);

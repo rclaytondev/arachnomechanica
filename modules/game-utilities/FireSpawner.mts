@@ -2,8 +2,9 @@ import { CanvasIO } from "../../utils-ts/modules/CanvasIO.mjs";
 import { Direction, Directions } from "../../utils-ts/modules/geometry/Direction.mjs";
 import { Rectangle } from "../../utils-ts/modules/geometry/Rectangle.mjs";
 import { Vector } from "../../utils-ts/modules/geometry/Vector.mjs";
-import { Gate } from "../tiles/Gate.mjs";
-import { Tile, World } from "../world/World.mjs";
+import { Platform } from "../tiles/Platform.mjs";
+import { Tile } from "../tiles/Tile.mjs";
+import { World } from "../world/World.mjs";
 import { GameUtils } from "./GameUtils.mjs";
 import { Particle, ParticleSettings } from "./Particle.mjs";
 
@@ -123,14 +124,13 @@ export class FireSpawner {
 	}
 	shouldDestroy(tile: Tile) {
 		return !(
-			(tile === "platform" && this.direction !== "down") ||
-			(tile instanceof Gate && tile.openness >= 1)
+			(tile === Platform.PLATFORM && this.direction !== "down")
 		);
 	}
 	updateHurtbox(world: World, canvasIO: CanvasIO) {
 		if(this.hurtboxSize === 0) { return; }
 		const hurtbox = this.hurtbox();
-		for(const { position, tile } of world.getTilesAt(hurtbox)) {
+		for(const { position, tile } of world.tiles.getTilesAt(hurtbox)) {
 			if(this.shouldDestroy(tile)){
 				world.destroyTile(position);
 			}

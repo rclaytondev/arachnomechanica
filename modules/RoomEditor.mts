@@ -4,13 +4,19 @@ import { Vector } from "../utils-ts/modules/geometry/Vector.mjs";
 import { Room, RoomTile } from "./level-generator/Room.mjs";
 import { DEBUG_SETTINGS } from "./constants/DebugSettings.mjs";
 import { Gate } from "./tiles/Gate.mjs";
-import { Tile, World } from "./world/World.mjs";
+import { World } from "./world/World.mjs";
 import { PortalData, WorldData } from "./constants/GameData.mjs";
 import { Rectangle } from "../utils-ts/modules/geometry/Rectangle.mjs";
 import { ROOMS } from "./level-generator/Rooms.mjs";
 import { GameUtils } from "./game-utilities/GameUtils.mjs";
 import { Portal } from "./entities/Portal.mjs";
 import { BasicTile } from "./tiles/BasicTile.mjs";
+import { EmptyTile } from "./tiles/EmptyTile.mjs";
+import { Platform } from "./tiles/Platform.mjs";
+import { Tile } from "./tiles/Tile.mjs";
+import { Tiles } from "./world/Tiles.mjs";
+import { HealthPickup } from "./entities/HealthPickup.mjs";
+import { SpawnPoint } from "./entities/SpawnPoint.mjs";
 
 export class RoomEditor {
 	room: Room;
@@ -26,7 +32,7 @@ export class RoomEditor {
 			this.world.tiles.set(position, tile);
 		}
 		for(const entity of this.room.entities) {
-			this.world.entities.addEntity(entity);
+			this.world.entities.add(entity);
 		}
 	}
 
@@ -48,28 +54,28 @@ export class RoomEditor {
 	}
 	checkForClicks(canvasIO: CanvasIO) {
 		if(!canvasIO.mouse.pressed) { return; }
-		const position = this.world.getTileCoordinates(canvasIO.mouse.position);
+		const position = Tiles.getTileCoordinates(canvasIO.mouse.position);
 		if(canvasIO.mouse.button === "left") {
 			if(this.mode === "solid") {
-				this.setTile(position, canvasIO.mouse.button === "left" ? new BasicTile("full", "tower") : "empty");
+				this.setTile(position, canvasIO.mouse.button === "left" ? new BasicTile("full", "tower") : EmptyTile.EMPTY);
 			}
 			else if(this.mode === "platform") {
-				this.setTile(position, canvasIO.mouse.button === "left" ? "platform" : "empty");
+				this.setTile(position, canvasIO.mouse.button === "left" ? Platform.PLATFORM : EmptyTile.EMPTY);
 			}
 			else if(this.mode === "exit" && Directions.isDirection(this.direction)) {
 				this.room.exitTiles.set(position, this.direction);
 			}
-			else if(this.mode === "gate-open" && Directions.isDirection(this.direction)) {
-				this.setTile(position, new Gate(this.direction, true));
-			}
-			else if(this.mode === "gate-closed" && Directions.isDirection(this.direction)) {
-				this.setTile(position, new Gate(this.direction, false));
+			else if((this.mode === "gate-open" || this.mode === "gate-closed") && Directions.isDirection(this.direction)) {
+				const gateExists = Gate.isGateAt(position, this.world);
+				if(!gateExists) {
+					const gate = Gate.atTile(position, this.direction, (this.mode === "gate-open"));
+					this.addEntity(gate);
+				}
 			}
 			else if(this.mode === "portal") {
 				const portalPosition = this.getPortalPosition(position);
 				if(!this.room.entities.some(p => p instanceof Portal && p.position.equals(portalPosition))) {
-					this.room.entities.push(new Portal(portalPosition));
-					this.world.entities.addEntity(new Portal(portalPosition));
+					this.addEntity(new Portal(portalPosition));
 				}
 			}
 			else if(this.mode === "slope" && Directions.isDiagonal(this.direction)) {
@@ -87,21 +93,17 @@ export class RoomEditor {
 				this.room.exitTiles.set(position, "none");
 			}
 			else if(this.mode !== "portal") {
-				this.setTile(position, "empty");
+				this.setTile(position, EmptyTile.EMPTY);
 			}
 			else {
 				const portalPosition = this.getPortalPosition(position);
-				this.room.entities = this.room.entities.filter(e => !(e instanceof Portal && e.position.equals(portalPosition)));
-				for(const entity of this.world.entities.allEntities()) {
-					if(entity instanceof Portal && entity.position.equals(portalPosition)) {
-						this.world.entities.removeEntity(entity);
-					}
-				}
+				this.filterEntities(e => !(e instanceof Portal && e.position.equals(portalPosition)));
 			}
+			this.filterEntities(e => !(e instanceof Gate && e.tilePosition().equals(position)));
 		}
 	}
 	getPortalPosition(tilePosition: Vector) {
-		return this.world.getTileCoordinates(tilePosition.multiply(WorldData.TILE_SIZE).add(PortalData.WIDTH / 2, 0))
+		return Tiles.getTileCoordinates(tilePosition.multiply(WorldData.TILE_SIZE).add(PortalData.WIDTH / 2, 0))
 			.add(0, 1).multiply(WorldData.TILE_SIZE);
 	}
 	setTile(position: Vector, tile: RoomTile) {
@@ -159,9 +161,23 @@ export class RoomEditor {
 		this.displayInfo(canvasIO);
 	}
 
+	addEntity(entity: Portal | HealthPickup | SpawnPoint | Gate) {
+		this.room.entities.push(entity);
+		this.world.entities.add(entity);
+	}
+	filterEntities(callback: (entity: Portal | HealthPickup | SpawnPoint | Gate) => boolean) {
+		this.room.entities = this.room.entities.filter(callback);
+		for(const entity of this.world.entities) {
+			const valid = (entity instanceof Portal || entity instanceof HealthPickup || entity instanceof SpawnPoint || entity instanceof Gate);
+			if(valid && !callback(entity)) {
+				this.world.entities.delete(entity);
+			}
+		}
+	}
+
 
 	displayHoveredTile(canvasIO: CanvasIO) {
-		const position = this.world.getTileCoordinates(canvasIO.mouse.position).multiply(WorldData.TILE_SIZE);
+		const position = Tiles.getTileCoordinates(canvasIO.mouse.position).multiply(WorldData.TILE_SIZE);
 		canvasIO.ctx.strokeStyle = DEBUG_SETTINGS.HOVERED_TILE_COLOR;
 		canvasIO.ctx.strokeRect(position.x, position.y, WorldData.TILE_SIZE, WorldData.TILE_SIZE);
 	}
@@ -196,14 +212,14 @@ export class RoomEditor {
 	}
 
 	getTileString(tile: Tile) {
-		if(typeof tile === "string"){
-			return `"${tile}"`;
+		if(tile instanceof EmptyTile){
+			return "\"empty\"";
+		}
+		else if(tile instanceof Platform){
+			return "\"platform\"";
 		}
 		else if(tile instanceof BasicTile) {
 			return `"${tile.shape === "full" ? "solid" : tile.shape}"`;
-		}
-		else if(tile instanceof Gate) {
-			return `new Gate("${tile.direction}", ${tile.open})`;
 		}
 		else {
 			throw new Error("Found unexpected tile in level editor.");
@@ -222,6 +238,10 @@ export class RoomEditor {
 		for(const entity of this.room.entities) {
 			if(entity instanceof Portal) {
 				result += `\tnew Portal(new Vector${entity.position}),\n`;
+			}
+			else if(entity instanceof Gate) {
+				const position = entity.tilePosition();
+				result += `\tGate.atTile(new Vector(${position.x}, ${position.y}), "${entity.direction}", ${entity.toggled}),\n`;
 			}
 		}
 		result += "],";

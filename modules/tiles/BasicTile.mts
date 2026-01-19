@@ -1,14 +1,19 @@
 import { CanvasIO } from "../../utils-ts/modules/CanvasIO.mjs";
+import { Diagonal, Direction } from "../../utils-ts/modules/geometry/Direction.mjs";
 import { Vector } from "../../utils-ts/modules/geometry/Vector.mjs";
 import { MathUtils } from "../../utils-ts/modules/math/MathUtils.mjs";
 import { WorldData } from "../constants/GameData.mjs";
+import { Octant, Octants } from "../game-utilities/Octant.mjs";
+import { Tiles } from "../world/Tiles.mjs";
 import { Slope } from "../world/World.mjs";
+import { Tile } from "./Tile.mjs";
 
-export class BasicTile {
+export class BasicTile extends Tile {
 	readonly shape: "full" | Slope;
 	readonly texture: "tower" | "stone";
 
 	constructor(shape: "full" | Slope, texture: "tower" | "stone") {
+		super();
 		this.shape = shape;
 		this.texture = texture;
 	}
@@ -16,8 +21,54 @@ export class BasicTile {
 	copy() {
 		return new BasicTile(this.shape, this.texture);
 	}
+	reflect(): BasicTile {
+		const reflections: { [key: string]: "full" | Slope } = {
+			"full": "full",
+			"slope-floor-left": "slope-floor-right",
+			"slope-floor-right": "slope-floor-left",
+			"slope-ceiling-left": "slope-ceiling-right",
+			"slope-ceiling-right": "slope-ceiling-left",
+		};
+		return new BasicTile(reflections[this.shape], this.texture);
+	}
 	equals(tile: unknown) {
 		return tile instanceof BasicTile && this.shape === tile.shape && this.texture === tile.texture;
+	}
+
+	contains(point: Vector, tilePosition: Vector) {
+		const square = Tiles.getTileSquare(tilePosition);
+		if(!square.contains(point)) {
+			return false;
+		}
+
+		const pointInSquare = point.subtract(square.getCorner("top-left"));
+		if(this.shape === "slope-floor-left") {
+			return pointInSquare.y >= pointInSquare.x;
+		}
+		else if(this.shape === "slope-floor-right") {
+			return pointInSquare.y >= WorldData.TILE_SIZE - pointInSquare.x;
+		}
+		else if(this.shape === "slope-ceiling-left") {
+			return pointInSquare.y <= WorldData.TILE_SIZE - pointInSquare.x;
+		}
+		else if(this.shape === "slope-ceiling-right") {
+			return pointInSquare.y <= pointInSquare.x;
+		}
+		else {
+			return true;
+		}
+	}
+	solidOctants(tilePosition: Vector, point: Vector): Octant[] {
+		if(this.shape === "full") {
+			return Octants.octantsOfRect(point, Tiles.getTileSquare(tilePosition));
+		}
+		return Octants.fromIncludes(point, p => this.contains(p, tilePosition));
+	}
+	angularMotionBlockers(tilePosition: Vector, point: Vector): (Direction | Diagonal)[] {
+		const octants = this.solidOctants(tilePosition, point);
+		return [...new Set(octants.flatMap(
+			o => [Octants.edge(o, "clockwise"), Octants.edge(o, "counterclockwise")]),
+		)];
 	}
 
 	addToPath(position: Vector, canvasIO: CanvasIO) {
@@ -48,10 +99,10 @@ export class BasicTile {
 		}
 	}
 
-	static displayTile(position: Vector, canvasIO: CanvasIO, tile: BasicTile) {
-		canvasIO.ctx.fillStyle = WorldData.TILE_COLORS[tile.texture];
+	display(canvasIO: CanvasIO, x: number, y: number): void {
+		canvasIO.ctx.fillStyle = WorldData.TILE_COLORS[this.texture];
 		canvasIO.ctx.beginPath();
-		tile.addToPath(position, canvasIO);
+		this.addToPath(new Vector(x, y), canvasIO);
 		canvasIO.ctx.fill();
 	}
 }

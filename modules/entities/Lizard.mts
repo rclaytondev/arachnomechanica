@@ -13,6 +13,8 @@ import { Collideable } from "../game-utilities/physics-engine/Collideable.mjs";
 import { Particle } from "../game-utilities/Particle.mjs";
 import { ArrayUtils } from "../../utils-ts/modules/core-extensions/ArrayUtils.mjs";
 import { InvisibleRectangle } from "../game-utilities/physics-engine/InvisibleRectangle.mjs";
+import { EmptyTile } from "../tiles/EmptyTile.mjs";
+import { Tiles } from "../world/Tiles.mjs";
 
 type Joint = { position: Vector, direction: Direction };
 
@@ -171,12 +173,6 @@ export class Lizard extends Collideable {
 		canvasIO.ctx.restore();
 	}
 	displayDebug(canvasIO: CanvasIO) {
-		const hitboxes = this.hitboxes();
-		for(const box of hitboxes) {
-			canvasIO.ctx.strokeStyle = DEBUG_SETTINGS.LIZARD_HITBOX_COLOR;
-			canvasIO.strokeRect(box);
-		}
-
 		const hurtbox = this.fireSpawner.hurtbox();
 		canvasIO.ctx.strokeStyle = DEBUG_SETTINGS.LIZARD_HURTBOX_COLOR;
 		canvasIO.strokeRect(hurtbox);
@@ -217,7 +213,7 @@ export class Lizard extends Collideable {
 			this.position = this.position.subtract(offset);
 			return false;
 		}
-		world.entities.moveEntity(this);
+		world.entities.updatePosition(this);
 		return true;
 	}
 	updateLegs() {
@@ -261,7 +257,7 @@ export class Lizard extends Collideable {
 				this.turn(counterclockwise);
 			}
 			else {
-				const tileCoordinates = world.getTileCoordinates(lookaheadPoint);
+				const tileCoordinates = Tiles.getTileCoordinates(lookaheadPoint);
 				this.turn((tileCoordinates.x + tileCoordinates.y) % 2 === 0 ? clockwise : counterclockwise);
 			}
 		}
@@ -390,7 +386,7 @@ export class Lizard extends Collideable {
 		const length = this.roundedLengthAfterDamage(rectangle);;
 		this.roundedLengthAfterDamage(rectangle);
 		if(length < (LizardData.MIN_LENGTH + 1/2) * WorldData.TILE_SIZE) {
-			world.entities.removeEntity(this);
+			world.entities.delete(this);
 			this.spawnDamageParticles(0, world, canvasIO);
 		}
 		else {
@@ -470,7 +466,7 @@ export class Lizard extends Collideable {
 	}
 	isObstructed(world: World, direction: Direction = this.direction, distance: number = LizardData.LOOKAHEAD_DISTANCE, length: number = 1) {
 		const lookaheadRectangle = this.lookaheadRectangle(direction, distance, length);
-		for(const { tile } of world.getTilesAt(lookaheadRectangle)) {
+		for(const { tile } of world.tiles.getTilesAt(lookaheadRectangle)) {
 			if(World.isSemifullTile(tile, direction === "down")) {
 				return true;
 			}
@@ -561,7 +557,7 @@ export class Lizard extends Collideable {
 	static spawn(tilePosition: Vector, world: World) {
 		const [_, direction, maxLength] = ArrayUtils.maxEntry(Directions.DIRECTIONS, (direction) => {
 			for(let i = 0; i <= LizardData.MAX_LENGTH / WorldData.TILE_SIZE; i ++) {
-				if(world.tiles.get(tilePosition.add(Vector.unit(direction).multiply(i))) !== "empty") {
+				if(world.tiles.get(tilePosition.add(Vector.unit(direction).multiply(i))) !== EmptyTile.EMPTY) {
 					return i - 1;
 				}
 			}

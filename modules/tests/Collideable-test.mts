@@ -41,7 +41,7 @@ class CollideableSpy extends RectangularCollideable {
 	}
 
 	damage(hurtbox: Rectangle, world: World): void {
-		world.entities.removeEntity(this);
+		world.entities.delete(this);
 		this.destroyed = true;
 	}
 

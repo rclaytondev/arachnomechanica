@@ -3,8 +3,12 @@ import { SetUtils } from "../../../utils-ts/modules/core-extensions/SetUtils.mjs
 import { Direction, Directions } from "../../../utils-ts/modules/geometry/Direction.mjs";
 import { Rectangle } from "../../../utils-ts/modules/geometry/Rectangle.mjs";
 import { Vector } from "../../../utils-ts/modules/geometry/Vector.mjs";
+import { DEBUG_SETTINGS } from "../../constants/DebugSettings.mjs";
 import { WorldData } from "../../constants/GameData.mjs";
-import { World, Tile, TileWithPosition } from "../../world/World.mjs";
+import { Platform } from "../../tiles/Platform.mjs";
+import { Tile } from "../../tiles/Tile.mjs";
+import { Tiles } from "../../world/Tiles.mjs";
+import { World, TileWithPosition } from "../../world/World.mjs";
 import { Entity } from "../Entity.mjs";
 import { CollisionEvent } from "./CollisionEvent.mjs";
 
@@ -20,7 +24,7 @@ export type MoveUnitOptions = MoveOptions & {
 
 export abstract class Collideable extends Entity {
 	damage(hurtbox: Rectangle, world: World, canvasIO: CanvasIO) {
-		world.entities.removeEntity(this);
+		world.entities.delete(this);
 	}
 
 	subpixel: Vector = new Vector(0, 0);
@@ -155,11 +159,11 @@ export abstract class Collideable extends Entity {
 		const hitboxes = this.hitboxes();
 		const platforms: TileWithPosition[] = [];
 		for(const hitbox of hitboxes.filter(h => h.bottom() % WorldData.TILE_SIZE === 0)) {
-			const left = world.getTileX(hitbox.left());
-			const right = world.getTileX(hitbox.right() - 1);
+			const left = Tiles.getTileX(hitbox.left());
+			const right = Tiles.getTileX(hitbox.right() - 1);
 			for(let x = left; x <= right; x ++) {
-				if(world.tiles.get(x, hitbox.bottom() / WorldData.TILE_SIZE) === "platform") {
-					platforms.push({ x: x, y: hitbox.bottom() / WorldData.TILE_SIZE, tile: "platform" });
+				if(world.tiles.get(x, hitbox.bottom() / WorldData.TILE_SIZE) === Platform.PLATFORM) {
+					platforms.push({ x: x, y: hitbox.bottom() / WorldData.TILE_SIZE, tile: Platform.PLATFORM });
 				}
 			}
 		}
@@ -191,5 +195,12 @@ export abstract class Collideable extends Entity {
 			return true;
 		}
 		return false;
+	}
+
+	displayHitboxes(canvasIO: CanvasIO) {
+		canvasIO.ctx.strokeStyle = DEBUG_SETTINGS.HITBOX_COLOR;
+		for(const hitbox of this.hitboxes()) {
+			canvasIO.strokeRect(hitbox);
+		}
 	}
 }
