@@ -26,9 +26,12 @@ export class WorldScreen {
 	}
 
 	display(canvasIO: CanvasIO) {
+		canvasIO.ctx.save();
 		this.backgrounds.display(canvasIO, this.world.camera);
+		this.visualEffects.display(canvasIO, "before");
 		this.world.display(canvasIO);
-		this.visualEffects.display(canvasIO);
+		this.visualEffects.display(canvasIO, "after");
+		canvasIO.ctx.restore();
 	}
 
 	beginDeathTransition() {

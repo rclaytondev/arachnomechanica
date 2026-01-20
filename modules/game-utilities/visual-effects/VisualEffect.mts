@@ -4,6 +4,8 @@ export abstract class VisualEffect {
 	abstract update(): void;
 	abstract display(canvasIO: CanvasIO): void;
 
+	abstract readonly renderingOrder: "before" | "after";
+
 	onCompletion: () => void;
 
 	constructor(onCompletion: () => void) {

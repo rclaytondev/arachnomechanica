@@ -38,8 +38,6 @@ export class World {
 	originalTiles: Tiles = new Tiles();
 	entities: Entities = new Entities();
 	particles: Particle[] = [];
-	screenShakeTimer: number = 0;
-	screenShakeIntensity: number = 0;
 	camera: Vector = new Vector(0, 0);
 	levelsGenerated: number = 0;
 	levelsVisited: number = 0;
@@ -110,7 +108,6 @@ export class World {
 
 	display(canvasIO: CanvasIO, visibleTileRegion: Rectangle = this.visibleTileRegion(canvasIO)) {
 		canvasIO.ctx.save();
-		this.applyScreenShake(canvasIO);
 		const translation = this.translationToCamera(canvasIO);
 		canvasIO.ctx.translate(translation.x, translation.y);
 		this.displayGlowEffects(canvasIO);
@@ -123,13 +120,6 @@ export class World {
 
 		if(DEBUG_SETTINGS.SHOW_MOUSE_COORDINATES) {
 			this.displayMouseCoordinates(canvasIO);
-		}
-	}
-	applyScreenShake(canvasIO: CanvasIO) {
-		if(this.screenShakeTimer > 0) {
-			const amountX = GameUtils.random(-this.screenShakeIntensity, this.screenShakeIntensity);
-			const amountY = GameUtils.random(-this.screenShakeIntensity, this.screenShakeIntensity);
-			canvasIO.ctx.translate(amountX, amountY);
 		}
 	}
 	translationToCamera(canvasIO: CanvasIO) {
@@ -237,7 +227,6 @@ export class World {
 		this.updateEntities(canvasIO);
 		this.updateParticles();
 		this.updateGeneration();
-		this.screenShakeTimer --;
 		this.updateCamera();
 	}
 	updateEntities(canvasIO: CanvasIO) {

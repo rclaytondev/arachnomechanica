@@ -18,8 +18,8 @@ export class VisualEffects {
 		}
 	}
 
-	display(canvasIO: CanvasIO) {
-		for(const effect of this.effectsList) {
+	display(canvasIO: CanvasIO, mode: "before" | "after") {
+		for(const effect of this.effectsList.filter(e => e.renderingOrder === mode)) {
 			effect.display(canvasIO);
 		}
 	}

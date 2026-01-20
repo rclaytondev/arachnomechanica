@@ -4,6 +4,8 @@ import { WorldData } from "../../constants/GameData.mjs";
 import { VisualEffect } from "./VisualEffect.mjs";
 
 export class OverlayText extends VisualEffect {
+	readonly renderingOrder = "after";
+
 	text: string;
 	opacity: number;
 	constructor(text: string) {

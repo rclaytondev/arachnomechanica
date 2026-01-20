@@ -7,6 +7,8 @@ import { VisualEffect } from "./VisualEffect.mjs";
 type FadeType = "damage-flash" | "transition-start-delay" | "transition-pause" | "transition-fade-out" | "transition-fade-in";
 
 export class ScreenFade extends VisualEffect {
+	readonly renderingOrder = "after";
+
 	startOpacity: number;
 	endOpacity: number;
 	color: string;

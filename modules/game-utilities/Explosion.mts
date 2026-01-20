@@ -5,6 +5,7 @@ import { WorldData } from "../constants/GameData.mjs";
 import { World } from "../world/World.mjs";
 import { GameUtils } from "./GameUtils.mjs";
 import { Particle, ParticleSettings } from "./Particle.mjs";
+import { ShakeEffect } from "./visual-effects/ShakeEffect.mjs";
 
 type ExplosionOptions = {
 	visualRadius?: number,
@@ -56,8 +57,7 @@ export class Explosion {
 		this.damage(world, canvasIO);
 	}
 	applyScreenShake(world: World) {
-		world.screenShakeTimer = this.screenShakeTime;
-		world.screenShakeIntensity = this.screenShakeIntensity;
+		world.worldScreen?.visualEffects.add(new ShakeEffect(this.screenShakeTime, this.screenShakeIntensity));
 	}
 	destroyTiles(world: World) {
 		const tileExplosion = Rectangle.fromCenter(

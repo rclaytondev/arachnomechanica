@@ -8,6 +8,7 @@ import { Player } from "../Player.mjs";
 import { World } from "../world/World.mjs";
 import { RectangularCollideable } from "../game-utilities/physics-engine/RectangularCollideable.mjs";
 import { Tiles } from "../world/Tiles.mjs";
+import { ShakeEffect } from "../game-utilities/visual-effects/ShakeEffect.mjs";
 
 export class Gate extends RectangularCollideable {
 	static cooldown = 0;
@@ -18,8 +19,7 @@ export class Gate extends RectangularCollideable {
 		const closedBefore = Gate.openness === 0;
 		Gate.openness = GameUtils.moveTowards(Gate.openness, Gate.open ? 1 : 0, GateData.SPEED);
 		if(Gate.openness === 0 && !closedBefore) {
-			world.screenShakeTimer = GateData.SCREEN_SHAKE_TIME;
-			world.screenShakeIntensity = GateData.SCREEN_SHAKE_INTENSITY;
+			world.worldScreen?.visualEffects.add(new ShakeEffect(GateData.SCREEN_SHAKE_TIME, GateData.SCREEN_SHAKE_INTENSITY));
 		}
 		Gate.cooldown --;
 	}
