@@ -20,7 +20,6 @@ import { Entities } from "./Entities.mjs";
 import { Entity } from "../game-utilities/Entity.mjs";
 import { Collideable } from "../game-utilities/physics-engine/Collideable.mjs";
 import { SpawnPoint } from "../entities/SpawnPoint.mjs";
-import { ArrayUtils } from "../../utils-ts/modules/core-extensions/ArrayUtils.mjs";
 import { EmptyTile } from "../tiles/EmptyTile.mjs";
 import { Tile } from "../tiles/Tile.mjs";
 import { Platform } from "../tiles/Platform.mjs";
@@ -78,18 +77,6 @@ export class World {
 	nextLevelTileRectangle(levels: number = this.levelsVisited) {
 		const levelHeight = RoomData.SIZE * LevelGeneratorData.HEIGHT + LevelGeneratorData.BORDER_Y;
 		return new Rectangle(0, -levels * levelHeight, LevelGeneratorData.WIDTH * RoomData.SIZE, LevelGeneratorData.HEIGHT * RoomData.SIZE);
-	}
-	playerSpawnPosition(startRoom: Vector) {
-		const levelHeight = RoomData.SIZE * LevelGeneratorData.HEIGHT + LevelGeneratorData.BORDER_Y;
-		const translatedStartRoom = startRoom.multiply(RoomData.SIZE).add(new Vector(0, -levelHeight * this.levelsGenerated));
-		const emptyTiles = [];
-		for(const position of Rectangle.square(translatedStartRoom.x, translatedStartRoom.y, RoomData.SIZE).squares()) {
-			const tileBelow = this.tiles.get(position.x, position.y + 1);
-			if(this.tiles.get(position) === EmptyTile.EMPTY && tileBelow instanceof BasicTile && tileBelow.shape === "full") {
-				emptyTiles.push(position);
-			}
-		}
-		return ArrayUtils.randomItem(emptyTiles);
 	}
 	generateNextLevel() {
 		this.levelsGenerated ++;
