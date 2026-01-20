@@ -30,9 +30,9 @@ Main.screen = new WorldScreen(world);
 if(DEBUG_SETTINGS.GENERATOR_VISUALIZATION.ENABLED && Main.screen instanceof WorldScreen) {
 	// eslint-disable-next-line no-console
 	console.time("generating chunk");
-	const debugWorld = new World(false);
-	debugWorld.levelGenerator.generateLevel(debugWorld);
-	debugWorld.levelGenerator.visualize(canvasIO!, false);
+	const generator = new LevelGenerator(new Vector(0, 0));
+	generator.generateLevel(world);
+	generator.visualize(canvasIO!, false);
 	// eslint-disable-next-line no-console
 	console.timeEnd("generating chunk");
 	// eslint-disable-next-line no-debugger

@@ -12,7 +12,7 @@ import "../tiles/SpikeballBlock.mjs";
 
 LoadingManager.loaded();
 const screen = new WorldScreen(new World(true));
-screen.world.initializeGeneration();
+screen.world.worldGenerator!.initialize(screen.world);
 Main.screen = screen;
 
 const FRAMERATE = 60;

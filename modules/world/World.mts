@@ -2,7 +2,7 @@ import { CanvasIO } from "../../utils-ts/modules/CanvasIO.mjs";
 import { Direction, Directions } from "../../utils-ts/modules/geometry/Direction.mjs";
 import { Rectangle } from "../../utils-ts/modules/geometry/Rectangle.mjs";
 import { Vector } from "../../utils-ts/modules/geometry/Vector.mjs";
-import { LevelGeneratorData, PlayerData, RoomData, WorldData } from "../constants/GameData.mjs";
+import { PlayerData, WorldData } from "../constants/GameData.mjs";
 import { DEBUG_SETTINGS } from "../constants/DebugSettings.mjs";
 import { Particle } from "../game-utilities/Particle.mjs";
 import { Player } from "../Player.mjs";
@@ -14,19 +14,16 @@ import { MathUtils } from "../../utils-ts/modules/math/MathUtils.mjs";
 import { TowerTile } from "../tiles/TowerTile.mjs";
 import { BasicTile } from "../tiles/BasicTile.mjs";
 import { StoneTile } from "../tiles/StoneTile.mjs";
-import { LevelGenerator } from "../level-generator/LevelGenerator.mjs";
-import { EntitySpawner } from "../level-generator/EntitySpawner.mjs";
 import { Entities } from "./Entities.mjs";
 import { Entity } from "../game-utilities/Entity.mjs";
 import { Collideable } from "../game-utilities/physics-engine/Collideable.mjs";
-import { SpawnPoint } from "../entities/SpawnPoint.mjs";
 import { EmptyTile } from "../tiles/EmptyTile.mjs";
 import { Tile } from "../tiles/Tile.mjs";
 import { Platform } from "../tiles/Platform.mjs";
 import { Tiles } from "./Tiles.mjs";
-import { OverlayText } from "../game-utilities/visual-effects/OverlayText.mjs";
 import { WorldScreen } from "./WorldScreen.mjs";
 import { Camera } from "./Camera.mjs";
+import { WorldGenerator } from "../level-generator/WorldGenerator.mjs";
 
 export type Slope = (typeof WorldData.SLOPES)[number];
 export type TileWithPosition = { x: number, y: number, tile: Tile };
@@ -36,61 +33,13 @@ export class World {
 	originalTiles: Tiles = new Tiles();
 	entities: Entities = new Entities();
 	particles: Particle[] = [];
-	levelsGenerated: number = 0;
-	levelsVisited: number = 0;
-	nextPlayerSpawnRoom: Vector = new Vector(0, 0);
 	worldScreen: WorldScreen | null = null;
-
-	levelGenerator: LevelGenerator = new LevelGenerator();
-	enableGeneration: boolean;
-
+	worldGenerator: WorldGenerator | null;
 	player: Player = new Player();
 
 	constructor(enableGeneration: boolean) {
-		this.enableGeneration = enableGeneration;
+		this.worldGenerator = enableGeneration ? new WorldGenerator() : null;
 		this.entities.add(this.player);
-	}
-
-	initializeGeneration() {
-		this.levelGenerator.generateLevel(this);
-		this.spawnPlayer(this.levelGenerator);
-		const rectangle = this.levelGenerator.levelRectangle().scale(RoomData.SIZE);
-		const startRoom = this.levelGenerator.path[this.levelGenerator.path.length - 1];
-		EntitySpawner.spawnAllEntities(
-			Rectangle.fromBounds(rectangle.left() + 1, rectangle.right() - 1, rectangle.top() + 1, rectangle.bottom() - 1),
-			new Rectangle(startRoom.x, startRoom.y, 1, 1).scale(RoomData.SIZE),
-			this,
-		);
-		return this;
-	}
-	spawnPlayer(levelGenerator: LevelGenerator) {
-		const startRoom = levelGenerator.path[levelGenerator.path.length - 1];
-		const startRoomRect = Rectangle.square(startRoom.x, startRoom.y, 1).scale(RoomData.SIZE * WorldData.TILE_SIZE);
-		const spawnPoint = [...this.entities.possiblyIntersecting(startRoomRect)].find(e => e instanceof SpawnPoint)!;
-		this.player.hitbox.x = spawnPoint.position.x;
-		this.player.hitbox.y = spawnPoint.position.y;
-		this.addEntityIfEmpty(this.player);
-		if(this.worldScreen) {
-			this.worldScreen.camera.position = this.player.hitbox.center();
-		}
-	}
-	nextLevelTileRectangle(levels: number = this.levelsVisited) {
-		const levelHeight = RoomData.SIZE * LevelGeneratorData.HEIGHT + LevelGeneratorData.BORDER_Y;
-		return new Rectangle(0, -levels * levelHeight, LevelGeneratorData.WIDTH * RoomData.SIZE, LevelGeneratorData.HEIGHT * RoomData.SIZE);
-	}
-	generateNextLevel() {
-		this.levelsGenerated ++;
-		const levelHeight = RoomData.SIZE * LevelGeneratorData.HEIGHT + LevelGeneratorData.BORDER_Y;
-		const generator = new LevelGenerator(new Vector(0, -levelHeight * this.levelsGenerated));
-		generator.generateLevel(this);
-		const rectangle = generator.levelRectangle().scale(RoomData.SIZE).translate(new Vector(0, -levelHeight * this.levelsGenerated));
-		const startRoom = generator.path[generator.path.length - 1];
-		EntitySpawner.spawnAllEntities(
-			Rectangle.fromBounds(rectangle.left() + 1, rectangle.right() - 1, rectangle.top() + 1, rectangle.bottom() - 1),
-			new Rectangle(startRoom.x, startRoom.y, 1, 1).scale(RoomData.SIZE).translate(new Vector(0, -levelHeight * this.levelsGenerated)),
-			this,
-		);
-		this.nextPlayerSpawnRoom = generator.path[generator.path.length - 1];
 	}
 
 	display(canvasIO: CanvasIO, camera: Camera) {
@@ -189,7 +138,7 @@ export class World {
 	update(canvasIO: CanvasIO, camera?: Camera) {
 		this.updateEntities(canvasIO, camera);
 		this.updateParticles();
-		this.updateGeneration();
+		this.worldGenerator?.updateGeneration(this);
 	}
 	updateEntities(canvasIO: CanvasIO, camera?: Camera) {
 		const entities = camera ? this.entities.possiblyIntersecting(camera.visibleRegion(canvasIO, WorldData.ENTITY_UPDATE_DISTANCE)) : this.entities;
@@ -203,18 +152,6 @@ export class World {
 			particle.update();
 		}
 		this.particles = this.particles.filter(p => !p.isDead());
-	}
-	updateGeneration() {
-		const levelHeight = WorldData.TILE_SIZE * (RoomData.SIZE * LevelGeneratorData.HEIGHT + LevelGeneratorData.BORDER_Y);
-		if(this.enableGeneration && this.player.hitbox.top() < RoomData.SIZE * WorldData.TILE_SIZE - this.levelsGenerated * levelHeight) {
-			this.generateNextLevel();
-		}
-
-		if(this.player.hitbox.top() < -(this.levelsVisited - 1) * levelHeight) {
-			this.levelsVisited ++;
-			const floorText = `${this.levelsVisited.toString().padStart(2, "0")}`;
-			this.worldScreen?.visualEffects.add(new OverlayText(`Floor ${floorText}`));
-		}
 	}
 
 	slopeIntersectionDistance(rectangle: Rectangle, position: Vector, slope: Slope) {

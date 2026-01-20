@@ -42,10 +42,13 @@ export class Portal extends Entity {
 		), canvasIO);
 	}
 	teleportPlayer(world: World) {
-		const nextLevel = world.nextLevelTileRectangle(world.levelsVisited).scale(WorldData.TILE_SIZE);
-		const nextSpawn = [...world.entities.possiblyIntersecting(nextLevel)].find(e => e instanceof SpawnPoint)!;
-		world.player.hitbox.x = nextSpawn.position.x;
-		world.player.hitbox.y = nextSpawn.position.y;
+		const generator = world.worldGenerator;
+		if(generator) {
+			const nextLevel = generator.nextLevelTileRectangle(generator.levelsVisited).scale(WorldData.TILE_SIZE);
+			const nextSpawn = [...world.entities.possiblyIntersecting(nextLevel)].find(e => e instanceof SpawnPoint)!;
+			world.player.hitbox.x = nextSpawn.position.x;
+			world.player.hitbox.y = nextSpawn.position.y;
+		}
 	}
 
 	display(canvasIO: CanvasIO) {
