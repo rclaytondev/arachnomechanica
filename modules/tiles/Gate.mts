@@ -16,9 +16,10 @@ export class Gate extends RectangularCollideable {
 	static openness = 0;
 
 	static update(world: World) {
-		const closedBefore = Gate.openness === 0;
+		const closedBefore = (Gate.openness === 0 || Gate.openness === 1);
 		Gate.openness = GameUtils.moveTowards(Gate.openness, Gate.open ? 1 : 0, GateData.SPEED);
-		if(Gate.openness === 0 && !closedBefore) {
+		const closedNow = (Gate.openness === 0 || Gate.openness === 1);
+		if(closedNow && !closedBefore) {
 			world.worldScreen?.visualEffects.add(new ShakeEffect(GateData.SCREEN_SHAKE_TIME, GateData.SCREEN_SHAKE_INTENSITY));
 		}
 		Gate.cooldown --;
