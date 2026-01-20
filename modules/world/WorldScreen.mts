@@ -5,6 +5,7 @@ import { SkyBackground } from "../backgrounds/SkyBackground.mjs";
 import { PlayerData } from "../constants/GameData.mjs";
 import { ScreenFade } from "../game-utilities/visual-effects/ScreenFade.mjs";
 import { VisualEffects } from "../game-utilities/visual-effects/VisualEffects.mjs";
+import { Camera } from "./Camera.mjs";
 import { World } from "./World.mjs";
 
 export class WorldScreen {
@@ -14,6 +15,7 @@ export class WorldScreen {
 		new SkyBackground(),
 	]);
 	visualEffects: VisualEffects = new VisualEffects();
+	camera: Camera = new Camera();
 
 	constructor(world: World) {
 		this.world = world;
@@ -22,14 +24,15 @@ export class WorldScreen {
 
 	update(canvasIO: CanvasIO) {
 		this.world.update(canvasIO);
+		this.camera.update(this.world.player.hitbox.center());
 		this.visualEffects.update();
 	}
 
 	display(canvasIO: CanvasIO) {
 		canvasIO.ctx.save();
-		this.backgrounds.display(canvasIO, this.world.camera.position);
+		this.backgrounds.display(canvasIO, this.camera);
 		this.visualEffects.display(canvasIO, "before");
-		this.world.display(canvasIO);
+		this.world.display(canvasIO, this.camera);
 		this.visualEffects.display(canvasIO, "after");
 		canvasIO.ctx.restore();
 	}

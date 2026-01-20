@@ -5,8 +5,7 @@ import { Room, RoomTile } from "./level-generator/Room.mjs";
 import { DEBUG_SETTINGS } from "./constants/DebugSettings.mjs";
 import { Gate } from "./tiles/Gate.mjs";
 import { World } from "./world/World.mjs";
-import { PortalData, WorldData } from "./constants/GameData.mjs";
-import { Rectangle } from "../utils-ts/modules/geometry/Rectangle.mjs";
+import { BackgroundData, PortalData, WorldData } from "./constants/GameData.mjs";
 import { ROOMS } from "./level-generator/Rooms.mjs";
 import { GameUtils } from "./game-utilities/GameUtils.mjs";
 import { Portal } from "./entities/Portal.mjs";
@@ -17,6 +16,7 @@ import { Tile } from "./tiles/Tile.mjs";
 import { Tiles } from "./world/Tiles.mjs";
 import { HealthPickup } from "./entities/HealthPickup.mjs";
 import { SpawnPoint } from "./entities/SpawnPoint.mjs";
+import { Camera } from "./world/Camera.mjs";
 
 export class RoomEditor {
 	room: Room;
@@ -38,7 +38,6 @@ export class RoomEditor {
 
 
 	update(canvasIO: CanvasIO) {
-		this.world.camera.position = new Vector(canvasIO.canvas.width / 2, canvasIO.canvas.height / 2);
 		this.world.update(canvasIO);
 		this.checkForClicks(canvasIO);
 		this.checkForKeyPresses(canvasIO);
@@ -151,9 +150,10 @@ export class RoomEditor {
 	}
 
 	display(canvasIO: CanvasIO) {
+		canvasIO.fillCanvas(BackgroundData.BACKGROUND_COLOR);
 		this.world.display(
 			canvasIO,
-			new Rectangle(0, 0, canvasIO.canvas.width / WorldData.TILE_SIZE, canvasIO.canvas.height / WorldData.TILE_SIZE),
+			new Camera(canvasIO.boundingBox().center()),
 		);
 		this.displayHoveredTile(canvasIO);
 		this.displayExits(canvasIO);

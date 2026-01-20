@@ -4,7 +4,7 @@ import { Vector } from "../../utils-ts/modules/geometry/Vector.mjs";
 import { MathUtils } from "../../utils-ts/modules/math/MathUtils.mjs";
 import { BackgroundData, BackgroundGearLayerData, LevelGeneratorData, RoomData, WorldData } from "../constants/GameData.mjs";
 import { GameUtils } from "../game-utilities/GameUtils.mjs";
-import { World } from "../world/World.mjs";
+import { Camera } from "../world/Camera.mjs";
 import { Background } from "./Background.mjs";
 
 class BackgroundGear {
@@ -148,8 +148,8 @@ export class GearsBackground extends Background {
 		this.layers = layers;
 	}
 
-	display(canvasIO: CanvasIO, cameraPosition: Vector) {
-		const translation = World.translationToCamera(canvasIO, cameraPosition);
+	display(canvasIO: CanvasIO, camera: Camera) {
+		const translation = camera.translation(canvasIO);
 		canvasIO.ctx.save();
 		canvasIO.clipRect(
 			translation.x, 0,
@@ -158,7 +158,7 @@ export class GearsBackground extends Background {
 		);
 		canvasIO.fillCanvas(BackgroundData.BACKGROUND_COLOR);
 		for(let i = this.layers.length - 1; i >= 0; i --) {
-			this.layers[i].display(cameraPosition, canvasIO);
+			this.layers[i].display(camera.position, canvasIO);
 		}
 		canvasIO.ctx.restore();
 	}

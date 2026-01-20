@@ -11,7 +11,9 @@ import "../tiles/LaserBlock.mjs";
 import "../tiles/SpikeballBlock.mjs";
 
 LoadingManager.loaded();
-Main.screen = new WorldScreen(new World(true).initializeGeneration());
+const screen = new WorldScreen(new World(true));
+screen.world.initializeGeneration();
+Main.screen = screen;
 
 const FRAMERATE = 60;
 window.setInterval(() => {

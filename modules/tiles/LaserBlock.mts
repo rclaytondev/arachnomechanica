@@ -100,7 +100,7 @@ export class LaserBlock extends RectangularCollideable {
 	updateLengths(world: World, canvasIO: CanvasIO) {
 		const player = world.player.hitbox;
 		for(const [i, direction] of this.directions().entries()) {
-			const length = this.endpointDistance(direction, world, canvasIO.boundingBox());
+			const length = this.endpointDistance(direction, world);
 			this.lengths[i] = GameUtils.moveTowards(this.lengths[i], length, LaserBlockData.LASER_LINEAR_SPEED);
 			this.lengths[i] = Math.min(this.lengths[i], length);
 			if(this.lengths[i] === length && this.lengths[i] < LaserBlockData.MAX_LENGTH && GameUtils.frameCount % LaserBlockData.FRAMES_PER_PARTICLE == 0) {
@@ -161,13 +161,12 @@ export class LaserBlock extends RectangularCollideable {
 			box,
 		) <= length;
 	}
-	endpointDistance(direction: Vector, world: World, screenSize: Rectangle) {
+	endpointDistance(direction: Vector, world: World) {
 		const center = this.hitbox.center();
-		const screenDistance = world.screenIntersectionDistance(center, direction, screenSize);
-		return world.lineIntersectionDistance(center, direction, Math.min(screenDistance, LaserBlockData.MAX_LENGTH), [], (e) => e !== this);
+		return world.lineIntersectionDistance(center, direction, LaserBlockData.MAX_LENGTH, [], (e) => e !== this);
 	}
-	endpoint(direction: Vector, world: World, screenSize: Rectangle) {
-		const distance = this.endpointDistance(direction, world, screenSize);
+	endpoint(direction: Vector, world: World) {
+		const distance = this.endpointDistance(direction, world);
 		return this.hitbox.center().add(direction.multiply(distance));
 	}
 

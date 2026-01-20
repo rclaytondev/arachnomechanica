@@ -1,5 +1,5 @@
 import { CanvasIO } from "../../utils-ts/modules/CanvasIO.mjs";
-import { Vector } from "../../utils-ts/modules/geometry/Vector.mjs";
+import { Camera } from "../world/Camera.mjs";
 import { Background } from "./Background.mjs";
 
 export class Backgrounds {
@@ -9,9 +9,9 @@ export class Backgrounds {
 		this.backgroundsList = backgroundsList;
 	}
 
-	display(canvasIO: CanvasIO, cameraPosition: Vector) {
+	display(canvasIO: CanvasIO, camera: Camera) {
 		for(const background of this.backgroundsList.sort((a, b) => a.zIndex - b.zIndex)) {
-			background.display(canvasIO, cameraPosition);
+			background.display(canvasIO, camera);
 		}
 	}
 }

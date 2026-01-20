@@ -3,7 +3,6 @@ import { Direction, Directions } from "../../utils-ts/modules/geometry/Direction
 import { Rectangle } from "../../utils-ts/modules/geometry/Rectangle.mjs";
 import { Vector } from "../../utils-ts/modules/geometry/Vector.mjs";
 import { LevelGeneratorData, PlayerData, RoomData, WorldData } from "../constants/GameData.mjs";
-import { Main } from "../Main.mjs";
 import { DEBUG_SETTINGS } from "../constants/DebugSettings.mjs";
 import { Particle } from "../game-utilities/Particle.mjs";
 import { Player } from "../Player.mjs";
@@ -12,7 +11,6 @@ import { GameUtils } from "../game-utilities/GameUtils.mjs";
 import { LaserBlock } from "../tiles/LaserBlock.mjs";
 import { SpikeballBlock } from "../tiles/SpikeballBlock.mjs";
 import { MathUtils } from "../../utils-ts/modules/math/MathUtils.mjs";
-import { RoomEditor } from "../RoomEditor.mjs";
 import { TowerTile } from "../tiles/TowerTile.mjs";
 import { BasicTile } from "../tiles/BasicTile.mjs";
 import { StoneTile } from "../tiles/StoneTile.mjs";
@@ -39,7 +37,6 @@ export class World {
 	originalTiles: Tiles = new Tiles();
 	entities: Entities = new Entities();
 	particles: Particle[] = [];
-	camera: Camera = new Camera();
 	levelsGenerated: number = 0;
 	levelsVisited: number = 0;
 	nextPlayerSpawnRoom: Vector = new Vector(0, 0);
@@ -74,7 +71,9 @@ export class World {
 		this.player.hitbox.x = spawnPoint.position.x;
 		this.player.hitbox.y = spawnPoint.position.y;
 		this.addEntityIfEmpty(this.player);
-		this.camera.position = this.player.hitbox.center();
+		if(this.worldScreen) {
+			this.worldScreen.camera.position = this.player.hitbox.center();
+		}
 	}
 	nextLevelTileRectangle(levels: number = this.levelsVisited) {
 		const levelHeight = RoomData.SIZE * LevelGeneratorData.HEIGHT + LevelGeneratorData.BORDER_Y;
@@ -107,47 +106,23 @@ export class World {
 		this.nextPlayerSpawnRoom = generator.path[generator.path.length - 1];
 	}
 
-	display(canvasIO: CanvasIO, visibleTileRegion: Rectangle = this.visibleTileRegion(canvasIO)) {
+	display(canvasIO: CanvasIO, camera: Camera) {
 		canvasIO.ctx.save();
-		const translation = this.translationToCamera(canvasIO);
-		canvasIO.ctx.translate(translation.x, translation.y);
-		this.displayGlowEffects(canvasIO);
+		camera.applyTranslation(canvasIO);
+		this.displayGlowEffects(canvasIO, camera);
 		this.displayParticles(canvasIO);
-		this.displayEntities(canvasIO);
-		this.displayTiles(canvasIO, visibleTileRegion);
-		this.displayTileAccents(canvasIO, visibleTileRegion);
-		this.displayDebugInfo(canvasIO);
+		this.displayEntities(canvasIO, camera);
+		this.displayTiles(canvasIO, camera.visibleTileRegion(canvasIO));
+		this.displayTileAccents(canvasIO, camera.visibleTileRegion(canvasIO));
+		this.displayDebugInfo(canvasIO, camera);
 		canvasIO.ctx.restore();
 
 		if(DEBUG_SETTINGS.SHOW_MOUSE_COORDINATES) {
-			this.displayMouseCoordinates(canvasIO);
+			this.displayMouseCoordinates(canvasIO, camera);
 		}
 	}
-	translationToCamera(canvasIO: CanvasIO) {
-		return World.translationToCamera(canvasIO, this.camera.position);
-	}
-	static translationToCamera(canvasIO: CanvasIO, cameraPosition: Vector) {
-		return new Vector(canvasIO.canvas.width / 2 - cameraPosition.x, canvasIO.canvas.height / 2 - cameraPosition.y);
-	}
-	visibleRegion(canvasIO: CanvasIO, offscreenAmount: number) {
-		return Rectangle.fromBounds(
-			this.camera.position.x - canvasIO.canvas.width / 2 - offscreenAmount,
-			this.camera.position.x + canvasIO.canvas.width / 2 + offscreenAmount,
-			this.camera.position.y - canvasIO.canvas.height / 2 - offscreenAmount,
-			this.camera.position.y + canvasIO.canvas.height / 2 + offscreenAmount,
-		);
-	}
-	visibleTileRegion(canvasIO: CanvasIO, offscreenTiles: number = 0) {
-		const center = this.camera.position.divide(WorldData.TILE_SIZE);
-		return Rectangle.fromBounds(
-			Math.floor(center.x - (canvasIO.canvas.width / 2 / WorldData.TILE_SIZE)) - offscreenTiles,
-			Math.ceil(center.x + (canvasIO.canvas.width / 2 / WorldData.TILE_SIZE)) + offscreenTiles,
-			Math.floor(center.y - (canvasIO.canvas.height / 2 / WorldData.TILE_SIZE)) - offscreenTiles,
-			Math.ceil(center.y + (canvasIO.canvas.height / 2 / WorldData.TILE_SIZE)) + offscreenTiles,
-		);
-	}
-	displayGlowEffects(canvasIO: CanvasIO) {
-		const entityRegion = this.visibleRegion(canvasIO, WorldData.GLOW_RENDER_DISTANCE);
+	displayGlowEffects(canvasIO: CanvasIO, camera: Camera) {
+		const entityRegion = camera.visibleRegion(canvasIO, WorldData.GLOW_RENDER_DISTANCE);
 		for(const entity of this.entities.possiblyIntersecting(entityRegion)) {
 			entity.displayGlowEffect(canvasIO);
 		}
@@ -192,8 +167,8 @@ export class World {
 			}
 		}
 	}
-	displayEntities(canvasIO: CanvasIO) {
-		const region = this.visibleRegion(canvasIO, WorldData.ENTITY_RENDER_DISTANCE);
+	displayEntities(canvasIO: CanvasIO, camera: Camera) {
+		const region = camera.visibleRegion(canvasIO, WorldData.ENTITY_RENDER_DISTANCE);
 		for(const entity of this.entities.possiblyIntersecting(region)) {
 			if(!(entity instanceof Player)) {
 				entity.display(canvasIO, this);
@@ -206,16 +181,16 @@ export class World {
 			particle.display(canvasIO);
 		}
 	}
-	displayMouseCoordinates(canvasIO: CanvasIO) {
+	displayMouseCoordinates(canvasIO: CanvasIO, camera: Camera) {
 		canvasIO.ctx.fillStyle = "rgb(200, 200, 200)";
-		const coordinates = canvasIO.mouse.position.subtract(this.translationToCamera(canvasIO)).divide(WorldData.TILE_SIZE).floor();
+		const coordinates = canvasIO.mouse.position.subtract(camera.translation(canvasIO)).divide(WorldData.TILE_SIZE).floor();
 		canvasIO.ctx.font = "20px monospace";
 		canvasIO.ctx.textAlign = "left";
 		canvasIO.ctx.textBaseline = "top";
 		canvasIO.ctx.fillText(coordinates.toString(), canvasIO.mouse.position.x, canvasIO.mouse.position.y);
 	}
-	displayDebugInfo(canvasIO: CanvasIO) {
-		const region = this.visibleRegion(canvasIO, WorldData.ENTITY_RENDER_DISTANCE);
+	displayDebugInfo(canvasIO: CanvasIO, camera: Camera) {
+		const region = camera.visibleRegion(canvasIO, WorldData.ENTITY_RENDER_DISTANCE);
 		for(const entity of this.entities.possiblyIntersecting(region)) {
 			entity.displayDebug(canvasIO, this);
 			if(entity instanceof Collideable) {
@@ -224,15 +199,14 @@ export class World {
 		}
 	}
 
-	update(canvasIO: CanvasIO) {
-		this.updateEntities(canvasIO);
+	update(canvasIO: CanvasIO, camera?: Camera) {
+		this.updateEntities(canvasIO, camera);
 		this.updateParticles();
 		this.updateGeneration();
-		this.updateCamera();
 	}
-	updateEntities(canvasIO: CanvasIO) {
-		const region = this.visibleRegion(canvasIO, WorldData.ENTITY_UPDATE_DISTANCE);
-		for(const entity of this.entities.possiblyIntersecting(region)) {
+	updateEntities(canvasIO: CanvasIO, camera?: Camera) {
+		const entities = camera ? this.entities.possiblyIntersecting(camera.visibleRegion(canvasIO, WorldData.ENTITY_UPDATE_DISTANCE)) : this.entities;
+		for(const entity of entities) {
 			entity.update(this, canvasIO);
 		}
 		Gate.update(this);
@@ -242,11 +216,6 @@ export class World {
 			particle.update();
 		}
 		this.particles = this.particles.filter(p => !p.isDead());
-	}
-	updateCamera() {
-		if(!(Main.screen instanceof RoomEditor)) {
-			this.camera.position = GameUtils.moveVectorTowards(this.camera.position, this.player.hitbox.center(), WorldData.CAMERA_SPEED);
-		}
 	}
 	updateGeneration() {
 		const levelHeight = WorldData.TILE_SIZE * (RoomData.SIZE * LevelGeneratorData.HEIGHT + LevelGeneratorData.BORDER_Y);
@@ -344,16 +313,6 @@ export class World {
 			if(!ignoredTiles.includes(tile) && World.isFullTile(tile)) { return true; }
 		}
 		return false;
-	}
-	screenIntersectionDistance(position: Vector, direction: Vector, screenSize: Rectangle) {
-		const left = this.camera.position.x - screenSize.width / 2;
-		const right = this.camera.position.x + screenSize.width / 2;
-		const top = this.camera.position.y - screenSize.height / 2;
-		const bottom = this.camera.position.y + screenSize.height / 2;
-		return Math.min(
-			GameUtils.rayIntersectsVSegment(position, direction, direction.x >= 0 ? right : left, top, bottom),
-			GameUtils.rayIntersectsHSegment(position, direction, direction.y >= 0 ? bottom : top, left, right),
-		);
 	}
 	slopeLineIntersectionDistance(position: Vector, direction: Vector, tilePosition: Vector) {
 		const slope = this.tiles.get(tilePosition);
