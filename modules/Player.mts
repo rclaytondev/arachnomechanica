@@ -128,7 +128,7 @@ export class Player extends RectangularCollideable {
 		if(this.invulnerabilityTime < 0) {
 			this.health --;
 			const screen = world.worldScreen;
-			screen?.visualEffects.push(new ScreenFade(
+			screen?.visualEffects.add(new ScreenFade(
 				PlayerData.DAMAGE_FLASH_TIME,
 				PlayerData.DAMAGE_FLASH_OPACITY, 0,
 				PlayerData.DAMAGE_FLASH_COLOR,

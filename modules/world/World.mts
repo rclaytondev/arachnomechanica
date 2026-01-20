@@ -267,7 +267,7 @@ export class World {
 		if(this.player.hitbox.top() < -(this.levelsVisited - 1) * levelHeight) {
 			this.levelsVisited ++;
 			const floorText = `${this.levelsVisited.toString().padStart(2, "0")}`;
-			this.worldScreen?.visualEffects.push(new OverlayText(`Floor ${floorText}`));
+			this.worldScreen?.visualEffects.add(new OverlayText(`Floor ${floorText}`));
 		}
 	}
 

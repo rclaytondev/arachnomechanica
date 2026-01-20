@@ -1,6 +1,5 @@
 import { CanvasIO } from "../../../utils-ts/modules/CanvasIO.mjs";
 import { MathUtils } from "../../../utils-ts/modules/math/MathUtils.mjs";
-import { Main } from "../../Main.mjs";
 import { WorldScreen } from "../../world/WorldScreen.mjs";
 import { GameUtils } from "../GameUtils.mjs";
 import { VisualEffect } from "./VisualEffect.mjs";
@@ -53,7 +52,7 @@ export class ScreenFade extends VisualEffect {
 			const oldOnCompletion = fade.onCompletion;
 			fade.onCompletion = () => {
 				oldOnCompletion();
-				screen.visualEffects.push(next);
+				screen.visualEffects.add(next);
 			};
 		}
 		return fades[0];
