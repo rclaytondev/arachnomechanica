@@ -3,7 +3,7 @@ import { canvasIO } from "../../utils-ts/modules/CanvasIO.mjs";
 import { Rectangle } from "../../utils-ts/modules/geometry/Rectangle.mjs";
 import { Vector } from "../../utils-ts/modules/geometry/Vector.mjs";
 import { DEBUG_SETTINGS } from "../constants/DebugSettings.mjs";
-import { WorldGenerator } from "../level-generator/WorldGenerator.mjs";
+import { LevelGenerator } from "../level-generator/LevelGenerator.mjs";
 import { Main } from "../Main.mjs";
 import { BasicTile } from "../tiles/BasicTile.mjs";
 import { World } from "../world/World.mjs";
@@ -31,8 +31,8 @@ if(DEBUG_SETTINGS.GENERATOR_VISUALIZATION.ENABLED && Main.screen instanceof Worl
 	// eslint-disable-next-line no-console
 	console.time("generating chunk");
 	const debugWorld = new World(false);
-	debugWorld.worldGenerator.generateLevel(debugWorld);
-	debugWorld.worldGenerator.visualize(canvasIO!, false);
+	debugWorld.levelGenerator.generateLevel(debugWorld);
+	debugWorld.levelGenerator.visualize(canvasIO!, false);
 	// eslint-disable-next-line no-console
 	console.timeEnd("generating chunk");
 	// eslint-disable-next-line no-debugger
@@ -41,7 +41,7 @@ if(DEBUG_SETTINGS.GENERATOR_VISUALIZATION.ENABLED && Main.screen instanceof Worl
 
 if(DEBUG_SETTINGS.GENERATOR_VISUALIZATION.ROOM_FREQUENCY_TRIALS !== 0) {
 	// eslint-disable-next-line no-console
-	console.log(WorldGenerator.roomFrequencies(DEBUG_SETTINGS.GENERATOR_VISUALIZATION.ROOM_FREQUENCY_TRIALS));
+	console.log(LevelGenerator.roomFrequencies(DEBUG_SETTINGS.GENERATOR_VISUALIZATION.ROOM_FREQUENCY_TRIALS));
 	// eslint-disable-next-line no-debugger
 	debugger;
 }

@@ -14,7 +14,7 @@ import { MathUtils } from "../../utils-ts/modules/math/MathUtils.mjs";
 import { TowerTile } from "../tiles/TowerTile.mjs";
 import { BasicTile } from "../tiles/BasicTile.mjs";
 import { StoneTile } from "../tiles/StoneTile.mjs";
-import { WorldGenerator } from "../level-generator/WorldGenerator.mjs";
+import { LevelGenerator } from "../level-generator/LevelGenerator.mjs";
 import { EntitySpawner } from "../level-generator/EntitySpawner.mjs";
 import { Entities } from "./Entities.mjs";
 import { Entity } from "../game-utilities/Entity.mjs";
@@ -41,7 +41,7 @@ export class World {
 	nextPlayerSpawnRoom: Vector = new Vector(0, 0);
 	worldScreen: WorldScreen | null = null;
 
-	worldGenerator: WorldGenerator = new WorldGenerator();
+	levelGenerator: LevelGenerator = new LevelGenerator();
 	enableGeneration: boolean;
 
 	player: Player = new Player();
@@ -52,10 +52,10 @@ export class World {
 	}
 
 	initializeGeneration() {
-		this.worldGenerator.generateLevel(this);
-		this.spawnPlayer(this.worldGenerator);
-		const rectangle = this.worldGenerator.levelRectangle().scale(RoomData.SIZE);
-		const startRoom = this.worldGenerator.path[this.worldGenerator.path.length - 1];
+		this.levelGenerator.generateLevel(this);
+		this.spawnPlayer(this.levelGenerator);
+		const rectangle = this.levelGenerator.levelRectangle().scale(RoomData.SIZE);
+		const startRoom = this.levelGenerator.path[this.levelGenerator.path.length - 1];
 		EntitySpawner.spawnAllEntities(
 			Rectangle.fromBounds(rectangle.left() + 1, rectangle.right() - 1, rectangle.top() + 1, rectangle.bottom() - 1),
 			new Rectangle(startRoom.x, startRoom.y, 1, 1).scale(RoomData.SIZE),
@@ -63,8 +63,8 @@ export class World {
 		);
 		return this;
 	}
-	spawnPlayer(worldGenerator: WorldGenerator) {
-		const startRoom = worldGenerator.path[worldGenerator.path.length - 1];
+	spawnPlayer(levelGenerator: LevelGenerator) {
+		const startRoom = levelGenerator.path[levelGenerator.path.length - 1];
 		const startRoomRect = Rectangle.square(startRoom.x, startRoom.y, 1).scale(RoomData.SIZE * WorldData.TILE_SIZE);
 		const spawnPoint = [...this.entities.possiblyIntersecting(startRoomRect)].find(e => e instanceof SpawnPoint)!;
 		this.player.hitbox.x = spawnPoint.position.x;
@@ -81,7 +81,7 @@ export class World {
 	generateNextLevel() {
 		this.levelsGenerated ++;
 		const levelHeight = RoomData.SIZE * LevelGeneratorData.HEIGHT + LevelGeneratorData.BORDER_Y;
-		const generator = new WorldGenerator(new Vector(0, -levelHeight * this.levelsGenerated));
+		const generator = new LevelGenerator(new Vector(0, -levelHeight * this.levelsGenerated));
 		generator.generateLevel(this);
 		const rectangle = generator.levelRectangle().scale(RoomData.SIZE).translate(new Vector(0, -levelHeight * this.levelsGenerated));
 		const startRoom = generator.path[generator.path.length - 1];

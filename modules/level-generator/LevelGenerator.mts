@@ -21,7 +21,7 @@ import { MapUtils } from "../../utils-ts/modules/core-extensions/MapUtils.mjs";
 import { SetUtils } from "../../utils-ts/modules/core-extensions/SetUtils.mjs";
 import { Platform } from "../tiles/Platform.mjs";
 
-export class WorldGenerator {
+export class LevelGenerator {
 	path: Vector[] = [];
 	rooms: Grid<RoomPlaceholder | null> = new Grid(null);
 	position: Vector;
@@ -417,7 +417,7 @@ export class WorldGenerator {
 		const counts = new Map<string, number>();
 		for(let i = 0; i < numTrials; i ++) {
 			const world = new World(false);
-			const generator = new WorldGenerator();
+			const generator = new LevelGenerator();
 			generator.generateLevel(world);
 			for(const room of [...generator.rooms.values()].filter(r => r !== null)) {
 				counts.set(room.room.originalName, (counts.get(room.room.originalName) ?? 0) + 1);
