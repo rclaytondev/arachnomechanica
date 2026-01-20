@@ -2,14 +2,12 @@ import { CanvasIO } from "../../utils-ts/modules/CanvasIO.mjs";
 import { Direction, Directions } from "../../utils-ts/modules/geometry/Direction.mjs";
 import { Rectangle } from "../../utils-ts/modules/geometry/Rectangle.mjs";
 import { Vector } from "../../utils-ts/modules/geometry/Vector.mjs";
-import { BackgroundData, LevelGeneratorData, PlayerData, RoomData, WorldData } from "../constants/GameData.mjs";
+import { LevelGeneratorData, PlayerData, RoomData, WorldData } from "../constants/GameData.mjs";
 import { Main } from "../Main.mjs";
 import { DEBUG_SETTINGS } from "../constants/DebugSettings.mjs";
 import { Particle } from "../game-utilities/Particle.mjs";
 import { Player } from "../Player.mjs";
 import { Gate } from "../tiles/Gate.mjs";
-import { GearsBackground } from "../backgrounds/GearsBackground.mjs";
-import { SkyBackground } from "../backgrounds/SkyBackground.mjs";
 import { GameUtils } from "../game-utilities/GameUtils.mjs";
 import { LaserBlock } from "../tiles/LaserBlock.mjs";
 import { SpikeballBlock } from "../tiles/SpikeballBlock.mjs";
@@ -39,8 +37,6 @@ export class World {
 	originalTiles: Tiles = new Tiles();
 	entities: Entities = new Entities();
 	particles: Particle[] = [];
-	gearsBackground: GearsBackground = GearsBackground.generate();
-	skyBackground: SkyBackground = new SkyBackground();
 	screenShakeTimer: number = 0;
 	screenShakeIntensity: number = 0;
 	camera: Vector = new Vector(0, 0);
@@ -111,7 +107,6 @@ export class World {
 	}
 
 	display(canvasIO: CanvasIO, visibleTileRegion: Rectangle = this.visibleTileRegion(canvasIO)) {
-		this.displayBackground(canvasIO);
 		canvasIO.ctx.save();
 		this.applyScreenShake(canvasIO);
 		const translation = this.translationToCamera(canvasIO);
@@ -135,21 +130,11 @@ export class World {
 			canvasIO.ctx.translate(amountX, amountY);
 		}
 	}
-	displayBackground(canvasIO: CanvasIO) {
-		const translation = this.translationToCamera(canvasIO);
-		this.skyBackground.display(canvasIO);
-		canvasIO.ctx.save();
-		canvasIO.clipRect(
-			translation.x, 0,
-			LevelGeneratorData.WIDTH * RoomData.SIZE * WorldData.TILE_SIZE,
-			canvasIO.canvas.height,
-		);
-		canvasIO.fillCanvas(BackgroundData.BACKGROUND_COLOR);
-		this.gearsBackground.display(canvasIO, this.camera);
-		canvasIO.ctx.restore();
-	}
 	translationToCamera(canvasIO: CanvasIO) {
-		return new Vector(canvasIO.canvas.width / 2 - this.camera.x, canvasIO.canvas.height / 2 - this.camera.y);
+		return World.translationToCamera(canvasIO, this.camera);
+	}
+	static translationToCamera(canvasIO: CanvasIO, cameraPosition: Vector) {
+		return new Vector(canvasIO.canvas.width / 2 - cameraPosition.x, canvasIO.canvas.height / 2 - cameraPosition.y);
 	}
 	visibleRegion(canvasIO: CanvasIO, offscreenAmount: number) {
 		return Rectangle.fromBounds(

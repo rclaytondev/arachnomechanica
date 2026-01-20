@@ -2,8 +2,10 @@ import { CanvasIO } from "../../utils-ts/modules/CanvasIO.mjs";
 import { Rectangle } from "../../utils-ts/modules/geometry/Rectangle.mjs";
 import { Vector } from "../../utils-ts/modules/geometry/Vector.mjs";
 import { MathUtils } from "../../utils-ts/modules/math/MathUtils.mjs";
-import { BackgroundData, BackgroundGearLayerData } from "../constants/GameData.mjs";
+import { BackgroundData, BackgroundGearLayerData, LevelGeneratorData, RoomData, WorldData } from "../constants/GameData.mjs";
 import { GameUtils } from "../game-utilities/GameUtils.mjs";
+import { World } from "../world/World.mjs";
+import { Background } from "./Background.mjs";
 
 class BackgroundGear {
 	position: Vector;
@@ -137,16 +139,28 @@ class GearLayer {
 	}
 }
 
-export class GearsBackground {
+export class GearsBackground extends Background {
+	zIndex: number = 1;
+
 	layers: GearLayer[];
 	constructor(layers: GearLayer[]) {
+		super();
 		this.layers = layers;
 	}
 
 	display(canvasIO: CanvasIO, cameraPosition: Vector) {
+		const translation = World.translationToCamera(canvasIO, cameraPosition);
+		canvasIO.ctx.save();
+		canvasIO.clipRect(
+			translation.x, 0,
+			LevelGeneratorData.WIDTH * RoomData.SIZE * WorldData.TILE_SIZE,
+			canvasIO.canvas.height,
+		);
+		canvasIO.fillCanvas(BackgroundData.BACKGROUND_COLOR);
 		for(let i = this.layers.length - 1; i >= 0; i --) {
 			this.layers[i].display(cameraPosition, canvasIO);
 		}
+		canvasIO.ctx.restore();
 	}
 
 	static generate() {

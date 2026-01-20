@@ -2,8 +2,11 @@ import { CanvasIO } from "../../utils-ts/modules/CanvasIO.mjs";
 import { Vector } from "../../utils-ts/modules/geometry/Vector.mjs";
 import { BackgroundData } from "../constants/GameData.mjs";
 import { GameUtils } from "../game-utilities/GameUtils.mjs";
+import { Background } from "./Background.mjs";
 
-export class SkyBackground {
+export class SkyBackground extends Background {
+	zIndex: number = 0;
+
 	stars: Vector[] = [];
 
 	display(canvasIO: CanvasIO) {
