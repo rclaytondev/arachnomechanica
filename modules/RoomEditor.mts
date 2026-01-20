@@ -38,7 +38,7 @@ export class RoomEditor {
 
 
 	update(canvasIO: CanvasIO) {
-		this.world.camera = new Vector(canvasIO.canvas.width / 2, canvasIO.canvas.height / 2);
+		this.world.camera.position = new Vector(canvasIO.canvas.width / 2, canvasIO.canvas.height / 2);
 		this.world.update(canvasIO);
 		this.checkForClicks(canvasIO);
 		this.checkForKeyPresses(canvasIO);

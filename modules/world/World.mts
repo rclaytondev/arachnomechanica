@@ -29,6 +29,7 @@ import { Platform } from "../tiles/Platform.mjs";
 import { Tiles } from "./Tiles.mjs";
 import { OverlayText } from "../game-utilities/visual-effects/OverlayText.mjs";
 import { WorldScreen } from "./WorldScreen.mjs";
+import { Camera } from "./Camera.mjs";
 
 export type Slope = (typeof WorldData.SLOPES)[number];
 export type TileWithPosition = { x: number, y: number, tile: Tile };
@@ -38,7 +39,7 @@ export class World {
 	originalTiles: Tiles = new Tiles();
 	entities: Entities = new Entities();
 	particles: Particle[] = [];
-	camera: Vector = new Vector(0, 0);
+	camera: Camera = new Camera();
 	levelsGenerated: number = 0;
 	levelsVisited: number = 0;
 	nextPlayerSpawnRoom: Vector = new Vector(0, 0);
@@ -73,7 +74,7 @@ export class World {
 		this.player.hitbox.x = spawnPoint.position.x;
 		this.player.hitbox.y = spawnPoint.position.y;
 		this.addEntityIfEmpty(this.player);
-		this.camera = this.player.hitbox.center();
+		this.camera.position = this.player.hitbox.center();
 	}
 	nextLevelTileRectangle(levels: number = this.levelsVisited) {
 		const levelHeight = RoomData.SIZE * LevelGeneratorData.HEIGHT + LevelGeneratorData.BORDER_Y;
@@ -123,21 +124,21 @@ export class World {
 		}
 	}
 	translationToCamera(canvasIO: CanvasIO) {
-		return World.translationToCamera(canvasIO, this.camera);
+		return World.translationToCamera(canvasIO, this.camera.position);
 	}
 	static translationToCamera(canvasIO: CanvasIO, cameraPosition: Vector) {
 		return new Vector(canvasIO.canvas.width / 2 - cameraPosition.x, canvasIO.canvas.height / 2 - cameraPosition.y);
 	}
 	visibleRegion(canvasIO: CanvasIO, offscreenAmount: number) {
 		return Rectangle.fromBounds(
-			this.camera.x - canvasIO.canvas.width / 2 - offscreenAmount,
-			this.camera.x + canvasIO.canvas.width / 2 + offscreenAmount,
-			this.camera.y - canvasIO.canvas.height / 2 - offscreenAmount,
-			this.camera.y + canvasIO.canvas.height / 2 + offscreenAmount,
+			this.camera.position.x - canvasIO.canvas.width / 2 - offscreenAmount,
+			this.camera.position.x + canvasIO.canvas.width / 2 + offscreenAmount,
+			this.camera.position.y - canvasIO.canvas.height / 2 - offscreenAmount,
+			this.camera.position.y + canvasIO.canvas.height / 2 + offscreenAmount,
 		);
 	}
 	visibleTileRegion(canvasIO: CanvasIO, offscreenTiles: number = 0) {
-		const center = this.camera.divide(WorldData.TILE_SIZE);
+		const center = this.camera.position.divide(WorldData.TILE_SIZE);
 		return Rectangle.fromBounds(
 			Math.floor(center.x - (canvasIO.canvas.width / 2 / WorldData.TILE_SIZE)) - offscreenTiles,
 			Math.ceil(center.x + (canvasIO.canvas.width / 2 / WorldData.TILE_SIZE)) + offscreenTiles,
@@ -244,7 +245,7 @@ export class World {
 	}
 	updateCamera() {
 		if(!(Main.screen instanceof RoomEditor)) {
-			this.camera = GameUtils.moveVectorTowards(this.camera, this.player.hitbox.center(), WorldData.CAMERA_SPEED);
+			this.camera.position = GameUtils.moveVectorTowards(this.camera.position, this.player.hitbox.center(), WorldData.CAMERA_SPEED);
 		}
 	}
 	updateGeneration() {
@@ -345,10 +346,10 @@ export class World {
 		return false;
 	}
 	screenIntersectionDistance(position: Vector, direction: Vector, screenSize: Rectangle) {
-		const left = this.camera.x - screenSize.width / 2;
-		const right = this.camera.x + screenSize.width / 2;
-		const top = this.camera.y - screenSize.height / 2;
-		const bottom = this.camera.y + screenSize.height / 2;
+		const left = this.camera.position.x - screenSize.width / 2;
+		const right = this.camera.position.x + screenSize.width / 2;
+		const top = this.camera.position.y - screenSize.height / 2;
+		const bottom = this.camera.position.y + screenSize.height / 2;
 		return Math.min(
 			GameUtils.rayIntersectsVSegment(position, direction, direction.x >= 0 ? right : left, top, bottom),
 			GameUtils.rayIntersectsHSegment(position, direction, direction.y >= 0 ? bottom : top, left, right),
