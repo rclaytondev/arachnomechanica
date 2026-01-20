@@ -127,18 +127,19 @@ export class Player extends RectangularCollideable {
 	damage(hurtbox: Rectangle, world: World) {
 		if(this.invulnerabilityTime < 0) {
 			this.health --;
-			Main.visualEffects.push(new ScreenFade(
+			const screen = world.worldScreen;
+			screen?.visualEffects.push(new ScreenFade(
 				PlayerData.DAMAGE_FLASH_TIME,
 				PlayerData.DAMAGE_FLASH_OPACITY, 0,
 				PlayerData.DAMAGE_FLASH_COLOR,
 				"damage-flash",
 			));
-			this.invulnerabilityTime = PlayerData.INVULNERABIlITY_TIME;
 			if(this.health <= 0 && !this.dead) {
-				Main.beginDeathTransition();
+				screen?.beginDeathTransition();
 				this.dead = true;
 				world.entities.delete(this);
 			}
+			this.invulnerabilityTime = PlayerData.INVULNERABIlITY_TIME;
 		}
 	}
 

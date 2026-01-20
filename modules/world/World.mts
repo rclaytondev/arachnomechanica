@@ -28,6 +28,7 @@ import { Tile } from "../tiles/Tile.mjs";
 import { Platform } from "../tiles/Platform.mjs";
 import { Tiles } from "./Tiles.mjs";
 import { OverlayText } from "../game-utilities/visual-effects/OverlayText.mjs";
+import { WorldScreen } from "./WorldScreen.mjs";
 
 export type Slope = (typeof WorldData.SLOPES)[number];
 export type TileWithPosition = { x: number, y: number, tile: Tile };
@@ -43,6 +44,7 @@ export class World {
 	levelsGenerated: number = 0;
 	levelsVisited: number = 0;
 	nextPlayerSpawnRoom: Vector = new Vector(0, 0);
+	worldScreen: WorldScreen | null = null;
 
 	worldGenerator: WorldGenerator = new WorldGenerator();
 	enableGeneration: boolean;
@@ -265,7 +267,7 @@ export class World {
 		if(this.player.hitbox.top() < -(this.levelsVisited - 1) * levelHeight) {
 			this.levelsVisited ++;
 			const floorText = `${this.levelsVisited.toString().padStart(2, "0")}`;
-			Main.visualEffects.push(new OverlayText(`Floor ${floorText}`));
+			this.worldScreen?.visualEffects.push(new OverlayText(`Floor ${floorText}`));
 		}
 	}
 

@@ -45,7 +45,6 @@ export class RoomEditor {
 		this.checkForClicks(canvasIO);
 		this.checkForKeyPresses(canvasIO);
 		this.world.originalTiles = this.world.tiles;
-		Main.visualEffects = Main.visualEffects.filter(v => !(v instanceof OverlayText));
 
 		const numberKeys = canvasIO.numberKeys();
 		if(numberKeys.length !== 0) {
