@@ -10,7 +10,6 @@ import { World } from "../world/World.mjs";
 import { WorldScreen } from "../world/WorldScreen.mjs";
 import { EmptyTile } from "../tiles/EmptyTile.mjs";
 import { CrawlingMovementData, Spider } from "../entities/Spider.mjs";
-import { Gate } from "../tiles/Gate.mjs";
 import { Lizard } from "../entities/Lizard.mjs";
 
 const world = new World(false);

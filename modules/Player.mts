@@ -10,7 +10,7 @@ import { Entity } from "./game-utilities/Entity.mjs";
 import { GameUtils } from "./game-utilities/GameUtils.mjs";
 import { CollisionEvent } from "./game-utilities/physics-engine/CollisionEvent.mjs";
 import { RectangularCollideable } from "./game-utilities/physics-engine/RectangularCollideable.mjs";
-import { ScreenFade } from "./game-utilities/ScreenFade.mjs";
+import { ScreenFade } from "./game-utilities/visual-effects/ScreenFade.mjs";
 import { ThrowableTile } from "./items/ThrowableTile.mjs";
 import { ThrowableTileEntity } from "./items/ThrowableTileEntity.mjs";
 import { Main } from "./Main.mjs";
