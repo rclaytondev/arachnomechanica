@@ -13,16 +13,14 @@ import { TowerTile } from "./TowerTile.mjs";
 
 export class BasicTile extends Tile {
 	readonly shape: "full" | Slope;
-	readonly texture: "tower" | "stone";
 
-	constructor(shape: "full" | Slope, texture: "tower" | "stone") {
+	constructor(shape: "full" | Slope) {
 		super();
 		this.shape = shape;
-		this.texture = texture;
 	}
 
 	copy() {
-		return new BasicTile(this.shape, this.texture);
+		return new BasicTile(this.shape);
 	}
 	reflect(): BasicTile {
 		const reflections: { [key: string]: "full" | Slope } = {
@@ -32,10 +30,10 @@ export class BasicTile extends Tile {
 			"slope-ceiling-left": "slope-ceiling-right",
 			"slope-ceiling-right": "slope-ceiling-left",
 		};
-		return new BasicTile(reflections[this.shape], this.texture);
+		return new BasicTile(reflections[this.shape]);
 	}
 	equals(tile: unknown) {
-		return tile instanceof BasicTile && this.shape === tile.shape && this.texture === tile.texture;
+		return tile instanceof BasicTile && this.shape === tile.shape;
 	}
 
 	contains(point: Vector, tilePosition: Vector) {
@@ -142,15 +140,15 @@ export class BasicTile extends Tile {
 		];
 	}
 	displayAccent(position: Vector, canvasIO: CanvasIO, world: World) {
-		if(this.texture === "tower" && this.shape === "full") {
+		if(this.shape === "full") {
 			TowerTile.displayTileAccent(position, canvasIO, world);
 		}
-		else if(this.texture === "tower") {
+		else {
 			TowerTile.displaySlopedAccent(position, canvasIO, this.shape as Slope, world);
 		}
 	}
 	display(canvasIO: CanvasIO, x: number, y: number): void {
-		canvasIO.ctx.fillStyle = WorldData.TILE_COLORS[this.texture];
+		canvasIO.ctx.fillStyle = WorldData.TILE_COLORS["tower"];
 		canvasIO.ctx.beginPath();
 		this.addToPath(new Vector(x, y), canvasIO);
 		canvasIO.ctx.fill();

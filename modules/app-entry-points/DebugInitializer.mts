@@ -14,7 +14,7 @@ import { Lizard } from "../entities/Lizard.mjs";
 
 const world = new World(false);
 
-world.tiles.fillRect(new Rectangle(-2, 0, 10, 6), new BasicTile("full", "tower"));
+world.tiles.fillRect(new Rectangle(-2, 0, 10, 6), new BasicTile("full"));
 world.tiles.fillRect(new Rectangle(-1, 1, 8, 4), EmptyTile.EMPTY);
 
 Lizard.spawn(new Vector(-1, 4), world);

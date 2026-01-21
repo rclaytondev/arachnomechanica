@@ -240,15 +240,15 @@ export class LevelGenerator {
 					this.position.y + position.y * RoomData.SIZE,
 					RoomData.SIZE,
 				);
-				world.tiles.fillRect(rectangle, new BasicTile("full", "tower"));
-				world.originalTiles.fillRect(rectangle, new BasicTile("full", "tower"));
+				world.tiles.fillRect(rectangle, new BasicTile("full"));
+				world.originalTiles.fillRect(rectangle, new BasicTile("full"));
 			}
 		}
 	}
 	addBorders(world: World) {
 		const fillSolidRect = (x: number, y: number, w: number, h: number) => {
-			world.tiles.fillRect(new Rectangle(x, y, w, h), new BasicTile("full", "tower"));
-			world.originalTiles.fillRect(new Rectangle(x, y, w, h), new BasicTile("full", "tower"));
+			world.tiles.fillRect(new Rectangle(x, y, w, h), new BasicTile("full"));
+			world.originalTiles.fillRect(new Rectangle(x, y, w, h), new BasicTile("full"));
 		};
 
 		fillSolidRect(

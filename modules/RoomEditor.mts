@@ -56,7 +56,7 @@ export class RoomEditor {
 		const position = Tiles.getTileCoordinates(canvasIO.mouse.position);
 		if(canvasIO.mouse.button === "left") {
 			if(this.mode === "solid") {
-				this.setTile(position, canvasIO.mouse.button === "left" ? new BasicTile("full", "tower") : EmptyTile.EMPTY);
+				this.setTile(position, canvasIO.mouse.button === "left" ? new BasicTile("full") : EmptyTile.EMPTY);
 			}
 			else if(this.mode === "platform") {
 				this.setTile(position, canvasIO.mouse.button === "left" ? Platform.PLATFORM : EmptyTile.EMPTY);
@@ -84,7 +84,7 @@ export class RoomEditor {
 					"down-left": "slope-floor-left",
 					"down-right": "slope-floor-right",
 				} as const)[this.direction];
-				this.setTile(position, new BasicTile(tile, "tower"));
+				this.setTile(position, new BasicTile(tile));
 			}
 		}
 		else {

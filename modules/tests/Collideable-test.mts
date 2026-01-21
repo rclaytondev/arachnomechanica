@@ -201,7 +201,7 @@ describe("Collideable.moveUnit", () => {
 		const world = createWorld([
 			collideable = new CollideableSpy(new Rectangle(0, -10, 10, 10), "collideable", true),
 		], [
-			{ x: 0, y: 0, tile: new BasicTile("slope-floor-left", "tower") },
+			{ x: 0, y: 0, tile: new BasicTile("slope-floor-left") },
 		]);
 		collideable.moveUnit("right", world, canvasIO!, { });
 
@@ -212,7 +212,7 @@ describe("Collideable.moveUnit", () => {
 		const world = createWorld([
 			collideable = new CollideableSpy(new Rectangle(WorldData.TILE_SIZE - 10, -10, 10, 10), "collideable", true),
 		], [
-			{ x: 0, y: 0, tile: new BasicTile("slope-floor-right", "tower") },
+			{ x: 0, y: 0, tile: new BasicTile("slope-floor-right") },
 		]);
 		collideable.moveUnit("left", world, canvasIO!, { });
 
@@ -223,7 +223,7 @@ describe("Collideable.moveUnit", () => {
 		const world = createWorld([
 			collideable = new CollideableSpy(new Rectangle(WorldData.TILE_SIZE, WorldData.TILE_SIZE - 10, 10, 10), "collideable", true),
 		], [
-			{ x: 0, y: 0, tile: new BasicTile("slope-floor-left", "tower") },
+			{ x: 0, y: 0, tile: new BasicTile("slope-floor-left") },
 		]);
 		collideable.moveUnit("left", world, canvasIO!, { });
 
@@ -234,7 +234,7 @@ describe("Collideable.moveUnit", () => {
 		const world = createWorld([
 			collideable = new CollideableSpy(new Rectangle(-10, WorldData.TILE_SIZE - 10, 10, 10), "collideable", true),
 		], [
-			{ x: 0, y: 0, tile: new BasicTile("slope-floor-right", "tower") },
+			{ x: 0, y: 0, tile: new BasicTile("slope-floor-right") },
 		]);
 		collideable.moveUnit("right", world, canvasIO!, { });
 
@@ -247,7 +247,7 @@ describe("Collideable.moveUnit", () => {
 			pusher = new CollideableSpy(new Rectangle(-10, WorldData.TILE_SIZE - 20, 10, 20), "pusher", true),
 			pushed = new CollideableSpy(new Rectangle(0, WorldData.TILE_SIZE - 20, 10, 10), "pushed", true),
 		], [
-			{ x: 0, y: 0, tile: new BasicTile("slope-floor-right", "tower") },
+			{ x: 0, y: 0, tile: new BasicTile("slope-floor-right") },
 		]);
 		pusher.moveUnit("right", world, canvasIO!, { });
 
@@ -264,7 +264,7 @@ describe("Collideable.moveUnit", () => {
 			pusher = new CollideableSpy(new Rectangle(-10, WorldData.TILE_SIZE - 10, 10, 10), "pusher", true),
 			pushable = new CollideableSpy(new Rectangle(-10, WorldData.TILE_SIZE - 20, 10, 10), "pushable", true),
 		], [
-			{ x: 0, y: 0, tile: new BasicTile("slope-floor-right", "tower") },
+			{ x: 0, y: 0, tile: new BasicTile("slope-floor-right") },
 		]);
 		pusher.moveUnit("right", world, canvasIO!, { });
 
@@ -279,7 +279,7 @@ describe("Collideable.moveUnit", () => {
 			pusher = new CollideableSpy(new Rectangle(0, -10, 10, 10), "pusher", true),
 			pushed = new CollideableSpy(new Rectangle(10, -10, 10, 20), "pushed", true),
 		], [
-			{ x: 0, y: 0, tile: new BasicTile("slope-floor-left", "tower") },
+			{ x: 0, y: 0, tile: new BasicTile("slope-floor-left") },
 		]);
 		pusher.moveUnit("right", world, canvasIO!, { });
 
@@ -292,7 +292,7 @@ describe("Collideable.moveUnit", () => {
 			pusher = new CollideableSpy(new Rectangle(0, -10, 20, 10), "pusher", true),
 			pushable = new CollideableSpy(new Rectangle(10, 0, 10, 10), "pushable", true),
 		], [
-			{ x: 0, y: 0, tile: new BasicTile("slope-floor-left", "tower") },
+			{ x: 0, y: 0, tile: new BasicTile("slope-floor-left") },
 		]);
 		pusher.moveUnit("right", world, canvasIO!, { });
 
