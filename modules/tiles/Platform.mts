@@ -43,6 +43,9 @@ export class Platform extends Tile {
 	reflect(): Platform {
 		return this;
 	}
+	intersects() {
+		return false;
+	}
 	angularMotionBlockers(tilePosition: Vector, point: Vector, direction: "clockwise" | "counterclockwise"): Direction[] {
 		const onTop = (point.y === tilePosition.y * WorldData.TILE_SIZE);
 		const left = tilePosition.x * WorldData.TILE_SIZE;

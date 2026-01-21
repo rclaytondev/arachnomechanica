@@ -1,5 +1,6 @@
 import { CanvasIO } from "../../utils-ts/modules/CanvasIO.mjs";
 import { Diagonal, Direction } from "../../utils-ts/modules/geometry/Direction.mjs";
+import { Rectangle } from "../../utils-ts/modules/geometry/Rectangle.mjs";
 import { Vector } from "../../utils-ts/modules/geometry/Vector.mjs";
 import { MathUtils } from "../../utils-ts/modules/math/MathUtils.mjs";
 import { WorldData } from "../constants/GameData.mjs";
@@ -71,6 +72,39 @@ export class BasicTile extends Tile {
 		return [...new Set(octants.flatMap(
 			o => [Octants.edge(o, "clockwise"), Octants.edge(o, "counterclockwise")]),
 		)];
+	}
+
+
+	intersects(rect: Rectangle, tilePosition: Vector): boolean {
+		if(this.shape === "full") {
+			const tileSquare = Tiles.getTileSquare(tilePosition);
+			return rect.intersects(tileSquare);
+		}
+		return this.slopeIntersectionDistance(rect, tilePosition) > 0;
+	}
+	slopeIntersectionDistance(rect: Rectangle, tilePosition: Vector) {
+		if(this.shape === "full") {
+			throw new Error("Expected the tile to be a slope tile.");
+		}
+		const tileSquare = Tiles.getTileSquare(tilePosition);
+		if(!rect.intersects(tileSquare)) { return -Infinity; }
+		const center = tileSquare.center();
+		if(this.shape === "slope-floor-left") {
+			const corner = rect.getCorner("bottom-left");
+			return center.x + corner.y - center.y - corner.x;
+		}
+		else if(this.shape === "slope-floor-right") {
+			const corner = rect.getCorner("bottom-right");
+			return corner.x - (center.x + center.y - corner.y);
+		}
+		else if(this.shape === "slope-ceiling-left") {
+			const corner = rect.getCorner("top-left");
+			return center.x + center.y - corner.y - corner.x;
+		}
+		else {
+			const corner = rect.getCorner("top-right");
+			return corner.x - (center.x + corner.y - center.y);
+		}
 	}
 
 	addToPath(position: Vector, canvasIO: CanvasIO) {

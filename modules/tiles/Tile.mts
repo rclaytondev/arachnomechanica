@@ -22,4 +22,6 @@ export abstract class Tile {
 		)];
 		return [];
 	}
+
+	abstract intersects(rect: Rectangle, tilePosition: Vector): boolean;
 }

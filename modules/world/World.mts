@@ -67,30 +67,6 @@ export class World {
 		Gate.update(this);
 	}
 
-	slopeIntersectionDistance(rectangle: Rectangle, position: Vector, slope: Slope) {
-		const tileRectangle = Rectangle.square(position.x, position.y, 1).scale(WorldData.TILE_SIZE);
-		if(!rectangle.intersects(tileRectangle)) { return -Infinity; }
-		const center = tileRectangle.center();
-		if(slope === "slope-floor-left") {
-			const corner = rectangle.getCorner("bottom-left");
-			return center.x + corner.y - center.y - corner.x;
-		}
-		else if(slope === "slope-floor-right") {
-			const corner = rectangle.getCorner("bottom-right");
-			return corner.x - (center.x + center.y - corner.y);
-		}
-		else if(slope === "slope-ceiling-left") {
-			const corner = rectangle.getCorner("top-left");
-			return center.x + center.y - corner.y - corner.x;
-		}
-		else {
-			const corner = rectangle.getCorner("top-right");
-			return corner.x - (center.x + corner.y - center.y);
-		}
-	}
-	intersectsSlope(rectangle: Rectangle, position: Vector, slope: Slope) {
-		return this.slopeIntersectionDistance(rectangle, position, slope) > 0;
-	}
 	onSlope(rectangle: Rectangle, slope: Slope, mode: "up" | "down") {
 		const corner = rectangle.getCorner(({
 			"slope-floor-right": "bottom-right",
@@ -106,18 +82,13 @@ export class World {
 			Math.floor(corner.y / WorldData.TILE_SIZE),
 		);
 		const tile = this.tiles.get(position);
-		return tile instanceof BasicTile && tile.shape === slope && this.slopeIntersectionDistance(rectangle, position, slope) === 0;
+		return tile instanceof BasicTile && tile.shape === slope && tile.slopeIntersectionDistance(rectangle, position) === 0;
 	}
 	collidingTiles(rectangle: Rectangle, collides: (object: { x: number, y: number, tile: Tile } | Entity) => boolean = () => true) {
 		const tiles = [];
 		for(const { position, tile } of this.tiles.getTilesAt(rectangle)) {
 			const { x, y } = position;
-			if(collides({ x, y, tile }) && (
-				tile instanceof BasicTile && tile.shape === "full" ||
-				tile instanceof LaserBlock ||
-				tile instanceof SpikeballBlock ||
-				(World.isSlopeTile(tile) && this.intersectsSlope(rectangle, position, tile.shape))
-			)) {
+			if(collides({ x, y, tile }) && tile.intersects(rectangle, position)) {
 				tiles.push({ x, y, tile });
 			}
 		}

@@ -21,4 +21,7 @@ export class EmptyTile extends Tile {
 	angularMotionBlockers() {
 		return [];
 	}
+	intersects() {
+		return false;
+	}
 }
