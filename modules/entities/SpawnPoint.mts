@@ -10,6 +10,7 @@ export class SpawnPoint extends Entity {
 		this.position = position;
 	}
 
+	render() { return []; }
 	display() {}
 	update() {}
 

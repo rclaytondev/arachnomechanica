@@ -1,9 +1,13 @@
+import { CanvasIO } from "../../utils-ts/modules/CanvasIO.mjs";
 import { Rectangle } from "../../utils-ts/modules/geometry/Rectangle.mjs";
 import { Vector } from "../../utils-ts/modules/geometry/Vector.mjs";
 import { Grid } from "../../utils-ts/modules/Grid.mjs";
 import { WorldData } from "../constants/GameData.mjs";
 import { EmptyTile } from "../tiles/EmptyTile.mjs";
 import { Tile } from "../tiles/Tile.mjs";
+import { Camera } from "./Camera.mjs";
+import { Renderer } from "./Renderer.mjs";
+import { World } from "./World.mjs";
 
 export class Tiles extends Grid<Tile> {
 	constructor() {
@@ -53,5 +57,14 @@ export class Tiles extends Grid<Tile> {
 				this.get(x, y).angularMotionBlockers(new Vector(x, y), point, direction)
 			))
 		)).flat(2);
+	}
+
+	render(camera: Camera, renderer: Renderer, canvasIO: CanvasIO, world: World) {
+		const region = camera.visibleTileRegion(canvasIO, 0);
+		for(const position of region.squares()) {
+			for(const renderable of this.get(position).render(position, world)) {
+				renderer.renderables.push(renderable);
+			}
+		}
 	}
 }

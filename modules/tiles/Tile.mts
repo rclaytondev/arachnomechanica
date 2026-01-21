@@ -4,9 +4,11 @@ import { Rectangle } from "../../utils-ts/modules/geometry/Rectangle.mjs";
 import { Vector } from "../../utils-ts/modules/geometry/Vector.mjs";
 import { WorldData } from "../constants/GameData.mjs";
 import { Octants } from "../game-utilities/Octant.mjs";
+import { Renderable } from "../world/Renderer.mjs";
 import { World } from "../world/World.mjs";
 
 export abstract class Tile {
+	abstract render(position: Vector, world: World): Renderable[];
 	abstract display(canvasIO: CanvasIO, x: number, y: number, world: World): void;
 	abstract copy(): Tile;
 	abstract reflect(): Tile;

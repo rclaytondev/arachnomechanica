@@ -14,6 +14,7 @@ import { CollisionEvent } from "../game-utilities/physics-engine/CollisionEvent.
 import { RectangularCollideable } from "../game-utilities/physics-engine/RectangularCollideable.mjs";
 import { EntitySpawner } from "../level-generator/EntitySpawner.mjs";
 import { BasicTile } from "../tiles/BasicTile.mjs";
+import { Renderable } from "../world/Renderer.mjs";
 import { Tiles } from "../world/Tiles.mjs";
 import { TileWithPosition, World } from "../world/World.mjs";
 import { Fireball } from "./Fireball.mjs";
@@ -336,6 +337,9 @@ export class Spider extends RectangularCollideable {
 		return legs;
 	}
 
+	render(world: World) {
+		return [new Renderable(c => this.display(c, world), "entity")];
+	}
 	display(canvasIO: CanvasIO, world: World) {
 		this.displayBody(canvasIO, world);
 		this.displayEyes(canvasIO);

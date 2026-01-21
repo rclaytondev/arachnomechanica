@@ -56,7 +56,7 @@ export class FireSpawner {
 		this.timeLeft --;
 		if(this.timeLeft > 0) {
 			for(let i = 0; i < this.particlesPerFrame; i ++) {
-				world.addParticle(this.generateFireParticle(), canvasIO);
+				world.particles.add(this.generateFireParticle(), world, canvasIO);
 			}
 			this.hurtboxSize = Math.min(this.hurtboxSize + this.hurtboxSpeed, this.maxHurtboxSize);
 		}

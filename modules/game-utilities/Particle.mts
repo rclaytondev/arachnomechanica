@@ -1,5 +1,6 @@
 import { CanvasIO } from "../../utils-ts/modules/CanvasIO.mjs";
 import { Vector } from "../../utils-ts/modules/geometry/Vector.mjs";
+import { Renderable } from "../world/Renderer.mjs";
 import { GameUtils } from "./GameUtils.mjs";
 
 type Range = { min: number, max: number };
@@ -83,6 +84,12 @@ export class Particle {
 		this.thickness = Particle.randomize(settings.thickness ?? 1);
 	}
 
+	render() {
+		return [
+			new Renderable(this.display.bind(this), "particle"),
+			new Renderable(this.displayGlow.bind(this), "glow"),
+		];
+	}
 	display(canvasIO: CanvasIO) {
 		canvasIO.ctx.save();
 		canvasIO.ctx.translate(this.position.x, this.position.y);

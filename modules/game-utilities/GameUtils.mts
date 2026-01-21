@@ -251,7 +251,7 @@ export class GameUtils {
 				display(canvasIO);
 				canvasIO.ctx.restore();
 			};
-			world.addParticle(new Particle(position, velocity, { ...settings, shape: displaySector, rotation: 0 }), canvasIO);
+			world.particles.add(new Particle(position, velocity, { ...settings, shape: displaySector, rotation: 0 }), world, canvasIO);
 		}
 	}
 	static lerpColor(value: number, min: number, max: number, color1: Color, color2: Color): Color {

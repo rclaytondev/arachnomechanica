@@ -14,6 +14,7 @@ import { Tiles } from "../world/Tiles.mjs";
 import { LoadingManager } from "../app-entry-points/LoadingManager.mjs";
 import { EntitySpawner } from "../level-generator/EntitySpawner.mjs";
 import { ArrayUtils } from "../../utils-ts/modules/core-extensions/ArrayUtils.mjs";
+import { Renderable } from "../world/Renderer.mjs";
 
 export class SpikeballBlock extends RectangularCollideable {
 	timeUntilSpawn: number = 0;
@@ -98,6 +99,12 @@ export class SpikeballBlock extends RectangularCollideable {
 			canvasIO.ctx.restore();
 		}
 	}
+	render() {
+		return [
+			new Renderable(this.display.bind(this), "tile-entity"),
+			new Renderable(this.displayGlowEffect.bind(this), "glow"),
+		];
+	}
 
 	update(world: World, canvasIO: CanvasIO) {
 		this.updateSpikeballs(world);
@@ -145,11 +152,11 @@ export class SpikeballBlock extends RectangularCollideable {
 			if(Math.random() < SpikeballBlockData.PARTICLE_SPAWN_PROBABILITY) {
 				const offset = GameUtils.random(-SpikeballBlockData.PARTICLE_PERPENDICULAR_OFFSET, SpikeballBlockData.PARTICLE_PERPENDICULAR_OFFSET);
 				const velocity = GameUtils.random(SpikeballBlockData.PARTICLE_MIN_VELOCITY, SpikeballBlockData.PARTICLE_MAX_VELOCITY);
-				world.addParticle(new Particle(
+				world.particles.add(new Particle(
 					center.add(Vector.unit(perpendicular).multiply(offset)),
 					Vector.unit(diagonal).multiply(velocity),
 					SpikeballBlockData.PARTICLE_SETTINGS,
-				), canvasIO);
+				), world, canvasIO);
 			}
 		}
 	}

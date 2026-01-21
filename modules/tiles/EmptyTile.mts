@@ -6,6 +6,7 @@ export class EmptyTile extends Tile {
 	}
 	static readonly EMPTY = new EmptyTile();
 
+	render() { return []; }
 	display() { }
 
 	copy() {

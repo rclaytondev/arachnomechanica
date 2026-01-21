@@ -5,6 +5,7 @@ import { PortalData, RoomData, WorldData } from "../constants/GameData.mjs";
 import { Entity } from "../game-utilities/Entity.mjs";
 import { GameUtils } from "../game-utilities/GameUtils.mjs";
 import { Particle } from "../game-utilities/Particle.mjs";
+import { Renderable } from "../world/Renderer.mjs";
 import { World } from "../world/World.mjs";
 import { SpawnPoint } from "./SpawnPoint.mjs";
 
@@ -32,14 +33,14 @@ export class Portal extends Entity {
 		);
 	}
 	addLine(world: World, canvasIO: CanvasIO) {
-		world.addParticle(new Particle(
+		world.particles.add(new Particle(
 			new Vector(
 				this.position.x + GameUtils.random(-PortalData.LINE_SPAWN_WIDTH / 2, PortalData.LINE_SPAWN_WIDTH / 2),
 				this.position.y,
 			),
 			new Vector(0, -PortalData.LINE_SPEED),
 			PortalData.PARTICLE_SETTINGS,
-		), canvasIO);
+		), world, canvasIO);
 	}
 	teleportPlayer(world: World) {
 		const generator = world.worldGenerator;
@@ -51,6 +52,9 @@ export class Portal extends Entity {
 		}
 	}
 
+	render() {
+		return [new Renderable(this.display.bind(this), "entity")];
+	}
 	display(canvasIO: CanvasIO) {
 		canvasIO.ctx.fillStyle = PortalData.COLOR;
 		canvasIO.ctx.fillRect(

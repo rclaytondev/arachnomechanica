@@ -4,6 +4,8 @@ import { ROOMS } from "../level-generator/Rooms.mjs";
 import { Main } from "../Main.mjs";
 import { RoomEditor } from "../RoomEditor.mjs";
 import { LoadingManager } from "../app-entry-points/LoadingManager.mjs";
+import { Camera } from "../world/Camera.mjs";
+import { WorldData } from "../constants/GameData.mjs";
 
 export class Debug {
 	static recordedRNG: number[] = [];
@@ -56,6 +58,15 @@ export class Debug {
 		canvasIO.ctx.textBaseline = "top";
 		canvasIO.ctx.font = "30px monospace";
 		canvasIO.ctx.fillText(`${Debug.frameTimes.length} FPS`, 0, 0);
+	}
+	static displayMouseCoordinates(canvasIO: CanvasIO, camera: Camera, display: boolean = DEBUG_SETTINGS.SHOW_MOUSE_COORDINATES) {
+		if(!display) { return; }
+		canvasIO.ctx.fillStyle = "rgb(200, 200, 200)";
+		const coordinates = canvasIO.mouse.position.subtract(camera.translation(canvasIO)).divide(WorldData.TILE_SIZE).floor();
+		canvasIO.ctx.font = "20px monospace";
+		canvasIO.ctx.textAlign = "left";
+		canvasIO.ctx.textBaseline = "top";
+		canvasIO.ctx.fillText(coordinates.toString(), canvasIO.mouse.position.x, canvasIO.mouse.position.y);
 	}
 }
 

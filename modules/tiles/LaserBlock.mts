@@ -8,6 +8,7 @@ import { GameUtils } from "../game-utilities/GameUtils.mjs";
 import { Particle } from "../game-utilities/Particle.mjs";
 import { RectangularCollideable } from "../game-utilities/physics-engine/RectangularCollideable.mjs";
 import { EntitySpawner } from "../level-generator/EntitySpawner.mjs";
+import { Renderable } from "../world/Renderer.mjs";
 import { Tiles } from "../world/Tiles.mjs";
 import { World } from "../world/World.mjs";
 
@@ -44,6 +45,12 @@ export class LaserBlock extends RectangularCollideable {
 		);
 	}
 
+	render() {
+		return [
+			new Renderable(this.display.bind(this), "tile-entity"),
+			new Renderable(this.displayGlowEffect.bind(this), "glow"),
+		];
+	}
 	display(canvasIO: CanvasIO) {
 		canvasIO.ctx.fillStyle = LaserBlockData.TILE_COLOR;
 		canvasIO.fillRect(this.hitbox);
@@ -105,14 +112,14 @@ export class LaserBlock extends RectangularCollideable {
 			this.lengths[i] = Math.min(this.lengths[i], length);
 			if(this.lengths[i] === length && this.lengths[i] < LaserBlockData.MAX_LENGTH && GameUtils.frameCount % LaserBlockData.FRAMES_PER_PARTICLE == 0) {
 				const particlePosition = this.hitbox.center().add(direction.multiply(length));
-				world.addParticle(new Particle(
+				world.particles.add(new Particle(
 					particlePosition,
 					new Vector(
 						GameUtils.random(-LaserBlockData.PARTICLE_SPEED, LaserBlockData.PARTICLE_SPEED),
 						GameUtils.random(-LaserBlockData.PARTICLE_SPEED, LaserBlockData.PARTICLE_SPEED),
 					),
 					LaserBlockData.PARTICLE_INFO,
-				), canvasIO);
+				), world, canvasIO);
 			}
 			if(this.intersectsBox(direction, player, length)) {
 				if(this.mode === "unactivated") {

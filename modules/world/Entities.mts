@@ -6,6 +6,10 @@ import { BoundingBoxStructure } from "../game-utilities/BoundingBoxStructure.mjs
 import { Vector } from "../../utils-ts/modules/geometry/Vector.mjs";
 import { Diagonal, Direction } from "../../utils-ts/modules/geometry/Direction.mjs";
 import { Octants } from "../game-utilities/Octant.mjs";
+import { Camera } from "./Camera.mjs";
+import { CanvasIO } from "../../utils-ts/modules/CanvasIO.mjs";
+import { World } from "./World.mjs";
+import { Renderable, Renderer } from "./Renderer.mjs";
 
 export class Entities extends BoundingBoxStructure<Entity> {
 	constructor() {
@@ -25,5 +29,20 @@ export class Entities extends BoundingBoxStructure<Entity> {
 			hitboxes.flatMap(h => Octants.octantsOfRect(point, h))
 			.flatMap(o => [Octants.edge(o, "clockwise"), Octants.edge(o, "counterclockwise")]),
 		)];
+	}
+
+	render(camera: Camera, renderer: Renderer, canvasIO: CanvasIO, world: World) {
+		const region = camera.visibleRegion(canvasIO, WorldData.ENTITY_RENDER_DISTANCE);
+		for(const entity of this.possiblyIntersecting(region)) {
+			for(const renderable of entity.render(world)) {
+				renderer.renderables.push(renderable);
+			}
+			if(entity instanceof Collideable) {
+				renderer.renderables.push(new Renderable(
+					(c) => entity.displayHitboxes(c),
+					"hitbox",
+				));
+			}
+		}
 	}
 }

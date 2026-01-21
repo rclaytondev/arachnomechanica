@@ -17,6 +17,7 @@ import { EmptyTile } from "../tiles/EmptyTile.mjs";
 import { Tiles } from "../world/Tiles.mjs";
 import { EntitySpawner } from "../level-generator/EntitySpawner.mjs";
 import { LoadingManager } from "../app-entry-points/LoadingManager.mjs";
+import { Renderable } from "../world/Renderer.mjs";
 
 type Joint = { position: Vector, direction: Direction };
 
@@ -48,6 +49,12 @@ export class Lizard extends Collideable {
 		this.fireSpawner = new FireSpawner(position, direction, LizardData.FIRE);
 	}
 
+	render() {
+		return [
+			new Renderable(this.display.bind(this), "entity"),
+			new Renderable(this.displayGlowEffect.bind(this), "glow"),
+		];
+	}
 	display(canvasIO: CanvasIO) {
 		this.displayJoints(canvasIO);
 		this.displayBody(canvasIO);
@@ -444,7 +451,7 @@ export class Lizard extends Collideable {
 			},
 		};
 		const particle = new Particle(midpoint, velocity, settings);
-		world.addParticle(particle, canvasIO);
+		world.particles.add(particle, world, canvasIO);
 	}
 
 

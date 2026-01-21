@@ -8,6 +8,7 @@ export class InvisibleRectangle extends RectangularCollideable {
 		super(hitbox);
 	}
 
+	render() { return []; }
 	display() {}
 	update() {}
 

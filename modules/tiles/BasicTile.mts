@@ -4,9 +4,11 @@ import { Vector } from "../../utils-ts/modules/geometry/Vector.mjs";
 import { MathUtils } from "../../utils-ts/modules/math/MathUtils.mjs";
 import { WorldData } from "../constants/GameData.mjs";
 import { Octant, Octants } from "../game-utilities/Octant.mjs";
+import { Renderable } from "../world/Renderer.mjs";
 import { Tiles } from "../world/Tiles.mjs";
-import { Slope } from "../world/World.mjs";
+import { Slope, World } from "../world/World.mjs";
 import { Tile } from "./Tile.mjs";
+import { TowerTile } from "./TowerTile.mjs";
 
 export class BasicTile extends Tile {
 	readonly shape: "full" | Slope;
@@ -99,6 +101,20 @@ export class BasicTile extends Tile {
 		}
 	}
 
+	render(position: Vector, world: World) {
+		return [
+			new Renderable(c => this.display(c, position.x, position.y), "tile"),
+			new Renderable(c => this.displayAccent(position, c, world), "tile-accent"),
+		];
+	}
+	displayAccent(position: Vector, canvasIO: CanvasIO, world: World) {
+		if(this.texture === "tower" && this.shape === "full") {
+			TowerTile.displayTileAccent(position, canvasIO, world);
+		}
+		else if(this.texture === "tower") {
+			TowerTile.displaySlopedAccent(position, canvasIO, this.shape as Slope, world);
+		}
+	}
 	display(canvasIO: CanvasIO, x: number, y: number): void {
 		canvasIO.ctx.fillStyle = WorldData.TILE_COLORS[this.texture];
 		canvasIO.ctx.beginPath();

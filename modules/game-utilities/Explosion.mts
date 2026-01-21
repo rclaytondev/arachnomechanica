@@ -75,7 +75,7 @@ export class Explosion {
 		for(let i = 0; i < numParticles; i ++) {
 			const position = GameUtils.randomInCircle(this.position.x, this.position.y, this.visualRadius);
 			const particle = new Particle(position, new Vector(0, 0), this.particleSettings);
-			world.addParticle(particle, canvasIO);
+			world.particles.add(particle, world, canvasIO);
 		}
 	}
 	damage(world: World, canvasIO: CanvasIO) {

@@ -23,6 +23,7 @@ class CollideableSpy extends RectangularCollideable {
 		this.crushable = crushable;
 	}
 
+	render() { return []; }
 	display() { }
 	update() { }
 

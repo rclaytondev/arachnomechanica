@@ -3,6 +3,7 @@ import { Rectangle } from "../../utils-ts/modules/geometry/Rectangle.mjs";
 import { Vector } from "../../utils-ts/modules/geometry/Vector.mjs";
 import { HealthPickupData, RoomData, WorldData } from "../constants/GameData.mjs";
 import { RectangularCollideable } from "../game-utilities/physics-engine/RectangularCollideable.mjs";
+import { Renderable } from "../world/Renderer.mjs";
 import { World } from "../world/World.mjs";
 
 export class HealthPickup extends RectangularCollideable {
@@ -30,6 +31,9 @@ export class HealthPickup extends RectangularCollideable {
 			world.player.health ++;
 			world.entities.delete(this);
 		}
+	}
+	render() {
+		return [new Renderable(this.display.bind(this), "entity")];
 	}
 
 	copy() {

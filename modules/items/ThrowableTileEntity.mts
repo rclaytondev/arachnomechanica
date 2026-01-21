@@ -5,6 +5,7 @@ import { Vector } from "../../utils-ts/modules/geometry/Vector.mjs";
 import { ItemData, PlayerData, WorldData } from "../constants/GameData.mjs";
 import { CollisionEvent } from "../game-utilities/physics-engine/CollisionEvent.mjs";
 import { RectangularCollideable } from "../game-utilities/physics-engine/RectangularCollideable.mjs";
+import { Renderable } from "../world/Renderer.mjs";
 import { World } from "../world/World.mjs";
 import { ThrowableTile } from "./ThrowableTile.mjs";
 import { TileModifier } from "./TileModifier.mjs";
@@ -46,6 +47,10 @@ export class ThrowableTileEntity extends RectangularCollideable {
 		for(const modifier of this.modifiers) {
 			modifier.update(this, world, canvasIO);
 		}
+	}
+
+	render() {
+		return [new Renderable(this.display.bind(this), "tile-entity")];
 	}
 	display(canvasIO: CanvasIO) {
 		canvasIO.ctx.fillStyle = WorldData.TILE_COLORS.tower;

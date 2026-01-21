@@ -9,6 +9,7 @@ import { World } from "../world/World.mjs";
 import { RectangularCollideable } from "../game-utilities/physics-engine/RectangularCollideable.mjs";
 import { Tiles } from "../world/Tiles.mjs";
 import { ShakeEffect } from "../game-utilities/visual-effects/ShakeEffect.mjs";
+import { Renderable } from "../world/Renderer.mjs";
 
 export class Gate extends RectangularCollideable {
 	static cooldown = 0;
@@ -77,6 +78,9 @@ export class Gate extends RectangularCollideable {
 		}
 	}
 
+	render() {
+		return [new Renderable(this.display.bind(this), "tile-entity")];
+	}
 	display(canvasIO: CanvasIO) {
 		const length = Directions.isHorizontal(this.direction) ? this.hitbox.width : this.hitbox.height;
 		const displayLength = Math.max(length, GateData.MIN_DISPLAY_SIZE * WorldData.TILE_SIZE);

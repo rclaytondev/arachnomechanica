@@ -10,6 +10,7 @@ import { RectangularCollideable } from "../game-utilities/physics-engine/Rectang
 import { CollisionEvent } from "../game-utilities/physics-engine/CollisionEvent.mjs";
 import { Tile } from "../tiles/Tile.mjs";
 import { SpikeballBlock } from "../tiles/SpikeballBlock.mjs";
+import { Renderable } from "../world/Renderer.mjs";
 
 export class Spikeball extends RectangularCollideable {
 	velocity: Vector;
@@ -33,6 +34,12 @@ export class Spikeball extends RectangularCollideable {
 		return true;
 	}
 
+	render() {
+		return [
+			new Renderable(this.display.bind(this), "entity"),
+			new Renderable(this.displayGlowEffect.bind(this), "glow"),
+		];
+	}
 	display(canvasIO: CanvasIO) {
 		const center = this.hitbox.center();
 		canvasIO.ctx.fillStyle = SpikeballData.COLOR;

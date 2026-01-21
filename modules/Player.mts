@@ -15,6 +15,7 @@ import { ThrowableTile } from "./items/ThrowableTile.mjs";
 import { ThrowableTileEntity } from "./items/ThrowableTileEntity.mjs";
 import { Main } from "./Main.mjs";
 import { RoomEditor } from "./RoomEditor.mjs";
+import { Renderable } from "./world/Renderer.mjs";
 import { TileWithPosition, World } from "./world/World.mjs";
 
 export class Player extends RectangularCollideable {
@@ -32,6 +33,9 @@ export class Player extends RectangularCollideable {
 		super(new Rectangle(0, -WorldData.TILE_SIZE, PlayerData.HITBOX_WIDTH, PlayerData.HITBOX_HEIGHT));
 	}
 
+	render() {
+		return [new Renderable(this.display.bind(this), "player")];
+	}
 	display(canvasIO: CanvasIO) {
 		canvasIO.ctx.fillStyle = PlayerData.COLOR;
 		canvasIO.fillRect(this.hitbox);

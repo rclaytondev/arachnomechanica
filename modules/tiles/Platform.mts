@@ -2,6 +2,7 @@ import { CanvasIO } from "../../utils-ts/modules/CanvasIO.mjs";
 import { Direction } from "../../utils-ts/modules/geometry/Direction.mjs";
 import { Vector } from "../../utils-ts/modules/geometry/Vector.mjs";
 import { WorldData } from "../constants/GameData.mjs";
+import { Renderable } from "../world/Renderer.mjs";
 import { World } from "../world/World.mjs";
 import { Tile } from "./Tile.mjs";
 
@@ -11,6 +12,9 @@ export class Platform extends Tile {
 	}
 	static readonly PLATFORM = new Platform();
 
+	render(position: Vector, world: World): Renderable[] {
+		return [new Renderable(c => this.display(c, position.x, position.y, world), "tile")];
+	}
 	display(canvasIO: CanvasIO, x: number, y: number, world: World): void {
 		canvasIO.ctx.fillStyle = WorldData.TILE_COLORS.tower;
 		canvasIO.ctx.fillRect(

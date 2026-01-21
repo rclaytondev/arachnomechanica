@@ -28,14 +28,17 @@ export class Fireball extends RectangularCollideable {
 		});
 		world.entities.updatePosition(this);
 
-		world.addParticle(new Particle(
+		world.particles.add(new Particle(
 			this.hitbox.center(),
 			new Vector(0, 0),
 			SpiderData.PROJECTILE_PARTICLE_SETTINGS,
-		), canvasIO);
+		), world, canvasIO);
 	}
 
 	display() { }
+	render() {
+		return [];
+	}
 
 
 	onCollision(collision: CollisionEvent, world: World, canvasIO: CanvasIO): void {

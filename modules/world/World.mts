@@ -2,18 +2,13 @@ import { CanvasIO } from "../../utils-ts/modules/CanvasIO.mjs";
 import { Direction, Directions } from "../../utils-ts/modules/geometry/Direction.mjs";
 import { Rectangle } from "../../utils-ts/modules/geometry/Rectangle.mjs";
 import { Vector } from "../../utils-ts/modules/geometry/Vector.mjs";
-import { PlayerData, WorldData } from "../constants/GameData.mjs";
-import { DEBUG_SETTINGS } from "../constants/DebugSettings.mjs";
-import { Particle } from "../game-utilities/Particle.mjs";
+import { WorldData } from "../constants/GameData.mjs";
 import { Player } from "../Player.mjs";
 import { Gate } from "../tiles/Gate.mjs";
 import { GameUtils } from "../game-utilities/GameUtils.mjs";
 import { LaserBlock } from "../tiles/LaserBlock.mjs";
 import { SpikeballBlock } from "../tiles/SpikeballBlock.mjs";
-import { MathUtils } from "../../utils-ts/modules/math/MathUtils.mjs";
-import { TowerTile } from "../tiles/TowerTile.mjs";
 import { BasicTile } from "../tiles/BasicTile.mjs";
-import { StoneTile } from "../tiles/StoneTile.mjs";
 import { Entities } from "./Entities.mjs";
 import { Entity } from "../game-utilities/Entity.mjs";
 import { Collideable } from "../game-utilities/physics-engine/Collideable.mjs";
@@ -24,6 +19,9 @@ import { Tiles } from "./Tiles.mjs";
 import { WorldScreen } from "./WorldScreen.mjs";
 import { Camera } from "./Camera.mjs";
 import { WorldGenerator } from "../level-generator/WorldGenerator.mjs";
+import { Renderer } from "./Renderer.mjs";
+import { Particles } from "../game-utilities/Particles.mjs";
+import { Debug } from "../game-utilities/Debug.mjs";
 
 export type Slope = (typeof WorldData.SLOPES)[number];
 export type TileWithPosition = { x: number, y: number, tile: Tile };
@@ -32,7 +30,7 @@ export class World {
 	tiles: Tiles = new Tiles();
 	originalTiles: Tiles = new Tiles();
 	entities: Entities = new Entities();
-	particles: Particle[] = [];
+	particles: Particles = new Particles();
 	worldScreen: WorldScreen | null = null;
 	worldGenerator: WorldGenerator | null;
 	player: Player = new Player();
@@ -43,101 +41,22 @@ export class World {
 	}
 
 	display(canvasIO: CanvasIO, camera: Camera) {
+		const renderer = new Renderer();
+		this.entities.render(camera, renderer, canvasIO, this);
+		this.tiles.render(camera, renderer, canvasIO, this);
+		this.particles.render(renderer);
+
 		canvasIO.ctx.save();
 		camera.applyTranslation(canvasIO);
-		this.displayGlowEffects(canvasIO, camera);
-		this.displayParticles(canvasIO);
-		this.displayEntities(canvasIO, camera);
-		this.displayTiles(canvasIO, camera.visibleTileRegion(canvasIO));
-		this.displayTileAccents(canvasIO, camera.visibleTileRegion(canvasIO));
-		this.displayDebugInfo(canvasIO, camera);
+		renderer.displayAll(canvasIO);
 		canvasIO.ctx.restore();
 
-		if(DEBUG_SETTINGS.SHOW_MOUSE_COORDINATES) {
-			this.displayMouseCoordinates(canvasIO, camera);
-		}
-	}
-	displayGlowEffects(canvasIO: CanvasIO, camera: Camera) {
-		const entityRegion = camera.visibleRegion(canvasIO, WorldData.GLOW_RENDER_DISTANCE);
-		for(const entity of this.entities.possiblyIntersecting(entityRegion)) {
-			entity.displayGlowEffect(canvasIO);
-		}
-
-		for(const particle of this.particles) {
-			particle.displayGlow(canvasIO);
-		}
-	}
-	displayTileEntities(canvasIO: CanvasIO, region: Rectangle) {
-		for(const position of region.squares()) {
-			const tile = this.tiles.get(position);
-			if(typeof tile !== "string" && !(tile instanceof LaserBlock) && !(tile instanceof BasicTile)) {
-				tile.display(canvasIO, position.x, position.y, this);
-			}
-		}
-	}
-	displayBasicTiles(canvasIO: CanvasIO, region: Rectangle) {
-		for(const position of region.squares()) {
-			const tile = this.tiles.get(position);
-			if(tile instanceof BasicTile || tile instanceof Platform) {
-				tile.display(canvasIO, position.x, position.y, this);
-			}
-		}
-
-	}
-	displayTiles(canvasIO: CanvasIO, region: Rectangle) {
-		this.displayBasicTiles(canvasIO, region);
-		this.displayTileEntities(canvasIO, region);
-		StoneTile.displayStoneTiles(this, canvasIO, region);
-	}
-	displayTileAccents(canvasIO: CanvasIO, region: Rectangle) {
-		for(let x = region.left(); x < region.right(); x ++) {
-			for(let y = region.top(); y < region.bottom(); y ++) {
-				const position = new Vector(x, y);
-				const tile = this.tiles.get(position);
-				if(tile instanceof BasicTile && tile.shape === "full" && tile.texture === "tower") {
-					TowerTile.displayTileAccent(position, canvasIO, this);
-				}
-				else if(World.isSlopeTile(tile) && tile.texture === "tower") {
-					TowerTile.displaySlopedAccent(position, canvasIO, tile.shape, this);
-				}
-			}
-		}
-	}
-	displayEntities(canvasIO: CanvasIO, camera: Camera) {
-		const region = camera.visibleRegion(canvasIO, WorldData.ENTITY_RENDER_DISTANCE);
-		for(const entity of this.entities.possiblyIntersecting(region)) {
-			if(!(entity instanceof Player)) {
-				entity.display(canvasIO, this);
-			}
-		}
-		this.player.display(canvasIO);
-	}
-	displayParticles(canvasIO: CanvasIO) {
-		for(const particle of this.particles) {
-			particle.display(canvasIO);
-		}
-	}
-	displayMouseCoordinates(canvasIO: CanvasIO, camera: Camera) {
-		canvasIO.ctx.fillStyle = "rgb(200, 200, 200)";
-		const coordinates = canvasIO.mouse.position.subtract(camera.translation(canvasIO)).divide(WorldData.TILE_SIZE).floor();
-		canvasIO.ctx.font = "20px monospace";
-		canvasIO.ctx.textAlign = "left";
-		canvasIO.ctx.textBaseline = "top";
-		canvasIO.ctx.fillText(coordinates.toString(), canvasIO.mouse.position.x, canvasIO.mouse.position.y);
-	}
-	displayDebugInfo(canvasIO: CanvasIO, camera: Camera) {
-		const region = camera.visibleRegion(canvasIO, WorldData.ENTITY_RENDER_DISTANCE);
-		for(const entity of this.entities.possiblyIntersecting(region)) {
-			entity.displayDebug(canvasIO, this);
-			if(entity instanceof Collideable) {
-				entity.displayHitboxes(canvasIO);
-			}
-		}
+		Debug.displayMouseCoordinates(canvasIO, camera);
 	}
 
 	update(canvasIO: CanvasIO, camera?: Camera) {
 		this.updateEntities(canvasIO, camera);
-		this.updateParticles();
+		this.particles.update();
 		this.worldGenerator?.updateGeneration(this);
 	}
 	updateEntities(canvasIO: CanvasIO, camera?: Camera) {
@@ -146,12 +65,6 @@ export class World {
 			entity.update(this, canvasIO);
 		}
 		Gate.update(this);
-	}
-	updateParticles() {
-		for(const particle of this.particles) {
-			particle.update();
-		}
-		this.particles = this.particles.filter(p => !p.isDead());
 	}
 
 	slopeIntersectionDistance(rectangle: Rectangle, position: Vector, slope: Slope) {
@@ -393,17 +306,6 @@ export class World {
 	addOriginalTile(position: Vector, tile: Tile) {
 		this.addTile(position, tile);
 		this.originalTiles.set(position, tile);
-	}
-	addParticle(particle: Particle, canvasIO: CanvasIO) {
-		const player = this.player.hitbox.center();
-		const distanceX = MathUtils.dist(particle.position.x, player.x);
-		const distanceY = MathUtils.dist(particle.position.y, player.y);
-		if(
-			distanceX < canvasIO.canvas.width / 2 + PlayerData.MAX_X_VELOCITY * particle.lifetime()
-			&& distanceY < canvasIO.canvas.height / 2 + WorldData.PARTICLE_RENDER_DISTANCE_Y * particle.lifetime()
-		) {
-			this.particles.push(particle);
-		}
 	}
 	addEntityIfEmpty(entity: Collideable) {
 		if(!entity.hitboxes().some(h => this.isInSolid(h))) {
