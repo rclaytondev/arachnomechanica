@@ -476,7 +476,7 @@ export class Spider extends RectangularCollideable {
 	static spawn(tilePosition: Vector, world: World): boolean {
 		const direction = Directions.DIRECTIONS.find(dir => {
 			const tile = world.tiles.get(tilePosition.add(Vector.unit(dir)));
-			return tile instanceof BasicTile && tile.shape === "full";
+			return tile instanceof BasicTile;
 		});
 		if(!direction) {
 			return false;

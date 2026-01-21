@@ -22,6 +22,7 @@ import { WorldGenerator } from "../level-generator/WorldGenerator.mjs";
 import { Renderer } from "./Renderer.mjs";
 import { Particles } from "../game-utilities/Particles.mjs";
 import { Debug } from "../game-utilities/Debug.mjs";
+import { SlopeTile } from "../tiles/SlopeTile.mjs";
 
 export type Slope = (typeof WorldData.SLOPES)[number];
 export type TileWithPosition = { x: number, y: number, tile: Tile };
@@ -82,7 +83,7 @@ export class World {
 			Math.floor(corner.y / WorldData.TILE_SIZE),
 		);
 		const tile = this.tiles.get(position);
-		return tile instanceof BasicTile && tile.shape === slope && tile.slopeIntersectionDistance(rectangle, position) === 0;
+		return tile instanceof SlopeTile && tile.shape === slope && tile.slopeIntersectionDistance(rectangle, position) === 0;
 	}
 	collidingTiles(rectangle: Rectangle, collides: (object: { x: number, y: number, tile: Tile } | Entity) => boolean = () => true) {
 		const tiles = [];
@@ -124,7 +125,7 @@ export class World {
 	}
 	slopeLineIntersectionDistance(position: Vector, direction: Vector, tilePosition: Vector) {
 		const slope = this.tiles.get(tilePosition);
-		if(!(slope instanceof BasicTile && World.isSlope(slope.shape))) {
+		if(!(slope instanceof SlopeTile)) {
 			return Infinity;
 		}
 		const tileBox = new Rectangle(tilePosition.x, tilePosition.y, 1, 1).scale(WorldData.TILE_SIZE);
@@ -297,27 +298,27 @@ export class World {
 	static isSlope(value: unknown): value is (typeof WorldData.SLOPES)[number] {
 		return (WorldData.SLOPES as readonly unknown[]).includes(value);
 	}
-	static isSlopeTile(value: unknown): value is BasicTile & { shape: Slope } {
-		return value instanceof BasicTile && (WorldData.SLOPES as readonly unknown[]).includes(value.shape);
+	static isSlopeTile(value: unknown): value is SlopeTile {
+		return value instanceof SlopeTile;
 	}
 	static isFullBasicTile(value: unknown): value is BasicTile & { shape: "full" } {
-		return value instanceof BasicTile && value.shape === "full";
+		return value instanceof BasicTile;
 	}
 	static isFullTile(tile: Tile) {
 		return (
-			tile instanceof BasicTile && tile.shape === "full"
+			tile instanceof BasicTile
 			|| tile instanceof LaserBlock || tile instanceof SpikeballBlock
 		);
 	}
 	static isSemifullTile(tile: Tile, includePlaforms: boolean = false) {
 		return (
 			World.isFullTile(tile)
-			|| tile instanceof BasicTile
 			|| (includePlaforms && tile === Platform.PLATFORM)
+			|| tile instanceof SlopeTile
 		);
 	}
 	static isEdgeBasicSolid(tile: Tile, direction: Direction) {
-		if(tile instanceof BasicTile && World.isSlope(tile.shape)) {
+		if(tile instanceof SlopeTile) {
 			const edges = ({
 				"slope-floor-left": ["left", "down"],
 				"slope-floor-right": ["right", "down"],
@@ -326,7 +327,7 @@ export class World {
 			} as const)[tile.shape];
 			return (edges as readonly Direction[]).includes(direction);
 		}
-		return tile instanceof BasicTile && tile.shape === "full";
+		return tile instanceof BasicTile;
 	}
 	static isEdgeSolid(tile: Tile, direction: Direction, basicOnly: boolean = false) {
 		if(World.isEdgeBasicSolid(tile, direction)) { return true; }

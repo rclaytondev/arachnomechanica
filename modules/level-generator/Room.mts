@@ -14,9 +14,10 @@ import { GenUtils } from "../../utils-ts/modules/core-extensions/GenUtils.mjs";
 import { EmptyTile } from "../tiles/EmptyTile.mjs";
 import { Platform } from "../tiles/Platform.mjs";
 import { LoadingManager } from "../app-entry-points/LoadingManager.mjs";
+import { SlopeTile } from "../tiles/SlopeTile.mjs";
 
 export type Traversability = { start: GateState, end: GateState }[];
-export type RoomTile = EmptyTile | Platform | BasicTile;
+export type RoomTile = EmptyTile | Platform | BasicTile | SlopeTile;
 export type RoomEntity = Portal | SpawnPoint | HealthPickup | Gate;
 
 export class Room {
@@ -38,8 +39,8 @@ export class Room {
 			this.tiles = new Grid(EmptyTile.EMPTY);
 			for(const { x, y, type } of tiles) {
 				const tile = (
-					type === "solid" ? new BasicTile("full")
-					: World.isSlope(type as string) ? new BasicTile(type as Slope)
+					type === "solid" ? new BasicTile()
+					: World.isSlope(type as string) ? new SlopeTile(type as Slope)
 					: Platform.PLATFORM
 				);
 				this.tiles.set(x, y, tile);
@@ -74,7 +75,7 @@ export class Room {
 
 				const direction = this.exitTiles.get(x, y);
 				if(direction !== "none" && !exits.has(direction)) {
-					world.addOriginalTile(worldPosition, new BasicTile("full"));
+					world.addOriginalTile(worldPosition, new BasicTile());
 					entities = entities.filter(e => !(e instanceof Gate && e.tilePosition().equals(x, y)));
 				}
 			}

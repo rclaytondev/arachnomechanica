@@ -17,6 +17,7 @@ import { Tiles } from "./world/Tiles.mjs";
 import { HealthPickup } from "./entities/HealthPickup.mjs";
 import { SpawnPoint } from "./entities/SpawnPoint.mjs";
 import { Camera } from "./world/Camera.mjs";
+import { SlopeTile } from "./tiles/SlopeTile.mjs";
 
 export class RoomEditor {
 	room: Room;
@@ -56,7 +57,7 @@ export class RoomEditor {
 		const position = Tiles.getTileCoordinates(canvasIO.mouse.position);
 		if(canvasIO.mouse.button === "left") {
 			if(this.mode === "solid") {
-				this.setTile(position, canvasIO.mouse.button === "left" ? new BasicTile("full") : EmptyTile.EMPTY);
+				this.setTile(position, canvasIO.mouse.button === "left" ? new BasicTile() : EmptyTile.EMPTY);
 			}
 			else if(this.mode === "platform") {
 				this.setTile(position, canvasIO.mouse.button === "left" ? Platform.PLATFORM : EmptyTile.EMPTY);
@@ -84,7 +85,7 @@ export class RoomEditor {
 					"down-left": "slope-floor-left",
 					"down-right": "slope-floor-right",
 				} as const)[this.direction];
-				this.setTile(position, new BasicTile(tile));
+				this.setTile(position, new SlopeTile(tile));
 			}
 		}
 		else {
@@ -219,7 +220,7 @@ export class RoomEditor {
 			return "\"platform\"";
 		}
 		else if(tile instanceof BasicTile) {
-			return `"${tile.shape === "full" ? "solid" : tile.shape}"`;
+			return "\"solid\"";
 		}
 		else {
 			throw new Error("Found unexpected tile in level editor.");

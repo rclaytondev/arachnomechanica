@@ -52,12 +52,12 @@ export class EntitySpawner {
 	static spawnRequirements = {
 		replaceSolid: (position: Vector, world: World) => {
 			const tile = world.tiles.get(position);
-			return tile instanceof BasicTile && tile.shape === "full";
+			return tile instanceof BasicTile;
 		},
 		replaceEmpty: (position: Vector, world: World) => world.tiles.get(position) === EmptyTile.EMPTY,
 		solidAdjacent: (position: Vector, world: World) => Directions.DIRECTIONS.some(direction => {
 			const tile = world.tiles.get(position.add(Vector.unit(direction)));
-			return tile instanceof BasicTile && tile.shape === "full";
+			return tile instanceof BasicTile;
 		}),
 		atLeast2Empty: (position: Vector, world: World) => (
 			Directions.DIRECTIONS.filter(d => world.tiles.get(position.add(Vector.unit(d))) === EmptyTile.EMPTY).length >= 2
