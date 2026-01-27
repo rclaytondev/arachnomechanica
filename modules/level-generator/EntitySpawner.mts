@@ -7,6 +7,8 @@ import { BasicTile } from "../tiles/BasicTile.mjs";
 import { World } from "../world/World.mjs";
 import { ArrayUtils } from "../../utils-ts/modules/core-extensions/ArrayUtils.mjs";
 import { EmptyTile } from "../tiles/EmptyTile.mjs";
+import { Tiles } from "../world/Tiles.mjs";
+import { Portal } from "../entities/Portal.mjs";
 
 export class EntitySpawner {
 	static entityTypes: ((tileRegion: Rectangle, safeRegion: Rectangle, world: World) => void)[] = [];
@@ -104,5 +106,10 @@ export class EntitySpawner {
 			world.tiles.get(position.add(1, 0)) === EmptyTile.EMPTY
 		),
 		solidBelow: (position: Vector, world: World) => World.isFullBasicTile(world.tiles.get(position.add(0, 1))),
+		notOnPortal: (position: Vector, world: World) => {
+			const tileSquare = Tiles.getTileSquare(position);
+			const entities = [...world.entities.possiblyIntersecting(tileSquare)];
+			return !entities.some(e => e instanceof Portal && e.boundingBox().intersects(tileSquare));
+		},
 	};
 }

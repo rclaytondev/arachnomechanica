@@ -34,6 +34,7 @@ LoadingManager.onload(() => {
 				EntitySpawner.spawnRequirements.noAdjacentGates,
 				EntitySpawner.spawnRequirements.leftOrRightEmpty,
 				EntitySpawner.spawnRequirements.solidBelow,
+				EntitySpawner.spawnRequirements.notOnPortal,
 			],
 			(position: Vector, world: World) => {
 				return world.addEntityIfEmpty(new ThrowableTileEntity(position.multiply(WorldData.TILE_SIZE), []));
