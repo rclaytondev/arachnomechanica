@@ -98,31 +98,6 @@ export class World {
 	isInSolid(rectangle: Rectangle, collides: (object: { x: number, y: number, tile: Tile } | Entity) => boolean = () => true) {
 		return this.collidingTiles(rectangle, collides).length !== 0 || this.entities.collideablesIntersecting(rectangle, collides).size !== 0;
 	}
-	isBoundarySolid(worldPosition: Vector, direction: Direction, ignoredTiles: Tile[] = []) {
-		const tilePosition = (
-			(direction === "up") ? new Vector(Math.floor(worldPosition.x / WorldData.TILE_SIZE), Math.round(worldPosition.y / WorldData.TILE_SIZE))
-			: (direction === "down") ? new Vector(Math.floor(worldPosition.x / WorldData.TILE_SIZE), Math.round(worldPosition.y / WorldData.TILE_SIZE) - 1)
-			: (direction === "left") ? new Vector(Math.round(worldPosition.x / WorldData.TILE_SIZE), Math.floor(worldPosition.y / WorldData.TILE_SIZE))
-			: new Vector(Math.round(worldPosition.x / WorldData.TILE_SIZE) - 1, Math.floor(worldPosition.y / WorldData.TILE_SIZE))
-		);
-		const adjacentPosition = tilePosition.add(Vector.unit(direction));
-		if(direction === "down" && this.tiles.get(adjacentPosition) === Platform.PLATFORM) {
-			return true;
-		}
-
-		const tile = this.tiles.get(tilePosition);
-		const adjacent = this.tiles.get(adjacentPosition);
-		if(
-			World.isEdgeBasicSolid(tile, direction)
-			|| World.isEdgeBasicSolid(adjacent, Directions.opposite[direction])
-		) { return true; }
-
-		for(const position of [tilePosition, adjacentPosition]) {
-			const tile = this.tiles.get(position);
-			if(!ignoredTiles.includes(tile) && World.isFullTile(tile)) { return true; }
-		}
-		return false;
-	}
 	tileIntersectionDistance(rayStart: Vector, rayDirection: Vector, maxDistance: number, ignoredTiles: Tile[] = []) {
 		let result = Infinity;
 		let iterationsSinceFound = -Infinity;
