@@ -30,17 +30,15 @@ LoadingManager.onload(() => {
 			ItemData.BLOCK.BLOCKS_SPAWN_EVENNESS,
 			tileRegion,
 			[
-				EntitySpawner.spawnRequirements.replaceSolid,
+				EntitySpawner.spawnRequirements.replaceEmpty,
 				EntitySpawner.spawnRequirements.noAdjacentGates,
 				EntitySpawner.spawnRequirements.leftOrRightEmpty,
 				EntitySpawner.spawnRequirements.solidBelow,
 			],
 			(position: Vector, world: World) => {
-				world.removeTile(position);
-				world.entities.add(new ThrowableTileEntity(position.multiply(WorldData.TILE_SIZE), []));
-				return true;
+				return world.addEntityIfEmpty(new ThrowableTileEntity(position.multiply(WorldData.TILE_SIZE), []));
 			},
-			new Rectangle(0, 0, 0, 0),
+			safeRegion,
 			world,
 		);
 	});
