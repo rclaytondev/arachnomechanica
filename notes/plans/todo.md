@@ -14,7 +14,7 @@ Things to do:
 - Small gameplay improvements:
 	- [ ] Telegraph for the spider attack (line showing shot trajectory)
 	- [ ] Indicator for spikeball direction (a triangle on the spikeball)
-	- [ ] Higher friction for objects on ground
+	- [x] Higher friction for objects on ground
 	- [x] Better tile spawn positions
 - Graphical improvements:
 	- [ ] Tile breaking animations

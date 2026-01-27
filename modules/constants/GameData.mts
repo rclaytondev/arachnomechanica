@@ -518,6 +518,7 @@ export class ItemData {
 	static DOWN_THROW_VELOCITY = new Vector(0, 5);
 	static THROW_VELOCITY = new Vector(10, -2);
 	static FRICTION_X = 0.95;
+	static GROUNDED_FRICTION_X = 0.75;
 	static THROW_OFFSET = 5;
 	static PICKUP_DISTANCE = 10;
 
