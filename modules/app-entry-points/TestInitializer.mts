@@ -1,5 +1,6 @@
 import "../tests/Collideable-test.mjs";
 import "../tests/Spider-test.mjs";
+import "../tests/GameUtils-test.mjs";
 
 mocha.run();
 
