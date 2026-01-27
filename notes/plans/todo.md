@@ -1,17 +1,21 @@
 Things to do:
 - Bug fixes / remaining unimplemented behavior:
-	- [ ] Fix lighting order
-	- [ ] Spider bugfixes:
-		- [ ] Add behavior for when the block under a spider gets destroyed
-		- [ ] Improve spider collision with entities (e.g. throwable tiles - they should be able to walk on them)
-		- [ ] Fix spider interaction with weird layouts (e.g. a common bug is when there's a  ceiling slope above platform)
+	- [x] Fix lighting order
+	- [x] Spider bugfixes:
+		- [x] Add behavior for when the block under a spider gets destroyed
+		- [x] Improve spider collision with entities (e.g. throwable tiles - they should be able to walk on them)
+		- [x] Fix spider interaction with weird layouts (e.g. a common bug is when there's a  ceiling slope above platform)
+		- [ ] Fix the performance issues
 	- [x] Improve lizards (make them use the new collision engine)
+	- [ ] Fix the bug with gates (sometimes they toggle randomly - very hard to reproduce)
+	- [ ] Fix lizards being able to breathe fire at the player even when obstructed
 - Small / medium-size features:
 	- [ ] Non-flat walls outside the tower
 - Small gameplay improvements:
 	- [ ] Telegraph for the spider attack (line showing shot trajectory)
 	- [ ] Indicator for spikeball direction (a triangle on the spikeball)
 	- [ ] Higher friction for objects on ground
+	- [ ] Better tile spawn positions
 - Graphical improvements:
 	- [ ] Tile breaking animations
 	- [ ] Fancier overlay text (add lines above and below where it says "Floor 01")
