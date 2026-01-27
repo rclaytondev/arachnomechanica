@@ -338,7 +338,10 @@ export class Spider extends RectangularCollideable {
 	}
 
 	render(world: World) {
-		return [new Renderable(c => this.display(c, world), "entity")];
+		return [
+			new Renderable(c => this.display(c, world), "entity"),
+			new Renderable(c => this.displayGlowEffect(c), "glow"),
+		];
 	}
 	display(canvasIO: CanvasIO, world: World) {
 		this.displayBody(canvasIO, world);
@@ -367,6 +370,20 @@ export class Spider extends RectangularCollideable {
 			canvasIO.fillDiamond(center.x + position.x, center.y + position.y, SpiderData.EYE_SIZE);
 			count ++;
 		}
+	}
+	displayGlowEffect(canvasIO: CanvasIO) {
+		const center = this.hitbox.center();
+		const glowIntensity = GameUtils.lerp(
+			this.numGlowingEyes(),
+			0, SpiderData.NUM_EYES,
+			0, SpiderData.GLOW_INTENSITY,
+		);
+		GameUtils.glowCircle(
+			center.x, center.y,
+			SpiderData.GLOW_SIZE, glowIntensity,
+			canvasIO,
+			SpiderData.GLOW_COLOR.red, SpiderData.GLOW_COLOR.green, SpiderData.GLOW_COLOR.blue,
+		);
 	}
 	numGlowingEyes() {
 		return Math.floor(GameUtils.lerp(
