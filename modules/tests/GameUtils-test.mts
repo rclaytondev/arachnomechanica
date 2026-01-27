@@ -28,4 +28,9 @@ describe("GameUtils.gridSquaresOnRay", () => {
 			new Vector(2, 2),
 		]);
 	});
+	it("does not loop forever on an input that causes floating point errors (regression test)", () => {
+		const start = new Vector(36.503174497307405, -37.77631829820087);
+		const direction = new Vector(-18.383174497307404, 49.93631829820087);
+		GameUtils.gridSquaresOnRay(start, direction, 0.9919897979340137, 1);
+	});
 });

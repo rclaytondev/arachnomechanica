@@ -375,6 +375,7 @@ export class GameUtils {
 			else if(rayDirection.y < 0) {
 				distance = Math.min(distance, GameUtils.rayIntersectsHorizontal(point, rayDirection, Math.ceil(point.y) - 1));
 			}
+			distance = Math.max(distance, 10 ** -10); // prevent it from getting stuck due to floating point errors
 			if(distance === Infinity) {
 				throw new Error("The ray did not intersect any grid squares. (This may happen if rayDirection = 0).");
 			}
