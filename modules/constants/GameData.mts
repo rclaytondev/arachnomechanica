@@ -525,6 +525,7 @@ export class ItemData {
 	static BLOCK = {
 		BLOCKS_PER_ROOM: 0.3,
 		BLOCKS_SPAWN_EVENNESS: 4,
+		COLOR: "rgb(15, 15, 15)",
 	};
 
 	static TILE_MODIFIERS = {

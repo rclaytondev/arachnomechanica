@@ -59,7 +59,7 @@ export class ThrowableTileEntity extends RectangularCollideable {
 		return [new Renderable(this.display.bind(this), "tile-entity")];
 	}
 	display(canvasIO: CanvasIO) {
-		canvasIO.ctx.fillStyle = WorldData.TILE_COLORS.tower;
+		canvasIO.ctx.fillStyle = ItemData.BLOCK.COLOR;
 		canvasIO.fillRect(this.hitbox);
 
 		canvasIO.ctx.strokeStyle = WorldData.TILE_ACCENT_COLOR;
@@ -69,18 +69,9 @@ export class ThrowableTileEntity extends RectangularCollideable {
 			this.hitbox.y + WorldData.TILE_ACCENT_INSET,
 			2 * WorldData.TILE_ACCENT_RADIUS,
 		);
-		canvasIO.strokeLine(
-			this.hitbox.x + WorldData.TILE_ACCENT_INSET,
-			this.hitbox.y + WorldData.TILE_ACCENT_INSET,
-			this.hitbox.right() - WorldData.TILE_ACCENT_INSET,
-			this.hitbox.bottom() - WorldData.TILE_ACCENT_INSET,
-		);
-		canvasIO.strokeLine(
-			this.hitbox.x + WorldData.TILE_ACCENT_INSET,
-			this.hitbox.bottom() - WorldData.TILE_ACCENT_INSET,
-			this.hitbox.right() - WorldData.TILE_ACCENT_INSET,
-			this.hitbox.y + WorldData.TILE_ACCENT_INSET,
-		);
+
+		const center = this.hitbox.center();
+		canvasIO.strokeCircle(center.x, center.y, WorldData.TILE_ACCENT_RADIUS - (WorldData.TILE_SIZE / 2 - WorldData.TILE_ACCENT_RADIUS));
 	}
 
 	onCollision(collision: CollisionEvent, world: World, canvasIO: CanvasIO): void {
