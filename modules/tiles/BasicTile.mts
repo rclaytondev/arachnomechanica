@@ -3,6 +3,7 @@ import { Diagonal, Direction } from "../../utils-ts/modules/geometry/Direction.m
 import { Rectangle } from "../../utils-ts/modules/geometry/Rectangle.mjs";
 import { Vector } from "../../utils-ts/modules/geometry/Vector.mjs";
 import { WorldData } from "../constants/GameData.mjs";
+import { GameUtils } from "../game-utilities/GameUtils.mjs";
 import { Octant, Octants } from "../game-utilities/Octant.mjs";
 import { Renderable } from "../world/Renderer.mjs";
 import { Tiles } from "../world/Tiles.mjs";
@@ -67,5 +68,9 @@ export class BasicTile extends Tile {
 		canvasIO.ctx.beginPath();
 		this.addToPath(new Vector(x, y), canvasIO);
 		canvasIO.ctx.fill();
+	}
+
+	rayIntersectionDistance(tilePosition: Vector, rayStart: Vector, rayDirection: Vector): number {
+		return GameUtils.rayIntersectsRectangle(rayStart, rayDirection, Tiles.getTileSquare(tilePosition));
 	}
 }

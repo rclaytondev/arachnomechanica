@@ -9,22 +9,19 @@ import { BasicTile } from "../tiles/BasicTile.mjs";
 import { World } from "../world/World.mjs";
 import { WorldScreen } from "../world/WorldScreen.mjs";
 import { EmptyTile } from "../tiles/EmptyTile.mjs";
-import { CrawlingMovementData, Spider } from "../entities/Spider.mjs";
-import { Lizard } from "../entities/Lizard.mjs";
+import { LaserBlock } from "../tiles/LaserBlock.mjs";
+import { SlopeTile } from "../tiles/SlopeTile.mjs";
 
 const world = new World(false);
 
 world.tiles.fillRect(new Rectangle(-2, 0, 10, 6), new BasicTile());
 world.tiles.fillRect(new Rectangle(-1, 1, 8, 4), EmptyTile.EMPTY);
-
-Lizard.spawn(new Vector(-1, 4), world);
-const lizard = [...world.entities].find(e => e instanceof Lizard)!;
-lizard.length = 200;
-lizard.speed = 0;
-
-Spider.spawn(new Vector(5, 4), world);
-const spider = [...world.entities].find(e => e instanceof Spider)!;
-(spider.movement as CrawlingMovementData).direction = "counterclockwise";
+const laserBlock = LaserBlock.generate(new Vector(3, -1));
+world.entities.add(laserBlock);
+laserBlock.lasers = 1;
+laserBlock.startAngle = Math.PI;
+world.tiles.set(new Vector(2, -1), new SlopeTile("slope-ceiling-right"));
+world.tiles.set(new Vector(3, -2), new SlopeTile("slope-ceiling-left"));
 
 Main.screen = new WorldScreen(world);
 if(DEBUG_SETTINGS.GENERATOR_VISUALIZATION.ENABLED && Main.screen instanceof WorldScreen) {

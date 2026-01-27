@@ -4,6 +4,7 @@ import { Rectangle } from "../../utils-ts/modules/geometry/Rectangle.mjs";
 import { Vector } from "../../utils-ts/modules/geometry/Vector.mjs";
 import { MathUtils } from "../../utils-ts/modules/math/MathUtils.mjs";
 import { WorldData } from "../constants/GameData.mjs";
+import { GameUtils } from "../game-utilities/GameUtils.mjs";
 import { Octant, Octants } from "../game-utilities/Octant.mjs";
 import { Renderable } from "../world/Renderer.mjs";
 import { Tiles } from "../world/Tiles.mjs";
@@ -125,5 +126,20 @@ export class SlopeTile extends Tile {
 			const corner = rect.getCorner("top-right");
 			return corner.x - (center.x + corner.y - center.y);
 		}
+	}
+
+	rayIntersectionDistance(tilePosition: Vector, rayStart: Vector, rayDirection: Vector): number {
+		const tileSquare = Tiles.getTileSquare(tilePosition);
+		const endpoints = ({
+			"slope-floor-left": ["top-left", "bottom-left", "bottom-right"],
+			"slope-floor-right": ["top-right", "bottom-right", "bottom-left"],
+			"slope-ceiling-left": ["top-right", "top-left", "bottom-left"],
+			"slope-ceiling-right": ["top-left", "top-right", "bottom-right"],
+		} as const)[this.shape];
+		return Math.min(
+			GameUtils.rayIntersectsSegment(rayStart, rayDirection, tileSquare.getCorner(endpoints[0]), tileSquare.getCorner(endpoints[1])),
+			GameUtils.rayIntersectsSegment(rayStart, rayDirection, tileSquare.getCorner(endpoints[1]), tileSquare.getCorner(endpoints[2])),
+			GameUtils.rayIntersectsSegment(rayStart, rayDirection, tileSquare.getCorner(endpoints[2]), tileSquare.getCorner(endpoints[0])),
+		);
 	}
 }

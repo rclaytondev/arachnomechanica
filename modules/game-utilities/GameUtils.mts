@@ -315,6 +315,20 @@ export class GameUtils {
 		);
 	}
 	static rayIntersectsSegment(rayStart: Vector, rayDirection: Vector, endpoint1: Vector, endpoint2: Vector) {
+		if(endpoint1.x === endpoint2.x) {
+			return GameUtils.rayIntersectsVSegment(
+				rayStart, rayDirection, endpoint1.x,
+				Math.min(endpoint1.y, endpoint2.y),
+				Math.max(endpoint1.y, endpoint2.y),
+			);
+		}
+		if(endpoint1.y === endpoint2.y) {
+			return GameUtils.rayIntersectsHSegment(
+				rayStart, rayDirection, endpoint1.y,
+				Math.min(endpoint1.x, endpoint2.x),
+				Math.max(endpoint1.x, endpoint2.x),
+			);
+		}
 		const lineDirection = endpoint2.subtract(endpoint1);
 		const distance = (endpoint1.y + (rayStart.x - endpoint1.x) / lineDirection.x * lineDirection.y - rayStart.y) / (rayDirection.y - rayDirection.x / lineDirection.x * lineDirection.y);
 		const intersection = rayStart.add(rayDirection.multiply(distance));
@@ -337,7 +351,6 @@ export class GameUtils {
 	static gridSquaresOnRay(rayStart: Vector, rayDirection: Vector, maxDistance: number, gridSize: number = 1) {
 		rayStart = rayStart.divide(gridSize);
 		rayDirection = rayDirection.divide(gridSize);
-		maxDistance = maxDistance / gridSize;
 
 		const result: Vector[] = [];
 		const add = (v: Vector) => {
@@ -350,16 +363,16 @@ export class GameUtils {
 		while(Vector.dist(point, rayStart) < maxDistance * rayDirection.magnitude()) {
 			GameUtils.gridSquaresContaining(point).forEach(add);
 			let distance = Infinity;
-			if(rayStart.x > 0) {
+			if(rayDirection.x > 0) {
 				distance = Math.min(distance, GameUtils.rayIntersectsVertical(point, rayDirection, Math.floor(point.x) + 1));
 			}
-			else if(rayStart.x < 0) {
+			else if(rayDirection.x < 0) {
 				distance = Math.min(distance, GameUtils.rayIntersectsVertical(point, rayDirection, Math.ceil(point.x) - 1));
 			}
-			if(rayStart.y > 0) {
+			if(rayDirection.y > 0) {
 				distance = Math.min(distance, GameUtils.rayIntersectsHorizontal(point, rayDirection, Math.floor(point.y) + 1));
 			}
-			else if(rayStart.y < 0) {
+			else if(rayDirection.y < 0) {
 				distance = Math.min(distance, GameUtils.rayIntersectsHorizontal(point, rayDirection, Math.ceil(point.y) - 1));
 			}
 			if(distance === Infinity) {

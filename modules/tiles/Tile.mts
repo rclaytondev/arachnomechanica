@@ -24,4 +24,5 @@ export abstract class Tile {
 	}
 
 	abstract intersects(rect: Rectangle, tilePosition: Vector): boolean;
+	abstract rayIntersectionDistance(tilePosition: Vector, rayStart: Vector, rayDirection: Vector): number;
 }

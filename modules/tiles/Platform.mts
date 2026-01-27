@@ -2,6 +2,7 @@ import { CanvasIO } from "../../utils-ts/modules/CanvasIO.mjs";
 import { Direction } from "../../utils-ts/modules/geometry/Direction.mjs";
 import { Vector } from "../../utils-ts/modules/geometry/Vector.mjs";
 import { WorldData } from "../constants/GameData.mjs";
+import { GameUtils } from "../game-utilities/GameUtils.mjs";
 import { Renderable } from "../world/Renderer.mjs";
 import { World } from "../world/World.mjs";
 import { Tile } from "./Tile.mjs";
@@ -56,5 +57,16 @@ export class Platform extends Tile {
 		else {
 			return (onTop && point.x > left && point.x <= right) ? ["left"] : [];
 		}
+	}
+	rayIntersectionDistance(tilePosition: Vector, rayStart: Vector, rayDirection: Vector): number {
+		if(rayDirection.y <= 0) {
+			return Infinity;
+		}
+		return GameUtils.rayIntersectsHSegment(
+			rayStart, rayDirection,
+			tilePosition.y * WorldData.TILE_SIZE,
+			tilePosition.x * WorldData.TILE_SIZE,
+			(tilePosition.x + 1) * WorldData.TILE_SIZE,
+		);
 	}
 }

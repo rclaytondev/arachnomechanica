@@ -1,3 +1,4 @@
+import { Vector } from "../../utils-ts/modules/geometry/Vector.mjs";
 import { Tile } from "./Tile.mjs";
 
 export class EmptyTile extends Tile {
@@ -23,5 +24,8 @@ export class EmptyTile extends Tile {
 	}
 	intersects() {
 		return false;
+	}
+	rayIntersectionDistance(): number {
+		return Infinity;
 	}
 }
