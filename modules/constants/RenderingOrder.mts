@@ -8,6 +8,7 @@ export const RENDERING_ORDER = [
 	"tile-accent",
 	"tile-entity",
 
+	"telegraph",
 	"hitbox",
 ] as const;
 

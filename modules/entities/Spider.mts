@@ -341,6 +341,7 @@ export class Spider extends RectangularCollideable {
 		return [
 			new Renderable(c => this.display(c, world), "entity"),
 			new Renderable(c => this.displayGlowEffect(c), "glow"),
+			new Renderable(c => this.displayTelegraph(c, world), "telegraph"),
 		];
 	}
 	display(canvasIO: CanvasIO, world: World) {
@@ -385,6 +386,19 @@ export class Spider extends RectangularCollideable {
 			SpiderData.GLOW_COLOR.red, SpiderData.GLOW_COLOR.green, SpiderData.GLOW_COLOR.blue,
 		);
 	}
+	displayTelegraph(canvasIO: CanvasIO, world: World) {
+		if(this.pauseTimer <= 0) { return; }
+		const spider = this.hitbox.center();
+		const player = world.player.hitbox.center();
+		const opacity = GameUtils.lerp(this.pauseTimer, 0, SpiderData.SHOT_DELAY, 1, 0);
+		const width = GameUtils.lerp(this.pauseTimer, 0, SpiderData.SHOT_DELAY, 2, 30);
+		GameUtils.glowOutline(
+			spider.x, spider.y,
+			player.x, player.y,
+			width, opacity, canvasIO,
+			255, 255, 255,
+		);
+	}
 	numGlowingEyes() {
 		return Math.floor(GameUtils.lerp(
 			MathUtils.constrain(this.rechargeTime, 0, SpiderData.RECHARGE_TIME),
@@ -421,21 +435,29 @@ export class Spider extends RectangularCollideable {
 	}
 	checkProjectile(world: World) {
 		if(this.movement instanceof FallingMovementData) { return; }
-		const seesPlayer = this.seesPlayer(world);
-		if(!seesPlayer) {
-			this.rechargeTime --;
-		}
-		if(seesPlayer) {
-			if(this.hasProjectile() && !this.isPaused()) {
-				this.pauseTimer = SpiderData.SHOT_DELAY;
+
+		if(this.seesPlayer(world)) {
+			if(this.hasProjectile()) {
+				if(!this.isPaused()) {
+					// begin telegraph
+					this.pauseTimer = SpiderData.SHOT_DELAY;
+				}
+				else {
+					this.pauseTimer --;
+					if(this.pauseTimer === 0) {
+						this.shootProjectile(world);
+						this.rechargeTime = SpiderData.RECHARGE_TIME;
+					}
+				}
 			}
-			this.rechargeTime = SpiderData.RECHARGE_TIME;
-			this.movement.runAway(world.player.hitbox.center());
+			else {
+				this.movement.runAway(world.player.hitbox.center());
+				this.rechargeTime = SpiderData.RECHARGE_TIME;
+			}
 		}
-		this.pauseTimer --;
-		if(this.pauseTimer === 0) {
-			this.shootProjectile(world);
-			this.rechargeTime = SpiderData.RECHARGE_TIME;
+		else {
+			this.pauseTimer = -1;
+			this.rechargeTime --;
 		}
 	}
 	seesPlayer(world: World) {
@@ -461,7 +483,7 @@ export class Spider extends RectangularCollideable {
 		return this.rechargeTime < 0;
 	}
 	isPaused() {
-		return this.pauseTimer >= 0;
+		return this.hasProjectile() && this.pauseTimer >= 0;
 	}
 	getSpeed() {
 		if(this.isPaused()) { return 0; }

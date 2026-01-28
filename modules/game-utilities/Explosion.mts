@@ -33,9 +33,9 @@ export class Explosion {
 	constructor(position: Vector, options: ExplosionOptions = {}) {
 		this.position = position;
 
-		this.visualRadius = options.visualRadius ?? 100;
+		this.visualRadius = options.visualRadius ?? 150;
 		this.damageRadius = options.damageRadius ?? this.visualRadius * Math.SQRT1_2;
-		this.destructionRadius = options.destructionRadius ?? 20;
+		this.destructionRadius = options.destructionRadius ?? 60;
 		this.particleDensity = options.particleDensity ?? 20;
 		this.particleVelociy = options.particleVelociy ?? 5;
 		this.screenShakeIntensity = options.screenShakeIntensity ?? 30;
