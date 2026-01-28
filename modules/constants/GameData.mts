@@ -521,6 +521,7 @@ export class ItemData {
 	static GROUNDED_FRICTION_X = 0.75;
 	static THROW_OFFSET = 5;
 	static PICKUP_DISTANCE = 10;
+	static THROW_CORRECTION = 20;
 
 	static BLOCK = {
 		BLOCKS_PER_ROOM: 0.3,

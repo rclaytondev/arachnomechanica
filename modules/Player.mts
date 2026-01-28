@@ -172,16 +172,27 @@ export class Player extends RectangularCollideable {
 		}
 		return this.facing;
 	}
-	throw(item: ThrowableTileEntity, world: World, canvasIO: CanvasIO) {
-		const direction = this.throwDirection(canvasIO);
-		const size = (direction === "down" ? item.hitbox.height : item.hitbox.width);
-		const throwStartCenter = this.hitbox.edgeCenter(direction).add(Vector.unit(direction).multiply(ItemData.THROW_OFFSET + size / 2));
-		const throwStart = new Vector(throwStartCenter.x - item.hitbox.width / 2, throwStartCenter.y - item.hitbox.height / 2);
+	attemptThrow(item: ThrowableTileEntity, itemCenter: Vector, world: World, canvasIO: CanvasIO) {
+		const throwStart = new Vector(itemCenter.x - item.hitbox.width / 2, itemCenter.y - item.hitbox.height / 2);
 		if(!world.isInSolid(item.hitbox.translate(throwStart))) {
 			item.translate(throwStart);
 			item.velocity = this.itemThrowVelocity(canvasIO);
 			world.entities.add(item);
 			return true;
+		}
+		return false;
+	}
+	throw(item: ThrowableTileEntity, world: World, canvasIO: CanvasIO) {
+		const direction = this.throwDirection(canvasIO);
+		const size = (direction === "down" ? item.hitbox.height : item.hitbox.width);
+		const throwStartCenter = this.hitbox.edgeCenter(direction).add(Vector.unit(direction).multiply(ItemData.THROW_OFFSET + size / 2));
+		for(let correctionAmount = 0; correctionAmount < ItemData.THROW_CORRECTION; correctionAmount ++) {
+			for(const correctionDirection of [Directions.rotateClockwise[direction], Directions.rotateCounterclockwise[direction]]) {
+				const threw = this.attemptThrow(item, throwStartCenter.add(Vector.unit(correctionDirection).multiply(correctionAmount)), world, canvasIO);
+				if(threw) {
+					return true;
+				}
+			}
 		}
 		return false;
 	}
