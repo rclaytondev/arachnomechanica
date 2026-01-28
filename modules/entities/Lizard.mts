@@ -392,6 +392,7 @@ export class Lizard extends Collideable {
 		return (Math.floor(length / WorldData.TILE_SIZE - 1/2) + 1/2) * WorldData.TILE_SIZE;
 	}
 	damage(rectangle: Rectangle, world: World, canvasIO: CanvasIO) {
+		if(!world.entities.has(this)) { return; }
 		const length = this.roundedLengthAfterDamage(rectangle);;
 		this.roundedLengthAfterDamage(rectangle);
 		if(length < (LizardData.MIN_LENGTH + 1/2) * WorldData.TILE_SIZE) {
