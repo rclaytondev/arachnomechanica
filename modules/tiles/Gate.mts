@@ -5,11 +5,12 @@ import { Vector } from "../../utils-ts/modules/geometry/Vector.mjs";
 import { GateData, RoomData, WorldData } from "../constants/GameData.mjs";
 import { GameUtils } from "../game-utilities/GameUtils.mjs";
 import { Player } from "../Player.mjs";
-import { World } from "../world/World.mjs";
+import { TileWithPosition, World } from "../world/World.mjs";
 import { RectangularCollideable } from "../game-utilities/physics-engine/RectangularCollideable.mjs";
 import { Tiles } from "../world/Tiles.mjs";
 import { ShakeEffect } from "../game-utilities/visual-effects/ShakeEffect.mjs";
 import { Renderable } from "../world/Renderer.mjs";
+import { Collideable } from "../game-utilities/physics-engine/Collideable.mjs";
 
 export class Gate extends RectangularCollideable {
 	static cooldown = 0;
@@ -225,5 +226,12 @@ export class Gate extends RectangularCollideable {
 	}
 	static isGateAt(tilePosition: Vector, world: World) {
 		return Gate.getGateAt(tilePosition, world) != undefined;
+	}
+
+	canPush(obj: Collideable | TileWithPosition) {
+		return obj instanceof Collideable;
+	}
+	canCrush() {
+		return true;
 	}
 }
