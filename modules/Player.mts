@@ -5,8 +5,6 @@ import { Rectangle } from "../utils-ts/modules/geometry/Rectangle.mjs";
 import { Vector } from "../utils-ts/modules/geometry/Vector.mjs";
 import { MathUtils } from "../utils-ts/modules/math/MathUtils.mjs";
 import { ItemData, PlayerData, WorldData } from "./constants/GameData.mjs";
-import { Spikeball } from "./entities/Spikeball.mjs";
-import { Entity } from "./game-utilities/Entity.mjs";
 import { GameUtils } from "./game-utilities/GameUtils.mjs";
 import { CollisionEvent } from "./game-utilities/physics-engine/CollisionEvent.mjs";
 import { RectangularCollideable } from "./game-utilities/physics-engine/RectangularCollideable.mjs";
@@ -16,7 +14,7 @@ import { ThrowableTileEntity } from "./items/ThrowableTileEntity.mjs";
 import { Main } from "./Main.mjs";
 import { RoomEditor } from "./RoomEditor.mjs";
 import { Renderable } from "./world/Renderer.mjs";
-import { TileWithPosition, World } from "./world/World.mjs";
+import { World } from "./world/World.mjs";
 
 export class Player extends RectangularCollideable {
 	velocity: Vector = new Vector(0, 0);
@@ -60,7 +58,7 @@ export class Player extends RectangularCollideable {
 		this.move(new Vector(0, this.velocity.y), world, canvasIO, {});
 		world.entities.updatePosition(this);
 	}
-	onCollision(collision: CollisionEvent, world: World): void {
+	onCollision(collision: CollisionEvent): void {
 		if(collision.movingObject === this) {
 			if(Directions.isVertical(collision.direction)) {
 				this.velocity.y = 0;
@@ -68,11 +66,6 @@ export class Player extends RectangularCollideable {
 			else {
 				this.velocity.x = 0;
 			}
-		}
-
-		const collidingObject = collision.collidingObject(this);
-		if(collidingObject instanceof Spikeball) {
-			this.damage(collidingObject.hitbox, world);
 		}
 	}
 	checkInputs(world: World, canvasIO: CanvasIO) {
@@ -118,11 +111,6 @@ export class Player extends RectangularCollideable {
 		) { this.uncrouch(world); }
 		if(canvasIO.keys.Space && !GameUtils.pastKeys.Space) {
 			this.collectNearestItem(world);
-		}
-	}
-	checkDamagingCollisions(collisions: (Entity | TileWithPosition)[], world: World) {
-		for(const obj of collisions.filter(c => c instanceof Spikeball)) {
-			this.damage(obj.hitbox, world);
 		}
 	}
 	onGround(world: World, canvasIO: CanvasIO) {

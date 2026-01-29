@@ -11,6 +11,7 @@ import { CollisionEvent } from "../game-utilities/physics-engine/CollisionEvent.
 import { Tile } from "../tiles/Tile.mjs";
 import { SpikeballBlock } from "../tiles/SpikeballBlock.mjs";
 import { Renderable } from "../world/Renderer.mjs";
+import { Player } from "../Player.mjs";
 
 export class Spikeball extends RectangularCollideable {
 	velocity: Vector;
@@ -79,7 +80,7 @@ export class Spikeball extends RectangularCollideable {
 		canvasIO.ctx.restore();
 	}
 
-	onCollision(collision: CollisionEvent) {
+	onCollision(collision: CollisionEvent, world: World) {
 		if(collision.movingObject === this) {
 			this.bounces --;
 			if(Directions.isHorizontal(collision.direction)) {
@@ -88,6 +89,10 @@ export class Spikeball extends RectangularCollideable {
 			else {
 				this.velocity.y *= -1;
 			}
+		}
+		const collidingObject = collision.collidingObject(this);
+		if(collidingObject instanceof Player) {
+			collidingObject.damage(this.hitbox, world);
 		}
 	}
 	update(world: World, canvasIO: CanvasIO) {
