@@ -10,6 +10,7 @@ import { Camera } from "./Camera.mjs";
 import { CanvasIO } from "../../utils-ts/modules/CanvasIO.mjs";
 import { World } from "./World.mjs";
 import { Renderable, Renderer } from "./Renderer.mjs";
+import { GameUtils } from "../game-utilities/GameUtils.mjs";
 
 export class Entities extends BoundingBoxStructure<Entity> {
 	constructor() {
@@ -29,6 +30,19 @@ export class Entities extends BoundingBoxStructure<Entity> {
 			hitboxes.flatMap(h => Octants.octantsOfRect(point, h))
 			.flatMap(o => [Octants.edge(o, "clockwise"), Octants.edge(o, "counterclockwise")]),
 		)];
+	}
+
+	rayIntersectionDistance(position: Vector, direction: Vector, collides: (entity: Entity) => boolean = () => true, maxLength: number) {
+		let result = Infinity;
+		const furthestEndpoint = position.add(direction.multiply(maxLength));
+		const rectangle = Rectangle.fromOppositeCorners(position, furthestEndpoint);
+		for(const entity of this.possiblyIntersecting(rectangle)) {
+			if(!(entity instanceof Collideable) || !collides(entity)) { continue; }
+			for(const hitbox of entity.hitboxes()) {
+				result = Math.min(result, GameUtils.rayIntersectsRectangle(position, direction, hitbox));
+			}
+		}
+		return result;
 	}
 
 	render(camera: Camera, renderer: Renderer, canvasIO: CanvasIO, world: World) {

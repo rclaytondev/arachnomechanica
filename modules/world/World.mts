@@ -98,39 +98,10 @@ export class World {
 	isInSolid(rectangle: Rectangle, collides: (object: { x: number, y: number, tile: Tile } | Entity) => boolean = () => true) {
 		return this.collidingTiles(rectangle, collides).length !== 0 || this.entities.collideablesIntersecting(rectangle, collides).size !== 0;
 	}
-	tileIntersectionDistance(rayStart: Vector, rayDirection: Vector, maxDistance: number, ignoredTiles: Tile[] = []) {
-		let result = Infinity;
-		let iterationsSinceFound = -Infinity;
-		for(const tilePosition of GameUtils.gridSquaresOnRay(rayStart, rayDirection, maxDistance, WorldData.TILE_SIZE)) {
-			const tile = this.tiles.get(tilePosition);
-			if(!ignoredTiles.includes(tile)) {
-				const distance = this.tiles.get(tilePosition).rayIntersectionDistance(tilePosition, rayStart, rayDirection);
-				result = Math.min(result, distance);
-				if(result !== Infinity) {
-					iterationsSinceFound = 0;
-				}
-			}
-			if(iterationsSinceFound >= 3) { return result; }
-			iterationsSinceFound ++;
-		}
-		return result;
-	}
-	entityIntersectionDistance(position: Vector, direction: Vector, collides: (entity: Entity) => boolean = () => true, maxLength: number) {
-		let result = Infinity;
-		const furthestEndpoint = position.add(direction.multiply(maxLength));
-		const rectangle = Rectangle.fromOppositeCorners(position, furthestEndpoint);
-		for(const entity of this.entities.possiblyIntersecting(rectangle)) {
-			if(!(entity instanceof Collideable) || !collides(entity)) { continue; }
-			for(const hitbox of entity.hitboxes()) {
-				result = Math.min(result, GameUtils.rayIntersectsRectangle(position, direction, hitbox));
-			}
-		}
-		return result;
-	}
 	lineIntersectionDistance(position: Vector, direction: Vector, maxDistance: number, ignoredTiles: Tile[] = [], collides: (entity: Entity) => boolean = () => true) {
 		return Math.min(
-			this.tileIntersectionDistance(position, direction, maxDistance, ignoredTiles),
-			this.entityIntersectionDistance(position, direction, collides, maxDistance),
+			this.tiles.rayIntersectionDistance(position, direction, maxDistance, ignoredTiles),
+			this.entities.rayIntersectionDistance(position, direction, collides, maxDistance),
 			maxDistance,
 		);
 	}

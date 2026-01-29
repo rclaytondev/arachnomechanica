@@ -3,6 +3,7 @@ import { Rectangle } from "../../utils-ts/modules/geometry/Rectangle.mjs";
 import { Vector } from "../../utils-ts/modules/geometry/Vector.mjs";
 import { Grid } from "../../utils-ts/modules/Grid.mjs";
 import { WorldData } from "../constants/GameData.mjs";
+import { GameUtils } from "../game-utilities/GameUtils.mjs";
 import { EmptyTile } from "../tiles/EmptyTile.mjs";
 import { Tile } from "../tiles/Tile.mjs";
 import { Camera } from "./Camera.mjs";
@@ -57,6 +58,23 @@ export class Tiles extends Grid<Tile> {
 				this.get(x, y).angularMotionBlockers(new Vector(x, y), point, direction)
 			))
 		)).flat(2);
+	}
+	rayIntersectionDistance(rayStart: Vector, rayDirection: Vector, maxDistance: number, ignoredTiles: Tile[] = []) {
+		let result = Infinity;
+		let iterationsSinceFound = -Infinity;
+		for(const tilePosition of GameUtils.gridSquaresOnRay(rayStart, rayDirection, maxDistance, WorldData.TILE_SIZE)) {
+			const tile = this.get(tilePosition);
+			if(!ignoredTiles.includes(tile)) {
+				const distance = this.get(tilePosition).rayIntersectionDistance(tilePosition, rayStart, rayDirection);
+				result = Math.min(result, distance);
+				if(result !== Infinity) {
+					iterationsSinceFound = 0;
+				}
+			}
+			if(iterationsSinceFound >= 3) { return result; }
+			iterationsSinceFound ++;
+		}
+		return result;
 	}
 
 	render(camera: Camera, renderer: Renderer, canvasIO: CanvasIO, world: World) {
