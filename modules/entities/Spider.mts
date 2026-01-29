@@ -121,7 +121,7 @@ export class CrawlingMovementData {
 			spider.beginFalling();
 			return;
 		}
-		this.subpixel += spider.getSpeed();
+		this.subpixel += spider.projectileState.speed;
 		let amountMoved = 0;
 		while(this.subpixel >= 1) {
 			amountMoved ++;
@@ -145,6 +145,8 @@ export class CrawlingMovementData {
 		const [nextTurnDistance, nextTurnNormal] = this.cachedSurfaceData.nextTurn(spider, world, this.direction, 2 * SpiderData.TURN_WALL_DURATION);
 		const [previousTurnDistance, previousTurnNormal] = this.cachedSurfaceData.nextTurn(spider, world, opposite, 2 * SpiderData.TURN_WALL_DURATION);
 		spider.angle = GameUtils.moveAngleTowards(spider.angle, this.smoothedNormalAngle(nextTurnDistance, nextTurnNormal, previousTurnDistance, previousTurnNormal), SpiderData.ANGULAR_SPEED);
+
+		spider.projectileState.update(spider, world);
 	}
 	updateHitbox(spider: Spider, world: World, canvasIO: CanvasIO) {
 		const normal = this.scaledSmoothedNormal(spider, world);
@@ -245,7 +247,7 @@ export class SpiderLeg {
 		this.distance = GameUtils.moveTowards(this.distance, this.destinationDistance, SpiderData.LEG_SPEED);
 
 		const destination = this.destination(spider, world);
-		const updateSpeed = spider.getSpeed() + SpiderData.LEG_UPDATE_SPEED;
+		const updateSpeed = spider.projectileState.speed + SpiderData.LEG_UPDATE_SPEED;
 		this.position = GameUtils.moveVectorTowards(this.position, destination, updateSpeed);
 	}
 	destination(spider: Spider, world: World) {
@@ -290,12 +292,103 @@ export class FallingMovementData {
 	}
 }
 
+abstract class ProjectileState {
+	// eslint-disable-next-line @typescript-eslint/no-unused-vars
+	render(spider: Spider, world: World): Renderable[] { return []; }
+	abstract update(spider: Spider, world: World): void;
+
+	abstract numGlowingEyes(): number;
+	abstract readonly speed: number;
+}
+
+class TelegraphState extends ProjectileState {
+	timerProgress: number = 0;
+	speed = 0;
+
+	update(spider: Spider, world: World) {
+		if(spider.seesPlayer(world)) {
+			this.timerProgress ++;
+			if(this.timerProgress > SpiderData.SHOT_DELAY) {
+				spider.shootProjectile(world);
+				spider.projectileState = new RechargingState();
+			}
+		}
+		else {
+			spider.projectileState = new DefaultState();
+		}
+	}
+
+	render(spider: Spider, world: World) {
+		return [new Renderable(c => this.display(spider, c, world), "telegraph")];
+	}
+	display(spider: Spider, canvasIO: CanvasIO, world: World) {
+		const center = spider.hitbox.center();
+		const player = world.player.hitbox.center();
+		const timerProgress = MathUtils.constrain(this.timerProgress, 0, SpiderData.SHOT_DELAY);
+		const opacity = GameUtils.lerp(timerProgress, 0, SpiderData.SHOT_DELAY, 0, 1);
+		const width = GameUtils.lerp(timerProgress, 0, SpiderData.SHOT_DELAY, 30, 2);
+		GameUtils.glowOutline(
+			center.x, center.y,
+			player.x, player.y,
+			width, opacity, canvasIO,
+			255, 255, 255,
+		);
+	}
+
+	numGlowingEyes() {
+		return SpiderData.NUM_EYES;
+	}
+}
+
+class DefaultState extends ProjectileState {
+	speed = SpiderData.SPEED;
+
+	update(spider: Spider, world: World) {
+		if(spider.seesPlayer(world)) {
+			spider.projectileState = new TelegraphState();
+		}
+	}
+
+	numGlowingEyes() {
+		return SpiderData.NUM_EYES;
+	}
+}
+
+class RechargingState extends ProjectileState {
+	speed = SpiderData.FAST_SPEED;
+	rechargeProgress: number = 0;
+
+	update(spider: Spider, world: World) {
+		if(spider.seesPlayer(world)) {
+			this.rechargeProgress = 0;
+			if(spider.movement instanceof CrawlingMovementData) {
+				spider.movement.runAway(world.player.hitbox.center());
+			}
+		}
+		else {
+			this.rechargeProgress ++;
+		}
+
+		if(this.rechargeProgress > SpiderData.RECHARGE_TIME) {
+			spider.projectileState = new DefaultState();
+		}
+	}
+	display() { }
+
+	numGlowingEyes() {
+		return Math.floor(GameUtils.lerp(
+			MathUtils.constrain(this.rechargeProgress, 0, SpiderData.RECHARGE_TIME),
+			0, SpiderData.RECHARGE_TIME,
+			0, SpiderData.NUM_EYES,
+		));
+	}
+}
+
 
 export class Spider extends RectangularCollideable {
 	movement: CrawlingMovementData | FallingMovementData;
+	projectileState: TelegraphState | DefaultState | RechargingState = new DefaultState();
 	angle: number = 0;
-	rechargeTime: number = -1;
-	pauseTimer: number = -1;
 	legs: SpiderLeg[] = [];
 
 	constructor(position: Vector, movement: CrawlingMovementData | FallingMovementData, world: World) {
@@ -341,7 +434,7 @@ export class Spider extends RectangularCollideable {
 		return [
 			new Renderable(c => this.display(c, world), "entity"),
 			new Renderable(c => this.displayGlowEffect(c), "glow"),
-			new Renderable(c => this.displayTelegraph(c, world), "telegraph"),
+			...this.projectileState.render(this, world),
 		];
 	}
 	display(canvasIO: CanvasIO, world: World) {
@@ -363,7 +456,7 @@ export class Spider extends RectangularCollideable {
 	}
 	displayEyes(canvasIO: CanvasIO) {
 		const center = this.hitbox.center();
-		const numGlowing = this.numGlowingEyes();
+		const numGlowing = this.projectileState.numGlowingEyes();
 		let count = 0;
 		for(let angle = 0; angle < 360; angle += 360 / SpiderData.NUM_EYES) {
 			const position = new Vector(0, -SpiderData.EYE_DISTANCE).rotate(angle + 90 + MathUtils.toDegrees(-this.angle));
@@ -375,7 +468,7 @@ export class Spider extends RectangularCollideable {
 	displayGlowEffect(canvasIO: CanvasIO) {
 		const center = this.hitbox.center();
 		const glowIntensity = GameUtils.lerp(
-			this.numGlowingEyes(),
+			this.projectileState.numGlowingEyes(),
 			0, SpiderData.NUM_EYES,
 			0, SpiderData.GLOW_INTENSITY,
 		);
@@ -386,25 +479,7 @@ export class Spider extends RectangularCollideable {
 			SpiderData.GLOW_COLOR.red, SpiderData.GLOW_COLOR.green, SpiderData.GLOW_COLOR.blue,
 		);
 	}
-	displayTelegraph(canvasIO: CanvasIO, world: World) {
-		if(this.pauseTimer <= 0) { return; }
-		const spider = this.hitbox.center();
-		const player = world.player.hitbox.center();
-		const opacity = GameUtils.lerp(this.pauseTimer, 0, SpiderData.SHOT_DELAY, 1, 0);
-		const width = GameUtils.lerp(this.pauseTimer, 0, SpiderData.SHOT_DELAY, 2, 30);
-		GameUtils.glowOutline(
-			spider.x, spider.y,
-			player.x, player.y,
-			width, opacity, canvasIO,
-			255, 255, 255,
-		);
-	}
 	numGlowingEyes() {
-		return Math.floor(GameUtils.lerp(
-			MathUtils.constrain(this.rechargeTime, 0, SpiderData.RECHARGE_TIME),
-			0, SpiderData.RECHARGE_TIME,
-			SpiderData.NUM_EYES, 0,
-		));
 	}
 	displayLegs(canvasIO: CanvasIO) {
 		for(const leg of this.legs) {
@@ -428,36 +503,8 @@ export class Spider extends RectangularCollideable {
 
 	update(world: World, canvasIO: CanvasIO) {
 		this.movement.update(this, world, canvasIO);
-		this.checkProjectile(world);
 		for(const leg of this.legs) {
 			leg.update(this, world);
-		}
-	}
-	checkProjectile(world: World) {
-		if(this.movement instanceof FallingMovementData) { return; }
-
-		if(this.seesPlayer(world)) {
-			if(this.hasProjectile()) {
-				if(!this.isPaused()) {
-					// begin telegraph
-					this.pauseTimer = SpiderData.SHOT_DELAY;
-				}
-				else {
-					this.pauseTimer --;
-					if(this.pauseTimer === 0) {
-						this.shootProjectile(world);
-						this.rechargeTime = SpiderData.RECHARGE_TIME;
-					}
-				}
-			}
-			else {
-				this.movement.runAway(world.player.hitbox.center());
-				this.rechargeTime = SpiderData.RECHARGE_TIME;
-			}
-		}
-		else {
-			this.pauseTimer = -1;
-			this.rechargeTime --;
 		}
 	}
 	seesPlayer(world: World) {
@@ -478,17 +525,6 @@ export class Spider extends RectangularCollideable {
 		world.entities.add(projectile);
 	}
 
-
-	hasProjectile() {
-		return this.rechargeTime < 0;
-	}
-	isPaused() {
-		return this.hasProjectile() && this.pauseTimer >= 0;
-	}
-	getSpeed() {
-		if(this.isPaused()) { return 0; }
-		return this.hasProjectile() ? SpiderData.SPEED : SpiderData.FAST_SPEED;
-	}
 
 	beginCrawling(world: World) {
 		const centerBottom = this.hitbox.edgeCenter("down");
