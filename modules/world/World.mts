@@ -58,16 +58,10 @@ export class World {
 	}
 
 	update(canvasIO: CanvasIO, camera?: Camera) {
-		this.updateEntities(canvasIO, camera);
+		this.entities.update(this, canvasIO, camera);
 		this.staticEntities.update(this);
 		this.particles.update();
 		this.worldGenerator?.updateGeneration(this);
-	}
-	updateEntities(canvasIO: CanvasIO, camera?: Camera) {
-		const entities = camera ? this.entities.possiblyIntersecting(camera.visibleRegion(canvasIO, WorldData.ENTITY_UPDATE_DISTANCE)) : this.entities;
-		for(const entity of entities) {
-			entity.update(this, canvasIO);
-		}
 	}
 
 	onSlope(rectangle: Rectangle, slope: Slope, mode: "up" | "down") {

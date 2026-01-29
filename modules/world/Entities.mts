@@ -17,6 +17,13 @@ export class Entities extends BoundingBoxStructure<Entity> {
 		super(WorldData.ENTITY_CHUNK_SIZE, (e) => e.boundingBox());
 	}
 
+	update(world: World, canvasIO: CanvasIO, camera?: Camera) {
+		const entities = camera ? this.possiblyIntersecting(camera.visibleRegion(canvasIO, WorldData.ENTITY_UPDATE_DISTANCE)) : this;
+		for(const entity of entities) {
+			entity.update(world, canvasIO);
+		}
+	}
+
 	collideablesIntersecting(rectangle: Rectangle, collides: (collideable: Collideable) => boolean = () => true) {
 		return new Set([...this.possiblyIntersecting(rectangle)].filter(
 			e => e instanceof Collideable && collides(e) && e.hitboxes().some(h => h.interiorIntersects(rectangle)),
