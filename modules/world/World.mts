@@ -85,18 +85,8 @@ export class World {
 		const tile = this.tiles.get(position);
 		return tile instanceof SlopeTile && tile.shape === slope && tile.slopeIntersectionDistance(rectangle, position) === 0;
 	}
-	collidingTiles(rectangle: Rectangle, collides: (object: { x: number, y: number, tile: Tile } | Entity) => boolean = () => true) {
-		const tiles = [];
-		for(const { position, tile } of this.tiles.getTilesAt(rectangle)) {
-			const { x, y } = position;
-			if(collides({ x, y, tile }) && tile.intersects(rectangle, position)) {
-				tiles.push({ x, y, tile });
-			}
-		}
-		return tiles;
-	}
 	isInSolid(rectangle: Rectangle, collides: (object: { x: number, y: number, tile: Tile } | Entity) => boolean = () => true) {
-		return this.collidingTiles(rectangle, collides).length !== 0 || this.entities.collideablesIntersecting(rectangle, collides).size !== 0;
+		return this.tiles.colliding(rectangle, collides).length !== 0 || this.entities.collideablesIntersecting(rectangle, collides).size !== 0;
 	}
 	lineIntersectionDistance(position: Vector, direction: Vector, maxDistance: number, ignoredTiles: Tile[] = [], collides: (entity: Entity) => boolean = () => true) {
 		return Math.min(

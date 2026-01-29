@@ -147,7 +147,7 @@ export abstract class Collideable extends Entity {
 		const newHitboxes = this.hitboxes().map(h => h.translate(direction));
 		return [...collidingPlatforms, ...new Set(newHitboxes.flatMap(
 			h => [
-				...world.collidingTiles(h, collides),
+				...world.tiles.colliding(h, collides),
 				...[...world.entities.collideablesIntersecting(h, collides)].filter(o => o !== this),
 			]),
 		)];

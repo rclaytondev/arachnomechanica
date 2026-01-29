@@ -3,6 +3,7 @@ import { Rectangle } from "../../utils-ts/modules/geometry/Rectangle.mjs";
 import { Vector } from "../../utils-ts/modules/geometry/Vector.mjs";
 import { Grid } from "../../utils-ts/modules/Grid.mjs";
 import { WorldData } from "../constants/GameData.mjs";
+import { Entity } from "../game-utilities/Entity.mjs";
 import { GameUtils } from "../game-utilities/GameUtils.mjs";
 import { EmptyTile } from "../tiles/EmptyTile.mjs";
 import { Tile } from "../tiles/Tile.mjs";
@@ -75,6 +76,16 @@ export class Tiles extends Grid<Tile> {
 			iterationsSinceFound ++;
 		}
 		return result;
+	}
+	colliding(rectangle: Rectangle, collides: (object: { x: number, y: number, tile: Tile } | Entity) => boolean = () => true) {
+		const tiles = [];
+		for(const { position, tile } of this.getTilesAt(rectangle)) {
+			const { x, y } = position;
+			if(collides({ x, y, tile }) && tile.intersects(rectangle, position)) {
+				tiles.push({ x, y, tile });
+			}
+		}
+		return tiles;
 	}
 
 	render(camera: Camera, renderer: Renderer, canvasIO: CanvasIO, world: World) {
