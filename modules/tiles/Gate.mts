@@ -11,22 +11,38 @@ import { Tiles } from "../world/Tiles.mjs";
 import { ShakeEffect } from "../game-utilities/visual-effects/ShakeEffect.mjs";
 import { Renderable } from "../world/Renderer.mjs";
 import { Collideable } from "../game-utilities/physics-engine/Collideable.mjs";
+import { StaticEntity } from "../game-utilities/StaticEntity.mjs";
 
-export class Gate extends RectangularCollideable {
-	static cooldown = 0;
-	static open = false;
-	static openness = 0;
+class GateController extends StaticEntity {
+	cooldown: number = 0;
+	open: boolean = false;
+	openness: number = 0;
 
-	static update(world: World) {
-		const closedBefore = (Gate.openness === 0 || Gate.openness === 1);
-		Gate.openness = GameUtils.moveTowards(Gate.openness, Gate.open ? 1 : 0, GateData.SPEED);
-		const closedNow = (Gate.openness === 0 || Gate.openness === 1);
+	static getOrInitialize(world: World) {
+		const controller = world.staticEntities.entitiesList.find(e => e instanceof GateController);
+		if(controller) {
+			return controller;
+		}
+		const newController = new GateController();
+		world.staticEntities.entitiesList.push(newController);
+		return newController;
+	}
+
+	update(world: World) {
+		const closedBefore = (this.openness === 0 || this.openness === 1);
+		this.openness = GameUtils.moveTowards(this.openness, this.open ? 1 : 0, GateData.SPEED);
+		const closedNow = (this.openness === 0 || this.openness === 1);
 		if(closedNow && !closedBefore) {
 			world.worldScreen?.visualEffects.add(new ShakeEffect(GateData.SCREEN_SHAKE_TIME, GateData.SCREEN_SHAKE_INTENSITY));
 		}
-		Gate.cooldown --;
+		this.cooldown --;
 	}
+	toggleAll() {
+		this.open = !this.open;
+	}
+}
 
+export class Gate extends RectangularCollideable {
 	direction: Direction; // which way the gate moves when closing
 	playerSide: "positive" | "negative" = "positive";
 	toggled: boolean = false;
@@ -40,16 +56,15 @@ export class Gate extends RectangularCollideable {
 		this.openness = toggled ? 0 : 1;
 	}
 	static atTile(tilePosition: Vector, direction: Direction, toggled: boolean) {
-		const open = (toggled !== Gate.open);
-		const hitbox = Gate.getPhysicsBox(tilePosition, direction, open ? 0 : 1);
+		const hitbox = Gate.getPhysicsBox(tilePosition, direction, toggled ? 0 : 1);
 		return new Gate(hitbox, direction, toggled);
 	}
 
-	get open() {
-		return this.toggled ? !Gate.open : Gate.open;
+	open(gateController: GateController) {
+		return this.toggled ? !gateController.open : gateController.open;
 	}
-	opennessTarget() {
-		return this.toggled ? 1 - Gate.openness : Gate.openness;
+	opennessTarget(gateController: GateController) {
+		return this.toggled ? 1 - gateController.openness : gateController.openness;
 	}
 
 	static getPhysicsBox(tilePosition: Vector, direction: Direction, closedness: number) {
@@ -123,7 +138,7 @@ export class Gate extends RectangularCollideable {
 		this.updateOpenness(world, canvasIO);
 	}
 	updateOpenness(world: World, canvasIO: CanvasIO) {
-		const target = this.opennessTarget();
+		const target = this.opennessTarget(GateController.getOrInitialize(world));
 		const length = Directions.isHorizontal(this.direction) ? this.hitbox.width : this.hitbox.height;
 		const targetLength = (1 - target) * WorldData.TILE_SIZE;
 		this.extend(targetLength - length, this.direction, world, canvasIO, {});
@@ -175,14 +190,12 @@ export class Gate extends RectangularCollideable {
 			: (newSide === "negative" ? "up" : "down"),
 		));
 		const adjacentGate = Gate.isGateAt(adjacentTile, world);
-		if(newSide !== this.playerSide && sameRowOrColumn && Gate.cooldown <= 0 && !adjacentGate) {
-			Gate.toggleAll();
-			Gate.cooldown = 1 / GateData.SPEED;
+		const gateController = GateController.getOrInitialize(world);
+		if(newSide !== this.playerSide && sameRowOrColumn && gateController.cooldown <= 0 && !adjacentGate) {
+			gateController.toggleAll();
+			gateController.cooldown = 1 / GateData.SPEED;
 		}
 		this.playerSide = newSide;
-	}
-	static toggleAll() {
-		Gate.open = !Gate.open;
 	}
 
 	initialize(player: Player) {

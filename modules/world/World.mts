@@ -23,6 +23,7 @@ import { Renderer } from "./Renderer.mjs";
 import { Particles } from "../game-utilities/Particles.mjs";
 import { Debug } from "../game-utilities/Debug.mjs";
 import { SlopeTile } from "../tiles/SlopeTile.mjs";
+import { StaticEntities } from "../game-utilities/StaticEntity.mjs";
 
 export type Slope = (typeof WorldData.SLOPES)[number];
 export type TileWithPosition = { x: number, y: number, tile: Tile };
@@ -35,6 +36,7 @@ export class World {
 	worldScreen: WorldScreen | null = null;
 	worldGenerator: WorldGenerator | null;
 	player: Player = new Player();
+	staticEntities: StaticEntities = new StaticEntities();
 
 	constructor(enableGeneration: boolean) {
 		this.worldGenerator = enableGeneration ? new WorldGenerator() : null;
@@ -57,6 +59,7 @@ export class World {
 
 	update(canvasIO: CanvasIO, camera?: Camera) {
 		this.updateEntities(canvasIO, camera);
+		this.staticEntities.update(this);
 		this.particles.update();
 		this.worldGenerator?.updateGeneration(this);
 	}
@@ -65,7 +68,6 @@ export class World {
 		for(const entity of entities) {
 			entity.update(this, canvasIO);
 		}
-		Gate.update(this);
 	}
 
 	onSlope(rectangle: Rectangle, slope: Slope, mode: "up" | "down") {
