@@ -83,7 +83,7 @@ export abstract class Collideable extends Entity {
 		return this.moveWithoutSlopes(direction, world, options, canvasIO);
 	}
 	private moveWithoutSlopes(direction: Direction, world: World, options: MoveUnitOptions, canvasIO: CanvasIO): boolean {
-		const collidingObjects = this.collidingObjects(Vector.unit(direction), world, options.collides ?? (() => true));
+		const collidingObjects = this.collidingObjects(direction, world, options.collides ?? (() => true));
 		const unpushables = collidingObjects.filter(o => !(o instanceof Collideable) || !this.canPush(o));
 		if(unpushables.length > 0) {
 			if(!options.queryOnly) {
@@ -139,12 +139,9 @@ export abstract class Collideable extends Entity {
 		}
 		return 0;
 	}
-	collidingObjects(direction: Direction | Vector, world: World, collides: (object: Collideable | TileWithPosition) => boolean) {
-		if(!(direction instanceof Vector)) {
-			direction = Vector.unit(direction);
-		}
-		const collidingPlatforms = (direction.y > 0) ? this.collidingPlatforms(world) : [];
-		const newHitboxes = this.hitboxes().map(h => h.translate(direction));
+	collidingObjects(direction: Direction, world: World, collides: (object: Collideable | TileWithPosition) => boolean) {
+		const collidingPlatforms = (direction === "down") ? this.collidingPlatforms(world) : [];
+		const newHitboxes = this.hitboxes().map(h => h.translate(Vector.unit(direction)));
 		return [...collidingPlatforms, ...new Set(newHitboxes.flatMap(
 			h => [
 				...world.tiles.colliding(h, collides),
