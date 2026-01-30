@@ -84,7 +84,7 @@ export abstract class Collideable extends Entity {
 	}
 	private moveWithoutSlopes(direction: Direction, world: World, options: MoveUnitOptions, canvasIO: CanvasIO): boolean {
 		const collidingObjects = this.collidingObjects(Vector.unit(direction), world, options.collides ?? (() => true));
-		const unpushables = collidingObjects.filter(o => !this.canPush(o));
+		const unpushables = collidingObjects.filter(o => !(o instanceof Collideable) || !this.canPush(o));
 		if(unpushables.length > 0) {
 			if(!options.queryOnly) {
 				this.callCollisionHandlers(direction, unpushables, false, options.onCollision ?? (() => {}), world, canvasIO);
@@ -169,7 +169,7 @@ export abstract class Collideable extends Entity {
 		}
 		return platforms;
 	}
-	canPush(obj: Collideable | TileWithPosition): obj is Collideable {
+	canPush(obj: Collideable): obj is Collideable {
 		if(obj instanceof Entity) {
 			return false; // TODO: add restrictions on what can push what
 			// return PhysicsData.CAN_PUSH[this.entityType][obj.entityType];
