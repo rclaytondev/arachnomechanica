@@ -3,15 +3,14 @@ import { Rectangle } from "../../utils-ts/modules/geometry/Rectangle.mjs";
 import { Vector } from "../../utils-ts/modules/geometry/Vector.mjs";
 import { SpikeballData, WorldData } from "../constants/GameData.mjs";
 import { GameUtils } from "../game-utilities/GameUtils.mjs";
-import { World } from "../world/World.mjs";
-import { Entity } from "../game-utilities/Entity.mjs";
+import { TileWithPosition, World } from "../world/World.mjs";
 import { Directions } from "../../utils-ts/modules/geometry/Direction.mjs";
 import { RectangularCollideable } from "../game-utilities/physics-engine/RectangularCollideable.mjs";
 import { CollisionEvent } from "../game-utilities/physics-engine/CollisionEvent.mjs";
-import { Tile } from "../tiles/Tile.mjs";
 import { SpikeballBlock } from "../tiles/SpikeballBlock.mjs";
 import { Renderable } from "../world/Renderer.mjs";
 import { Player } from "../Player.mjs";
+import { Collideable } from "../game-utilities/physics-engine/Collideable.mjs";
 
 export class Spikeball extends RectangularCollideable {
 	velocity: Vector;
@@ -25,12 +24,12 @@ export class Spikeball extends RectangularCollideable {
 		this.velocity = velocity;
 	}
 
-	collides(object: { x: number, y: number, tile: Tile } | Entity) {
+	collides(object: Collideable | TileWithPosition) {
 		if(object instanceof Spikeball || object instanceof SpikeballBlock) {
 			return !this.overlappingObjects.includes(object);
 		}
-		else if("tile" in object) {
-			return !this.overlappingObjects.some(o => o instanceof Vector && o.equals(object.x, object.y));
+		else if(!(object instanceof Collideable)) {
+			return !this.overlappingObjects.some(o => o instanceof Vector && o.equals(object.position));
 		}
 		return true;
 	}

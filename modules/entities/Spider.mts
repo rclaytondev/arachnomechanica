@@ -16,7 +16,7 @@ import { EntitySpawner } from "../level-generator/EntitySpawner.mjs";
 import { BasicTile } from "../tiles/BasicTile.mjs";
 import { Renderable } from "../world/Renderer.mjs";
 import { Tiles } from "../world/Tiles.mjs";
-import { World } from "../world/World.mjs";
+import { TileWithPosition, World } from "../world/World.mjs";
 import { Fireball } from "./Fireball.mjs";
 
 export class PointOnSurface {
@@ -152,7 +152,7 @@ export class CrawlingMovementData {
 		const normal = this.scaledSmoothedNormal(spider, world);
 		const preferredCenter = this.pointOnSurface.point.add(normal);
 		const offset = preferredCenter.subtract(spider.hitbox.center().add(spider.subpixel));
-		const collides = (obj: Entity) => !(obj instanceof Fireball && obj.ignoredEntities.includes(spider));
+		const collides = (obj: Collideable | TileWithPosition) => !(obj instanceof Fireball && obj.ignoredEntities.includes(spider));
 		spider.move(offset, world, canvasIO, { collides });
 		world.entities.updatePosition(spider);
 	}

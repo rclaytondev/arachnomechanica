@@ -15,7 +15,7 @@ import { CollisionEvent } from "./CollisionEvent.mjs";
 /* eslint @typescript-eslint/no-unused-vars: 0 */
 
 type MoveOptions = {
-	collides?: (object: Collideable) => boolean,
+	collides?: (object: Collideable | TileWithPosition) => boolean,
 	onCollision?: (collision: CollisionEvent) => void
 };
 export type MoveUnitOptions = MoveOptions & {
@@ -139,7 +139,7 @@ export abstract class Collideable extends Entity {
 		}
 		return 0;
 	}
-	collidingObjects(direction: Direction | Vector, world: World, collides: (object: Collideable) => boolean) {
+	collidingObjects(direction: Direction | Vector, world: World, collides: (object: Collideable | TileWithPosition) => boolean) {
 		if(!(direction instanceof Vector)) {
 			direction = Vector.unit(direction);
 		}
@@ -147,7 +147,7 @@ export abstract class Collideable extends Entity {
 		const newHitboxes = this.hitboxes().map(h => h.translate(direction));
 		return [...collidingPlatforms, ...new Set(newHitboxes.flatMap(
 			h => [
-				...world.tiles.colliding(h, () => true),
+				...world.tiles.colliding(h, collides),
 				...[...world.entities.collideablesIntersecting(h, collides)].filter(o => o !== this),
 			]),
 		)];
@@ -188,7 +188,7 @@ export abstract class Collideable extends Entity {
 	intersectsRects(rectangles: Rectangle[]) {
 		return this.hitboxes().some(h => rectangles.some(r => h.interiorIntersects(r)));
 	}
-	translateIfUnobstructed(direction: Direction, collides: (e: Collideable) => boolean, world: World) {
+	translateIfUnobstructed(direction: Direction, collides: (e: Collideable | TileWithPosition) => boolean, world: World) {
 		const obstructed = this.collidingObjects(direction, world, collides).length !== 0;
 		if(!obstructed) {
 			this.translate(Vector.unit(direction));
