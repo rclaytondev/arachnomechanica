@@ -163,7 +163,7 @@ export abstract class Collideable extends Entity {
 			const right = Tiles.getTileX(hitbox.right() - 1);
 			for(let x = left; x <= right; x ++) {
 				if(world.tiles.get(x, hitbox.bottom() / WorldData.TILE_SIZE) === Platform.PLATFORM) {
-					platforms.push({ x: x, y: hitbox.bottom() / WorldData.TILE_SIZE, tile: Platform.PLATFORM });
+					platforms.push({ position: new Vector(x, hitbox.bottom() / WorldData.TILE_SIZE), tile: Platform.PLATFORM });
 				}
 			}
 		}

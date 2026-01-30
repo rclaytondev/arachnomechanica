@@ -26,7 +26,7 @@ import { SlopeTile } from "../tiles/SlopeTile.mjs";
 import { StaticEntities } from "../game-utilities/StaticEntity.mjs";
 
 export type Slope = (typeof WorldData.SLOPES)[number];
-export type TileWithPosition = { x: number, y: number, tile: Tile };
+export type TileWithPosition = { position: Vector, tile: Tile };
 
 export class World {
 	tiles: Tiles = new Tiles();
@@ -81,7 +81,7 @@ export class World {
 		const tile = this.tiles.get(position);
 		return tile instanceof SlopeTile && tile.shape === slope && tile.slopeIntersectionDistance(rectangle, position) === 0;
 	}
-	isInSolid(rectangle: Rectangle, collides: (object: { x: number, y: number, tile: Tile } | Entity) => boolean = () => true) {
+	isInSolid(rectangle: Rectangle, collides: (object: TileWithPosition | Entity) => boolean = () => true) {
 		return this.tiles.colliding(rectangle, collides).length !== 0 || this.entities.collideablesIntersecting(rectangle, collides).size !== 0;
 	}
 	lineIntersectionDistance(position: Vector, direction: Vector, maxDistance: number, ignoredTiles: Tile[] = [], collides: (entity: Entity) => boolean = () => true) {

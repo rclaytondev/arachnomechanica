@@ -9,7 +9,7 @@ import { EmptyTile } from "../tiles/EmptyTile.mjs";
 import { Tile } from "../tiles/Tile.mjs";
 import { Camera } from "./Camera.mjs";
 import { Renderer } from "./Renderer.mjs";
-import { World } from "./World.mjs";
+import { TileWithPosition, World } from "./World.mjs";
 
 export class Tiles extends Grid<Tile> {
 	constructor() {
@@ -77,12 +77,11 @@ export class Tiles extends Grid<Tile> {
 		}
 		return result;
 	}
-	colliding(rectangle: Rectangle, collides: (object: { x: number, y: number, tile: Tile } | Entity) => boolean = () => true) {
+	colliding(rectangle: Rectangle, collides: (object: TileWithPosition | Entity) => boolean = () => true) {
 		const tiles = [];
 		for(const { position, tile } of this.getTilesAt(rectangle)) {
-			const { x, y } = position;
-			if(collides({ x, y, tile }) && tile.intersects(rectangle, position)) {
-				tiles.push({ x, y, tile });
+			if(collides({ position, tile }) && tile.intersects(rectangle, position)) {
+				tiles.push({ position, tile });
 			}
 		}
 		return tiles;
