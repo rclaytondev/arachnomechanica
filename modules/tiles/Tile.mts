@@ -4,6 +4,7 @@ import { Rectangle } from "../../utils-ts/modules/geometry/Rectangle.mjs";
 import { Vector } from "../../utils-ts/modules/geometry/Vector.mjs";
 import { WorldData } from "../constants/GameData.mjs";
 import { Octants } from "../game-utilities/Octant.mjs";
+import { Collideable } from "../game-utilities/physics-engine/Collideable.mjs";
 import { Renderable } from "../world/Renderer.mjs";
 import { World } from "../world/World.mjs";
 
@@ -25,4 +26,5 @@ export abstract class Tile {
 
 	abstract intersects(rect: Rectangle, tilePosition: Vector): boolean;
 	abstract rayIntersectionDistance(tilePosition: Vector, rayStart: Vector, rayDirection: Vector): number;
+	abstract blocksMovement(tilePosition: Vector, collideable: Collideable, direction: Direction, hitboxes: Rectangle[], newHitboxes: Rectangle[]): boolean;
 }

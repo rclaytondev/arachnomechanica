@@ -6,6 +6,7 @@ import { MathUtils } from "../../utils-ts/modules/math/MathUtils.mjs";
 import { WorldData } from "../constants/GameData.mjs";
 import { GameUtils } from "../game-utilities/GameUtils.mjs";
 import { Octant, Octants } from "../game-utilities/Octant.mjs";
+import { Collideable } from "../game-utilities/physics-engine/Collideable.mjs";
 import { Renderable } from "../world/Renderer.mjs";
 import { Tiles } from "../world/Tiles.mjs";
 import { Slope, World } from "../world/World.mjs";
@@ -104,11 +105,11 @@ export class SlopeTile extends Tile {
 	}
 
 	intersects(rect: Rectangle, tilePosition: Vector): boolean {
-		return this.slopeIntersectionDistance(rect, tilePosition) > 0;
+		return this.slopeIntersectionDistance(rect, tilePosition, true) > 0;
 	}
-	slopeIntersectionDistance(rect: Rectangle, tilePosition: Vector) {
+	slopeIntersectionDistance(rect: Rectangle, tilePosition: Vector, strict: boolean) {
 		const tileSquare = Tiles.getTileSquare(tilePosition);
-		if(!rect.intersects(tileSquare)) { return -Infinity; }
+		if(!rect.intersects(tileSquare) || (strict && !rect.interiorIntersects(tileSquare))) { return -Infinity; }
 		const center = tileSquare.center();
 		if(this.shape === "slope-floor-left") {
 			const corner = rect.getCorner("bottom-left");
@@ -141,5 +142,8 @@ export class SlopeTile extends Tile {
 			GameUtils.rayIntersectsSegment(rayStart, rayDirection, tileSquare.getCorner(endpoints[1]), tileSquare.getCorner(endpoints[2])),
 			GameUtils.rayIntersectsSegment(rayStart, rayDirection, tileSquare.getCorner(endpoints[2]), tileSquare.getCorner(endpoints[0])),
 		);
+	}
+	blocksMovement(tilePosition: Vector, collideable: Collideable, direction: Direction, hitboxes: Rectangle[], newHitboxes: Rectangle[]): boolean {
+		return newHitboxes.some(h => this.intersects(h, tilePosition));
 	}
 }

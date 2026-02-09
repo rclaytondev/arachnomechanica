@@ -79,7 +79,7 @@ export class World {
 			Math.floor(corner.y / WorldData.TILE_SIZE),
 		);
 		const tile = this.tiles.get(position);
-		return tile instanceof SlopeTile && tile.shape === slope && tile.slopeIntersectionDistance(rectangle, position) === 0;
+		return tile instanceof SlopeTile && tile.shape === slope && tile.slopeIntersectionDistance(rectangle, position, false) === 0;
 	}
 	isInSolid(rectangle: Rectangle, collides: (object: TileWithPosition | Entity) => boolean = () => true) {
 		return this.tiles.colliding(rectangle, collides).length !== 0 || this.entities.collideablesIntersecting(rectangle, collides).size !== 0;

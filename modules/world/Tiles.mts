@@ -1,9 +1,11 @@
 import { CanvasIO } from "../../utils-ts/modules/CanvasIO.mjs";
+import { Direction } from "../../utils-ts/modules/geometry/Direction.mjs";
 import { Rectangle } from "../../utils-ts/modules/geometry/Rectangle.mjs";
 import { Vector } from "../../utils-ts/modules/geometry/Vector.mjs";
 import { Grid } from "../../utils-ts/modules/Grid.mjs";
 import { WorldData } from "../constants/GameData.mjs";
 import { GameUtils } from "../game-utilities/GameUtils.mjs";
+import { Collideable } from "../game-utilities/physics-engine/Collideable.mjs";
 import { EmptyTile } from "../tiles/EmptyTile.mjs";
 import { Tile } from "../tiles/Tile.mjs";
 import { Camera } from "./Camera.mjs";
@@ -81,6 +83,18 @@ export class Tiles extends Grid<Tile> {
 		for(const { position, tile } of this.getTilesAt(rectangle)) {
 			if(collides({ position, tile }) && tile.intersects(rectangle, position)) {
 				tiles.push({ position, tile });
+			}
+		}
+		return tiles;
+	}
+	blockingMovement(collideable: Collideable, direction: Direction, hitboxes: Rectangle[], newHitboxes: Rectangle[]) {
+		const tiles: { position: Vector, tile: Tile }[] = [];
+		for(const hitbox of hitboxes) {
+			for(const { position, tile } of this.getTilesAt(hitbox.extend("all", 1))) {
+				if(
+					!tiles.some(t => t.position.equals(position)) &&
+					tile.blocksMovement(position, collideable, direction, hitboxes, newHitboxes)
+				) { tiles.push({ position, tile}); }
 			}
 		}
 		return tiles;

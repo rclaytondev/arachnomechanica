@@ -1,8 +1,10 @@
 import { CanvasIO } from "../../utils-ts/modules/CanvasIO.mjs";
 import { Direction } from "../../utils-ts/modules/geometry/Direction.mjs";
+import { Rectangle } from "../../utils-ts/modules/geometry/Rectangle.mjs";
 import { Vector } from "../../utils-ts/modules/geometry/Vector.mjs";
 import { WorldData } from "../constants/GameData.mjs";
 import { GameUtils } from "../game-utilities/GameUtils.mjs";
+import { Collideable } from "../game-utilities/physics-engine/Collideable.mjs";
 import { Renderable } from "../world/Renderer.mjs";
 import { World } from "../world/World.mjs";
 import { Tile } from "./Tile.mjs";
@@ -68,5 +70,12 @@ export class Platform extends Tile {
 			tilePosition.x * WorldData.TILE_SIZE,
 			(tilePosition.x + 1) * WorldData.TILE_SIZE,
 		);
+	}
+	blocksMovement(tilePosition: Vector, collideable: Collideable, direction: Direction, hitboxes: Rectangle[]): boolean {
+		return direction === "down" && hitboxes.some(hitbox => (
+			hitbox.bottom() === tilePosition.y * WorldData.TILE_SIZE
+			&& hitbox.right() >= tilePosition.x * WorldData.TILE_SIZE
+			&& hitbox.left() <= (tilePosition.x + 1) * WorldData.TILE_SIZE
+		));
 	}
 }

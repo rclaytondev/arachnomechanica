@@ -28,4 +28,7 @@ export class EmptyTile extends Tile {
 	rayIntersectionDistance(): number {
 		return Infinity;
 	}
+	blocksMovement() {
+		return false;
+	}
 }
