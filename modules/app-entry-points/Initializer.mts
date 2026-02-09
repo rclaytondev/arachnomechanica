@@ -7,8 +7,8 @@ import { LoadingManager } from "./LoadingManager.mjs";
 
 import "../entities/Spider.mjs";
 import "../entities/Lizard.mjs";
-import "../tiles/LaserBlock.mjs";
-import "../tiles/SpikeballBlock.mjs";
+import "../entities/LaserBlock.mjs";
+import "../entities/SpikeballBlock.mjs";
 
 LoadingManager.loaded();
 const screen = new WorldScreen(new World(true));

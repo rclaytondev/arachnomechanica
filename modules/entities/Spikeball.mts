@@ -7,7 +7,7 @@ import { TileWithPosition, World } from "../world/World.mjs";
 import { Directions } from "../../utils-ts/modules/geometry/Direction.mjs";
 import { RectangularCollideable } from "../game-utilities/physics-engine/RectangularCollideable.mjs";
 import { CollisionEvent } from "../game-utilities/physics-engine/CollisionEvent.mjs";
-import { SpikeballBlock } from "../tiles/SpikeballBlock.mjs";
+import { SpikeballBlock } from "./SpikeballBlock.mjs";
 import { Renderable } from "../world/Renderer.mjs";
 import { Player } from "../Player.mjs";
 import { Collideable } from "../game-utilities/physics-engine/Collideable.mjs";

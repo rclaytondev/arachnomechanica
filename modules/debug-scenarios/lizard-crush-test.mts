@@ -4,7 +4,7 @@ import { WorldData } from "../constants/GameData.mjs";
 import { Lizard } from "../entities/Lizard.mjs";
 import { Main } from "../Main.mjs";
 import { BasicTile } from "../tiles/BasicTile.mjs";
-import { Gate } from "../tiles/Gate.mjs";
+import { Gate } from "../entities/Gate.mjs";
 import { World } from "../world/World.mjs";
 import { WorldScreen } from "../world/WorldScreen.mjs";
 

@@ -3,7 +3,7 @@ import { Vector } from "../../utils-ts/modules/geometry/Vector.mjs";
 import { Grid } from "../../utils-ts/modules/Grid.mjs";
 import { RoomData, WorldData } from "../constants/GameData.mjs";
 import { GateState } from "./GateState.mjs";
-import { Gate } from "../tiles/Gate.mjs";
+import { Gate } from "../entities/Gate.mjs";
 import { Slope, World } from "../world/World.mjs";
 import { Portal } from "../entities/Portal.mjs";
 import { BasicTile } from "../tiles/BasicTile.mjs";

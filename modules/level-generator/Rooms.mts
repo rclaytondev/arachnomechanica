@@ -2,7 +2,7 @@ import { Vector } from "../../utils-ts/modules/geometry/Vector.mjs";
 import { RoomData, WorldData } from "../constants/GameData.mjs";
 import { GateState } from "./GateState.mjs";
 import { Room } from "./Room.mjs";
-import { Gate } from "../tiles/Gate.mjs";
+import { Gate } from "../entities/Gate.mjs";
 import { Portal } from "../entities/Portal.mjs";
 import { SpawnPoint } from "../entities/SpawnPoint.mjs";
 import { HealthPickup } from "../entities/HealthPickup.mjs";

@@ -3,7 +3,7 @@ import { Vector } from "../../utils-ts/modules/geometry/Vector.mjs";
 import { Main } from "../Main.mjs";
 import { BasicTile } from "../tiles/BasicTile.mjs";
 import { EmptyTile } from "../tiles/EmptyTile.mjs";
-import { LaserBlock } from "../tiles/LaserBlock.mjs";
+import { LaserBlock } from "../entities/LaserBlock.mjs";
 import { SlopeTile } from "../tiles/SlopeTile.mjs";
 import { World } from "../world/World.mjs";
 import { WorldScreen } from "../world/WorldScreen.mjs";

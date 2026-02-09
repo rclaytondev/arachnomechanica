@@ -3,7 +3,7 @@ import { Diagonal, Direction, Directions } from "../utils-ts/modules/geometry/Di
 import { Vector } from "../utils-ts/modules/geometry/Vector.mjs";
 import { Room, RoomTile } from "./level-generator/Room.mjs";
 import { DEBUG_SETTINGS } from "./constants/DebugSettings.mjs";
-import { Gate } from "./tiles/Gate.mjs";
+import { Gate } from "./entities/Gate.mjs";
 import { World } from "./world/World.mjs";
 import { BackgroundData, PortalData, WorldData } from "./constants/GameData.mjs";
 import { ROOMS } from "./level-generator/Rooms.mjs";
