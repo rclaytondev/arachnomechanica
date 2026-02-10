@@ -141,7 +141,7 @@ export abstract class Collideable extends Entity {
 		const hitboxes = this.hitboxes();
 		const newHitboxes = hitboxes.map(h => h.translate(Vector.unit(direction)));
 		const tiles = world.tiles.blockingMovement(this, direction, hitboxes, newHitboxes).filter(collides);
-		const entities = hitboxes.flatMap(h => [...world.entities.collideablesIntersecting(h, collides)]).filter(o => o !== this);
+		const entities = newHitboxes.flatMap(h => [...world.entities.collideablesIntersecting(h, collides)]).filter(o => o !== this);
 		return [...tiles, ...new Set(entities)];
 	}
 	collidingHitboxes(entity: Collideable, offset: Vector) {
