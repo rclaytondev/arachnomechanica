@@ -3,8 +3,10 @@ import { Directions } from "../../utils-ts/modules/geometry/Direction.mjs";
 import { Rectangle } from "../../utils-ts/modules/geometry/Rectangle.mjs";
 import { Vector } from "../../utils-ts/modules/geometry/Vector.mjs";
 import { ItemData, PlayerData, WorldData } from "../constants/GameData.mjs";
+import { Collideable } from "../game-utilities/physics-engine/Collideable.mjs";
 import { CollisionEvent } from "../game-utilities/physics-engine/CollisionEvent.mjs";
 import { RectangularCollideable } from "../game-utilities/physics-engine/RectangularCollideable.mjs";
+import { Player } from "../Player.mjs";
 import { Renderable } from "../world/Renderer.mjs";
 import { World } from "../world/World.mjs";
 import { ThrowableTile } from "./ThrowableTile.mjs";
@@ -45,7 +47,6 @@ export class ThrowableTileEntity extends RectangularCollideable {
 		this.move(this.velocity, world, canvasIO, {
 			collides: (obj) => obj !== this,
 		});
-		world.entities.updatePosition(this);
 
 		for(const modifier of this.modifiers) {
 			modifier.update(this, world, canvasIO);
@@ -92,5 +93,9 @@ export class ThrowableTileEntity extends RectangularCollideable {
 		for(const modifier of this.modifiers) {
 			modifier.reset();
 		}
+	}
+
+	canPush(obj: Collideable): obj is Collideable {
+		return obj instanceof Player;
 	}
 }

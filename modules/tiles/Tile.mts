@@ -27,4 +27,5 @@ export abstract class Tile {
 	abstract intersects(rect: Rectangle, tilePosition: Vector): boolean;
 	abstract rayIntersectionDistance(tilePosition: Vector, rayStart: Vector, rayDirection: Vector): number;
 	abstract blocksMovement(tilePosition: Vector, collideable: Collideable, direction: Direction, hitboxes: Rectangle[], newHitboxes: Rectangle[]): boolean;
+	abstract rectIntersectionDistance(tilePosition: Vector, rect: Rectangle, direction: Direction): number;
 }

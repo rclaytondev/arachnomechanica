@@ -91,6 +91,13 @@ export class World {
 			maxDistance,
 		);
 	}
+	rectIntersectionDistance(rect: Rectangle, direction: Direction, maxDistance: number, collides: (entity: Entity) => boolean) {
+		return Math.min(
+			this.tiles.rectIntersectionDistance(rect, direction, maxDistance),
+			this.entities.rectIntersectionDistance(rect, direction, maxDistance, collides),
+			maxDistance,
+		);
+	}
 	hasLineOfSight(position: Vector, rectangle: Rectangle, collides: (entity: Entity) => boolean) {
 		const center = rectangle.center();
 		const direction = center.subtract(position);

@@ -216,7 +216,7 @@ export class Gate extends RectangularCollideable {
 	}
 	copyAndTranslate(amount: Vector) {
 		const copy = this.copy();
-		copy.translate(amount);
+		copy.hitbox = copy.hitbox.translate(amount);
 		return copy;
 	}
 	reflect(): Gate {

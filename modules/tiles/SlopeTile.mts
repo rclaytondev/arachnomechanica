@@ -146,4 +146,7 @@ export class SlopeTile extends Tile {
 	blocksMovement(tilePosition: Vector, collideable: Collideable, direction: Direction, hitboxes: Rectangle[], newHitboxes: Rectangle[]): boolean {
 		return newHitboxes.some(h => this.intersects(h, tilePosition));
 	}
+	rectIntersectionDistance(): number {
+		throw new Error("Unimplemented.");
+	}
 }

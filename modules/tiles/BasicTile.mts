@@ -74,6 +74,10 @@ export class BasicTile extends Tile {
 	rayIntersectionDistance(tilePosition: Vector, rayStart: Vector, rayDirection: Vector): number {
 		return GameUtils.rayIntersectsRectangle(rayStart, rayDirection, Tiles.getTileSquare(tilePosition));
 	}
+	rectIntersectionDistance(tilePosition: Vector, rect: Rectangle, direction: Direction) {
+		const tileSquare = Tiles.getTileSquare(tilePosition);
+		return GameUtils.rectIntersectionDistance(rect, direction, tileSquare);
+	}
 	blocksMovement(tilePosition: Vector, collideable: Collideable, direction: Direction, hitboxes: Rectangle[], newHitboxes: Rectangle[]): boolean {
 		const tileSquare = Tiles.getTileSquare(tilePosition);
 		return newHitboxes.some(h => h.interiorIntersects(tileSquare));

@@ -383,6 +383,22 @@ export class GameUtils {
 		}
 		return result;
 	}
+	static rectIntersectionDistance(rect: Rectangle, direction: Direction, target: Rectangle) {
+		if(Directions.isHorizontal(direction)) {
+			if(!(rect.bottom() > target.y && rect.y < target.bottom())) {
+				return Infinity;
+			}
+			const distance = (direction === "right") ? target.x - rect.right() : rect.x - target.right();
+			return distance >= 0 ? distance : Infinity;
+		}
+		else {
+			if(!(rect.right() > target.x && rect.x < target.right())) {
+				return Infinity;
+			}
+			const distance = (direction === "down") ? target.y - rect.bottom() : rect.y - target.bottom();
+			return distance >= 0 ? distance : Infinity;
+		}
+	}
 
 	static reachableNodes<T>(startNode: T, neighbors: (node: T) => T[], hashFunction: (value: T) => string) {
 		const visited = new HashSet<T>([startNode], hashFunction);

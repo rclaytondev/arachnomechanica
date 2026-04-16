@@ -215,7 +215,7 @@ export class Lizard extends Collideable {
 	updateMotion1Pixel(world: World, canvasIO: CanvasIO) {
 		const rect = this.lookaheadRectangle(this.direction, LizardData.HITBOX_WIDTH / 2, 1, LizardData.HITBOX_WIDTH - 2);
 		const collideable = new InvisibleRectangle(rect);
-		collideable.moveUnit(this.direction, world, canvasIO, { collides: (o) => o !== this });
+		collideable.moveUnit(this.direction, world, canvasIO, { collides: (o) => o !== this, moveRiders: false });
 		const offset = Vector.unit(this.direction);
 		this.position = this.position.add(offset);
 		if(this.hitboxes().some(h => world.isInSolid(h, (o) => o !== this))) {

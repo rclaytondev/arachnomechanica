@@ -78,6 +78,14 @@ export class Tiles extends Grid<Tile> {
 		}
 		return result;
 	}
+	rectIntersectionDistance(rect: Rectangle, direction: Direction, maxDistance: number) {
+		const tileRect = Rectangle.boundingBox([rect, rect.translate(Vector.unit(direction).multiply(maxDistance))]);
+		const tiles = [...this.getTilesAt(tileRect)];
+		const distances = tiles.map(({ position, tile }) => (
+			tile.rectIntersectionDistance(position, rect, direction)
+		));
+		return Math.min(maxDistance, ...distances);
+	}
 	colliding(rectangle: Rectangle, collides: (object: TileWithPosition) => boolean = () => true) {
 		const tiles = [];
 		for(const { position, tile } of this.getTilesAt(rectangle)) {

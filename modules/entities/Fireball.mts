@@ -26,7 +26,6 @@ export class Fireball extends RectangularCollideable {
 		this.move(this.velocity, world, canvasIO, {
 			collides: (obj) => !(this.ignoredEntities as unknown[]).includes(obj),
 		});
-		world.entities.updatePosition(this);
 
 		world.particles.add(new Particle(
 			this.hitbox.center(),

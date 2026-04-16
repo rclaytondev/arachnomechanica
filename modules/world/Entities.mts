@@ -51,6 +51,13 @@ export class Entities extends BoundingBoxStructure<Entity> {
 		}
 		return result;
 	}
+	rectIntersectionDistance(rect: Rectangle, direction: Direction, maxDistance: number, collides: (entity: Collideable) => boolean) {
+		const searchRegion = Rectangle.boundingBox([rect, rect.translate(Vector.unit(direction).multiply(maxDistance))]);
+		const entities = this.possiblyIntersecting(searchRegion);
+		const hitboxes = [...entities].filter(e => e instanceof Collideable && collides(e)).flatMap(e => (e as Collideable).hitboxes());
+		const distances = hitboxes.map(h => GameUtils.rectIntersectionDistance(rect, direction, h));
+		return Math.min(maxDistance, ...distances);
+	}
 
 	render(camera: Camera, renderer: Renderer, canvasIO: CanvasIO, world: World) {
 		const region = camera.visibleRegion(canvasIO, WorldData.ENTITY_RENDER_DISTANCE);

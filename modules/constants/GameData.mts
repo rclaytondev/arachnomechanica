@@ -342,7 +342,7 @@ export class BackgroundData {
 	];
 }
 export class SpikeballData {
-	static RADIUS = WorldData.TILE_SIZE * 0.35;
+	static RADIUS = WorldData.TILE_SIZE * 0.25;
 	static COLOR = "rgb(0, 0, 0)";
 	static ACCENT_COLOR = {
 		red: 255,
@@ -554,4 +554,38 @@ export class HealthPickupData {
 
 	static IMAGE = GameUtils.loadImage("graphics/health-pickup.png", WorldData.TILE_SIZE, WorldData.TILE_SIZE);
 	static HITBOX_RADIUS = 10;
+}
+
+export class TallCreatureData {
+	static HEAD_WIDTH = WorldData.TILE_SIZE * 1.5;
+	static HEAD_HEIGHT = WorldData.TILE_SIZE * 0.4;
+	static LEG_HITBOX_WIDTH = WorldData.TILE_SIZE * 1.3;
+
+	static LEG_ATTACHMENTS = [
+		WorldData.TILE_SIZE * -1/2,
+		WorldData.TILE_SIZE * -1/6,
+		WorldData.TILE_SIZE * 1/6,
+		WorldData.TILE_SIZE * 1/2,
+	] as const;
+	static LEG_LINE_WIDTH = WorldData.TILE_SIZE * 0.1;
+
+	static SPEED = 3;
+	static MAX_LEG_HEIGHT = WorldData.TILE_SIZE * 4;
+	static LEG_SPEED = 2.5;
+	static LEG_UPDATE_SPEED = 10;
+	static MAX_LEG_OFFSET = 5;
+	static MAX_STEP_SIZE = 1.1 * WorldData.TILE_SIZE;
+
+	static EYE_COLOR = {
+		red: 255,
+		green: 0,
+		blue: 0,
+	};
+	static EYE_RADIUS = 5;
+	static EYE_SPACING = 20;
+	static GLOW_SIZE = 100;
+	static GLOW_INTENSITY = 0.4;
+
+	static STABBING_SPEED = 25;
+	static RETRACTING_SPEED = 15;
 }

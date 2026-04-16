@@ -154,7 +154,6 @@ export class CrawlingMovementData {
 		const offset = preferredCenter.subtract(spider.hitbox.center().add(spider.subpixel));
 		const collides = (obj: Collideable | TileWithPosition) => !(obj instanceof Fireball && obj.ignoredEntities.includes(spider));
 		spider.move(offset, world, canvasIO, { collides });
-		world.entities.updatePosition(spider);
 	}
 	isFloating(spider: Spider, world: World) {
 		const opposite = this.direction === "clockwise" ? "counterclockwise" : "clockwise";
@@ -287,7 +286,6 @@ export class FallingMovementData {
 
 	update(spider: Spider, world: World, canvasIO: CanvasIO) {
 		spider.move(this.velocity, world, canvasIO, { });
-		world.entities.updatePosition(spider);
 		this.velocity = this.velocity.add(0, PlayerData.GRAVITY);
 	}
 }
@@ -580,8 +578,8 @@ export class Spider extends RectangularCollideable {
 		}
 	}
 
-	translate(amount: Vector): void {
-		super.translate(amount);
+	translate(amount: Vector, world: World): void {
+		super.translate(amount, world);
 		if(this.movement instanceof FallingMovementData) {
 			for(const leg of this.legs) {
 				leg.position = leg.position.add(amount);

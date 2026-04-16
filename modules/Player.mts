@@ -56,7 +56,6 @@ export class Player extends RectangularCollideable {
 		this.velocity.x = MathUtils.constrain(this.velocity.x, -PlayerData.MAX_X_VELOCITY, PlayerData.MAX_X_VELOCITY);
 		this.move(new Vector(this.velocity.x, 0), world, canvasIO, { });
 		this.move(new Vector(0, this.velocity.y), world, canvasIO, {});
-		world.entities.updatePosition(this);
 	}
 	onCollision(collision: CollisionEvent): void {
 		if(collision.movingObject === this) {
@@ -163,7 +162,7 @@ export class Player extends RectangularCollideable {
 	attemptThrow(item: ThrowableTileEntity, itemCenter: Vector, world: World, canvasIO: CanvasIO) {
 		const throwStart = new Vector(itemCenter.x - item.hitbox.width / 2, itemCenter.y - item.hitbox.height / 2);
 		if(!world.isInSolid(item.hitbox.translate(throwStart))) {
-			item.translate(throwStart);
+			item.translate(throwStart, world);
 			item.velocity = this.itemThrowVelocity(canvasIO);
 			world.entities.add(item);
 			return true;

@@ -6,6 +6,7 @@ import { WorldData } from "../constants/GameData.mjs";
 import { GameUtils } from "../game-utilities/GameUtils.mjs";
 import { Collideable } from "../game-utilities/physics-engine/Collideable.mjs";
 import { Renderable } from "../world/Renderer.mjs";
+import { Tiles } from "../world/Tiles.mjs";
 import { World } from "../world/World.mjs";
 import { Tile } from "./Tile.mjs";
 
@@ -77,5 +78,12 @@ export class Platform extends Tile {
 			&& hitbox.right() >= tilePosition.x * WorldData.TILE_SIZE
 			&& hitbox.left() <= (tilePosition.x + 1) * WorldData.TILE_SIZE
 		));
+	}
+	rectIntersectionDistance(tilePosition: Vector, rect: Rectangle, direction: Direction) {
+		if(direction !== "down") {
+			return Infinity;
+		}
+		const tileSquare = Tiles.getTileSquare(tilePosition);
+		return GameUtils.rectIntersectionDistance(rect, direction, tileSquare);
 	}
 }

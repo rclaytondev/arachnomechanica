@@ -8,13 +8,16 @@ import { Platform } from "../../tiles/Platform.mjs";
 import { Tiles } from "../../world/Tiles.mjs";
 import { World, TileWithPosition } from "../../world/World.mjs";
 import { Entity } from "../Entity.mjs";
+import { GameUtils } from "../GameUtils.mjs";
 import { CollisionEvent } from "./CollisionEvent.mjs";
 
 /* eslint @typescript-eslint/no-unused-vars: 0 */
 
 type MoveOptions = {
 	collides?: (object: Collideable | TileWithPosition) => boolean,
-	onCollision?: (collision: CollisionEvent) => void
+	onCollision?: (collision: CollisionEvent) => void,
+	moveRiders?: boolean,
+	canMoveRider?: (object: Collideable) => boolean,
 };
 export type MoveUnitOptions = MoveOptions & {
 	queryOnly?: boolean
@@ -27,7 +30,7 @@ export abstract class Collideable extends Entity {
 
 	subpixel: Vector = new Vector(0, 0);
 	abstract hitboxes(): Rectangle[];
-	abstract translate(amount: Vector): void;
+	abstract translate(amount: Vector, world: World): void;
 	onCollision(collision: CollisionEvent, world: World, canvasIO: CanvasIO) { }
 	slideUpSlopes: boolean = true;
 	slideDownSlopes: boolean = true;
@@ -112,7 +115,10 @@ export abstract class Collideable extends Entity {
 		}
 		if(!options.queryOnly) {
 			this.callCollisionHandlers(direction, collidingObjects, true, options.onCollision ?? (() => {}), world, canvasIO);
-			this.translate(Vector.unit(direction));
+			this.translate(Vector.unit(direction), world);
+			if(options.moveRiders ?? true) {
+				this.moveRiders(direction, world, canvasIO, options);
+			}
 		}
 		return true;
 	}
@@ -169,10 +175,26 @@ export abstract class Collideable extends Entity {
 	translateIfUnobstructed(direction: Direction, collides: (e: Collideable | TileWithPosition) => boolean, world: World) {
 		const obstructed = this.collidingObjects(direction, world, collides).length !== 0;
 		if(!obstructed) {
-			this.translate(Vector.unit(direction));
+			this.translate(Vector.unit(direction), world);
 			return true;
 		}
 		return false;
+	}
+
+	isRiderOf(collideable: Collideable) {
+		const hitboxes = this.hitboxes().map(h => h.translate(new Vector(0, 1)));
+		const otherHitboxes = collideable.hitboxes();
+		return hitboxes.some(h1 => otherHitboxes.some(h2 => h1.intersects(h2)));
+	}
+	getRiders(world: World, canMoveRider: (object: Collideable) => boolean) {
+		const searchRegion = Rectangle.boundingBox(this.hitboxes()).extend("up", 2);
+		const collideables = world.entities.collideablesIntersecting(searchRegion);
+		return [...collideables].filter(c => c !== this && c.isRiderOf(this) && canMoveRider(c) && this.canPush(c));
+	}
+	moveRiders(direction: Direction, world: World, canvasIO: CanvasIO, options: MoveUnitOptions) {
+		for(const rider of this.getRiders(world, options.canMoveRider ?? (() => true))) {
+			rider.moveUnit(direction, world, canvasIO, {});
+		}
 	}
 
 	displayHitboxes(canvasIO: CanvasIO) {

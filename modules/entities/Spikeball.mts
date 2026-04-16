@@ -98,7 +98,6 @@ export class Spikeball extends RectangularCollideable {
 		this.move(this.velocity, world, canvasIO, {
 			collides: (obj) => this.collides(obj),
 		});
-		world.entities.updatePosition(this);
 		if(this.bounces < 0) {
 			world.entities.delete(this);
 			this.die(world, canvasIO);

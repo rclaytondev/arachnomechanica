@@ -24,9 +24,10 @@ export abstract class RectangularCollideable extends Collideable {
 	boundingBox() {
 		return this.hitbox;
 	}
-	translate(amount: Vector): void {
+	translate(amount: Vector, world: World): void {
 		this.hitbox.x += amount.x;
 		this.hitbox.y += amount.y;
+		world.entities.updatePosition(this);
 	}
 
 	extend(amount: number, direction: Direction, world: World, canvasIO: CanvasIO, options: MoveUnitOptions) {
