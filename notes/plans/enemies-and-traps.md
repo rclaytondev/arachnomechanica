@@ -1,56 +1,48 @@
 # List of Ideas
 ## Enemy Ideas
 - [x] Lizard enemy that moves in a straight line and turns left or right when it hits a wall or sees the player, and breathes fire if you're in front of it
-- [ ] Spider enemy that crawls along walls, floors, and ceilings, always moving in the same direction, and attacks you in some way.
-	- Idea 1: when it sees you, it shoots a projectile, and then runs away (perhaps only until its attack recharges).
-		- This idea is really good, but ideally the player should have a reason to chase after it, in order to make it running away more interesting.
-		- Idea 1-A: maybe it could steal your stuff using a tractor beam, and then you'd have to chase it to get it back. (But what would it steal?)
-		- Idea 1-B: if you corner it (i.e. it can't move in either direction along the perimeter wall without getting closer to you), it starts shaking/smoking and explodes, which can destroy tiles.
-	- Idea 2: it shoots a fireball at you if you're in the same row or column. (Problem: very similar to lizard attacks).
-	- Idea 3: it shoots a fireball at you if you're in the same diagonal line.
-	- Idea 4: it has orbiting fireballs that it shoots at you if you're tangent to them.
-	- Idea 5: if it gets close to you it pulls its legs in, curls up into a spikeball, and jumps at you (like the Watcher Knights in Hollow Knight).
-- [ ] Humanoid creature with a body made of long, thin triangles; when it sees you, it disassembles itself into triangles that all rotate so the pointy end is facing you, and the triangles launch themselves at you one at a time. When they're all there, they reassemble into a humanoid creature again.
-	- [ ] Ideally it should also have some other attack that it can do while in human form. In order to be distinct, it should not be a ranged projectile attack or an attack involving damage upon touching its body.
-		- Idea 1: it raises its hands and summons spikes from the ground that stab you.
-		- Idea 2: it raises its hands and summons slow-moving flying enemies that seek out your position and deal contact damage.
-		- Idea 3: it does some kind of shockwave on the floor (by stomping? I'm not sure I remember what my idea was here...)
-		- Idea 4: it points its hand at you and blasts you back with a wave of force.
-		- Idea 5: it raises its hands and deals damage on a circle centered about itself, either with an effect like Pure Vessel's attack, or with arcs of lightning. (I like this the best).
-	- [ ] Boss idea:
-		- If you have 4 of them in the same room, they could combine into a giant boss version of the humanoid creature (since 4 isoceles triangles can be combined into 1 similar isoceles triangle).
-		- If necessary, there could be a secret room with a diagram showing 4 of the humanoids in a diamond shape, with lines between every pair of humanoids. (This would hint that something happens if all 4 are in the same room).
-- [ ] Drone enemy that moves in a Hilbert curve pattern
-	- It could be a 1x1 creature that is shaped like a TIE fighter from Star Wars.
-	- It could activate a horizontal/vertical laser when it sees you (same row/column).
+- [x] Spider enemy that crawls along walls, floors, and ceilings.
+	- Attack: when it sees you, it shoots a projectile, and then runs away (perhaps only until its attack recharges).
+- [ ] Tall walker enemy with long legs (inspired by Rain Deer and those desert creatures in the Watcher): it keeps its head at a constant height regardless of the floor below it, so its legs change in length as the floor height varies.
+	- Attack: when in the same row, it stabs a pointy arm horizontally at you and then retracts.
+	- Possible cool interaction: if it encounters another such creature, it steps up on top of the other one to form a stack of 2 creatures. The creatures remain stacked until they encounter a low ceiling which will push the upper one off.
+		- This is difficult to implement, but could be worth it because the behavior is super cool.
+	- Possible cool interaction: if one of the tall creatures would stab another, it instead doesn't. (Otherwise they would kill each other quickly).
+- [ ] Jumping / gliding enemy
+	- The movement would be like this: it would jump straight up and then glide at a shallow angle (rapid-firing projectiles straight down if you are below it). When it hits a wall it would fall straight down (possibly swapping directions if it's next to a wall) and then the pattern repeats.
+	- The projectiles could break tiles because enemies that break tiles allow for exploitation, which is good.
+	- Graphics: originally I imagined it being bird-themed, but I couldn't think of a way to make that work. So instead perhaps it could be a crab-like or insect-like creature (to match the other enemies' themes) that is not based off of any real-world creature. It could have a mouth-like or barrel-like shape at the bottom that the projectiles come out of.
+- [ ] Teleporting enemy
+	- Possible mechanics idea:
+		- When the enemy gains line-of-sight, it goes into "watching mode" (e.g. indicated by it's eye lighting up).
+		- While in "watching mode", when the enemy loses line-of-sight, it teleports behind you and enters "preparing-to-fire mode" (e.g. indicated by it extending blaster barrels in each firing direction).
+		- While in "preparing-to-fire mode", if the player jumps on the enemy, it cancels the attack for some time.
+			- E.g. it could go into "passive mode" until the player loses line-of-sight, at which point it returns to its original state.
+		- After being in "preparing-to-fire mode" for a few seconds without the player cancelling its attack, it begins shooting devastating projectiles left/right/up for a few seconds and then returns to its initial state.
+		- The projectiles ("type 1 projectiles") travel in the four cardinal directions and launch other smaller projectiles ("type 2 projectiles") in perpendicular directions. The "type 1 projectiles" destroy a tile upon collision.
+	- I should make the "type 2 projectiles" small enough that the player can fit in between the gaps in the firing pattern.
+	- Possible graphics idea: the enemy could fit in a 1x1 tile, and be shaped like an equilateral triangle (pointing up or down). It could have 2 (or 3?) small stick-like legs at the bottom (these would be more like a tripod stand since it doesn't need to walk). It could have blasters on the left and right that extend when it's about to fire.
+		- It could have a button on top to indicate that something happens if you jump on it. (But this kind of conflicts with the idea of it having a blaster on top, so maybe it should only shoot horizontally?)
+		- I could make the "type 2 projectiles" the same as the spikeballs, and could make the enemy's eye color and glow color red. This could add consistency (since it's the same theme as the spikeballs) but also variety (since now there would be an enemy that uses the red aesthetic).
 
 ## Incomplete Enemy Ideas
 - [ ] Some kind of creature that only moves when you move
 	- It has to have really dangerous attacks or else it will be very easy.
 	- Idea: this could be a trap instead of an enemy, and it could be merged with the extended-spinning-blade trap that I decided was too much like lizards.
 	- This could work well with a trap that freezes you in place (like paincones), unless that makes it too easy.
-- [ ] Almost-spherical humanoid creature that, if you're in the room below it, curls up into a ball and falls straight the floor, crushing anything in its way
-	- Is this actually good for gameplay? It might be too out of the player's control.
 - [ ] Four-legged wolf-like creature with an humanoid rider? (Ideally they would be able to function separately or together)
-- [ ] Bird enemy that glides at a shallow angle back and forth (turning around when it hits a wall), and also maybe has an attack like the blue birds in Dead Cells
-	- Idea 1: it launches a projectile downwards when you're below it (this works mechanically but it would seem like it's pooping on you which is weird).
-	- Idea 2: when it sees you it swoops towards you, perhaps pulling its wings in so that it is very pointy.
-	- Location: somewhere with lots of empty space
-- [ ] Tall walker enemy with long legs (inspired by Rain Deer and those desert creatures in the Watcher): it keeps its head at a constant height regardless of the floor below it, so its legs change in length as the floor height varies.
-	- Idea 1: it shoots a laser horizontally if you're in the same row. (Problem: too similar to existing lasers?)
-	- Idea 2: it stomps on you (good because it uses the legs and isn't just focused on the head)
-	- Idea 3: it swings a gigantic sword at you
-	- Location: somewhere with open spaces and long platforms at multiple heights
 
 ## Trap Ideas
 - [x] Spikeball trap that shoots spikeballs at 45 degrees; they bounce off floors, walls, and ceilings
 - [x] Spinning lasers
-- [ ] Device that emits toxic gas if you get close (the gas spreads to adjacent tiles and goes away after a certain length of time)
-	- Problem: this could be really hard to avoid, especially since the doors can close behind you.
-	- This would be better in an area with a moderately open layout and no toggle gates.
-- [ ] Device that launches homing rockets at you if you're nearby
-- [ ] Device that shoots a laser that moves in a straight line orthogonally and splits into two lasers in perpendicular directions when it hits a wall, up to 2 times
-- [ ] Trapped floor (multiple tiles wide): if you stand on it, the ceiling collapses on you (and stays on the floor when collapsed, like falling tiles in Minecraft)
+- [ ] Lightning trap that spreads to adjacent tiles
+	- It could have the following behavior: when the player is facing in the direction of the trap, it increases the extent of the lightning (by having it spread to adjacent tiles, like growing leaves of a tree); otherwise, it decreases the extent.
+	- This is good because so far I have nothing that interacts with facing direction. This could also add some directional input density, which would be great.
+	- Graphics: I could make the lightning yellow, and change the laser trap's activated color to yellow. This would look good (probably) and would establish a consistent rule (yellow lightning kills you but green lasers don't).
+- [ ] Projectile trap whose projectiles move in a Hilbert curve
+	- It could function as follows: each trap has a fixed path (a Hilbert curve, but stopped when it hits a wall), or potentially up to 4 paths (one in each firing direction). When the player intersects the path, the path is shown briefly (e.g. with a brief flash of a line showing the path) and then a projectile is launched that travels along the path.
+	- I like having projectiles that break blocks, but in this case the player has no control over where the projectile lands, so I think that this particular one should not break blocks.
+	- I seem to have established that enemies break blocks and traps don't, so this is a further reason why this should be a trap and not an enemy.
 
 ## Unfinished Trap Ideas
 - [ ] Liquids? (Seems hard)
@@ -58,6 +50,9 @@
 - [ ] Device that extends out a spinning blade that moves in a straight line towards you if you're in the same row or column, and extends another if you are in the same row or column as that, and so on. If it doesn't "see" you then it retracts back.
 	- Mechanically this is the same as an infinitely-long lizard with contact damage, that retracts if it doesn't see you.
 	- Problem: this is too similar to the lizard enemy. There would be too many hazards that activate if they see you in the same row or column; I would want a different pattern.
+	- This is similar to the lightning trap idea above.
+- [ ] Device that shoots a laser that moves in a straight line orthogonally and splits into two lasers in perpendicular directions when it hits a wall, up to 2 times
+- [ ] Trapped floor (multiple tiles wide): if you stand on it, the ceiling collapses on you (and stays on the floor when collapsed, like falling tiles in Minecraft)
 
 ## Non-Trap Tile Ideas
 - [x] Doors such that whenever you go through one, all the doors toggle whether they're open
