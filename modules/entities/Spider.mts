@@ -243,7 +243,9 @@ export class SpiderLeg {
 			this.destinationDistance = this.minDistance * Math.sign(this.attachmentOffset.x);
 		}
 
-		this.distance = GameUtils.moveTowards(this.distance, this.destinationDistance, SpiderData.LEG_SPEED);
+		if(!(spider.projectileState instanceof TelegraphState)) {
+			this.distance = GameUtils.moveTowards(this.distance, this.destinationDistance, SpiderData.LEG_SPEED);
+		}
 
 		const destination = this.destination(spider, world);
 		const updateSpeed = spider.projectileState.speed + SpiderData.LEG_UPDATE_SPEED;
