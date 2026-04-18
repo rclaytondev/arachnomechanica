@@ -491,7 +491,7 @@ export class SpiderData {
 	static GLOW_SIZE = 100;
 	static GLOW_INTENSITY = 0.4;
 	static UNLIT_GLOW_INTENSITY = 0.1;
-	static SHOT_DELAY = 45;
+	static SHOT_DELAY = 75;
 	static GLOW_COLOR = {
 		red: 255,
 		green: 128,
