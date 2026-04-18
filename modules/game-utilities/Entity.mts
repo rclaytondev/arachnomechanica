@@ -10,8 +10,6 @@ import { TileWithPosition, World } from "../world/World.mjs";
 
 export abstract class Entity {
 	abstract render(world: World): Renderable[];
-	abstract display(canvasIO: CanvasIO, world: World): void;
-	displayGlowEffect(canvasIO: CanvasIO) { }
 	displayDebug(canvasIO: CanvasIO, world: World) { }
 
 	abstract update(world: World, canvasIO: CanvasIO): void;

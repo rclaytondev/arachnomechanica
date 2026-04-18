@@ -44,7 +44,7 @@ export class Entities extends BoundingBoxStructure<Entity> {
 		const furthestEndpoint = position.add(direction.multiply(maxLength));
 		const rectangle = Rectangle.fromOppositeCorners(position, furthestEndpoint);
 		for(const entity of this.possiblyIntersecting(rectangle)) {
-			if(!(entity instanceof Collideable) || !collides(entity)) { continue; }
+			if(!(entity instanceof Collideable) || !collides(entity) || !entity.tangible) { continue; }
 			for(const hitbox of entity.hitboxes()) {
 				result = Math.min(result, GameUtils.rayIntersectsRectangle(position, direction, hitbox));
 			}
@@ -54,7 +54,7 @@ export class Entities extends BoundingBoxStructure<Entity> {
 	rectIntersectionDistance(rect: Rectangle, direction: Direction, maxDistance: number, collides: (entity: Collideable) => boolean) {
 		const searchRegion = Rectangle.boundingBox([rect, rect.translate(Vector.unit(direction).multiply(maxDistance))]);
 		const entities = this.possiblyIntersecting(searchRegion);
-		const hitboxes = [...entities].filter(e => e instanceof Collideable && collides(e)).flatMap(e => (e as Collideable).hitboxes());
+		const hitboxes = [...entities].filter(e => e instanceof Collideable && collides(e) && e.tangible).flatMap(e => (e as Collideable).hitboxes());
 		const distances = hitboxes.map(h => GameUtils.rectIntersectionDistance(rect, direction, h));
 		return Math.min(maxDistance, ...distances);
 	}

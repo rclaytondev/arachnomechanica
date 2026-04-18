@@ -34,6 +34,7 @@ export abstract class Collideable extends Entity {
 	onCollision(collision: CollisionEvent, world: World, canvasIO: CanvasIO) { }
 	slideUpSlopes: boolean = true;
 	slideDownSlopes: boolean = true;
+	tangible: boolean = true;
 
 
 
@@ -85,7 +86,7 @@ export abstract class Collideable extends Entity {
 	}
 	private moveWithoutSlopes(direction: Direction, world: World, options: MoveUnitOptions, canvasIO: CanvasIO): boolean {
 		const collidingObjects = this.collidingObjects(direction, world, options.collides ?? (() => true));
-		const unpushables = collidingObjects.filter(o => !(o instanceof Collideable) || !this.canPush(o));
+		const unpushables = collidingObjects.filter(o => !(o instanceof Collideable) || (!this.canPush(o) && o.tangible));
 		if(unpushables.length > 0) {
 			if(!options.queryOnly) {
 				this.callCollisionHandlers(direction, unpushables, false, options.onCollision ?? (() => {}), world, canvasIO);
@@ -93,7 +94,7 @@ export abstract class Collideable extends Entity {
 			return false;
 		}
 
-		const immovableUncrushables = (collidingObjects as Collideable[]).filter(c => !this.canCrush(c) && !c.canMove(direction, world, canvasIO));
+		const immovableUncrushables = (collidingObjects as Collideable[]).filter(c => !this.canCrush(c) && c.tangible && !c.canMove(direction, world, canvasIO));
 		if(immovableUncrushables.length > 0) {
 			if(!options.queryOnly) {
 				this.callCollisionHandlers(direction, immovableUncrushables, false, options.onCollision ?? (() => {}), world, canvasIO);
@@ -101,17 +102,19 @@ export abstract class Collideable extends Entity {
 			return false;
 		}
 
-		for(const pushable of collidingObjects as Collideable[]) {
-			pushable.moveUnit(direction, world, canvasIO, {
-				onCollision: (collision: CollisionEvent) => {
-					if(!collision.moveSuccessful) {
-						for(const collidingHitbox of this.collidingHitboxes(pushable, Vector.unit(direction))) {
-							pushable.damage(collidingHitbox, world, canvasIO!);
+		if(this.tangible) {
+			for(const pushable of collidingObjects as Collideable[]) {
+				pushable.moveUnit(direction, world, canvasIO, {
+					onCollision: (collision: CollisionEvent) => {
+						if(pushable.tangible && !collision.moveSuccessful) {
+							for(const collidingHitbox of this.collidingHitboxes(pushable, Vector.unit(direction))) {
+								pushable.damage(collidingHitbox, world, canvasIO!);
+							}
 						}
-					}
-				},
-				queryOnly: options.queryOnly,
-			});
+					},
+					queryOnly: options.queryOnly,
+				});
+			}
 		}
 		if(!options.queryOnly) {
 			this.callCollisionHandlers(direction, collidingObjects, true, options.onCollision ?? (() => {}), world, canvasIO);
@@ -125,9 +128,11 @@ export abstract class Collideable extends Entity {
 	callCollisionHandlers(direction: Direction, objects: (Collideable | TileWithPosition)[], moveSuccessful: boolean, onCollision: (collision: CollisionEvent, world: World, canvasIO: CanvasIO) => void, world: World, canvasIO: CanvasIO) {
 		for(const collidingObject of objects) {
 			const collision = new CollisionEvent(this, collidingObject, direction, moveSuccessful);
-			this.onCollision(collision, world, canvasIO);
-			onCollision(collision, world, canvasIO);
-			if(collidingObject instanceof Collideable) {
+			if(!(collidingObject instanceof Collideable) || collidingObject.tangible) {
+				this.onCollision(collision, world, canvasIO);
+				onCollision(collision, world, canvasIO);
+			}
+			if(collidingObject instanceof Collideable && this.tangible) {
 				collidingObject.onCollision(collision, world, canvasIO);
 			}
 		}
@@ -153,7 +158,7 @@ export abstract class Collideable extends Entity {
 	collidingHitboxes(entity: Collideable, offset: Vector) {
 		return this.hitboxes().map(h => h.translate(offset)).filter(h => entity.hitboxes().some(h2 => h.intersects(h2)));
 	}
-	canPush(obj: Collideable): obj is Collideable {
+	canPush(obj: Collideable) {
 		if(obj instanceof Entity) {
 			return false; // TODO: add restrictions on what can push what
 			// return PhysicsData.CAN_PUSH[this.entityType][obj.entityType];

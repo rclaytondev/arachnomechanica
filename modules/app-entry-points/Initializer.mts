@@ -9,6 +9,7 @@ import "../entities/Spider.mjs";
 import "../entities/Lizard.mjs";
 import "../entities/LaserBlock.mjs";
 import "../entities/SpikeballBlock.mjs";
+import "../entities/TeleportingCreature.mjs";
 
 LoadingManager.loaded();
 const screen = new WorldScreen(new World(true));

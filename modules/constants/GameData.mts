@@ -589,3 +589,58 @@ export class TallCreatureData {
 	static STABBING_SPEED = 25;
 	static RETRACTING_SPEED = 15;
 }
+
+export class TeleportingCreatureData {
+	static HITBOX_WIDTH = WorldData.TILE_SIZE * 1 - 2;
+	static HITBOX_HEIGHT = WorldData.TILE_SIZE * 0.8;
+
+	static MAX_TELEPORT_DISTANCE_Y = 2;
+	static TELEPORT_LOOKBELOW_DISTANCE = 200;
+
+	static TELEGRAPH_DURATION = 13;
+	static FIRE_DURATION = 60;
+	static COOLDOWN_DURATION = 30;
+
+	static FIRE = {
+		maxHurtboxSize: 150,
+		hurtboxWidth: 1/2 * WorldData.TILE_SIZE,
+		hurtboxOffset: WorldData.TILE_SIZE * 0.4,
+		hurtboxSpeed: 5,
+		particlesPerFrame: 2,
+		particleSettings: {
+			color: { red: 255, green: 128, blue: 0 },
+			size: WorldData.TILE_SIZE * 0.2,
+			shape: 3,
+			glowSize: 30,
+			glowIntensity: 1/8,
+			opacityDecay: 1/30,
+		},
+		particleSpeed: 6,
+		particleSpeedVariance: 2,
+		particleCrossSpeedVariance: 1,
+	};
+
+	static CREATURES_PER_ROOM = 1.0; // 1.3 is pretty difficult
+	static SPAWN_EVENNESS = 3;
+
+	static ZAP_WIDTH = 4;
+	static ZAP_WIDTH_DECAY = 0.15;
+	static ZAP_COLOR = "white";
+
+	static GRAPHICS = {
+		COLOR: "black",
+		BODY_SIZE: 30,
+		BODY_OFFSET_Y: -5,
+
+		EYE_COLOR: { red: 255, green: 128, blue: 0 },
+		UNLIT_EYE_COLOR: "rgb(100, 100, 100)",
+		EYE_SIZE: WorldData.TILE_SIZE * 0.1,
+
+		GLOW_SIZE: 100,
+		GLOW_INTENSITY: 0.4,
+
+		LEG_ENDPOINT_1: new Vector(5, 5),
+		LEG_ENDPOINT_2: new Vector(20, 30),
+		LEG_WIDTH: 5,
+	};
+}

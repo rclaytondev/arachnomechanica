@@ -2,6 +2,7 @@ import { CanvasIO } from "../../utils-ts/modules/CanvasIO.mjs";
 import { Direction, Directions } from "../../utils-ts/modules/geometry/Direction.mjs";
 import { Rectangle } from "../../utils-ts/modules/geometry/Rectangle.mjs";
 import { Vector } from "../../utils-ts/modules/geometry/Vector.mjs";
+import { DEBUG_SETTINGS } from "../constants/DebugSettings.mjs";
 import { Platform } from "../tiles/Platform.mjs";
 import { Tile } from "../tiles/Tile.mjs";
 import { World } from "../world/World.mjs";
@@ -97,22 +98,23 @@ export class FireSpawner {
 
 
 	hurtbox(size: number = this.hurtboxSize) {
+		const length = Math.max(0, size - this.hurtboxOffset);
 		if(this.direction === "left") {
 			return new Rectangle(
-				this.position.x - size - this.hurtboxOffset, this.position.y - this.hurtboxWidth / 2,
-				Math.max(0, size - this.hurtboxOffset), this.hurtboxWidth,
+				this.position.x - this.hurtboxOffset - length, this.position.y - this.hurtboxWidth / 2,
+				length, this.hurtboxWidth,
 			);
 		}
 		else if(this.direction === "right") {
 			return new Rectangle(
 				this.position.x + this.hurtboxOffset, this.position.y - this.hurtboxWidth / 2,
-				Math.max(0, size - this.hurtboxOffset), this.hurtboxWidth,
+				length, this.hurtboxWidth,
 			);
 		}
 		else if(this.direction === "up") {
 			return new Rectangle(
-				this.position.x - this.hurtboxWidth / 2, this.position.y - size - this.hurtboxOffset,
-				this.hurtboxWidth, Math.max(0, size - this.hurtboxOffset),
+				this.position.x - this.hurtboxWidth / 2, this.position.y - this.hurtboxOffset - length,
+				this.hurtboxWidth, length,
 			);
 		}
 		else {
@@ -136,5 +138,9 @@ export class FireSpawner {
 			}
 		}
 		world.damage(hurtbox, canvasIO);
+	}
+	displayHurtbox(canvasIO: CanvasIO) {
+		canvasIO.ctx.strokeStyle = DEBUG_SETTINGS.LIZARD_HURTBOX_COLOR;
+		canvasIO.strokeRect(this.hurtbox());
 	}
 }
