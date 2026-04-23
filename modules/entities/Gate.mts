@@ -33,13 +33,15 @@ class GateController extends StaticEntity {
 		this.openness = GameUtils.moveTowards(this.openness, this.open ? 1 : 0, GateData.SPEED);
 		const closedNow = (this.openness === 0 || this.openness === 1);
 		if(closedNow && !closedBefore) {
-			world.worldScreen?.visualEffects.add(new ShakeEffect(GateData.SCREEN_SHAKE_TIME, GateData.SCREEN_SHAKE_INTENSITY));
+			world.staticEntities.add(new ShakeEffect(GateData.SCREEN_SHAKE_TIME, GateData.SCREEN_SHAKE_INTENSITY));
 		}
 		this.cooldown --;
 	}
 	toggleAll() {
 		this.open = !this.open;
 	}
+
+	render() { return []; }
 }
 
 export class Gate extends RectangularCollideable {

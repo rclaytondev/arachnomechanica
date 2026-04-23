@@ -64,7 +64,7 @@ export class WorldGenerator {
 		if(world.player.hitbox.top() < -(this.levelsVisited - 1) * levelHeight) {
 			this.levelsVisited ++;
 			const floorText = `${this.levelsVisited.toString().padStart(2, "0")}`;
-			world.worldScreen?.visualEffects.add(new OverlayText(`Floor ${floorText}`));
+			world.staticEntities.add(new OverlayText(`Floor ${floorText}`));
 		}
 	}
 }

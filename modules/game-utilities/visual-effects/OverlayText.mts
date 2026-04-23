@@ -1,19 +1,24 @@
 import { CanvasIO } from "../../../utils-ts/modules/CanvasIO.mjs";
 import { MathUtils } from "../../../utils-ts/modules/math/MathUtils.mjs";
 import { WorldData } from "../../constants/GameData.mjs";
-import { VisualEffect } from "./VisualEffect.mjs";
+import { Renderable } from "../../world/Renderer.mjs";
+import { World } from "../../world/World.mjs";
+import { StaticEntity } from "../StaticEntity.mjs";
 
-export class OverlayText extends VisualEffect {
-	readonly renderingOrder = "after";
-
+export class OverlayText extends StaticEntity {
 	text: string;
 	opacity: number;
 	constructor(text: string) {
-		super(() => {});
+		super();
 		this.text = text;
 		this.opacity = 1;
 	}
 
+	render() {
+		return [
+			new Renderable(c => this.display(c), "overlay-text"),
+		];
+	}
 	display(canvasIO: CanvasIO) {
 		canvasIO.ctx.save();
 		canvasIO.ctx.font = WorldData.OVERLAY_FONT;
@@ -23,10 +28,10 @@ export class OverlayText extends VisualEffect {
 		canvasIO.ctx.fillText(this.text, canvasIO.canvas.width / 2, canvasIO.canvas.height / 2);
 		canvasIO.ctx.restore();
 	}
-	update() {
+	update(world: World) {
 		this.opacity -= WorldData.OVERLAY_FADE_SPEED;
-	}
-	isComplete() {
-		return this.opacity <= 0;
+		if(this.opacity <= 0) {
+			world.staticEntities.delete(this);
+		}
 	}
 }

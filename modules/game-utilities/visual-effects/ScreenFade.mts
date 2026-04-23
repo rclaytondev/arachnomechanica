@@ -1,23 +1,24 @@
 import { CanvasIO } from "../../../utils-ts/modules/CanvasIO.mjs";
 import { MathUtils } from "../../../utils-ts/modules/math/MathUtils.mjs";
+import { Renderable } from "../../world/Renderer.mjs";
+import { World } from "../../world/World.mjs";
 import { WorldScreen } from "../../world/WorldScreen.mjs";
 import { GameUtils } from "../GameUtils.mjs";
-import { VisualEffect } from "./VisualEffect.mjs";
+import { StaticEntity } from "../StaticEntity.mjs";
 
 export type FadeType = "damage-flash" | "transition-start-delay" | "transition-pause" | "transition-fade-out" | "transition-fade-in";
 
-export class ScreenFade extends VisualEffect {
-	readonly renderingOrder = "after";
-
+export class ScreenFade extends StaticEntity {
 	startOpacity: number;
 	endOpacity: number;
 	color: string;
 	timeElapsed: number = 0;
 	duration: number;
 	type: FadeType;
+	onCompletion: () => void;
 
 	constructor(duration: number, startOpacity: number, endOpacity: number, color: string, type: FadeType, onCompletion: () => void = () => {}) {
-		super(onCompletion);
+		super();
 		this.duration = duration;
 		this.startOpacity = startOpacity;
 		this.endOpacity = endOpacity;
@@ -26,8 +27,12 @@ export class ScreenFade extends VisualEffect {
 		this.onCompletion = onCompletion;
 	}
 
-	update() {
+	update(world: World) {
 		this.timeElapsed ++;
+		if(this.isComplete()) {
+			world.staticEntities.delete(this);
+			this.onCompletion();
+		}
 	}
 	opacity() {
 		const opacity = GameUtils.lerp(
@@ -36,6 +41,11 @@ export class ScreenFade extends VisualEffect {
 			this.startOpacity, this.endOpacity,
 		);
 		return MathUtils.constrain(opacity, 0, 1);
+	}
+	render() {
+		return [
+			new Renderable(c => this.display(c), "screen-fade"),
+		];
 	}
 	display(canvasIO: CanvasIO) {
 		canvasIO.ctx.save();
@@ -54,7 +64,7 @@ export class ScreenFade extends VisualEffect {
 			const oldOnCompletion = fade.onCompletion;
 			fade.onCompletion = () => {
 				oldOnCompletion();
-				screen.visualEffects.add(next);
+				screen.world.staticEntities.add(next);
 			};
 		}
 		return fades[0];

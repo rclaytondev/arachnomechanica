@@ -46,6 +46,7 @@ export class World {
 	display(canvasIO: CanvasIO, camera: Camera) {
 		const renderer = new Renderer();
 		this.entities.render(camera, renderer, canvasIO, this);
+		this.staticEntities.render(renderer, this);
 		this.tiles.render(camera, renderer, canvasIO, this);
 		this.particles.render(renderer);
 
