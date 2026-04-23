@@ -35,10 +35,29 @@ export class Player extends RectangularCollideable {
 		return [new Renderable(this.display.bind(this), "player")];
 	}
 	display(canvasIO: CanvasIO) {
-		canvasIO.ctx.fillStyle = PlayerData.COLOR;
-		canvasIO.fillRect(this.hitbox);
 		const center = this.hitbox.center();
+		this.displayFace(canvasIO);
+		this.displayBody(canvasIO);
+
 		GameUtils.glowCircle(center.x, center.y, PlayerData.GLOW_SIZE, PlayerData.GLOW_INTENSITY, canvasIO);
+	}
+	displayBody(canvasIO: CanvasIO) {
+		canvasIO.ctx.fillStyle = PlayerData.BODY_COLOR;
+		const offset = MathUtils.constrain(-this.velocity.x, -PlayerData.MAX_BODY_SLANT, PlayerData.MAX_BODY_SLANT);
+		canvasIO.fillPoly(
+			this.hitbox.left(), this.hitbox.y + PlayerData.BODY_Y,
+			this.hitbox.left() + offset, this.hitbox.y + PlayerData.BODY_Y + PlayerData.BODY_HEIGHT,
+			this.hitbox.right() + offset, this.hitbox.y + PlayerData.BODY_Y + PlayerData.BODY_HEIGHT,
+			this.hitbox.right(), this.hitbox.y + PlayerData.BODY_Y,
+		);
+	}
+	displayFace(canvasIO: CanvasIO) {
+		const center = this.hitbox.center();
+		canvasIO.ctx.fillStyle = PlayerData.BODY_COLOR;
+		canvasIO.fillCircle(center.x, this.hitbox.y + PlayerData.HEAD_Y, PlayerData.HEAD_RADIUS);
+
+		canvasIO.ctx.fillStyle = PlayerData.FACE_COLOR;
+		canvasIO.fillCircle(center.x, this.hitbox.y + PlayerData.HEAD_Y, PlayerData.FACE_RADIUS);
 	}
 
 	update(world: World, canvasIO: CanvasIO) {

@@ -73,8 +73,6 @@ export class LevelGeneratorData {
 };
 
 export class PlayerData {
-	static COLOR = "rgb(0, 128, 0)"; // temporary
-
 	static HITBOX_WIDTH = WorldData.TILE_SIZE * 0.4;
 	static HITBOX_HEIGHT = WorldData.TILE_SIZE * 0.8;
 	static CROUCHED_HITBOX_HEIGHT = WorldData.TILE_SIZE * 0.4;
@@ -88,6 +86,17 @@ export class PlayerData {
 	static INITIAL_HEALTH = 3;
 	static INVULNERABIlITY_TIME = 30;
 	static CROUCHED_FRICTION = 0.8;
+
+	static BODY_COLOR = "white";
+	static BODY_Y = WorldData.TILE_SIZE * 0.35;
+	static BODY_HEIGHT = WorldData.TILE_SIZE * 0.45;
+	static MAX_BODY_SLANT = 7;
+
+	static HEAD_Y = WorldData.TILE_SIZE * 0.2;
+	static HEAD_RADIUS = WorldData.TILE_SIZE * 0.2;
+
+	static FACE_COLOR = "rgb(125, 125, 125)";
+	static FACE_RADIUS = PlayerData.HEAD_RADIUS * 0.6;
 
 	static GLOW_SIZE = 200;
 	static GLOW_INTENSITY = 1/3;
