@@ -113,7 +113,7 @@ export class PlayerData {
 	static DAMAGE_FLASH_COLOR = "rgb(255, 0, 0)";
 	static DAMAGE_FLASH_OPACITY = 0.3;
 
-	static DEATH_RESET_DELAY = 90;
+	static DEATH_RESET_DELAY = 5;
 	static FADE_DURATION = 30;
 	static FADE_DELAY = 30;
 }
@@ -661,4 +661,19 @@ export class TeleportingCreatureData {
 		LEG_ENDPOINT_2: new Vector(20, 30),
 		LEG_WIDTH: 5,
 	};
+}
+
+export class DeathScreenData {
+	static DEATH_TEXT_COLOR = "white";
+	static DEATH_TEXT_FONT = "100px monospace";
+
+	static DEATH_INFO_FONT = "30px monospace";
+	static DEATH_INFO_Y_OFFSET = 100;
+	static DEATH_INSTRUCTION_TEXT_Y_OFFSET = 150;
+
+	static OVERLAY_RECT_COLOR = "rgb(25, 25, 25)";
+	static OVERLAY_RECT_OPACITY = 0.85;
+	static OVERLAY_RECT_TOP_OFFSET = -50;
+	static OVERLAY_RECT_BOTTOM_OFFSET = 230;
+	static OVERLAY_RECT_MARGIN_X = 100;
 }

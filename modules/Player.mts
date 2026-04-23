@@ -13,6 +13,7 @@ import { ThrowableTile } from "./items/ThrowableTile.mjs";
 import { ThrowableTileEntity } from "./items/ThrowableTileEntity.mjs";
 import { Main } from "./Main.mjs";
 import { RoomEditor } from "./RoomEditor.mjs";
+import { DeathScreen } from "./user-interface/DeathScreen.mjs";
 import { Renderable } from "./world/Renderer.mjs";
 import { World } from "./world/World.mjs";
 
@@ -162,7 +163,9 @@ export class Player extends RectangularCollideable {
 				"damage-flash",
 			));
 			if(this.health <= 0 && !this.dead) {
-				screen?.beginDeathTransition();
+				if(world.worldScreen) {
+					world.worldScreen.deathScreen = new DeathScreen();
+				}
 				this.dead = true;
 				world.entities.delete(this);
 			}

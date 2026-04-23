@@ -144,6 +144,9 @@ export class GameUtils {
 	}
 
 	static pastKeys: { [ key: string ]: boolean } = {};
+	static startedPressingKey(canvasIO: CanvasIO) {
+		return Object.keys(canvasIO.keys).some(k => canvasIO.keys[k] && !GameUtils.pastKeys[k]);
+	}
 
 	static randomEvenlySpaced<T>(options: RandomEvenlySpacedOptions<T>) {
 		const result: T[] = [];

@@ -7,6 +7,9 @@ export class VisualEffects {
 	add(effect: VisualEffect) {
 		this.effectsList.push(effect);
 	}
+	allEffects() {
+		return [...this.effectsList];
+	}
 
 	update() {
 		for(const effect of this.effectsList) {

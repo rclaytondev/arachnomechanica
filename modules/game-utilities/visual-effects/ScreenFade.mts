@@ -4,7 +4,7 @@ import { WorldScreen } from "../../world/WorldScreen.mjs";
 import { GameUtils } from "../GameUtils.mjs";
 import { VisualEffect } from "./VisualEffect.mjs";
 
-type FadeType = "damage-flash" | "transition-start-delay" | "transition-pause" | "transition-fade-out" | "transition-fade-in";
+export type FadeType = "damage-flash" | "transition-start-delay" | "transition-pause" | "transition-fade-out" | "transition-fade-in";
 
 export class ScreenFade extends VisualEffect {
 	readonly renderingOrder = "after";
