@@ -12,7 +12,7 @@ Things to do:
 - Small / medium-size features:
 	- [ ] Non-flat walls outside the tower
 - Small gameplay improvements:
-	- [ ] Telegraph for the spider attack (line showing shot trajectory)
+	- [x] Telegraph for the spider attack (line showing shot trajectory)
 	- [ ] Indicator for spikeball direction (a triangle on the spikeball)
 	- [x] Higher friction for objects on ground
 	- [x] Better tile spawn positions
@@ -36,5 +36,20 @@ Future features:
 	- [ ] Buffer inputs (so far only jump inputs make sense to buffer)
 	- [ ] Coyote time
 	- [ ] Slip past corners and preserve velocity?
-	- [ ] Leniency when throwing items (if the throw is obstructed, try nudging it a little)
+	- [x] Leniency when throwing items (if the throw is obstructed, try nudging it a little)
 - [ ] Player graphics!
+
+Things to do for "1.0 release":
+- [x] Player graphics
+- [ ] Health display
+- [ ] Items display
+- [ ] Death screen (stats + "press space to play again")
+- [ ] Support for re-entering portals
+- [ ] Portal at the bottom of the tower
+- [ ] World border
+- [ ] Start screen
+
+Less important things:
+- [ ] Spider optimizations
+- [ ] Pausing
+- [ ] Custom controls
