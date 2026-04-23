@@ -141,7 +141,9 @@ export class TeleportingCreature extends RectangularCollideable {
 		this.velocity.y += PlayerData.GRAVITY;
 	}
 	seesPlayer(world: World) {
-		return world.hasLineOfSight(this.hitbox.center(), world.player.hitbox, (e) => e !== this);
+		const lineOfSight = world.hasLineOfSight(this.hitbox.center(), world.player.hitbox, (e) => e !== this);
+		const closeEnough = Vector.dist(this.hitbox.center(), world.player.hitbox.center()) < TeleportingCreatureData.MAX_TELEPORT_RANGE;
+		return lineOfSight && closeEnough;
 	}
 	getTeleportDestination(world: World) {
 		const playerTile = Tiles.getTileCoordinates(world.player.hitbox.center());

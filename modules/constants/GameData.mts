@@ -613,6 +613,7 @@ export class TeleportingCreatureData {
 
 	static MAX_TELEPORT_DISTANCE_Y = 2;
 	static TELEPORT_LOOKBELOW_DISTANCE = 200;
+	static MAX_TELEPORT_RANGE = 500;
 
 	static TELEGRAPH_DURATION = 13;
 	static FIRE_DURATION = 60;
