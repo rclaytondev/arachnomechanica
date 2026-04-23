@@ -36,19 +36,22 @@ export class Player extends RectangularCollideable {
 	}
 	display(canvasIO: CanvasIO) {
 		const center = this.hitbox.center();
-		this.displayFace(canvasIO);
 		this.displayBody(canvasIO);
+		this.displayFace(canvasIO);
 
 		GameUtils.glowCircle(center.x, center.y, PlayerData.GLOW_SIZE, PlayerData.GLOW_INTENSITY, canvasIO);
 	}
 	displayBody(canvasIO: CanvasIO) {
 		canvasIO.ctx.fillStyle = PlayerData.BODY_COLOR;
 		const offset = MathUtils.constrain(-this.velocity.x, -PlayerData.MAX_BODY_SLANT, PlayerData.MAX_BODY_SLANT);
+		const crouched = this.isCrouched();
+		const y = crouched ? PlayerData.CROUCHED_BODY_Y : PlayerData.BODY_Y;
+		const height = crouched ? PlayerData.CROUCHED_BODY_HEIGHT : PlayerData.BODY_HEIGHT;
 		canvasIO.fillPoly(
-			this.hitbox.left(), this.hitbox.y + PlayerData.BODY_Y,
-			this.hitbox.left() + offset, this.hitbox.y + PlayerData.BODY_Y + PlayerData.BODY_HEIGHT,
-			this.hitbox.right() + offset, this.hitbox.y + PlayerData.BODY_Y + PlayerData.BODY_HEIGHT,
-			this.hitbox.right(), this.hitbox.y + PlayerData.BODY_Y,
+			this.hitbox.left(), this.hitbox.y + y,
+			this.hitbox.left() + offset, this.hitbox.y + y + height,
+			this.hitbox.right() + offset, this.hitbox.y + y + height,
+			this.hitbox.right(), this.hitbox.y + y,
 		);
 	}
 	displayFace(canvasIO: CanvasIO) {

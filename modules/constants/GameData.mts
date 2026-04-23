@@ -93,6 +93,9 @@ export class PlayerData {
 	static BODY_HEIGHT = WorldData.TILE_SIZE * 0.45;
 	static MAX_BODY_SLANT = 7;
 
+	static CROUCHED_BODY_HEIGHT = PlayerData.BODY_HEIGHT - WorldData.TILE_SIZE * 0.2;
+	static CROUCHED_BODY_Y = PlayerData.BODY_Y - WorldData.TILE_SIZE * 0.1;
+
 	static HEAD_Y = WorldData.TILE_SIZE * 0.2;
 	static HEAD_RADIUS = WorldData.TILE_SIZE * 0.2;
 
