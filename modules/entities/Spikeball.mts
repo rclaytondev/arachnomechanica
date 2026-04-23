@@ -14,10 +14,10 @@ import { Collideable } from "../game-utilities/physics-engine/Collideable.mjs";
 
 export class Spikeball extends RectangularCollideable {
 	velocity: Vector;
-	angle: number = 0;
 	age: number = 0;
 	bounces: number = SpikeballData.BOUNCES;
 	overlappingObjects: (Spikeball | SpikeballBlock | Vector)[] = [];
+	lastCollisionFrame: number = -1;
 
 	constructor(position: Vector, velocity: Vector) {
 		super(new Rectangle(position.x, position.y, 2 * SpikeballData.RADIUS, 2 * SpikeballData.RADIUS));
@@ -45,25 +45,20 @@ export class Spikeball extends RectangularCollideable {
 		canvasIO.ctx.fillStyle = SpikeballData.COLOR;
 		canvasIO.fillCircle(center.x, center.y, SpikeballData.RADIUS);
 
-		canvasIO.ctx.strokeStyle = `rgb(${SpikeballData.ACCENT_COLOR.red}, ${SpikeballData.ACCENT_COLOR.green}, ${SpikeballData.ACCENT_COLOR.blue}`;
-		canvasIO.ctx.lineWidth = SpikeballData.ACCENT_THICKNESS;
-		canvasIO.strokeCircle(center.x, center.y, SpikeballData.RADIUS * SpikeballData.ACCENT_RADIUS_MULTIPLIER);
 
-		this.displaySpikes(canvasIO);
-	}
-	displaySpikes(canvasIO: CanvasIO) {
-		const center = this.hitbox.center();
-		for(let i = 0; i < SpikeballData.NUM_SPIKES; i ++) {
-			const angle = this.angle + i * (2 * Math.PI / SpikeballData.NUM_SPIKES);
-			canvasIO.ctx.save();
-			canvasIO.ctx.translate(center.x, center.y);
-			canvasIO.ctx.rotate(angle);
-			canvasIO.fillPoly(
-				-SpikeballData.SPIKE_WIDTH, -SpikeballData.SPIKE_BASE,
-				0, -SpikeballData.SPIKE_HEIGHT,
-				SpikeballData.SPIKE_WIDTH, -SpikeballData.SPIKE_BASE,
-			);
-			canvasIO.ctx.restore();
+		canvasIO.ctx.strokeStyle = SpikeballData.ELECTRICITY_COLOR;
+		canvasIO.ctx.lineWidth = SpikeballData.ELECTRICITY_WIDTH;
+		for(let i = 0; i < SpikeballData.NUM_ELECTRIC_ARCS; i ++) {
+			const endpoints = GameUtils.randomEvenlySpaced({
+				generate: () => GameUtils.randomInCircle(center.x, center.y, SpikeballData.ELECTRICITY_RADIUS),
+				metric: Vector.dist,
+				amount: SpikeballData.ELECTRICITY_SEGMENTS,
+				trials: SpikeballData.ELECTRICITY_EVENNESS,
+			});
+			for(let i = 0; i < endpoints.length - 1; i ++) {
+				const [point, next] = [endpoints[i], endpoints[i+1]];
+				canvasIO.strokeLine(point.x, point.y, next.x, next.y);
+			}
 		}
 	}
 	displayGlowEffect(canvasIO: CanvasIO) {
@@ -80,6 +75,10 @@ export class Spikeball extends RectangularCollideable {
 	}
 
 	onCollision(collision: CollisionEvent, world: World) {
+		if(this.lastCollisionFrame === GameUtils.frameCount) {
+			return;
+		}
+		this.lastCollisionFrame = GameUtils.frameCount;
 		if(collision.movingObject === this) {
 			this.bounces --;
 			if(Directions.isHorizontal(collision.direction)) {
@@ -102,7 +101,6 @@ export class Spikeball extends RectangularCollideable {
 			world.entities.delete(this);
 			this.die(world, canvasIO);
 		}
-		this.angle += SpikeballData.ROTATION_SPEED;
 		this.age ++;
 		if(this.age > (WorldData.TILE_SIZE - 2 * SpikeballData.RADIUS) / SpikeballData.SPEED) {
 			this.overlappingObjects = this.overlappingObjects.filter(s => (
