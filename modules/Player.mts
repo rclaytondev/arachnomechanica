@@ -56,8 +56,22 @@ export class Player extends RectangularCollideable {
 		canvasIO.ctx.fillStyle = PlayerData.BODY_COLOR;
 		canvasIO.fillCircle(center.x, this.hitbox.y + PlayerData.HEAD_Y, PlayerData.HEAD_RADIUS);
 
+		const faceRect = PlayerData.FACE.translate(new Vector(center.x, this.hitbox.y + PlayerData.HEAD_Y));
+		const reflectedRect = (this.facing === "left") ? faceRect.reflectX(center.x) : faceRect;
+		canvasIO.ctx.save();
+		canvasIO.ctx.beginPath();
+		canvasIO.circle(center.x, this.hitbox.y + PlayerData.HEAD_Y, PlayerData.HEAD_RADIUS);
+		canvasIO.ctx.clip();
 		canvasIO.ctx.fillStyle = PlayerData.FACE_COLOR;
-		canvasIO.fillCircle(center.x, this.hitbox.y + PlayerData.HEAD_Y, PlayerData.FACE_RADIUS);
+		canvasIO.fillRect(reflectedRect);
+		canvasIO.ctx.restore();
+
+		canvasIO.ctx.fillStyle = PlayerData.EYE_COLOR;
+		canvasIO.fillDiamond(
+			center.x + (this.facing === "right" ? 1 : -1) * PlayerData.EYE_OFFSET.x,
+			this.hitbox.y + PlayerData.EYE_OFFSET.y,
+			PlayerData.EYE_RADIUS,
+		);
 	}
 
 	update(world: World, canvasIO: CanvasIO) {

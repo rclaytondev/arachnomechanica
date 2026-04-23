@@ -5,6 +5,7 @@ import { GateState } from "../level-generator/GateState.mjs";
 import { Direction } from "../../utils-ts/modules/geometry/Direction.mjs";
 import { FireSpawnerSettings } from "../game-utilities/FireSpawner.mjs";
 import { GameUtils } from "../game-utilities/GameUtils.mjs";
+import { Rectangle } from "../../utils-ts/modules/geometry/Rectangle.mjs";
 
 export class WorldData {
 	static TILE_SIZE = 50;
@@ -95,8 +96,12 @@ export class PlayerData {
 	static HEAD_Y = WorldData.TILE_SIZE * 0.2;
 	static HEAD_RADIUS = WorldData.TILE_SIZE * 0.2;
 
-	static FACE_COLOR = "rgb(125, 125, 125)";
-	static FACE_RADIUS = PlayerData.HEAD_RADIUS * 0.6;
+	static FACE_COLOR = "rgb(130, 130, 130)";
+	static FACE = new Rectangle(0, -5, 100, 100);
+
+	static EYE_COLOR = "rgb(0, 128, 50)";
+	static EYE_OFFSET = new Vector(7, 9);
+	static EYE_RADIUS = 2;
 
 	static GLOW_SIZE = 200;
 	static GLOW_INTENSITY = 1/3;
