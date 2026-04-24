@@ -676,4 +676,6 @@ export class DeathScreenData {
 	static OVERLAY_RECT_TOP_OFFSET = -50;
 	static OVERLAY_RECT_BOTTOM_OFFSET = 230;
 	static OVERLAY_RECT_MARGIN_X = 100;
+
+	static TIME_BEFORE_CONTINUE = 20;
 }

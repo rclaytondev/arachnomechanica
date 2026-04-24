@@ -7,6 +7,8 @@ import { World } from "../world/World.mjs";
 import { WorldScreen } from "../world/WorldScreen.mjs";
 
 export class DeathScreen extends StaticEntity {
+	timeOnScreen: number = 0;
+
 	render(world: World): Renderable[] {
 		return [
 			new Renderable(
@@ -51,7 +53,12 @@ export class DeathScreen extends StaticEntity {
 	}
 
 	update(world: World, canvasIO: CanvasIO) {
-		if(GameUtils.startedPressingKey(canvasIO) && world.worldScreen && !world.worldScreen.isTransitioning()) {
+		this.timeOnScreen ++;
+		if(
+			this.timeOnScreen > DeathScreenData.TIME_BEFORE_CONTINUE
+			&& GameUtils.startedPressingKey(canvasIO)
+			&& world.worldScreen && !world.worldScreen.isTransitioning()
+		) {
 			world.worldScreen.beginDeathTransition();
 		}
 	}
