@@ -31,6 +31,7 @@ export class WorldGenerator {
 		const spawnPoint = [...world.entities.possiblyIntersecting(startRoomRect)].find(e => e instanceof SpawnPoint)!;
 		world.player.hitbox.x = spawnPoint.position.x;
 		world.player.hitbox.y = spawnPoint.position.y;
+		world.entities.updatePosition(world.player);
 		world.addEntityIfEmpty(world.player);
 		if(world.worldScreen) {
 			world.worldScreen.camera.position = world.player.hitbox.center();

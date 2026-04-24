@@ -2,6 +2,7 @@ import { SetUtils } from "../../utils-ts/modules/core-extensions/SetUtils.mjs";
 import { Rectangle } from "../../utils-ts/modules/geometry/Rectangle.mjs";
 import { Vector } from "../../utils-ts/modules/geometry/Vector.mjs";
 import { Grid } from "../../utils-ts/modules/Grid.mjs";
+import { HashSet } from "../../utils-ts/modules/HashSet.mjs";
 
 export class BoundingBoxStructure<T> {
 	boundingBox: (entity: T) => Rectangle;
@@ -84,6 +85,22 @@ export class BoundingBoxStructure<T> {
 			if(entities.size === 0) {
 				this.entities.set(gridSquare, null);
 			}
+		}
+	}
+
+	isValid(entity: T) {
+		const squares1 = this.entityGridPositions(this.boundingBox(entity)).squares();
+		const squares2 = this.positions.get(entity);
+		const squares3 = [...this.entities.positions()].filter(p => (this.entities.get(p) ?? new Set()).has(entity));
+
+		if(squares2) {
+			const set1 = new HashSet(squares1);
+			const set2 = new HashSet(squares2);
+			const set3 = new HashSet(squares3);
+			return set1.equals(set2) && set2.equals(set3);
+		}
+		else {
+			return squares3.length === 0;
 		}
 	}
 }
