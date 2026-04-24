@@ -30,10 +30,16 @@ export class WorldScreen {
 		this.world.display(canvasIO, this.camera);
 	}
 
+	resetWorld() {
+		this.world = new World(true);
+		this.world.worldScreen = this;
+		this.world.worldGenerator!.initialize(this.world);
+		this.camera.position = this.world.player.hitbox.center();
+	}
 	beginDeathTransition() {
 		const delay = new ScreenFade(PlayerData.DEATH_RESET_DELAY, 0, 0, "black", "transition-start-delay");
 		const fadeOut = new ScreenFade(PlayerData.FADE_DURATION, 0, 1, "black", "transition-fade-out");
-		const pause = new ScreenFade(PlayerData.FADE_DELAY, 1, 1, "black", "transition-pause");
+		const pause = new ScreenFade(PlayerData.FADE_DELAY, 1, 1, "black", "transition-pause", () => this.resetWorld());
 		const fadeIn = new ScreenFade(PlayerData.FADE_DURATION, 1, 0, "black", "transition-fade-in");
 		this.world.staticEntities.add(ScreenFade.sequence([delay, fadeOut, pause, fadeIn], this));
 	}
