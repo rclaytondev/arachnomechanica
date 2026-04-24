@@ -19,7 +19,7 @@ import { Tiles } from "./Tiles.mjs";
 import { WorldScreen } from "./WorldScreen.mjs";
 import { Camera } from "./Camera.mjs";
 import { WorldGenerator } from "../level-generator/WorldGenerator.mjs";
-import { Renderer } from "./Renderer.mjs";
+import { Renderable, Renderer } from "./Renderer.mjs";
 import { Particles } from "../game-utilities/Particles.mjs";
 import { Debug } from "../game-utilities/Debug.mjs";
 import { SlopeTile } from "../tiles/SlopeTile.mjs";
@@ -50,6 +50,10 @@ export class World {
 		this.tiles.render(camera, renderer, canvasIO, this);
 		this.particles.render(renderer);
 
+		renderer.renderables.push(new Renderable(
+			() => canvasIO.ctx.restore(),
+			"reset-camera-translation",
+		));
 		canvasIO.ctx.save();
 		camera.applyTranslation(canvasIO);
 		renderer.displayAll(canvasIO);
@@ -60,7 +64,7 @@ export class World {
 
 	update(canvasIO: CanvasIO, camera?: Camera) {
 		this.entities.update(this, canvasIO, camera);
-		this.staticEntities.update(this);
+		this.staticEntities.update(this, canvasIO);
 		this.particles.update();
 		this.worldGenerator?.updateGeneration(this);
 	}

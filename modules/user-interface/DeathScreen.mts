@@ -1,9 +1,24 @@
 import { CanvasIO } from "../../utils-ts/modules/CanvasIO.mjs";
 import { DeathScreenData } from "../constants/GameData.mjs";
 import { GameUtils } from "../game-utilities/GameUtils.mjs";
+import { StaticEntity } from "../game-utilities/StaticEntity.mjs";
+import { Renderable } from "../world/Renderer.mjs";
+import { World } from "../world/World.mjs";
 import { WorldScreen } from "../world/WorldScreen.mjs";
 
-export class DeathScreen {
+export class DeathScreen extends StaticEntity {
+	render(world: World): Renderable[] {
+		return [
+			new Renderable(
+				c => {
+					if(world.worldScreen) {
+						this.display(c, world.worldScreen);
+					}
+				},
+				"overlay-text",
+			),
+		];
+	}
 	display(canvasIO: CanvasIO, worldScreen: WorldScreen) {
 		const deathText = "You Are Dead";
 		const infoText = `Highest floor reached: ${worldScreen.world.worldGenerator?.levelsVisited}`;
@@ -35,9 +50,18 @@ export class DeathScreen {
 		canvasIO.ctx.fillText(instructionText, canvasIO.canvas.width / 2, canvasIO.canvas.height / 2 + DeathScreenData.DEATH_INSTRUCTION_TEXT_Y_OFFSET);
 	}
 
-	update(canvasIO: CanvasIO, worldScreen: WorldScreen) {
-		if(GameUtils.startedPressingKey(canvasIO) && !worldScreen.isTransitioning()) {
-			worldScreen.beginDeathTransition();
+	update(world: World, canvasIO: CanvasIO) {
+		if(GameUtils.startedPressingKey(canvasIO) && world.worldScreen && !world.worldScreen.isTransitioning()) {
+			world.worldScreen.beginDeathTransition();
 		}
+	}
+
+	static show(world: World) {
+		if(!world.staticEntities.entitiesList.some(e => e instanceof DeathScreen)) {
+			world.staticEntities.add(new DeathScreen());
+		}
+	}
+	static hide(world: World) {
+		world.staticEntities.entitiesList = world.staticEntities.entitiesList.filter(e => !(e instanceof DeathScreen));
 	}
 }

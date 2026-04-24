@@ -4,7 +4,6 @@ import { GearsBackground } from "../backgrounds/GearsBackground.mjs";
 import { SkyBackground } from "../backgrounds/SkyBackground.mjs";
 import { PlayerData } from "../constants/GameData.mjs";
 import { FadeType, ScreenFade } from "../game-utilities/visual-effects/ScreenFade.mjs";
-import { DeathScreen } from "../user-interface/DeathScreen.mjs";
 import { Camera } from "./Camera.mjs";
 import { World } from "./World.mjs";
 
@@ -15,7 +14,6 @@ export class WorldScreen {
 		new SkyBackground(),
 	]);
 	camera: Camera = new Camera();
-	deathScreen: DeathScreen | null = null;
 
 	constructor(world: World) {
 		this.world = world;
@@ -25,13 +23,11 @@ export class WorldScreen {
 	update(canvasIO: CanvasIO) {
 		this.world.update(canvasIO);
 		this.camera.update(this.world.player.hitbox.center());
-		this.deathScreen?.update(canvasIO, this);
 	}
 
 	display(canvasIO: CanvasIO) {
 		this.backgrounds.display(canvasIO, this.camera);
 		this.world.display(canvasIO, this.camera);
-		this.deathScreen?.display(canvasIO, this);
 	}
 
 	beginDeathTransition() {

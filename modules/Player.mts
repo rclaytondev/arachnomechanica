@@ -162,9 +162,7 @@ export class Player extends RectangularCollideable {
 				"damage-flash",
 			));
 			if(this.health <= 0 && !this.dead) {
-				if(world.worldScreen) {
-					world.worldScreen.deathScreen = new DeathScreen();
-				}
+				DeathScreen.show(world);
 				this.dead = true;
 				world.entities.delete(this);
 			}

@@ -14,6 +14,7 @@ export const RENDERING_ORDER = [
 	"hitbox",
 
 	"reset-shake",
+	"reset-camera-translation",
 	"overlay-text",
 	"screen-fade",
 ] as const;
