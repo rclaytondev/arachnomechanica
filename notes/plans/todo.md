@@ -44,7 +44,7 @@ Things to do for "1.0 release":
 - [ ] Health display
 - [ ] Items display
 - [x] Death screen (stats + "press space to play again")
-- [ ] Support for re-entering portals
+- [x] Support for re-entering portals
 - [ ] Portal at the bottom of the tower
 - [ ] World border
 - [ ] Start screen
