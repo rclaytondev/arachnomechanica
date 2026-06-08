@@ -32,3 +32,7 @@ List of things that could generate in the world:
 	- This is good because I've been wondering how to reward the player for doing something cool. Giving them items doesn't quite work since space is limited and they will already be able to find items, but getting an extra unit of health is a very useful reward.
 	- These would have to be rare, because otherwise once the player reaches a certain level of skill they will be able to heal faster than they take damage, and then they will just have solved the game and can get an arbitrarily high score easily.
 		- I could address this by making it so that these give diminishing returns, e.g. the first heal requires 1 healing item, the next heal requires 2, and so on.
+- **Enemy Upgrade**: the player could find devices that make the enemies or traps more dangerous. After activating all of these devices, the player could recieve a reward, or progression toward the secret ending.
+	- Upgraded lizards could become faster.
+	- Upgraded laser traps could split into 3 beams instead of 2.
+	- Upgraded spiders could gain an increased explosion radius.

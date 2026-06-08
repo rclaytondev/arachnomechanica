@@ -69,6 +69,11 @@ New ideas:
 - **Heavy Block**: unlike other blocks, it is heavy enough to crush the player and enemies (and other blocks?)
 	- Problem: this could make it way too easy to defeat enemies.
 - **Wind Block**: it emits a force on some sides (perhaps left/right) that pushes entities away from it.
+- **Long-Range Teleporting Blocks**: there are a finite amount of them (say, 3 or 4) and when you step on one of them, it teleports you to the next one, cycling through all of them.
+	- This is good because it lets the player conveniently revisit areas.
+	- This is good because it lets the player more easily enter a gate code (see [[generation-features]]) but doesn't trivialize it.
+	- This is quite powerful so it shouldn't just generate randomly. Instead I imagine it as being a medium-level reward for doing some optional task.
+	- Problem: this lets the player skip any number of levels by placing one of them at a portal, going through the portal, teleporting back with the blocks, and repeating.
 
 Old item ideas as blocks:
 - **Vertical Laser Block** (based on old Drill): after landing on the ground, it shoots a laser downwards, destroying some number of blocks beneath it.

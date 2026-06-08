@@ -48,3 +48,10 @@ Ways to use information:
 - You could **enter a word at a text input** (either on a menu, anywhere, or at a particular location), kind of like in Type Help or like Sofanthiel in Rain World.
 - `[!]` You can **enter a sequence of directions by going through gates** which is good because this will be tricky to do even if you know the code.
 - You can **use information to assemble tiles in a pattern**; in my game, this could be done using the tractor beam item.
+
+# Current Plan for Secrets and Optional Items
+Here is a potential set of ideas.
+- Enemy upgrade altars (see [[generation-features]]) can be found (probably 3 total). After activating them all, the player recieves an item that lets them visit a secret level below the tower. (The secret level can be visited anyway, but all the floors damage the player on contact if they don't have the item, making it extremely difficult to explore without the item).
+- After completing the secret level below the tower, the player obtains a device or vehicle that allows them to ascend above the tower to visit an even more secret level: a city on floating islands, with many small spires and bridges. After completing this secret level, the player has completed the secret ending.
+- On the first floor of the tower (accessible via entrances on the left and right) there are long-range teleporting blocks (see [[items]]).
+- Somewhere on the first level is a block with the gate code. After entering the gate code, the player is rewarded with the tractor beam item, which isn't needed for progression but is generally useful.
