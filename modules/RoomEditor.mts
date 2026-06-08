@@ -222,6 +222,9 @@ export class RoomEditor {
 		else if(tile instanceof BasicTile) {
 			return "\"solid\"";
 		}
+		else if(tile instanceof SlopeTile) {
+			return `"${tile.shape}"`;
+		}
 		else {
 			throw new Error("Found unexpected tile in level editor.");
 		}
