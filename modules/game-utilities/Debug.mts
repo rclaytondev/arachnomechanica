@@ -56,8 +56,9 @@ export class Debug {
 		canvasIO.ctx.resetTransform();
 		canvasIO.ctx.fillStyle = "red";
 		canvasIO.ctx.textBaseline = "top";
+		canvasIO.ctx.textAlign = "right";
 		canvasIO.ctx.font = "30px monospace";
-		canvasIO.ctx.fillText(`${Debug.frameTimes.length} FPS`, 0, 0);
+		canvasIO.ctx.fillText(`${Debug.frameTimes.length} FPS`, canvasIO.ctx.canvas.width - 10, 0);
 	}
 	static displayMouseCoordinates(canvasIO: CanvasIO, camera: Camera, display: boolean = DEBUG_SETTINGS.SHOW_MOUSE_COORDINATES) {
 		if(!display) { return; }

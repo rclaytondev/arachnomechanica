@@ -679,3 +679,10 @@ export class DeathScreenData {
 
 	static TIME_BEFORE_CONTINUE = 20;
 }
+
+export class WorldUIData {
+	static HEALTH_COLOR = "rgb(255, 0, 0)";
+	static HEALTH_BOX_SIZE = 60;
+	static HEALTH_BOX_MARGIN = 15;
+	static HEALTH_TEXT_FONT = "40px monospace";
+}

@@ -4,11 +4,13 @@ import { GearsBackground } from "../backgrounds/GearsBackground.mjs";
 import { SkyBackground } from "../backgrounds/SkyBackground.mjs";
 import { PlayerData } from "../constants/GameData.mjs";
 import { FadeType, ScreenFade } from "../game-utilities/visual-effects/ScreenFade.mjs";
+import { WorldUI } from "../user-interface/WorldUI.mjs";
 import { Camera } from "./Camera.mjs";
 import { World } from "./World.mjs";
 
 export class WorldScreen {
 	world: World;
+	worldUI: WorldUI = new WorldUI();
 	backgrounds: Backgrounds = new Backgrounds([
 		GearsBackground.generate(),
 		new SkyBackground(),
@@ -28,6 +30,7 @@ export class WorldScreen {
 	display(canvasIO: CanvasIO) {
 		this.backgrounds.display(canvasIO, this.camera);
 		this.world.display(canvasIO, this.camera);
+		this.worldUI.display(this.world, canvasIO);
 	}
 
 	resetWorld() {
