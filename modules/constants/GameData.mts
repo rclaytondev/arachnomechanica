@@ -685,4 +685,8 @@ export class WorldUIData {
 	static HEALTH_BOX_SIZE = 60;
 	static HEALTH_BOX_MARGIN = 15;
 	static HEALTH_TEXT_FONT = "40px monospace";
+
+	static ITEM_BOX_SIZE = 60;
+	static ITEM_BOX_MARGIN = 15;
+	static ITEM_BOX_COLOR = "rgb(150, 150, 150)";
 }

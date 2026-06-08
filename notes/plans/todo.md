@@ -41,8 +41,8 @@ Future features:
 
 Things to do for "1.0 release":
 - [x] Player graphics
-- [ ] Health display
-- [ ] Items display
+- [x] Health display
+- [x] Items display
 - [x] Death screen (stats + "press space to play again")
 - [x] Support for re-entering portals
 - [ ] Portal at the bottom of the tower

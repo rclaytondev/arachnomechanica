@@ -20,6 +20,14 @@ export class ThrowableTile {
 		entity.reset();
 		return world.player.throw(entity, world, canvasIO);
 	}
+
+	displayIcon(canvasIO: CanvasIO, displayRect: Rectangle) {
+		const entity = new ThrowableTileEntity(new Vector(0, 0), this.modifiers);
+		const center = displayRect.center();
+		entity.reset();
+		entity.hitbox = entity.hitbox.translate(center.subtract(entity.hitbox.width / 2, entity.hitbox.height / 2));
+		entity.display(canvasIO);
+	}
 }
 
 
