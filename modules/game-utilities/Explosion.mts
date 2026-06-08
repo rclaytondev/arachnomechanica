@@ -2,6 +2,7 @@ import { CanvasIO } from "../../utils-ts/modules/CanvasIO.mjs";
 import { Rectangle } from "../../utils-ts/modules/geometry/Rectangle.mjs";
 import { Vector } from "../../utils-ts/modules/geometry/Vector.mjs";
 import { WorldData } from "../constants/GameData.mjs";
+import { Gate } from "../entities/Gate.mjs";
 import { World } from "../world/World.mjs";
 import { GameUtils } from "./GameUtils.mjs";
 import { Particle, ParticleSettings } from "./Particle.mjs";
@@ -66,7 +67,7 @@ export class Explosion {
 			this.destructionRadius * 2,
 		);
 		for(const { position } of world.tiles.getTilesAt(tileExplosion)) {
-			world.destroyNonGateTile(position);
+			Gate.destroyNonGateTile(position, world);
 		}
 	}
 	addParticles(world: World, canvasIO: CanvasIO) {

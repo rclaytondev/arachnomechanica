@@ -12,6 +12,7 @@ import { ShakeEffect } from "../game-utilities/visual-effects/ShakeEffect.mjs";
 import { Renderable } from "../world/Renderer.mjs";
 import { Collideable } from "../game-utilities/physics-engine/Collideable.mjs";
 import { StaticEntity } from "../game-utilities/StaticEntity.mjs";
+import { BasicTile } from "../tiles/BasicTile.mjs";
 
 class GateController extends StaticEntity {
 	cooldown: number = 0;
@@ -138,6 +139,7 @@ export class Gate extends RectangularCollideable {
 		this.lastFrameUpdated = GameUtils.frameCount;
 		this.checkPlayer(world);
 		this.updateOpenness(world, canvasIO);
+		this.checkAdjacentTiles(world);
 	}
 	updateOpenness(world: World, canvasIO: CanvasIO) {
 		const target = this.opennessTarget(GateController.getOrInitialize(world));
@@ -148,6 +150,17 @@ export class Gate extends RectangularCollideable {
 	fullHitbox() {
 		const length = Directions.isHorizontal(this.direction) ? this.hitbox.width : this.hitbox.height;
 		return this.hitbox.extend(this.direction, WorldData.TILE_SIZE - length);
+	}
+	checkAdjacentTiles(world: World) {
+		const tilePosition = this.tilePosition();
+		const isGateOrSolid = (position: Vector) => (
+			world.tiles.get(position) instanceof BasicTile || Gate.isGateAt(position, world)
+		);
+		const solidBefore = isGateOrSolid(tilePosition.add(Vector.unit(this.direction)));
+		const solidAfter = isGateOrSolid(tilePosition.add(Vector.unit(Directions.opposite[this.direction])));
+		if(!solidBefore || !solidAfter) {
+			world.entities.delete(this);
+		}
 	}
 	adjacentGates(world: World, x: number, y: number, direction: Direction) {
 		let position = Vector.unit(direction).add(x, y);
@@ -241,6 +254,23 @@ export class Gate extends RectangularCollideable {
 	}
 	static isGateAt(tilePosition: Vector, world: World) {
 		return Gate.getGateAt(tilePosition, world) != undefined;
+	}
+	static attachedGates(tilePosition: Vector, world: World) {
+		const attached: Gate[] = [];
+		for(const direction of Directions.DIRECTIONS) {
+			const adjacentPosition = tilePosition.add(Vector.unit(direction));
+			const gate = Gate.getGateAt(adjacentPosition, world);
+			if(gate instanceof Gate && gate.direction === direction) {
+				attached.push(gate);
+			}
+		}
+		return attached;
+	}
+	static destroyNonGateTile(position: Vector, world: World) {
+		const attached = Gate.attachedGates(position, world);
+		if(attached.length === 0) {
+			world.destroyTile(position);
+		}
 	}
 
 	canPush(obj: Collideable | TileWithPosition) {

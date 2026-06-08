@@ -4,7 +4,6 @@ import { Rectangle } from "../../utils-ts/modules/geometry/Rectangle.mjs";
 import { Vector } from "../../utils-ts/modules/geometry/Vector.mjs";
 import { WorldData } from "../constants/GameData.mjs";
 import { Player } from "../Player.mjs";
-import { Gate } from "../entities/Gate.mjs";
 import { GameUtils } from "../game-utilities/GameUtils.mjs";
 import { LaserBlock } from "../entities/LaserBlock.mjs";
 import { SpikeballBlock } from "../entities/SpikeballBlock.mjs";
@@ -157,22 +156,6 @@ export class World {
 
 	destroyTile(position: Vector) {
 		this.tiles.set(position, EmptyTile.EMPTY);
-		for(const direction of Directions.DIRECTIONS) {
-			const adjacentPosition = position.add(Vector.unit(direction));
-			const adjacentGate = Gate.getGateAt(adjacentPosition, this);
-			if(adjacentGate instanceof Gate && adjacentGate.direction === direction) {
-				this.entities.delete(adjacentGate);
-			}
-		}
-	}
-	destroyNonGateTile(position: Vector) {
-		const adjacentGate = Directions.DIRECTIONS.some(d => {
-			const gate = Gate.getGateAt(position.add(Vector.unit(d)), this);
-			return gate instanceof Gate && gate.direction === d;
-		});
-		if(!adjacentGate) {
-			this.tiles.set(position, EmptyTile.EMPTY);
-		}
 	}
 	addTile(position: Vector, tile: Tile) {
 		this.tiles.set(position, tile);

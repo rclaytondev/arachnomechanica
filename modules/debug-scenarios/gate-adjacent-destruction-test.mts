@@ -9,6 +9,7 @@ import { WorldScreen } from "../world/WorldScreen.mjs";
 
 const world = new World(false);
 world.tiles.set(5, -3, new BasicTile());
+world.tiles.set(7, -3, new BasicTile());
 world.tiles.fillRect(new Rectangle(0, 0, 10, 1), new BasicTile());
 const gate = Gate.atTile(new Vector(6, -3), "right", false);
 world.addEntityIfEmpty(gate);
