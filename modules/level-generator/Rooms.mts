@@ -5643,6 +5643,10 @@ export class Rooms {
 					{ x: 0, y: 7, direction: "left" },
 					{ x: 11, y: 5, direction: "right" },
 					{ x: 0, y: 5, direction: "left" },
+					{ x: 1, y: 8, direction: "left" },
+					{ x: 2, y: 8, direction: "left" },
+					{ x: 9, y: 8, direction: "right" },
+					{ x: 10, y: 8, direction: "right" },
 				],
 				[
 					new SpawnPoint(new Vector(5 * WorldData.TILE_SIZE, 9 * WorldData.TILE_SIZE)),
