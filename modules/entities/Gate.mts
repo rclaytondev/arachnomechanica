@@ -13,6 +13,8 @@ import { Renderable } from "../world/Renderer.mjs";
 import { Collideable } from "../game-utilities/physics-engine/Collideable.mjs";
 import { StaticEntity } from "../game-utilities/StaticEntity.mjs";
 import { BasicTile } from "../tiles/BasicTile.mjs";
+import { RoomEditor } from "../RoomEditor.mjs";
+import { Main } from "../Main.mjs";
 
 class GateController extends StaticEntity {
 	cooldown: number = 0;
@@ -152,6 +154,7 @@ export class Gate extends RectangularCollideable {
 		return this.hitbox.extend(this.direction, WorldData.TILE_SIZE - length);
 	}
 	checkAdjacentTiles(world: World) {
+		if(Main.screen instanceof RoomEditor) { return; }
 		const tilePosition = this.tilePosition();
 		const isGateOrSolid = (position: Vector) => (
 			world.tiles.get(position) instanceof BasicTile || Gate.isGateAt(position, world)
