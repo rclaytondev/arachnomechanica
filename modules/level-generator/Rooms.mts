@@ -2722,6 +2722,7 @@ export class Rooms {
 					Gate.atTile(new Vector(2, 4), "left", false),
 					Gate.atTile(new Vector(9, 4), "right", true),
 					Gate.atTile(new Vector(0, 4), "left", true),
+					Gate.atTile(new Vector(10, 4), "left", true),
 				],
 				(exits) => !exits.has("down") && exits.has("up") && exits.has("left") && exits.has("right"),
 				Room.getTraversability([
