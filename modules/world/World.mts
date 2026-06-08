@@ -160,7 +160,7 @@ export class World {
 		for(const direction of Directions.DIRECTIONS) {
 			const adjacentPosition = position.add(Vector.unit(direction));
 			const adjacentGate = Gate.getGateAt(adjacentPosition, this);
-			if(adjacentGate instanceof Gate && adjacentGate.direction === Directions.opposite[direction]) {
+			if(adjacentGate instanceof Gate && adjacentGate.direction === direction) {
 				this.entities.delete(adjacentGate);
 			}
 		}
