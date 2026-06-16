@@ -1,0 +1,36 @@
+import { CanvasIO } from "../../utils-ts/modules/CanvasIO.mjs";
+import { StartScreenData } from "../constants/GameData.mjs";
+import { GameUtils } from "../game-utilities/GameUtils.mjs";
+
+export class StartScreen {
+	timeInScreen: number = 0;
+
+	display(canvasIO: CanvasIO) {
+		canvasIO.fillCanvas(StartScreenData.BACKGROUND_COLOR);
+		canvasIO.ctx.font = StartScreenData.TITLE_FONT;
+		canvasIO.ctx.fillStyle = StartScreenData.TITLE_COLOR;
+		canvasIO.ctx.textAlign = "center";
+		canvasIO.ctx.fillText(StartScreenData.TITLE_TEXT, canvasIO.canvas.width / 2, canvasIO.canvas.height / 4);
+
+		canvasIO.ctx.font = StartScreenData.INSTRUCTIONS_FONT;
+		canvasIO.ctx.fillStyle = StartScreenData.INSTRUCTIONS_COLOR;
+		canvasIO.ctx.textAlign = "center";
+		canvasIO.ctx.fillText(StartScreenData.INSTRUCTIONS_TEXT, canvasIO.canvas.width / 2, canvasIO.canvas.height * 3/4);
+	}
+
+	update(canvasIO: CanvasIO) {
+		this.timeInScreen ++;
+		const transitioning = false; // TODO
+		if(
+			this.timeInScreen > StartScreenData.TIME_BEFORE_CONTINUE
+			&& GameUtils.startedPressingKey(canvasIO)
+			&& !transitioning
+		) {
+			this.beginTransition();
+		}
+	}
+
+	beginTransition() {
+		// TODO
+	}
+}

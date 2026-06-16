@@ -690,3 +690,16 @@ export class WorldUIData {
 	static ITEM_BOX_MARGIN = 15;
 	static ITEM_BOX_COLOR = "rgb(150, 150, 150)";
 }
+
+export class StartScreenData {
+	static BACKGROUND_COLOR = "rgb(30, 30, 30)";
+	static TITLE_FONT = "100px monospace";
+	static TITLE_COLOR = "white";
+	static TITLE_TEXT = "title goes here";
+
+	static INSTRUCTIONS_FONT = "30px monospace";
+	static INSTRUCTIONS_COLOR = "white";
+	static INSTRUCTIONS_TEXT = "Press any key to start";
+
+	static TIME_BEFORE_CONTINUE = 30;
+}
