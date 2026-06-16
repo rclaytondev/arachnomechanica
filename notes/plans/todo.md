@@ -47,7 +47,7 @@ Things to do for "1.0 release":
 - [x] Support for re-entering portals
 - [ ] Portal at the bottom of the tower
 - [ ] World border
-- [ ] Start screen
+- [x] Start screen
 
 Less important things:
 - [ ] Spider optimizations
