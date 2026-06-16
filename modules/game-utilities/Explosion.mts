@@ -58,7 +58,7 @@ export class Explosion {
 		this.damage(world, canvasIO);
 	}
 	applyScreenShake(world: World) {
-		world.staticEntities.add(new ShakeEffect(this.screenShakeTime, this.screenShakeIntensity));
+		world.worldScreen?.visualEffects.effectsList.add(new ShakeEffect(this.screenShakeTime, this.screenShakeIntensity));
 	}
 	destroyTiles(world: World) {
 		const tileExplosion = Rectangle.fromCenter(

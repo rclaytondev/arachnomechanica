@@ -4,6 +4,7 @@ import { GearsBackground } from "../backgrounds/GearsBackground.mjs";
 import { SkyBackground } from "../backgrounds/SkyBackground.mjs";
 import { PlayerData } from "../constants/GameData.mjs";
 import { FadeType, ScreenFade } from "../game-utilities/visual-effects/ScreenFade.mjs";
+import { VisualEffects } from "../game-utilities/visual-effects/VisualEffects.mjs";
 import { WorldUI } from "../user-interface/WorldUI.mjs";
 import { Camera } from "./Camera.mjs";
 import { Renderable, Renderer } from "./Renderer.mjs";
@@ -17,6 +18,7 @@ export class WorldScreen {
 		new SkyBackground(),
 	]);
 	camera: Camera = new Camera();
+	visualEffects: VisualEffects = new VisualEffects();
 
 	constructor(world: World) {
 		this.world = world;
@@ -26,6 +28,7 @@ export class WorldScreen {
 	update(canvasIO: CanvasIO) {
 		this.world.update(canvasIO);
 		this.camera.update(this.world.player.hitbox.center());
+		this.visualEffects.update();
 	}
 
 	render(canvasIO: CanvasIO, renderer: Renderer) {
@@ -34,6 +37,7 @@ export class WorldScreen {
 			"backgrounds",
 		));
 		this.world.render(canvasIO, this.camera, renderer);
+		this.visualEffects.render(renderer);
 		renderer.renderables.push(new Renderable(
 			() => this.worldUI.display(this.world, canvasIO),
 			"world-ui",
@@ -51,7 +55,7 @@ export class WorldScreen {
 		const fadeOut = new ScreenFade(PlayerData.FADE_DURATION, 0, 1, "black", "transition-fade-out");
 		const pause = new ScreenFade(PlayerData.FADE_DELAY, 1, 1, "black", "transition-pause", () => this.resetWorld());
 		const fadeIn = new ScreenFade(PlayerData.FADE_DURATION, 1, 0, "black", "transition-fade-in");
-		this.world.staticEntities.add(ScreenFade.sequence([delay, fadeOut, pause, fadeIn], this));
+		this.visualEffects.effectsList.add(ScreenFade.sequence([delay, fadeOut, pause, fadeIn], this.visualEffects));
 	}
 	isTransitioning() {
 		const types: FadeType[] = ["transition-start-delay", "transition-fade-out", "transition-pause", "transition-fade-in"];

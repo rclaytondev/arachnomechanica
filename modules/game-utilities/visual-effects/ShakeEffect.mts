@@ -1,10 +1,10 @@
 import { CanvasIO } from "../../../utils-ts/modules/CanvasIO.mjs";
 import { Renderable } from "../../world/Renderer.mjs";
-import { World } from "../../world/World.mjs";
 import { GameUtils } from "../GameUtils.mjs";
-import { StaticEntity } from "../StaticEntity.mjs";
+import { VisualEffect } from "./VisualEffect.mjs";
+import { VisualEffects } from "./VisualEffects.mjs";
 
-export class ShakeEffect extends StaticEntity {
+export class ShakeEffect extends VisualEffect {
 	timeLeft: number = 0;
 	intensity: number = 0;
 
@@ -14,10 +14,10 @@ export class ShakeEffect extends StaticEntity {
 		this.intensity = intensity;
 	}
 
-	update(world: World) {
+	update(visualEffects: VisualEffects) {
 		this.timeLeft --;
 		if(this.timeLeft <= 0) {
-			world.staticEntities.delete(this);
+			visualEffects.effectsList.delete(this);
 		}
 	}
 

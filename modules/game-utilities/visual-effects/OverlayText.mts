@@ -2,10 +2,10 @@ import { CanvasIO } from "../../../utils-ts/modules/CanvasIO.mjs";
 import { MathUtils } from "../../../utils-ts/modules/math/MathUtils.mjs";
 import { WorldData } from "../../constants/GameData.mjs";
 import { Renderable } from "../../world/Renderer.mjs";
-import { World } from "../../world/World.mjs";
-import { StaticEntity } from "../StaticEntity.mjs";
+import { VisualEffect } from "./VisualEffect.mjs";
+import { VisualEffects } from "./VisualEffects.mjs";
 
-export class OverlayText extends StaticEntity {
+export class OverlayText extends VisualEffect {
 	text: string;
 	opacity: number;
 	constructor(text: string) {
@@ -28,10 +28,10 @@ export class OverlayText extends StaticEntity {
 		canvasIO.ctx.fillText(this.text, canvasIO.canvas.width / 2, canvasIO.canvas.height / 2);
 		canvasIO.ctx.restore();
 	}
-	update(world: World) {
+	update(visualEffects: VisualEffects) {
 		this.opacity -= WorldData.OVERLAY_FADE_SPEED;
 		if(this.opacity <= 0) {
-			world.staticEntities.delete(this);
+			visualEffects.effectsList.delete(this);
 		}
 	}
 }
