@@ -42,23 +42,27 @@ export class World {
 		this.entities.add(this.player);
 	}
 
-	display(canvasIO: CanvasIO, camera: Camera) {
-		const renderer = new Renderer();
+	render(canvasIO: CanvasIO, camera: Camera, renderer: Renderer) {
 		this.entities.render(camera, renderer, canvasIO, this);
 		this.staticEntities.render(renderer, this);
 		this.tiles.render(camera, renderer, canvasIO, this);
 		this.particles.render(renderer);
 
 		renderer.renderables.push(new Renderable(
+			() => {
+				canvasIO.ctx.save();
+				camera.applyTranslation(canvasIO);
+			},
+			"camera-translation",
+		));
+		renderer.renderables.push(new Renderable(
 			() => canvasIO.ctx.restore(),
 			"reset-camera-translation",
 		));
-		canvasIO.ctx.save();
-		camera.applyTranslation(canvasIO);
-		renderer.displayAll(canvasIO);
-		canvasIO.ctx.restore();
-
-		Debug.displayMouseCoordinates(canvasIO, camera);
+		renderer.renderables.push(new Renderable(
+			() => Debug.displayMouseCoordinates(canvasIO, camera),
+			"debug-mouse-coordinates",
+		));
 	}
 
 	update(canvasIO: CanvasIO, camera?: Camera) {

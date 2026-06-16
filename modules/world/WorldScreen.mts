@@ -6,6 +6,7 @@ import { PlayerData } from "../constants/GameData.mjs";
 import { FadeType, ScreenFade } from "../game-utilities/visual-effects/ScreenFade.mjs";
 import { WorldUI } from "../user-interface/WorldUI.mjs";
 import { Camera } from "./Camera.mjs";
+import { Renderable, Renderer } from "./Renderer.mjs";
 import { World } from "./World.mjs";
 
 export class WorldScreen {
@@ -27,10 +28,16 @@ export class WorldScreen {
 		this.camera.update(this.world.player.hitbox.center());
 	}
 
-	display(canvasIO: CanvasIO) {
-		this.backgrounds.display(canvasIO, this.camera);
-		this.world.display(canvasIO, this.camera);
-		this.worldUI.display(this.world, canvasIO);
+	render(canvasIO: CanvasIO, renderer: Renderer) {
+		renderer.renderables.push(new Renderable(
+			() => this.backgrounds.display(canvasIO, this.camera),
+			"backgrounds",
+		));
+		this.world.render(canvasIO, this.camera, renderer);
+		renderer.renderables.push(new Renderable(
+			() => this.worldUI.display(this.world, canvasIO),
+			"world-ui",
+		));
 	}
 
 	resetWorld() {

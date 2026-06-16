@@ -4,6 +4,7 @@ import { RoomEditor } from "./RoomEditor.mjs";
 import { Debug } from "./game-utilities/Debug.mjs";
 import { WorldScreen } from "./world/WorldScreen.mjs";
 import { StartScreen } from "./user-interface/StartScreen.mjs";
+import { Renderable, Renderer } from "./world/Renderer.mjs";
 
 
 export class Main {
@@ -19,7 +20,14 @@ export class Main {
 		Debug.updateFramerate();
 	}
 	static display(canvasIO: CanvasIO) {
-		this.screen?.display(canvasIO);
-		Debug.displayFramerate(canvasIO);
+		const renderer = new Renderer();
+		this.screen?.render(canvasIO, renderer);
+
+		renderer.renderables.push(new Renderable(
+			() => Debug.displayFramerate(canvasIO),
+			"debug-fps",
+		));
+
+		renderer.displayAll(canvasIO);
 	}
 }

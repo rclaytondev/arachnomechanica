@@ -18,6 +18,7 @@ import { HealthPickup } from "./entities/HealthPickup.mjs";
 import { SpawnPoint } from "./entities/SpawnPoint.mjs";
 import { Camera } from "./world/Camera.mjs";
 import { SlopeTile } from "./tiles/SlopeTile.mjs";
+import { Renderable, Renderer } from "./world/Renderer.mjs";
 
 export class RoomEditor {
 	room: Room;
@@ -150,16 +151,23 @@ export class RoomEditor {
 		}
 	}
 
-	display(canvasIO: CanvasIO) {
-		canvasIO.fillCanvas(BackgroundData.BACKGROUND_COLOR);
-		this.world.display(
-			canvasIO,
-			new Camera(canvasIO.boundingBox().center()),
+	render(canvasIO: CanvasIO, renderer: Renderer) {
+		this.world.render(canvasIO, new Camera(canvasIO.boundingBox().center()), renderer);
+		renderer.renderables.push(
+			new Renderable(
+				() => canvasIO.fillCanvas(BackgroundData.BACKGROUND_COLOR),
+				"editor-background",
+			),
+			new Renderable(
+				() => {
+					this.displayHoveredTile(canvasIO);
+					this.displayExits(canvasIO);
+					this.displayGates(canvasIO);
+					this.displayInfo(canvasIO);
+				},
+				"editor-ui",
+			),
 		);
-		this.displayHoveredTile(canvasIO);
-		this.displayExits(canvasIO);
-		this.displayGates(canvasIO);
-		this.displayInfo(canvasIO);
 	}
 
 	addEntity(entity: Portal | HealthPickup | SpawnPoint | Gate) {
