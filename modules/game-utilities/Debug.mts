@@ -1,6 +1,6 @@
 import { CanvasIO } from "../../utils-ts/modules/CanvasIO.mjs";
 import { DEBUG_SETTINGS } from "../constants/DebugSettings.mjs";
-import { ROOMS } from "../level-generator/Rooms.mjs";
+import { ROOMS } from "../constants/Rooms.mjs";
 import { Main } from "../Main.mjs";
 import { RoomEditor } from "../RoomEditor.mjs";
 import { LoadingManager } from "../app-entry-points/LoadingManager.mjs";

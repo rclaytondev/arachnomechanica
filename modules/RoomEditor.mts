@@ -6,7 +6,7 @@ import { DEBUG_SETTINGS } from "./constants/DebugSettings.mjs";
 import { Gate } from "./entities/Gate.mjs";
 import { World } from "./world/World.mjs";
 import { BackgroundData, PortalData, WorldData } from "./constants/GameData.mjs";
-import { ROOMS } from "./level-generator/Rooms.mjs";
+import { ROOMS } from "./constants/Rooms.mjs";
 import { GameUtils } from "./game-utilities/GameUtils.mjs";
 import { Portal } from "./entities/Portal.mjs";
 import { BasicTile } from "./tiles/BasicTile.mjs";

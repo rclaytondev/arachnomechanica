@@ -7,7 +7,7 @@ import { Gate } from "../entities/Gate.mjs";
 import { Slope, World } from "../world/World.mjs";
 import { Portal } from "../entities/Portal.mjs";
 import { BasicTile } from "../tiles/BasicTile.mjs";
-import { Rooms, ROOMS } from "./Rooms.mjs";
+import { Rooms, ROOMS } from "../constants/Rooms.mjs";
 import { SpawnPoint } from "../entities/SpawnPoint.mjs";
 import { HealthPickup } from "../entities/HealthPickup.mjs";
 import { GenUtils } from "../../utils-ts/modules/core-extensions/GenUtils.mjs";

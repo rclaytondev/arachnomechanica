@@ -12,7 +12,7 @@ import { World } from "../world/World.mjs";
 import { GateState } from "./GateState.mjs";
 import { Room } from "./Room.mjs";
 import { RoomPlaceholder } from "./RoomPlaceholder.mjs";
-import { ROOMS } from "./Rooms.mjs";
+import { ROOMS } from "../constants/Rooms.mjs";
 import { Portal } from "../entities/Portal.mjs";
 import { SpawnPoint } from "../entities/SpawnPoint.mjs";
 import { HealthPickup } from "../entities/HealthPickup.mjs";
