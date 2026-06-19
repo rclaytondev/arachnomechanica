@@ -17,7 +17,7 @@ import { Platform } from "../tiles/Platform.mjs";
 import { Tiles } from "./Tiles.mjs";
 import { WorldScreen } from "./WorldScreen.mjs";
 import { Camera } from "./Camera.mjs";
-import { WorldGenerator } from "../level-generator/WorldGenerator.mjs";
+import { WorldGenerator } from "../world-generator/WorldGenerator.mjs";
 import { Renderable, Renderer } from "./Renderer.mjs";
 import { Particles } from "../game-utilities/Particles.mjs";
 import { Debug } from "../game-utilities/Debug.mjs";
@@ -33,12 +33,15 @@ export class World {
 	entities: Entities = new Entities();
 	particles: Particles = new Particles();
 	worldScreen: WorldScreen | null = null;
-	worldGenerator: WorldGenerator | null;
+	worldGenerator: WorldGenerator | null = null;
 	player: Player = new Player();
 	staticEntities: StaticEntities = new StaticEntities();
 
 	constructor(enableGeneration: boolean) {
-		this.worldGenerator = enableGeneration ? new WorldGenerator() : null;
+		if(enableGeneration) {
+			this.worldGenerator = new WorldGenerator();
+			this.worldGenerator.towerGenerator.initialize(this);
+		}
 		this.entities.add(this.player);
 	}
 
@@ -69,7 +72,7 @@ export class World {
 		this.entities.update(this, canvasIO, camera);
 		this.staticEntities.update(this, canvasIO);
 		this.particles.update();
-		this.worldGenerator?.updateGeneration(this);
+		this.worldGenerator?.update(this);
 	}
 
 	onSlope(rectangle: Rectangle, slope: Slope, mode: "up" | "down") {

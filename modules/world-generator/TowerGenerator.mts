@@ -4,13 +4,16 @@ import { LevelGeneratorData, RoomData, WorldData } from "../constants/GameData.m
 import { SpawnPoint } from "../entities/SpawnPoint.mjs";
 import { OverlayText } from "../game-utilities/visual-effects/OverlayText.mjs";
 import { World } from "../world/World.mjs";
-import { EntitySpawner } from "./EntitySpawner.mjs";
-import { LevelGenerator } from "./LevelGenerator.mjs";
+import { EntitySpawner } from "../level-generator/EntitySpawner.mjs";
+import { LevelGenerator } from "../level-generator/LevelGenerator.mjs";
+import { WorldGenerationSegment } from "./WorldGenerationSegment.mjs";
 
-export class WorldGenerator {
+export class TowerGenerator extends WorldGenerationSegment {
 	levelsGenerated: number = 0;
 	levelsVisited: number = 0;
 	nextPlayerSpawnRoom: Vector = new Vector(0, 0);
+
+	static LEVEL_HEIGHT = WorldData.TILE_SIZE * (RoomData.SIZE * LevelGeneratorData.HEIGHT + LevelGeneratorData.BORDER_Y);
 
 	initialize(world: World) {
 		const levelGenerator = new LevelGenerator(new Vector(0, 0));
@@ -41,7 +44,7 @@ export class WorldGenerator {
 		const levelHeight = RoomData.SIZE * LevelGeneratorData.HEIGHT + LevelGeneratorData.BORDER_Y;
 		return new Rectangle(0, -levels * levelHeight, LevelGeneratorData.WIDTH * RoomData.SIZE, LevelGeneratorData.HEIGHT * RoomData.SIZE);
 	}
-	generateNextLevel(world: World) {
+	generate(world: World) {
 		this.levelsGenerated ++;
 		const levelHeight = RoomData.SIZE * LevelGeneratorData.HEIGHT + LevelGeneratorData.BORDER_Y;
 		const generator = new LevelGenerator(new Vector(0, -levelHeight * this.levelsGenerated));
@@ -56,16 +59,17 @@ export class WorldGenerator {
 		this.nextPlayerSpawnRoom = generator.path[generator.path.length - 1];
 	}
 
-	updateGeneration(world: World) {
-		const levelHeight = WorldData.TILE_SIZE * (RoomData.SIZE * LevelGeneratorData.HEIGHT + LevelGeneratorData.BORDER_Y);
-		if(world.player.hitbox.top() < RoomData.SIZE * WorldData.TILE_SIZE - this.levelsGenerated * levelHeight) {
-			this.generateNextLevel(world);
-		}
+	update(world: World): void {
+		super.update(world);
 
-		if(world.player.hitbox.top() < -(this.levelsVisited - 1) * levelHeight) {
+		if(world.player.hitbox.top() < -(this.levelsVisited - 1) * TowerGenerator.LEVEL_HEIGHT) {
 			this.levelsVisited ++;
 			const floorText = `${this.levelsVisited.toString().padStart(2, "0")}`;
 			world.worldScreen?.visualEffects.effectsList.add(new OverlayText(`Floor ${floorText}`));
 		}
+	}
+
+	shouldGenerate(world: World) {
+		return world.player.hitbox.top() < RoomData.SIZE * WorldData.TILE_SIZE - this.levelsGenerated * TowerGenerator.LEVEL_HEIGHT;
 	}
 }

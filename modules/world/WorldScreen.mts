@@ -47,7 +47,6 @@ export class WorldScreen {
 	resetWorld() {
 		this.world = new World(true);
 		this.world.worldScreen = this;
-		this.world.worldGenerator!.initialize(this.world);
 		this.camera.position = this.world.player.hitbox.center();
 	}
 	beginDeathTransition() {

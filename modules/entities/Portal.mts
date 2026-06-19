@@ -45,10 +45,10 @@ export class Portal extends Entity {
 	teleportPlayer(world: World) {
 		const generator = world.worldGenerator;
 		if(generator) {
-			if(generator.levelsGenerated <= generator.levelsVisited) {
-				generator.generateNextLevel(world);
+			if(generator.towerGenerator.levelsGenerated <= generator.towerGenerator.levelsVisited) {
+				generator.towerGenerator.generate(world);
 			}
-			const nextLevel = generator.nextLevelTileRectangle(generator.levelsVisited).scale(WorldData.TILE_SIZE);
+			const nextLevel = generator.towerGenerator.nextLevelTileRectangle(generator.towerGenerator.levelsVisited).scale(WorldData.TILE_SIZE);
 			const nextSpawn = [...world.entities.possiblyIntersecting(nextLevel)].find(e => e instanceof SpawnPoint)!;
 			world.player.hitbox.x = nextSpawn.position.x;
 			world.player.hitbox.y = nextSpawn.position.y;

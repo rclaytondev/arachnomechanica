@@ -23,7 +23,7 @@ export class DeathScreen extends StaticEntity {
 	}
 	display(canvasIO: CanvasIO, worldScreen: WorldScreen) {
 		const deathText = "You Are Dead";
-		const infoText = `Highest floor reached: ${worldScreen.world.worldGenerator?.levelsVisited}`;
+		const infoText = `Highest floor reached: ${worldScreen.world.worldGenerator?.towerGenerator.levelsVisited}`;
 		const instructionText = "Press any key to continue";
 
 		const width1 = canvasIO.measureText(deathText, DeathScreenData.DEATH_TEXT_FONT).width;

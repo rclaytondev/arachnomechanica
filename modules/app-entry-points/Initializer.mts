@@ -14,7 +14,6 @@ import { StartScreen } from "../user-interface/StartScreen.mjs";
 
 LoadingManager.loaded();
 const screen = new WorldScreen(new World(true));
-screen.world.worldGenerator!.initialize(screen.world);
 Main.screen = screen;
 
 Main.screen = new StartScreen();
