@@ -13,7 +13,6 @@ import { GateState } from "./GateState.mjs";
 import { Room } from "./Room.mjs";
 import { RoomPlaceholder } from "./RoomPlaceholder.mjs";
 import { ROOMS } from "../constants/Rooms.mjs";
-import { Portal } from "../entities/Portal.mjs";
 import { SpawnPoint } from "../entities/SpawnPoint.mjs";
 import { HealthPickup } from "../entities/HealthPickup.mjs";
 import { ArrayUtils } from "../../utils-ts/modules/core-extensions/ArrayUtils.mjs";
@@ -46,7 +45,7 @@ export class LevelGenerator {
 		let x = GameUtils.randomInt(0, LevelGeneratorData.WIDTH - 1);
 		let y = 0;
 		this.path.push(new Vector(x, y));
-		const portalRoom = new RoomPlaceholder([], ROOMS.find(r => r.entities.some(e => e instanceof Portal))!);
+		const portalRoom = new RoomPlaceholder([], ROOMS.find(r => r.hasPortal())!);
 		portalRoom.generated = true;
 		this.rooms.set(x, y, portalRoom);
 		while(y < LevelGeneratorData.HEIGHT - 1) {
@@ -58,7 +57,7 @@ export class LevelGenerator {
 			[x, y] = [nextPosition.x, nextPosition.y];
 		}
 		const startRoom = this.rooms.get(this.path[this.path.length - 1])!;
-		startRoom.room = ArrayUtils.randomItem(ROOMS.filter(r => r.entities.some(e => e instanceof SpawnPoint)));
+		startRoom.room = ArrayUtils.randomItem(ROOMS.filter(r => [...r.worldPart.entities].some(e => e instanceof SpawnPoint)));
 		startRoom.generated = true;
 	}
 	possibleNextDirections(x: number, y: number): Direction[] {
@@ -146,7 +145,7 @@ export class LevelGenerator {
 			...GameUtils.randomPermutation(offPath),
 			...GameUtils.randomPermutation(this.path),
 		];
-		const healthPickupRooms = ROOMS.filter(r => r.entities.some(e => e instanceof HealthPickup));
+		const healthPickupRooms = ROOMS.filter(r => [...r.worldPart.entities].some(e => e instanceof HealthPickup));
 		for(const room of GameUtils.randomPermutation(healthPickupRooms)) {
 			for(const position of positions) {
 				const roomPlaceholder = this.rooms.get(position);
@@ -399,7 +398,7 @@ export class LevelGenerator {
 	}
 	visualizeRoom(canvasIO: CanvasIO, roomPlaceholder: RoomPlaceholder, position: Vector) {
 		for(const tilePosition of Rectangle.square(0, 0, RoomData.SIZE).squares()) {
-			const tile = roomPlaceholder.room.tiles.get(tilePosition);
+			const tile = roomPlaceholder.room.worldPart.tiles.get(tilePosition);
 			const exitTile = roomPlaceholder.room.exitTiles.get(tilePosition);
 			if(tile instanceof BasicTile || tile === Platform.PLATFORM || (exitTile !== "none" && !roomPlaceholder.exits.has(exitTile as Direction))) {
 				canvasIO.ctx.fillStyle = "black";

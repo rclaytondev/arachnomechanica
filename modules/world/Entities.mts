@@ -12,9 +12,13 @@ import { World } from "./World.mjs";
 import { Renderable, Renderer } from "./Renderer.mjs";
 import { GameUtils } from "../game-utilities/GameUtils.mjs";
 
-export class Entities extends BoundingBoxStructure<Entity> {
-	constructor() {
+export class Entities<EntityType extends Entity = Entity> extends BoundingBoxStructure<EntityType> {
+	constructor(entities: Iterable<EntityType> = []) {
 		super(WorldData.ENTITY_CHUNK_SIZE, (e) => e.boundingBox());
+
+		for(const entity of entities) {
+			this.add(entity);
+		}
 	}
 
 	update(world: World, canvasIO: CanvasIO, camera?: Camera) {
@@ -27,7 +31,7 @@ export class Entities extends BoundingBoxStructure<Entity> {
 	collideablesIntersecting(rectangle: Rectangle, collides: (collideable: Collideable) => boolean = () => true) {
 		return new Set([...this.possiblyIntersecting(rectangle)].filter(
 			e => e instanceof Collideable && collides(e) && e.hitboxes().some(h => h.interiorIntersects(rectangle)),
-		)) as Set<Collideable>;
+		)) as Set<unknown> as Set<Collideable>;
 	}
 
 	angularMotionBlockers(point: Vector, collides: (entity: Collideable) => boolean = () => true): (Direction | Diagonal)[] {
@@ -54,7 +58,7 @@ export class Entities extends BoundingBoxStructure<Entity> {
 	rectIntersectionDistance(rect: Rectangle, direction: Direction, maxDistance: number, collides: (entity: Collideable) => boolean) {
 		const searchRegion = Rectangle.boundingBox([rect, rect.translate(Vector.unit(direction).multiply(maxDistance))]);
 		const entities = this.possiblyIntersecting(searchRegion);
-		const hitboxes = [...entities].filter(e => e instanceof Collideable && collides(e) && e.tangible).flatMap(e => (e as Collideable).hitboxes());
+		const hitboxes = [...entities].filter(e => e instanceof Collideable && collides(e) && e.tangible).flatMap(e => (e as unknown as Collideable).hitboxes());
 		const distances = hitboxes.map(h => GameUtils.rectIntersectionDistance(rect, direction, h));
 		return Math.min(maxDistance, ...distances);
 	}

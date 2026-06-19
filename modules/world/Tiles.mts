@@ -116,4 +116,12 @@ export class Tiles extends Grid<Tile> {
 			}
 		}
 	}
+
+	copy() {
+		const copy = new Tiles();
+		for(const [tile, position] of this.entries()) {
+			copy.set(position, tile);
+		}
+		return copy;
+	}
 }

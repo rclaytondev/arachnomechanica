@@ -13,7 +13,7 @@ export let ROOMS: Room[] = [];
 export class Rooms {
 	static initialize() {
 		ROOMS = [
-			new Room(
+			Room.parse(
 				"two-wide-platforms",
 				[
 					{ x: 0, y: 0, type: "solid" },
@@ -83,7 +83,7 @@ export class Rooms {
 				],
 				() => true,
 			),
-			new Room(
+			Room.parse(
 				"empty-room",
 				[
 					{ x: 0, y: 0, type: "solid" },
@@ -163,7 +163,7 @@ export class Rooms {
 				],
 				(exits) => !exits.has("up") && !exits.has("down"),
 			),
-			new Room(
+			Room.parse(
 				"platform-over-pit",
 				[
 					{ x: 0, y: 0, type: "solid" },
@@ -268,7 +268,7 @@ export class Rooms {
 				[],
 				(exits) => exits.has("down") && !exits.has("up"),
 			),
-			new Room(
+			Room.parse(
 				"vertical-chute",
 				[
 					{ x: 0, y: 0, type: "solid" },
@@ -375,7 +375,7 @@ export class Rooms {
 				],
 				(exits) => exits.has("up") && exits.has("down") && !exits.has("right"),
 			),
-			new Room(
+			Room.parse(
 				"hallway-gates",
 				[
 					{ x: 0, y: 0, type: "solid" },
@@ -489,7 +489,7 @@ export class Rooms {
 					...Room.gatePath("left", "right", false),
 				],
 			),
-			new Room(
+			Room.parse(
 				"tunnels",
 				[
 					{ x: 0, y: 0, type: "solid" },
@@ -558,7 +558,7 @@ export class Rooms {
 				[],
 				(exits) => !exits.has("up") && !exits.has("down"),
 			),
-			new Room(
+			Room.parse(
 				"tunnels-and-gates",
 				[
 					{ x: 0, y: 0, type: "solid" },
@@ -641,7 +641,7 @@ export class Rooms {
 					...Room.doubleGatePath("right", "left"),
 				]),
 			),
-			new Room(
+			Room.parse(
 				"vertical-gate-contraption",
 				[
 					{ x: 0, y: 0, type: "solid" },
@@ -731,7 +731,7 @@ export class Rooms {
 					...Room.doubleGatePath("up", "down"),
 				]		),
 			),
-			new Room(
+			Room.parse(
 				"the-maze",
 				[
 					{ x: 0, y: 0, type: "solid" },
@@ -829,7 +829,7 @@ export class Rooms {
 				],
 				(exits) => exits.has("up") && exits.has("right") && !exits.has("left"),
 			),
-			new Room(
+			Room.parse(
 				"gate-contraption",
 				[
 					{ x: 0, y: 0, type: "solid" },
@@ -948,7 +948,7 @@ export class Rooms {
 					...Room.gatePath("up", "left", true),
 				]),
 			),
-			new Room(
+			Room.parse(
 				"the-tomb",
 				[
 					{ x: 0, y: 0, type: "solid" },
@@ -1046,7 +1046,7 @@ export class Rooms {
 					...Room.gatePath("up", "left", false),
 				]),
 			),
-			new Room(
+			Room.parse(
 				// This particular room is very important for level generation because it is maximally connected.
 				// If you remove it, the level generator might stop working.
 				"control-room-junction",
@@ -1146,7 +1146,7 @@ export class Rooms {
 				() => true,
 				RoomData.ALL_TRAVERSABILITY,
 			),
-			new Room(
+			Room.parse(
 				"gate-hallway",
 				[
 					{ x: 0, y: 0, type: "solid" },
@@ -1277,7 +1277,7 @@ export class Rooms {
 				(exits) => exits.has("left") && exits.has("right") && !exits.has("up") && !exits.has("down"),
 				Room.gatePath("left", "right", true),
 			),
-			new Room(
+			Room.parse(
 				"partial-control-room",
 				[
 					{ x: 0, y: 0, type: "solid" },
@@ -1387,7 +1387,7 @@ export class Rooms {
 					...Room.gatePath("left", "left", false),
 				]),
 			),
-			new Room(
+			Room.parse(
 				"gate-junction",
 				[
 					{ x: 0, y: 0, type: "solid" },
@@ -1528,7 +1528,7 @@ export class Rooms {
 					{ start: new GateState(null, "up", false), end: new GateState(null, "down", false) },
 				],
 			),
-			new Room(
+			Room.parse(
 				"sloped-gate-junction",
 				[
 					{ x: 0, y: 0, type: "solid" },
@@ -1669,7 +1669,7 @@ export class Rooms {
 					{ start: new GateState(null, "up", false), end: new GateState(null, "down", false) },
 				],
 			),
-			new Room(
+			Room.parse(
 				"vertical-gate",
 				[
 					{ x: 0, y: 0, type: "solid" },
@@ -1788,7 +1788,7 @@ export class Rooms {
 					...Room.gatePath("down", "up", true),
 				]),
 			),
-			new Room(
+			Room.parse(
 				"diagonal-connectors",
 				[
 					{ x: 0, y: 0, type: "solid" },
@@ -1910,7 +1910,7 @@ export class Rooms {
 					...Room.gatelessPath("right", "down"),
 				],
 			),
-			new Room(
+			Room.parse(
 				"half-junction",
 				[
 					{ x: 0, y: 0, type: "solid" },
@@ -2069,7 +2069,7 @@ export class Rooms {
 					...Room.gatePath("right", "down", true),
 				]),
 			),
-			new Room(
+			Room.parse(
 				"gate-contraption-simplified",
 				[
 					{ x: 0, y: 0, type: "solid" },
@@ -2194,7 +2194,7 @@ export class Rooms {
 					...Room.gatePath("right", "up", true),
 				]),
 			),
-			new Room(
+			Room.parse(
 				"small-gate-junction",
 				[
 					{ x: 0, y: 0, type: "solid" },
@@ -2353,7 +2353,7 @@ export class Rooms {
 					{ start: new GateState(null, "up", false), end: new GateState(null, "left", false) },
 				],
 			),
-			new Room(
+			Room.parse(
 				"small-gate-junction-with-slopes",
 				[
 					{ x: 0, y: 0, type: "solid" },
@@ -2518,7 +2518,7 @@ export class Rooms {
 					{ start: new GateState(null, "up", false), end: new GateState(null, "left", false) },
 				],
 			),
-			new Room(
+			Room.parse(
 				"control-room-junction-2",
 				[
 					{ x: 0, y: 0, type: "solid" },
@@ -2617,7 +2617,7 @@ export class Rooms {
 				() => true,
 				RoomData.ALL_TRAVERSABILITY,
 			),
-			new Room(
+			Room.parse(
 				"two-double-gate-hallways",
 				[
 					{ x: 0, y: 0, type: "solid" },
@@ -2731,7 +2731,7 @@ export class Rooms {
 					...Room.gatePath("right", "up", true),
 				]),
 			),
-			new Room(
+			Room.parse(
 				"double-gate-hallway",
 				[
 					{ x: 0, y: 0, type: "solid" },
@@ -2870,7 +2870,7 @@ export class Rooms {
 				(exits) => exits.has("left") && exits.has("right") && !exits.has("up") && !exits.has("down"),
 				Room.doubleGatePath("left", "right"),
 			),
-			new Room(
+			Room.parse(
 				"elevator",
 				[
 					{ x: 0, y: 0, type: "solid" },
@@ -3015,7 +3015,7 @@ export class Rooms {
 					...Room.doubleGatePath("down", "left"),
 				]),
 			),
-			new Room(
+			Room.parse(
 				"elevator-asymmetrical",
 				[
 					{ x: 0, y: 0, type: "solid" },
@@ -3160,7 +3160,7 @@ export class Rooms {
 					...Room.gatePath("right", "up", true),
 				]),
 			),
-			new Room(
+			Room.parse(
 				"tunnels-3",
 				[
 					{ x: 0, y: 0, type: "solid" },
@@ -3294,7 +3294,7 @@ export class Rooms {
 					...Room.gatePath("left", "down", false),
 				]),
 			),
-			new Room(
+			Room.parse(
 				"five-platforms",
 				[
 					{ x: 0, y: 0, type: "solid" },
@@ -3369,7 +3369,7 @@ export class Rooms {
 				(exits) => exits.has("up"),
 				RoomData.NO_GATE_TRAVERSABILITY,
 			),
-			new Room(
+			Room.parse(
 				"two-platforms-asymmetrical",
 				[
 					{ x: 0, y: 0, type: "solid" },
@@ -3440,7 +3440,7 @@ export class Rooms {
 				(exits) => exits.has("up"),
 				RoomData.NO_GATE_TRAVERSABILITY,
 			),
-			new Room(
+			Room.parse(
 				"control-room-junction-3",
 				[
 					{ x: 0, y: 0, type: "solid" },
@@ -3521,7 +3521,7 @@ export class Rooms {
 				() => true,
 				RoomData.ALL_TRAVERSABILITY,
 			),
-			new Room(
+			Room.parse(
 				"control-room-T-junction",
 				[
 					{ x: 0, y: 0, type: "solid" },
@@ -3624,7 +3624,7 @@ export class Rooms {
 				(exits) => !exits.has("up") && exits.size >= 2,
 				RoomData.ALL_TRAVERSABILITY,
 			),
-			new Room(
+			Room.parse(
 				"funnel",
 				[
 					{ x: 0, y: 0, type: "solid" },
@@ -3710,7 +3710,7 @@ export class Rooms {
 				],
 				(exits) => exits.has("up") && exits.has("down"),
 			),
-			new Room(
+			Room.parse(
 				"two-platforms-asymmetrical-2",
 				[
 					{ x: 0, y: 0, type: "solid" },
@@ -3805,7 +3805,7 @@ export class Rooms {
 				],
 				(exits) => exits.size >= 2 && exits.has("up"),
 			),
-			new Room(
+			Room.parse(
 				"one-platform",
 				[
 					{ x: 0, y: 0, type: "solid" },
@@ -3874,7 +3874,7 @@ export class Rooms {
 				[],
 				(exits) => !exits.has("up"),
 			),
-			new Room(
+			Room.parse(
 				"wide-vertical-room",
 				[
 					{ x: 0, y: 0, type: "solid" },
@@ -3965,7 +3965,7 @@ export class Rooms {
 				],
 				(exits) => !exits.has("left"),
 			),
-			new Room(
+			Room.parse(
 				"hallway-and-empty",
 				[
 					{ x: 0, y: 0, type: "solid" },
@@ -4073,7 +4073,7 @@ export class Rooms {
 					{ start: new GateState(null, "right", false), end: new GateState(null, "left", true) },
 				]),
 			),
-			new Room(
+			Room.parse(
 				"level-exit",
 				[
 					{ x: 0, y: 0, type: "solid" },
@@ -4179,7 +4179,7 @@ export class Rooms {
 				(exits) => !exits.has("up"),
 				RoomData.NO_GATE_TRAVERSABILITY,
 			),
-			new Room(
+			Room.parse(
 				"two-slanted-platforms",
 				[
 					{ x: 0, y: 0, type: "solid" },
@@ -4252,7 +4252,7 @@ export class Rooms {
 				[],
 				(exits) => (exits.has("left") || exits.has("right")) && !exits.has("up"),
 			),
-			new Room(
+			Room.parse(
 				"platform-with-edges",
 				[
 					{ x: 0, y: 0, type: "solid" },
@@ -4339,7 +4339,7 @@ export class Rooms {
 					...Room.onewayGatelessPath("left", "up"),
 				]),
 			),
-			new Room(
+			Room.parse(
 				"asymmetrical-half-junction",
 				[
 					{ x: 0, y: 0, type: "solid" },
@@ -4426,7 +4426,7 @@ export class Rooms {
 					...Room.gatePath("up", "down", true),
 				]),
 			),
-			new Room(
+			Room.parse(
 				"vertical-gate-2",
 				[
 					{ x: 0, y: 0, type: "solid" },
@@ -4540,7 +4540,7 @@ export class Rooms {
 					{ start: new GateState(null, "up", false), end: new GateState(null, "down", true) },
 				]),
 			),
-			new Room(
+			Room.parse(
 				"vertical-gates",
 				[
 					{ x: 0, y: 0, type: "solid" },
@@ -4637,7 +4637,7 @@ export class Rooms {
 					...Room.doubleGatePath("up", "down"),
 				]),
 			),
-			new Room(
+			Room.parse(
 				"one-way-vertical-shaft",
 				[
 					{ x: 0, y: 0, type: "solid" },
@@ -4736,7 +4736,7 @@ export class Rooms {
 				(exits) => exits.has("up") && exits.has("down") && !exits.has("left") && !exits.has("right"),
 				Room.onewayGatelessPath("up", "down"),
 			),
-			new Room(
+			Room.parse(
 				"slope-gate",
 				[
 					{ x: 0, y: 0, type: "solid" },
@@ -4834,7 +4834,7 @@ export class Rooms {
 				(exits) => exits.has("left") && exits.has("down") && !exits.has("up") && !exits.has("right"),
 				Room.gatePath("left", "down", false),
 			),
-			new Room(
+			Room.parse(
 				"low-half-junction",
 				[
 					{ x: 0, y: 0, type: "solid" },
@@ -4919,7 +4919,7 @@ export class Rooms {
 					...Room.gatelessPath("left", "up"),
 				]),
 			),
-			new Room(
+			Room.parse(
 				"pillar",
 				[
 					{ x: 0, y: 0, type: "solid" },
@@ -5010,7 +5010,7 @@ export class Rooms {
 				(exits) => (exits.has("left") && exits.has("right")) && !exits.has("up") && !exits.has("down"),
 				RoomData.NO_GATE_TRAVERSABILITY,
 			),
-			new Room(
+			Room.parse(
 				"slope",
 				[
 					{ x: 0, y: 0, type: "solid" },
@@ -5102,7 +5102,7 @@ export class Rooms {
 				],
 				(exits) => !exits.has("down"),
 			),
-			new Room(
+			Room.parse(
 				"comb",
 				[
 					{ x: 0, y: 0, type: "solid" },
@@ -5227,7 +5227,7 @@ export class Rooms {
 				],
 				(exits) => (exits.has("down") && exits.has("up")) && !exits.has("left") && !exits.has("right"),
 			),
-			new Room(
+			Room.parse(
 				"two-short-hallways",
 				[
 					{ x: 0, y: 0, type: "solid" },
@@ -5341,7 +5341,7 @@ export class Rooms {
 					...Room.gatePath("left", "right", false),
 				]),
 			),
-			new Room(
+			Room.parse(
 				"gate-arch",
 				[
 					{ x: 0, y: 0, type: "solid" },
@@ -5453,7 +5453,7 @@ export class Rooms {
 					...Room.gatePath("down", "right", false),
 				]),
 			),
-			new Room(
+			Room.parse(
 				"small-diagonal",
 				[
 					{ x: 0, y: 0, type: "solid" },
@@ -5559,7 +5559,7 @@ export class Rooms {
 					...Room.gatelessPath("down", "right"),
 				]),
 			),
-			new Room(
+			Room.parse(
 				"start-room",
 				[
 					{ x: 0, y: 0, type: "solid" },
@@ -5654,7 +5654,7 @@ export class Rooms {
 				],
 				() => false,
 			),
-			new Room(
+			Room.parse(
 				"health-pickup-hallway",
 				[
 					{ x: 0, y: 1, type: "solid" },
@@ -5756,7 +5756,7 @@ export class Rooms {
 				],
 				(exits) => SetUtils.equals(exits, ["left", "right"]),
 			),
-			new Room(
+			Room.parse(
 				"health-pickup-cliff",
 				[
 					{ x: 0, y: 0, type: "solid" },
@@ -5854,7 +5854,7 @@ export class Rooms {
 				],
 				(exits) => SetUtils.equals(exits, ["left"]),
 			),
-			new Room(
+			Room.parse(
 				"health-pickup-gate-hallway",
 				[
 					{ x: 0, y: 0, type: "solid" },

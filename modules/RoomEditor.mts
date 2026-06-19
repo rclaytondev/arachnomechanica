@@ -19,6 +19,7 @@ import { SpawnPoint } from "./entities/SpawnPoint.mjs";
 import { Camera } from "./world/Camera.mjs";
 import { SlopeTile } from "./tiles/SlopeTile.mjs";
 import { Renderable, Renderer } from "./world/Renderer.mjs";
+import { Entities } from "./world/Entities.mjs";
 
 export class RoomEditor {
 	room: Room;
@@ -27,13 +28,13 @@ export class RoomEditor {
 	direction: Direction | Diagonal = "right";
 	static readonly MODES = ["solid", "platform", "exit", "gate-open", "gate-closed", "portal", "slope"] as const;
 
-	constructor(room: Room = new Room("editor room", [], [], [], () => false, [])) {
+	constructor(room: Room = Room.parse("editor room", [], [], [], () => false, [])) {
 		this.room = room;
 		this.world = new World(false);
-		for(const [tile, position] of this.room.tiles.entries()) {
+		for(const [tile, position] of this.room.worldPart.tiles.entries()) {
 			this.world.tiles.set(position, tile);
 		}
-		for(const entity of this.room.entities) {
+		for(const entity of this.room.worldPart.entities) {
 			this.world.entities.add(entity);
 		}
 	}
@@ -75,7 +76,7 @@ export class RoomEditor {
 			}
 			else if(this.mode === "portal") {
 				const portalPosition = this.getPortalPosition(position);
-				if(!this.room.entities.some(p => p instanceof Portal && p.position.equals(portalPosition))) {
+				if(![...this.room.worldPart.entities].some(p => p instanceof Portal && p.position.equals(portalPosition))) {
 					this.addEntity(new Portal(portalPosition));
 				}
 			}
@@ -109,7 +110,7 @@ export class RoomEditor {
 	}
 	setTile(position: Vector, tile: RoomTile) {
 		this.world.tiles.set(position, tile);
-		this.room.tiles.set(position, tile);
+		this.room.worldPart.tiles.set(position, tile);
 	}
 	checkForKeyPresses(canvasIO: CanvasIO) {
 		if(canvasIO.keys[DEBUG_SETTINGS.LOG_BLOCKS_KEY]) {
@@ -162,7 +163,6 @@ export class RoomEditor {
 				() => {
 					this.displayHoveredTile(canvasIO);
 					this.displayExits(canvasIO);
-					this.displayGates(canvasIO);
 					this.displayInfo(canvasIO);
 				},
 				"editor-ui",
@@ -171,11 +171,11 @@ export class RoomEditor {
 	}
 
 	addEntity(entity: Portal | HealthPickup | SpawnPoint | Gate) {
-		this.room.entities.push(entity);
+		this.room.worldPart.entities.add(entity);
 		this.world.entities.add(entity);
 	}
 	filterEntities(callback: (entity: Portal | HealthPickup | SpawnPoint | Gate) => boolean) {
-		this.room.entities = this.room.entities.filter(callback);
+		this.room.worldPart.entities = new Entities([...this.room.worldPart.entities].filter(callback));
 		for(const entity of this.world.entities) {
 			const valid = (entity instanceof Portal || entity instanceof HealthPickup || entity instanceof SpawnPoint || entity instanceof Gate);
 			if(valid && !callback(entity)) {
@@ -201,14 +201,6 @@ export class RoomEditor {
 		for(const [tile, position] of this.room.exitTiles.entries()) {
 			canvasIO.ctx.strokeStyle = DEBUG_SETTINGS.EXIT_TILE_COLOR;
 			this.displayArrow(canvasIO, position, tile as Direction);
-		}
-	}
-	displayGates(canvasIO: CanvasIO) {
-		for(const [tile, position] of this.room.tiles.entries()) {
-			if(tile instanceof Gate) {
-				canvasIO.ctx.strokeStyle = DEBUG_SETTINGS.GATE_VISUALIZATION_COLOR;
-				this.displayArrow(canvasIO, position, tile.direction);
-			}
 		}
 	}
 	displayInfo(canvasIO: CanvasIO) {
@@ -239,7 +231,7 @@ export class RoomEditor {
 	}
 	logBlocks() {
 		let result = "[\n";
-		for(const [tile, position] of this.room.tiles.entries()) {
+		for(const [tile, position] of this.room.worldPart.tiles.entries()) {
 			result += `\t{ x: ${position.x}, y: ${position.y}, type: ${this.getTileString(tile)} },\n`;
 		}
 		result += "],\n[\n";
@@ -247,7 +239,7 @@ export class RoomEditor {
 			result += `\t{ x: ${position.x}, y: ${position.y}, direction: "${direction}" },\n`;
 		}
 		result += "],\n[\n";
-		for(const entity of this.room.entities) {
+		for(const entity of this.room.worldPart.entities) {
 			if(entity instanceof Portal) {
 				result += `\tnew Portal(new Vector${entity.position}),\n`;
 			}

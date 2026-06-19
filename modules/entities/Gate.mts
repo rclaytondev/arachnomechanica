@@ -255,6 +255,12 @@ export class Gate extends RectangularCollideable {
 			e => e instanceof Gate && e.tilePosition().equals(tilePosition),
 		);
 	}
+	static deleteGateAt(tilePosition: Vector, world: World) {
+		const gate = Gate.getGateAt(tilePosition, world);
+		if(gate) {
+			world.entities.delete(gate);
+		}
+	}
 	static isGateAt(tilePosition: Vector, world: World) {
 		return Gate.getGateAt(tilePosition, world) != undefined;
 	}

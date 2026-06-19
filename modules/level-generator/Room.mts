@@ -1,7 +1,7 @@
 import { Direction, Directions } from "../../utils-ts/modules/geometry/Direction.mjs";
 import { Vector } from "../../utils-ts/modules/geometry/Vector.mjs";
 import { Grid } from "../../utils-ts/modules/Grid.mjs";
-import { RoomData, WorldData } from "../constants/GameData.mjs";
+import { RoomData } from "../constants/GameData.mjs";
 import { GateState } from "./GateState.mjs";
 import { Gate } from "../entities/Gate.mjs";
 import { Slope, World } from "../world/World.mjs";
@@ -15,6 +15,9 @@ import { EmptyTile } from "../tiles/EmptyTile.mjs";
 import { Platform } from "../tiles/Platform.mjs";
 import { LoadingManager } from "../app-entry-points/LoadingManager.mjs";
 import { SlopeTile } from "../tiles/SlopeTile.mjs";
+import { WorldPart } from "../world-generator/WorldPart.mjs";
+import { Tiles } from "../world/Tiles.mjs";
+import { Entities } from "../world/Entities.mjs";
 
 export type Traversability = { start: GateState, end: GateState }[];
 export type RoomTile = EmptyTile | Platform | BasicTile | SlopeTile;
@@ -23,65 +26,58 @@ export type RoomEntity = Portal | SpawnPoint | HealthPickup | Gate;
 export class Room {
 	originalName: string;
 	name: string;
-	tiles: Grid<RoomTile>;
 	canSpawnWithExits: (exits: Set<Direction>) => boolean;
 	exitTiles: Grid<Direction | "none">;
 	traversability: Traversability;
-	entities: RoomEntity[];
+	worldPart: WorldPart<RoomEntity>;
 
-	constructor(name: string, tiles: { x: number, y: number, type: | "solid" | "platform" | Slope }[] | Grid<RoomTile>, exitTiles: { x: number, y: number, direction: Direction }[] | Grid<Direction | "none">, entities: RoomEntity[] = [], canSpawnWithExits: (exits: Set<Direction>) => boolean, traversability?: Traversability) {
-		this.originalName = name;
+	static parseTiles(tilesData: { x: number, y: number, type: | "solid" | "platform" | Slope }[]) {
+		const tiles = new Tiles();
+		for(const { x, y, type } of tilesData) {
+			const tile = (
+				type === "solid" ? BasicTile.BASIC_TILE
+				: World.isSlope(type as string) ? new SlopeTile(type as Slope)
+				: Platform.PLATFORM
+			);
+			tiles.set(x, y, tile);
+		}
+		return tiles;
+	}
+	static parseExitTiles(exitTilesData: { x: number, y: number, direction: Direction }[]) {
+		const exitTiles = new Grid<Direction | "none">("none");
+		for(const { x, y, direction } of exitTilesData) {
+			exitTiles.set(x, y, direction);
+		}
+		return exitTiles;
+	}
+	static parse(name: string, tilesData: { x: number, y: number, type: | "solid" | "platform" | Slope }[], exitTilesData: { x: number, y: number, direction: Direction }[], entitiesData: RoomEntity[] = [], canSpawnWithExits: (exits: Set<Direction>) => boolean, traversabilityData?: Traversability) {
+		const worldPart = new WorldPart(Room.parseTiles(tilesData), new Entities(entitiesData));
+		const exitTiles = Room.parseExitTiles(exitTilesData);
+		const traversability = GateState.deduplicateTraversability(traversabilityData ?? RoomData.NO_GATE_TRAVERSABILITY);
+		return new Room(name, name, worldPart, exitTiles, canSpawnWithExits, traversability);
+	}
+
+	constructor(name: string, originalName: string, worldPart: WorldPart<RoomEntity>, exitTiles: Grid<Direction | "none">, canSpawnWithExits: (exits: Set<Direction>) => boolean, traversability: Traversability) {
 		this.name = name;
-		if(tiles instanceof Grid) {
-			this.tiles = tiles;
-		}
-		else {
-			this.tiles = new Grid(EmptyTile.EMPTY);
-			for(const { x, y, type } of tiles) {
-				const tile = (
-					type === "solid" ? BasicTile.BASIC_TILE
-					: World.isSlope(type as string) ? new SlopeTile(type as Slope)
-					: Platform.PLATFORM
-				);
-				this.tiles.set(x, y, tile);
-			}
-		}
-		if(exitTiles instanceof Grid) {
-			this.exitTiles = exitTiles;
-		}
-		else {
-			this.exitTiles = new Grid("none");
-			for(const { x, y, direction } of exitTiles) {
-				this.exitTiles.set(x, y, direction);
-			}
-		}
+		this.originalName = originalName;
+		this.worldPart = worldPart;
+		this.exitTiles = exitTiles;
 		this.canSpawnWithExits = canSpawnWithExits;
-		this.traversability = GateState.deduplicateTraversability((traversability ?? RoomData.NO_GATE_TRAVERSABILITY));
-		this.entities = entities;
+		this.traversability = traversability;
 	}
 
 	hasPortal() {
-		return this.entities.some(e => e instanceof Portal);
+		return [...this.worldPart.entities].some(e => e instanceof Portal);
 	}
 
-	add(position: Vector, world: World, exits: Set<Direction>) {
-		let entities = this.entities;
-		for(let x = 0; x < RoomData.SIZE; x ++) {
-			for(let y = 0; y < RoomData.SIZE; y ++) {
-				const tile = this.tiles.get(x, y);
-				const tileCopy = (typeof tile === "string") ? tile : tile.copy();
-				const worldPosition = position.add(x, y);
-				world.addOriginalTile(worldPosition, tileCopy);
+	add(tileOffset: Vector, world: World, exits: Set<Direction>) {
+		this.worldPart.add(world, tileOffset);
 
-				const direction = this.exitTiles.get(x, y);
-				if(direction !== "none" && !exits.has(direction)) {
-					world.addOriginalTile(worldPosition, BasicTile.BASIC_TILE);
-					entities = entities.filter(e => !(e instanceof Gate && e.tilePosition().equals(x, y)));
-				}
+		for(const [direction, position] of this.exitTiles.entries()) {
+			if(direction !== "none" && !exits.has(direction)) {
+				world.addOriginalTile(position.add(tileOffset), BasicTile.BASIC_TILE);
+				Gate.deleteGateAt(position.add(tileOffset), world);
 			}
-		}
-		for(const entity of entities) {
-			world.entities.add(entity.copyAndTranslate(position.multiply(WorldData.TILE_SIZE)));
 		}
 	}
 
@@ -90,49 +86,46 @@ export class Room {
 	}
 
 	reflect() {
-		const reflected = new Room(
-			this.name,
-			[],
-			[],
-			this.entities.map(e => e.reflect()),
-			(exits) => this.canSpawnWithExits(new Set([...exits].map(e => Directions.reflectX[e]))),
-			this.traversability.map(({ start, end }) => ({
-				start: new GateState(null, Directions.reflectX[start.exit], start.toggled),
-				end: new GateState(null, Directions.reflectX[end.exit], end.toggled),
-			})),
-		);
-		reflected.name = `${this.name}-reflected`;
-		for(let x = 0; x < RoomData.SIZE; x ++) {
-			for(let y = 0; y < RoomData.SIZE; y ++) {
-				const reflectedX = RoomData.SIZE - x - 1;
-				const tile = this.tiles.get(x, y);
-				reflected.tiles.set(reflectedX, y, tile.reflect());
-
-				const exitTile = this.exitTiles.get(x, y);
-				if(exitTile !== "none") {
-					reflected.exitTiles.set(reflectedX, y, Directions.reflectX[exitTile]);
-				}
-			}
+		const entities = new Entities([...this.worldPart.entities].map(e => e.reflect()));
+		const tiles = new Tiles();
+		for(const [tile, position] of this.worldPart.tiles.entries()) {
+			const reflectedX = RoomData.SIZE - position.x - 1; // REFACTOR: extract method Grid.reflectX
+			tiles.set(reflectedX, position.y, tile.reflect());
 		}
-		return reflected;
+		const exitTiles = new Grid<Direction | "none">("none");
+		for(const [exitTile, position] of this.exitTiles.entries()) {
+			if(exitTile === "none") { continue; }
+			const reflectedX = RoomData.SIZE - position.x - 1;
+			exitTiles.set(reflectedX, position.y, Directions.reflectX[exitTile]);
+		}
+
+		const worldPart = new WorldPart(tiles, entities);
+		const reflectedName = `${this.name}-reflected`;
+		const canSpawnWithExits = (exits: Set<Direction>) => this.canSpawnWithExits(new Set([...exits].map(e => Directions.reflectX[e])));
+		const traversability = this.traversability.map(({ start, end }) => ({
+			start: new GateState(null, Directions.reflectX[start.exit], start.toggled),
+			end: new GateState(null, Directions.reflectX[end.exit], end.toggled),
+		}));
+
+		return new Room(this.name, reflectedName, worldPart, exitTiles, canSpawnWithExits, traversability);
 	}
 	copy() {
 		return new Room(
 			this.name,
-			this.tiles.map(tile => typeof tile === "string" ? tile : tile.copy()),
+			this.originalName,
+			new WorldPart(this.worldPart.tiles.copy(), new Entities([...this.worldPart.entities].map(e => e.copy()))),
 			this.exitTiles.map(v => v),
-			this.entities.map(v => v.copy()),
 			this.canSpawnWithExits,
 			this.traversability.map(({ start, end }) => ({ start: start.copy(), end: end.copy() })),
 		);
 	}
 	equals(room: Room) {
-		return this.tiles.equals(room.tiles, (t1, t2) => t1.equals(t2));
+		return this.worldPart.tiles.equals(room.worldPart.tiles, (t1, t2) => t1.equals(t2));
 	}
 	toggleGates() {
 		const copy = this.copy();
 		copy.name += "-toggled";
-		for(const entity of copy.entities) {
+		for(const entity of copy.worldPart.entities) {
 			if(entity instanceof Gate) {
 				entity.toggled = !entity.toggled;
 			}
@@ -145,7 +138,7 @@ export class Room {
 	}
 
 	isOrdinaryRoom() {
-		return !this.entities.some(e => e instanceof Portal || e instanceof HealthPickup || e instanceof SpawnPoint);
+		return ![...this.worldPart.entities].some(e => e instanceof Portal || e instanceof HealthPickup || e instanceof SpawnPoint);
 	}
 
 	static gatelessPath(exit1: Direction, exit2: Direction) {
