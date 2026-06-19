@@ -14,8 +14,8 @@ world.addEntityIfEmpty(creature);
 
 
 
-world.tiles.fillRect(new Rectangle(0, 0, 10, 10), new BasicTile());
+world.tiles.fillRect(new Rectangle(0, 0, 10, 10), BasicTile.BASIC_TILE);
 // world.tiles.fillRect(new Rectangle(5, 0, 10, 1), EmptyTile.EMPTY);
-world.tiles.fillRect(new Rectangle(-1, -5, 1, 10), new BasicTile());
+world.tiles.fillRect(new Rectangle(-1, -5, 1, 10), BasicTile.BASIC_TILE);
 
 Main.screen = new WorldScreen(world);

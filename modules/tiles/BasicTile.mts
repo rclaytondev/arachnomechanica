@@ -13,15 +13,17 @@ import { Tile } from "./Tile.mjs";
 import { TowerTile } from "./TowerTile.mjs";
 
 export class BasicTile extends Tile {
-	constructor() {
+	static BASIC_TILE = new BasicTile();
+
+	private constructor() {
 		super();
 	}
 
 	copy() {
-		return new BasicTile();
+		return BasicTile.BASIC_TILE;
 	}
 	reflect(): BasicTile {
-		return new BasicTile();
+		return BasicTile.BASIC_TILE;
 	}
 	equals(tile: unknown) {
 		return tile instanceof BasicTile;

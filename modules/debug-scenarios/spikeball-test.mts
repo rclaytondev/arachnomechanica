@@ -9,9 +9,9 @@ import { WorldScreen } from "../world/WorldScreen.mjs";
 
 const world = new World(false);
 
-world.tiles.fillRect(new Rectangle(-2, -3, 10, 6), new BasicTile());
+world.tiles.fillRect(new Rectangle(-2, -3, 10, 6), BasicTile.BASIC_TILE);
 world.tiles.fillRect(new Rectangle(-1, -2, 8, 4), EmptyTile.EMPTY);
-world.tiles.set(5, -2, new BasicTile());
+world.tiles.set(5, -2, BasicTile.BASIC_TILE);
 world.entities.add(SpikeballBlock.atTile(new Vector(5, -1)));
 
 Main.screen = new WorldScreen(world);

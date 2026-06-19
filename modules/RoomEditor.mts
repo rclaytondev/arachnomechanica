@@ -58,7 +58,7 @@ export class RoomEditor {
 		const position = Tiles.getTileCoordinates(canvasIO.mouse.position);
 		if(canvasIO.mouse.button === "left") {
 			if(this.mode === "solid") {
-				this.setTile(position, canvasIO.mouse.button === "left" ? new BasicTile() : EmptyTile.EMPTY);
+				this.setTile(position, canvasIO.mouse.button === "left" ? BasicTile.BASIC_TILE : EmptyTile.EMPTY);
 			}
 			else if(this.mode === "platform") {
 				this.setTile(position, canvasIO.mouse.button === "left" ? Platform.PLATFORM : EmptyTile.EMPTY);

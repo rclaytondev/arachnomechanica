@@ -39,7 +39,7 @@ export class Room {
 			this.tiles = new Grid(EmptyTile.EMPTY);
 			for(const { x, y, type } of tiles) {
 				const tile = (
-					type === "solid" ? new BasicTile()
+					type === "solid" ? BasicTile.BASIC_TILE
 					: World.isSlope(type as string) ? new SlopeTile(type as Slope)
 					: Platform.PLATFORM
 				);
@@ -75,7 +75,7 @@ export class Room {
 
 				const direction = this.exitTiles.get(x, y);
 				if(direction !== "none" && !exits.has(direction)) {
-					world.addOriginalTile(worldPosition, new BasicTile());
+					world.addOriginalTile(worldPosition, BasicTile.BASIC_TILE);
 					entities = entities.filter(e => !(e instanceof Gate && e.tilePosition().equals(x, y)));
 				}
 			}
