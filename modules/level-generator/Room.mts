@@ -31,18 +31,6 @@ export class Room {
 	traversability: Traversability;
 	worldPart: WorldPart<RoomEntity>;
 
-	static parseTiles(tilesData: { x: number, y: number, type: | "solid" | "platform" | Slope }[]) {
-		const tiles = new Tiles();
-		for(const { x, y, type } of tilesData) {
-			const tile = (
-				type === "solid" ? BasicTile.BASIC_TILE
-				: World.isSlope(type as string) ? new SlopeTile(type as Slope)
-				: Platform.PLATFORM
-			);
-			tiles.set(x, y, tile);
-		}
-		return tiles;
-	}
 	static parseExitTiles(exitTilesData: { x: number, y: number, direction: Direction }[]) {
 		const exitTiles = new Grid<Direction | "none">("none");
 		for(const { x, y, direction } of exitTilesData) {
@@ -51,7 +39,7 @@ export class Room {
 		return exitTiles;
 	}
 	static parse(name: string, tilesData: { x: number, y: number, type: | "solid" | "platform" | Slope }[], exitTilesData: { x: number, y: number, direction: Direction }[], entitiesData: RoomEntity[] = [], canSpawnWithExits: (exits: Set<Direction>) => boolean, traversabilityData?: Traversability) {
-		const worldPart = new WorldPart(Room.parseTiles(tilesData), new Entities(entitiesData));
+		const worldPart = WorldPart.parse(tilesData, entitiesData);
 		const exitTiles = Room.parseExitTiles(exitTilesData);
 		const traversability = GateState.deduplicateTraversability(traversabilityData ?? RoomData.NO_GATE_TRAVERSABILITY);
 		return new Room(name, name, worldPart, exitTiles, canSpawnWithExits, traversability);
