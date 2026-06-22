@@ -105,7 +105,7 @@ export class EntitySpawner {
 			world.tiles.get(position.add(-1, 0)) === EmptyTile.EMPTY ||
 			world.tiles.get(position.add(1, 0)) === EmptyTile.EMPTY
 		),
-		solidBelow: (position: Vector, world: World) => World.isFullBasicTile(world.tiles.get(position.add(0, 1))),
+		solidBelow: (position: Vector, world: World) => world.tiles.get(position.add(0, 1)) instanceof BasicTile,
 		notOnPortal: (position: Vector, world: World) => {
 			const tileSquare = Tiles.getTileSquare(position);
 			const entities = [...world.entities.possiblyIntersecting(tileSquare)];

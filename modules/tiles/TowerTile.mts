@@ -2,7 +2,8 @@ import { CanvasIO } from "../../utils-ts/modules/CanvasIO.mjs";
 import { Direction, Directions } from "../../utils-ts/modules/geometry/Direction.mjs";
 import { Vector } from "../../utils-ts/modules/geometry/Vector.mjs";
 import { WorldData } from "../constants/GameData.mjs";
-import { Slope, World } from "../world/World.mjs";
+import { World } from "../world/World.mjs";
+import { Slope } from "./SlopeTile.mjs";
 
 export class TowerTile {
 	static displaySlopedAccent(position: Vector, canvasIO: CanvasIO, tile: Slope, world: World) {

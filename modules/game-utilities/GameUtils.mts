@@ -310,6 +310,9 @@ export class GameUtils {
 		return (yStart <= intersectionY && intersectionY <= yEnd) ? distance : Infinity;
 	}
 	static rayIntersectsRectangle(rayStart: Vector, rayDirection: Vector, rectangle: Rectangle) {
+		if(rectangle.contains(rayStart)) {
+			return 0;
+		}
 		return Math.min(
 			GameUtils.rayIntersectsHSegment(rayStart, rayDirection, rectangle.top(), rectangle.left(), rectangle.right()),
 			GameUtils.rayIntersectsHSegment(rayStart, rayDirection, rectangle.bottom(), rectangle.left(), rectangle.right()),
@@ -387,6 +390,7 @@ export class GameUtils {
 		return result;
 	}
 	static rectIntersectionDistance(rect: Rectangle, direction: Direction, target: Rectangle) {
+		if(rect.intersects(target)) { return 0; }
 		if(Directions.isHorizontal(direction)) {
 			if(!(rect.bottom() > target.y && rect.y < target.bottom())) {
 				return Infinity;

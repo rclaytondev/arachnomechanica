@@ -475,17 +475,9 @@ export class Lizard extends Collideable {
 		}
 	}
 	isObstructed(world: World, direction: Direction = this.direction, distance: number = LizardData.LOOKAHEAD_DISTANCE, length: number = 1) {
-		const lookaheadRectangle = this.lookaheadRectangle(direction, distance, length);
-		for(const { tile } of world.tiles.getTilesAt(lookaheadRectangle)) {
-			if(World.isSemifullTile(tile, direction === "down")) {
-				return true;
-			}
-		}
-		const entities = [...world.entities.collideablesIntersecting(lookaheadRectangle)];
-		if(entities.some(entity => !(entity instanceof Player))) {
-			return true;
-		}
-		return false;
+		const lookaheadRectangle = this.lookaheadRectangle(direction, distance, 1);
+		const obstructedDistance = world.rectIntersectionDistance(lookaheadRectangle, direction, length, e => !(e instanceof Player));
+		return obstructedDistance < length;
 	}
 	getPointOnBody(distance: number): [Vector, Direction, Joint | "head", Joint | "tail", number, number] {
 		if(this.joints.length === 0 || distance < Vector.dist(this.position, this.joints[0].position)) {

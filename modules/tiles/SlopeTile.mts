@@ -1,5 +1,5 @@
 import { CanvasIO } from "../../utils-ts/modules/CanvasIO.mjs";
-import { Diagonal, Direction } from "../../utils-ts/modules/geometry/Direction.mjs";
+import { Diagonal, Direction, Directions } from "../../utils-ts/modules/geometry/Direction.mjs";
 import { Rectangle } from "../../utils-ts/modules/geometry/Rectangle.mjs";
 import { Vector } from "../../utils-ts/modules/geometry/Vector.mjs";
 import { MathUtils } from "../../utils-ts/modules/math/MathUtils.mjs";
@@ -9,9 +9,11 @@ import { Octant, Octants } from "../game-utilities/Octant.mjs";
 import { Collideable } from "../game-utilities/physics-engine/Collideable.mjs";
 import { Renderable } from "../world/Renderer.mjs";
 import { Tiles } from "../world/Tiles.mjs";
-import { Slope, World } from "../world/World.mjs";
+import { World } from "../world/World.mjs";
 import { Tile } from "./Tile.mjs";
 import { TowerTile } from "./TowerTile.mjs";
+
+export type Slope = (typeof WorldData.SLOPES)[number];
 
 export class SlopeTile extends Tile {
 	readonly shape: Slope;
@@ -146,7 +148,33 @@ export class SlopeTile extends Tile {
 	blocksMovement(tilePosition: Vector, collideable: Collideable, direction: Direction, hitboxes: Rectangle[], newHitboxes: Rectangle[]): boolean {
 		return newHitboxes.some(h => this.intersects(h, tilePosition));
 	}
-	rectIntersectionDistance(): number {
-		throw new Error("Unimplemented.");
+
+	rectIntersectionDistance(tilePosition: Vector, rect: Rectangle, direction: Direction): number {
+		if(this.intersects(rect, tilePosition)) { return 0; }
+
+		const tileSquare = Tiles.getTileSquare(tilePosition);
+		const rayDirection = Vector.unit(direction);
+		if(Directions.isHorizontal(direction)) {
+			const topCorner = rect.getCorner(Directions.createDiagonal[direction]["up"]);
+			const bottomCorner = rect.getCorner(Directions.createDiagonal[direction]["down"]);
+			return Math.min(...[
+				...[topCorner, bottomCorner].map(c => this.rayIntersectionDistance(tilePosition, c, rayDirection))],
+				...[tileSquare.top(), tileSquare.bottom()].filter(y => y >= rect.top() && y <= rect.bottom())
+				.map(y => this.rayIntersectionDistance(tilePosition, new Vector(topCorner.x, y), rayDirection)),
+			);
+		}
+		else {
+			const leftCorner = rect.getCorner(Directions.createDiagonal["left"][direction]);
+			const rightCorner = rect.getCorner(Directions.createDiagonal["right"][direction]);
+			return Math.min(...[
+				...[leftCorner, rightCorner].map(c => this.rayIntersectionDistance(tilePosition, c, rayDirection)),
+				...[tileSquare.left(), tileSquare.right()].filter(x => x >= rect.left() && x <= rect.right())
+				.map(x => this.rayIntersectionDistance(tilePosition, new Vector(x, leftCorner.y), rayDirection)),
+			]);
+		}
+	}
+
+	static isSlope(value: unknown): value is (typeof WorldData.SLOPES)[number] {
+		return (WorldData.SLOPES as readonly unknown[]).includes(value);
 	}
 }

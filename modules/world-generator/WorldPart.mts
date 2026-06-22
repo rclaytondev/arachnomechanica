@@ -4,10 +4,10 @@ import { WorldData } from "../constants/GameData.mjs";
 import { RoomEntity } from "../level-generator/Room.mjs";
 import { BasicTile } from "../tiles/BasicTile.mjs";
 import { Platform } from "../tiles/Platform.mjs";
-import { SlopeTile } from "../tiles/SlopeTile.mjs";
+import { Slope, SlopeTile } from "../tiles/SlopeTile.mjs";
 import { Entities } from "../world/Entities.mjs";
 import { Tiles } from "../world/Tiles.mjs";
-import { Slope, World } from "../world/World.mjs";
+import { World } from "../world/World.mjs";
 
 export class WorldPart<EntityType extends RoomEntity> {
 	tiles: Tiles;
@@ -18,7 +18,7 @@ export class WorldPart<EntityType extends RoomEntity> {
 		for(const { x, y, type } of tilesData) {
 			const tile = (
 				type === "solid" ? BasicTile.BASIC_TILE
-				: World.isSlope(type as string) ? new SlopeTile(type as Slope)
+				: SlopeTile.isSlope(type as string) ? new SlopeTile(type as Slope)
 				: Platform.PLATFORM
 			);
 			tiles.set(x, y, tile);

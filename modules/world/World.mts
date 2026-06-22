@@ -21,10 +21,9 @@ import { WorldGenerator } from "../world-generator/WorldGenerator.mjs";
 import { Renderable, Renderer } from "./Renderer.mjs";
 import { Particles } from "../game-utilities/Particles.mjs";
 import { Debug } from "../game-utilities/Debug.mjs";
-import { SlopeTile } from "../tiles/SlopeTile.mjs";
+import { Slope, SlopeTile } from "../tiles/SlopeTile.mjs";
 import { StaticEntities } from "../game-utilities/StaticEntity.mjs";
 
-export type Slope = (typeof WorldData.SLOPES)[number];
 export type TileWithPosition = { position: Vector, tile: Tile };
 
 export class World {
@@ -128,25 +127,25 @@ export class World {
 		if(World.isEdgeSolid(adjacent, Directions.opposite[adjacentDirection], basicOnly) === empty) {
 			return 0;
 		}
-		if(World.isEdgeSolid(adjacent, perpendicularDirection, basicOnly) === empty && World.isSlopeTile(adjacent)) {
+		if(World.isEdgeSolid(adjacent, perpendicularDirection, basicOnly) === empty && adjacent instanceof SlopeTile) {
 			return 45;
 		}
 		if(World.isEdgeSolid(diagonal, Directions.opposite[perpendicularDirection], basicOnly) === empty) {
 			return 90;
 		}
-		if(World.isEdgeSolid(diagonal, Directions.opposite[adjacentDirection], basicOnly) === empty && World.isSlopeTile(diagonal)) {
+		if(World.isEdgeSolid(diagonal, Directions.opposite[adjacentDirection], basicOnly) === empty && diagonal instanceof SlopeTile) {
 			return 135;
 		}
 		if(World.isEdgeSolid(perpendicular, adjacentDirection, basicOnly) === empty) {
 			return 180;
 		}
-		if(World.isEdgeSolid(perpendicular, Directions.opposite[perpendicularDirection], basicOnly) === empty && World.isSlopeTile(perpendicular)) {
+		if(World.isEdgeSolid(perpendicular, Directions.opposite[perpendicularDirection], basicOnly) === empty && perpendicular instanceof SlopeTile) {
 			return 225;
 		}
 		if(World.isEdgeSolid(tile, perpendicularDirection, basicOnly) === empty) {
 			return 270;
 		}
-		if(World.isEdgeSolid(tile, adjacentDirection, basicOnly) === empty && World.isSlopeTile(tile)) {
+		if(World.isEdgeSolid(tile, adjacentDirection, basicOnly) === empty && tile instanceof SlopeTile) {
 			return 315;
 		}
 		return 360;
@@ -192,28 +191,6 @@ export class World {
 		}
 	}
 
-	static isSlope(value: unknown): value is (typeof WorldData.SLOPES)[number] {
-		return (WorldData.SLOPES as readonly unknown[]).includes(value);
-	}
-	static isSlopeTile(value: unknown): value is SlopeTile {
-		return value instanceof SlopeTile;
-	}
-	static isFullBasicTile(value: unknown): value is BasicTile & { shape: "full" } {
-		return value instanceof BasicTile;
-	}
-	static isFullTile(tile: Tile) {
-		return (
-			tile instanceof BasicTile
-			|| tile instanceof LaserBlock || tile instanceof SpikeballBlock
-		);
-	}
-	static isSemifullTile(tile: Tile, includePlaforms: boolean = false) {
-		return (
-			World.isFullTile(tile)
-			|| (includePlaforms && tile === Platform.PLATFORM)
-			|| tile instanceof SlopeTile
-		);
-	}
 	static isEdgeBasicSolid(tile: Tile, direction: Direction) {
 		if(tile instanceof SlopeTile) {
 			const edges = ({
