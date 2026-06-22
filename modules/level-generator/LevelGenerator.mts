@@ -143,7 +143,7 @@ export class LevelGenerator {
 		const offPath = allPositions.filter(p => !this.path.some(q => p.equals(q)));
 		const positions = [
 			...GameUtils.randomPermutation(offPath),
-			...GameUtils.randomPermutation(this.path),
+			...GameUtils.randomPermutation(this.path.slice(1, this.path.length - 1)),
 		];
 		const healthPickupRooms = ROOMS.filter(r => [...r.worldPart.entities].some(e => e instanceof HealthPickup));
 		for(const room of GameUtils.randomPermutation(healthPickupRooms)) {
