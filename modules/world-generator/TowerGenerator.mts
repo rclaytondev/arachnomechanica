@@ -40,12 +40,19 @@ export class TowerGenerator extends WorldGenerationSegment {
 			world.worldScreen.camera.position = world.player.hitbox.center();
 		}
 	}
-	static nextLevelTileRectangle(levels: number) {
+	static nextLevelTileRectangle(levels: number, includeBorder: boolean = false) {
 		const levelHeight = RoomData.SIZE * LevelGeneratorData.HEIGHT + LevelGeneratorData.BORDER_Y;
-		return new Rectangle(0, -levels * levelHeight, LevelGeneratorData.WIDTH * RoomData.SIZE, LevelGeneratorData.HEIGHT * RoomData.SIZE);
+		const rect = new Rectangle(0, -levels * levelHeight, LevelGeneratorData.WIDTH * RoomData.SIZE, LevelGeneratorData.HEIGHT * RoomData.SIZE);
+		if(includeBorder) {
+			return (rect
+				.extend("left", LevelGeneratorData.BORDER_X).extend("right", LevelGeneratorData.BORDER_X)
+				.extend("up", LevelGeneratorData.BORDER_Y).extend("down", LevelGeneratorData.BORDER_Y)
+			);
+		}
+		return rect;
 	}
-	nextLevelTileRectangle() {
-		return TowerGenerator.nextLevelTileRectangle(this.levelsVisited);
+	nextLevelTileRectangle(includeBorder: boolean = false) {
+		return TowerGenerator.nextLevelTileRectangle(this.levelsVisited, includeBorder);
 	}
 	generate(world: World) {
 		this.levelsGenerated ++;
