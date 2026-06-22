@@ -73,6 +73,10 @@ export class LevelGeneratorData {
 	static WEIGHT_BONUS = 1;
 };
 
+export class WorldGeneratorData {
+	static GENERATION_DISTANCE = WorldData.TILE_SIZE * 20;
+}
+
 export class PlayerData {
 	static HITBOX_WIDTH = WorldData.TILE_SIZE * 0.4;
 	static HITBOX_HEIGHT = WorldData.TILE_SIZE * 0.8;
