@@ -5,6 +5,7 @@ import { Rectangle } from "../utils-ts/modules/geometry/Rectangle.mjs";
 import { Vector } from "../utils-ts/modules/geometry/Vector.mjs";
 import { MathUtils } from "../utils-ts/modules/math/MathUtils.mjs";
 import { ItemData, PlayerData, WorldData } from "./constants/GameData.mjs";
+import { Debug } from "./game-utilities/Debug.mjs";
 import { GameUtils } from "./game-utilities/GameUtils.mjs";
 import { CollisionEvent } from "./game-utilities/physics-engine/CollisionEvent.mjs";
 import { RectangularCollideable } from "./game-utilities/physics-engine/RectangularCollideable.mjs";
@@ -105,11 +106,11 @@ export class Player extends RectangularCollideable {
 		}
 	}
 	checkInputs(world: World, canvasIO: CanvasIO) {
-		if(canvasIO.keys.ArrowRight && !canvasIO.keys.ArrowLeft) {
+		if(canvasIO.keys.ArrowRight && !canvasIO.keys.ArrowLeft && !Debug.freeCameraMode) {
 			this.velocity.x += PlayerData.HORIZONTAL_ACCELERATION;
 			this.facing = "right";
 		}
-		if(canvasIO.keys.ArrowLeft && !canvasIO.keys.ArrowRight) {
+		if(canvasIO.keys.ArrowLeft && !canvasIO.keys.ArrowRight && !Debug.freeCameraMode) {
 			this.velocity.x -= PlayerData.HORIZONTAL_ACCELERATION;
 			this.facing = "left";
 		}

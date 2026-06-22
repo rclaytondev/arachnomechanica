@@ -1,4 +1,4 @@
-import { CanvasIO } from "../../utils-ts/modules/CanvasIO.mjs";
+import { canvasIO, CanvasIO } from "../../utils-ts/modules/CanvasIO.mjs";
 import { DEBUG_SETTINGS } from "../constants/DebugSettings.mjs";
 import { ROOMS } from "../constants/Rooms.mjs";
 import { Main } from "../Main.mjs";
@@ -6,6 +6,8 @@ import { RoomEditor } from "../RoomEditor.mjs";
 import { LoadingManager } from "../app-entry-points/LoadingManager.mjs";
 import { Camera } from "../world/Camera.mjs";
 import { WorldData } from "../constants/GameData.mjs";
+import { GameUtils } from "./GameUtils.mjs";
+import { Vector } from "../../utils-ts/modules/geometry/Vector.mjs";
 
 export class Debug {
 	static recordedRNG: number[] = [];
@@ -68,6 +70,18 @@ export class Debug {
 		canvasIO.ctx.textAlign = "left";
 		canvasIO.ctx.textBaseline = "top";
 		canvasIO.ctx.fillText(coordinates.toString(), canvasIO.mouse.position.x, canvasIO.mouse.position.y);
+	}
+
+	static freeCameraMode = false;
+	static updateFreeCameraMode(camera: Camera) {
+		if(canvasIO?.keys.Enter && !GameUtils.pastKeys.Enter && DEBUG_SETTINGS.FREE_CAMERA_MODE) {
+			Debug.freeCameraMode = !Debug.freeCameraMode;
+		}
+
+		const keyDirection = canvasIO!.keyDirection(true);
+		if(keyDirection != null && Debug.freeCameraMode) {
+			camera.position = camera.position.add(Vector.gridUnit(keyDirection).multiply(DEBUG_SETTINGS.FREE_CAMERA_SPEED));
+		}
 	}
 }
 

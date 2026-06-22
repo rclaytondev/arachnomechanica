@@ -2,6 +2,7 @@ import { CanvasIO } from "../../utils-ts/modules/CanvasIO.mjs";
 import { Rectangle } from "../../utils-ts/modules/geometry/Rectangle.mjs";
 import { Vector } from "../../utils-ts/modules/geometry/Vector.mjs";
 import { WorldData } from "../constants/GameData.mjs";
+import { Debug } from "../game-utilities/Debug.mjs";
 import { GameUtils } from "../game-utilities/GameUtils.mjs";
 
 export class Camera {
@@ -38,6 +39,9 @@ export class Camera {
 	}
 
 	update(target: Vector) {
-		this.position = GameUtils.moveVectorTowards(this.position, target, WorldData.CAMERA_SPEED);
+		if(!Debug.freeCameraMode) {
+			this.position = GameUtils.moveVectorTowards(this.position, target, WorldData.CAMERA_SPEED);
+		}
+		Debug.updateFreeCameraMode(this);
 	}
 }
