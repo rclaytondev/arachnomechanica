@@ -5,15 +5,11 @@ import { Vector } from "../../utils-ts/modules/geometry/Vector.mjs";
 import { WorldData } from "../constants/GameData.mjs";
 import { Player } from "../Player.mjs";
 import { GameUtils } from "../game-utilities/GameUtils.mjs";
-import { LaserBlock } from "../entities/LaserBlock.mjs";
-import { SpikeballBlock } from "../entities/SpikeballBlock.mjs";
-import { BasicTile } from "../tiles/BasicTile.mjs";
 import { Entities } from "./Entities.mjs";
 import { Entity } from "../game-utilities/Entity.mjs";
 import { Collideable } from "../game-utilities/physics-engine/Collideable.mjs";
 import { EmptyTile } from "../tiles/EmptyTile.mjs";
 import { Tile } from "../tiles/Tile.mjs";
-import { Platform } from "../tiles/Platform.mjs";
 import { Tiles } from "./Tiles.mjs";
 import { WorldScreen } from "./WorldScreen.mjs";
 import { Camera } from "./Camera.mjs";
@@ -115,41 +111,6 @@ export class World {
 		return distance <= this.lineIntersectionDistance(position, direction, distance, [], collides);
 	}
 
-	angle(position: Vector, adjacentDirection: Direction, perpendicularDirection: Direction, empty: boolean = true, basicOnly: boolean = true) {
-		return World.angle(position, adjacentDirection, perpendicularDirection, empty, basicOnly, this.tiles);
-	}
-	static angle(position: Vector, adjacentDirection: Direction, perpendicularDirection: Direction, empty: boolean = true, basicOnly: boolean = true, tiles: Tiles) {
-		/* Returns the angle before encountering a solid/empty, when first moving in `adjacentDirection` and then in `perpendicularDirection` and then in a circle after that. */
-		const tile = tiles.get(position);
-		const adjacent = tiles.get(position.add(Vector.unit(adjacentDirection)));
-		const diagonal = tiles.get(position.add(Vector.unit(adjacentDirection)).add(Vector.unit(perpendicularDirection)));
-		const perpendicular = tiles.get(position.add(Vector.unit(perpendicularDirection)));
-		if(World.isEdgeSolid(adjacent, Directions.opposite[adjacentDirection], basicOnly) === empty) {
-			return 0;
-		}
-		if(World.isEdgeSolid(adjacent, perpendicularDirection, basicOnly) === empty && adjacent instanceof SlopeTile) {
-			return 45;
-		}
-		if(World.isEdgeSolid(diagonal, Directions.opposite[perpendicularDirection], basicOnly) === empty) {
-			return 90;
-		}
-		if(World.isEdgeSolid(diagonal, Directions.opposite[adjacentDirection], basicOnly) === empty && diagonal instanceof SlopeTile) {
-			return 135;
-		}
-		if(World.isEdgeSolid(perpendicular, adjacentDirection, basicOnly) === empty) {
-			return 180;
-		}
-		if(World.isEdgeSolid(perpendicular, Directions.opposite[perpendicularDirection], basicOnly) === empty && perpendicular instanceof SlopeTile) {
-			return 225;
-		}
-		if(World.isEdgeSolid(tile, perpendicularDirection, basicOnly) === empty) {
-			return 270;
-		}
-		if(World.isEdgeSolid(tile, adjacentDirection, basicOnly) === empty && tile instanceof SlopeTile) {
-			return 315;
-		}
-		return 360;
-	}
 	angularMotionBlockers(point: Vector, direction: "clockwise" | "counterclockwise", collides: (e: Collideable) => boolean) {
 		const blockers = new Set([
 			...this.entities.angularMotionBlockers(point, collides),
@@ -189,26 +150,6 @@ export class World {
 				entity.damage(hurtbox, this, canvasIO);
 			}
 		}
-	}
-
-	static isEdgeBasicSolid(tile: Tile, direction: Direction) {
-		if(tile instanceof SlopeTile) {
-			const edges = ({
-				"slope-floor-left": ["left", "down"],
-				"slope-floor-right": ["right", "down"],
-				"slope-ceiling-left": ["left", "up"],
-				"slope-ceiling-right": ["right", "up"],
-			} as const)[tile.shape];
-			return (edges as readonly Direction[]).includes(direction);
-		}
-		return tile instanceof BasicTile;
-	}
-	static isEdgeSolid(tile: Tile, direction: Direction, basicOnly: boolean = false) {
-		if(World.isEdgeBasicSolid(tile, direction)) { return true; }
-		return !basicOnly && (
-			(tile instanceof LaserBlock || tile instanceof SpikeballBlock)
-			|| (tile === Platform.PLATFORM && direction === "up")
-		);
 	}
 
 	intersectingEntities() {

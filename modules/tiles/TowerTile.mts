@@ -2,8 +2,11 @@ import { CanvasIO } from "../../utils-ts/modules/CanvasIO.mjs";
 import { Direction, Directions } from "../../utils-ts/modules/geometry/Direction.mjs";
 import { Vector } from "../../utils-ts/modules/geometry/Vector.mjs";
 import { WorldData } from "../constants/GameData.mjs";
+import { Tiles } from "../world/Tiles.mjs";
 import { World } from "../world/World.mjs";
-import { Slope } from "./SlopeTile.mjs";
+import { BasicTile } from "./BasicTile.mjs";
+import { Slope, SlopeTile } from "./SlopeTile.mjs";
+import { Tile } from "./Tile.mjs";
 
 export class TowerTile {
 	static displaySlopedAccent(position: Vector, canvasIO: CanvasIO, tile: Slope, world: World) {
@@ -44,7 +47,7 @@ export class TowerTile {
 		const directions = TowerTile.slopeEdges(tile);
 		for(const [edge, direction] of [directions, [...directions].reverse()]) {
 			const edgeCenter = center.add(Vector.unit(edge).multiply(WorldData.TILE_ACCENT_RADIUS));
-			if(!World.isEdgeBasicSolid(world.originalTiles.get(position.add(Vector.unit(edge))), Directions.opposite[edge])) {
+			if(!TowerTile.isEdgeBasicSolid(world.originalTiles.get(position.add(Vector.unit(edge))), Directions.opposite[edge])) {
 				const vertex1 = edgeCenter.add(Vector.unit(direction).multiply(-(WorldData.TILE_SIZE / 2 - WorldData.TILE_ACCENT_INSET * (1 + Math.SQRT2))));
 				const vertex2 = edgeCenter.add(Vector.unit(direction).multiply(TowerTile.getAccentLength(position, edge, direction, world)));
 				canvasIO.strokeLine(vertex1.x, vertex1.y, vertex2.x, vertex2.y);
@@ -52,7 +55,7 @@ export class TowerTile {
 		}
 	}
 	static getSlopeAccentLength(position: Vector, adjacentDirection: Direction, perpendicularDirection: Direction, world: World) {
-		const angle = World.angle(position, adjacentDirection, perpendicularDirection, false, true, world.originalTiles);
+		const angle = TowerTile.angle(position, adjacentDirection, perpendicularDirection, false, world.originalTiles);
 		const defaultLength = WorldData.TILE_SIZE / Math.SQRT2 + WorldData.TILE_ACCENT_INSET * (1 + Math.SQRT2);
 		return ({
 			0: WorldData.TILE_SIZE / Math.SQRT2 - WorldData.TILE_ACCENT_INSET * (1 + Math.SQRT2),
@@ -64,7 +67,7 @@ export class TowerTile {
 		} as { [key: number]: number } )[angle] ?? defaultLength;
 	}
 	static getAccentLength(position: Vector, side: Direction, direction: Direction, world: World): number {
-		const angle = World.angle(position, direction, side, false, true, world.originalTiles);
+		const angle = TowerTile.angle(position, direction, side, false, world.originalTiles);
 		const defaultLength = WorldData.TILE_SIZE / 2 + WorldData.TILE_ACCENT_INSET * (Math.SQRT2 + 1);
 		return ({
 			0: WorldData.TILE_ACCENT_RADIUS,
@@ -82,7 +85,7 @@ export class TowerTile {
 		const center = position.multiply(WorldData.TILE_SIZE).add(WorldData.TILE_SIZE / 2, WorldData.TILE_SIZE / 2);
 		for(const side of Directions.DIRECTIONS) {
 			const adjacentTile = world.originalTiles.get(position.add(Vector.unit(side)));
-			if(World.isEdgeBasicSolid(adjacentTile, Directions.opposite[side])) { continue; }
+			if(TowerTile.isEdgeBasicSolid(adjacentTile, Directions.opposite[side])) { continue; }
 
 			const edgeCenter = center.add(Vector.unit(side).multiply(WorldData.TILE_ACCENT_RADIUS));
 			for(const direction of [Directions.rotateClockwise[side], Directions.rotateCounterclockwise[side]] as Direction[]) {
@@ -103,5 +106,45 @@ export class TowerTile {
 			"slope-ceiling-left": ["left", "up"],
 			"slope-ceiling-right": ["right", "up"],
 		} as const)[tile];
+	}
+	static isEdgeBasicSolid(tile: Tile, direction: Direction) {
+		if(tile instanceof SlopeTile) {
+			const edges = TowerTile.slopeEdges(tile.shape);
+			return (edges as readonly Direction[]).includes(direction);
+		}
+		return tile instanceof BasicTile;
+	}
+
+	static angle(position: Vector, adjacentDirection: Direction, perpendicularDirection: Direction, empty: boolean = true, tiles: Tiles) {
+		/* Returns the angle before encountering a solid/empty, when first moving in `adjacentDirection` and then in `perpendicularDirection` and then in a circle after that. */
+		const tile = tiles.get(position);
+		const adjacent = tiles.get(position.add(Vector.unit(adjacentDirection)));
+		const diagonal = tiles.get(position.add(Vector.unit(adjacentDirection)).add(Vector.unit(perpendicularDirection)));
+		const perpendicular = tiles.get(position.add(Vector.unit(perpendicularDirection)));
+		if(TowerTile.isEdgeBasicSolid(adjacent, Directions.opposite[adjacentDirection]) === empty) {
+			return 0;
+		}
+		if(TowerTile.isEdgeBasicSolid(adjacent, perpendicularDirection) === empty && adjacent instanceof SlopeTile) {
+			return 45;
+		}
+		if(TowerTile.isEdgeBasicSolid(diagonal, Directions.opposite[perpendicularDirection]) === empty) {
+			return 90;
+		}
+		if(TowerTile.isEdgeBasicSolid(diagonal, Directions.opposite[adjacentDirection]) === empty && diagonal instanceof SlopeTile) {
+			return 135;
+		}
+		if(TowerTile.isEdgeBasicSolid(perpendicular, adjacentDirection) === empty) {
+			return 180;
+		}
+		if(TowerTile.isEdgeBasicSolid(perpendicular, Directions.opposite[perpendicularDirection]) === empty && perpendicular instanceof SlopeTile) {
+			return 225;
+		}
+		if(TowerTile.isEdgeBasicSolid(tile, perpendicularDirection) === empty) {
+			return 270;
+		}
+		if(TowerTile.isEdgeBasicSolid(tile, adjacentDirection) === empty && tile instanceof SlopeTile) {
+			return 315;
+		}
+		return 360;
 	}
 }
