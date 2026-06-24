@@ -13,6 +13,7 @@ import { BasicTile } from "./tiles/BasicTile.mjs";
 import { EmptyTile } from "./tiles/EmptyTile.mjs";
 import { Platform } from "./tiles/Platform.mjs";
 import { Tile } from "./tiles/Tile.mjs";
+import { TowerTile } from "./tiles/TowerTile.mjs";
 import { Tiles } from "./world/Tiles.mjs";
 import { HealthPickup } from "./entities/HealthPickup.mjs";
 import { SpawnPoint } from "./entities/SpawnPoint.mjs";
@@ -59,7 +60,7 @@ export class RoomEditor {
 		const position = Tiles.getTileCoordinates(canvasIO.mouse.position);
 		if(canvasIO.mouse.button === "left") {
 			if(this.mode === "solid") {
-				this.setTile(position, canvasIO.mouse.button === "left" ? BasicTile.BASIC_TILE : EmptyTile.EMPTY);
+				this.setTile(position, canvasIO.mouse.button === "left" ? TowerTile.TOWER_TILE : EmptyTile.EMPTY);
 			}
 			else if(this.mode === "platform") {
 				this.setTile(position, canvasIO.mouse.button === "left" ? Platform.PLATFORM : EmptyTile.EMPTY);

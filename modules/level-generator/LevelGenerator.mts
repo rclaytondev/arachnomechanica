@@ -8,6 +8,7 @@ import { DEBUG_SETTINGS } from "../constants/DebugSettings.mjs";
 import { LevelGeneratorData, RoomData } from "../constants/GameData.mjs";
 import { GameUtils } from "../game-utilities/GameUtils.mjs";
 import { BasicTile } from "../tiles/BasicTile.mjs";
+import { TowerTile } from "../tiles/TowerTile.mjs";
 import { World } from "../world/World.mjs";
 import { GateState } from "./GateState.mjs";
 import { Room } from "./Room.mjs";
@@ -239,15 +240,15 @@ export class LevelGenerator {
 					this.position.y + position.y * RoomData.SIZE,
 					RoomData.SIZE,
 				);
-				world.tiles.fillRect(rectangle, BasicTile.BASIC_TILE);
-				world.originalTiles.fillRect(rectangle, BasicTile.BASIC_TILE);
+				world.tiles.fillRect(rectangle, TowerTile.TOWER_TILE);
+				world.originalTiles.fillRect(rectangle, TowerTile.TOWER_TILE);
 			}
 		}
 	}
 	addBorders(world: World) {
 		const fillSolidRect = (x: number, y: number, w: number, h: number) => {
-			world.tiles.fillRect(new Rectangle(x, y, w, h), BasicTile.BASIC_TILE);
-			world.originalTiles.fillRect(new Rectangle(x, y, w, h), BasicTile.BASIC_TILE);
+			world.tiles.fillRect(new Rectangle(x, y, w, h), TowerTile.TOWER_TILE);
+			world.originalTiles.fillRect(new Rectangle(x, y, w, h), TowerTile.TOWER_TILE);
 		};
 
 		fillSolidRect(

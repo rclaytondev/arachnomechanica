@@ -2,7 +2,7 @@ import { assert } from "chai";
 import { Vector } from "../../utils-ts/modules/geometry/Vector.mjs";
 import { WorldData } from "../constants/GameData.mjs";
 import { PointOnSurface } from "../entities/Spider.mjs";
-import { BasicTile } from "../tiles/BasicTile.mjs";
+import { TowerTile } from "../tiles/TowerTile.mjs";
 import { World } from "../world/World.mjs";
 import { Directions } from "../../utils-ts/modules/geometry/Direction.mjs";
 import { InvisibleRectangle } from "../game-utilities/physics-engine/InvisibleRectangle.mjs";
@@ -13,7 +13,7 @@ import { Entities } from "../world/Entities.mjs";
 // describe("PointOnSurface.surfaceEndDistanceCW", () => {
 // 	it("can return distance to the end of a tile when on the left edge", () => {
 // 		const world = new World(false);
-// 		const tile = BasicTile.BASIC_TILE("full");
+// 		const tile = TowerTile.TOWER_TILE("full");
 // 		world.tiles.set(1, 2, tile);
 // 		const point = new PointOnSurface(new Vector(WorldData.TILE_SIZE, 2 * WorldData.TILE_SIZE + 10), "left");
 // 		const distance = point.surfaceEndDistanceCW(world);
@@ -24,7 +24,7 @@ import { Entities } from "../world/Entities.mjs";
 describe("Tiles.angularMotionBlockers", () => {
 	it("works for corners of tiles", () => {
 		const tiles = new Tiles();
-		tiles.set(0, 0, BasicTile.BASIC_TILE);
+		tiles.set(0, 0, TowerTile.TOWER_TILE);
 
 		const octantsTopLeft = tiles.angularMotionBlockers(new Vector(0, 0), "clockwise");
 		assert.sameMembers(octantsTopLeft, ["right", "down-right", "down"]);
@@ -40,7 +40,7 @@ describe("Tiles.angularMotionBlockers", () => {
 	});
 	it("returns an empty list when the point is not on the edge or corner of any solid", () => {
 		const tiles = new Tiles();
-		tiles.set(0, 0, BasicTile.BASIC_TILE);
+		tiles.set(0, 0, TowerTile.TOWER_TILE);
 
 		const octants1 = tiles.angularMotionBlockers(new Vector(-1, 0), "clockwise");
 		const octants2 = tiles.angularMotionBlockers(new Vector(0, -1), "clockwise");
@@ -49,14 +49,14 @@ describe("Tiles.angularMotionBlockers", () => {
 	});
 	it("returns a list containing all eight directions when the point is inside a tile", () => {
 		const tiles = new Tiles();
-		tiles.set(0, 0, BasicTile.BASIC_TILE);
+		tiles.set(0, 0, TowerTile.TOWER_TILE);
 
 		const octants = tiles.angularMotionBlockers(new Vector(1, 1), "clockwise");
 		assert.sameMembers(octants, [...Directions.DIRECTIONS, ...Directions.DIAGONALS]);
 	});
 	it("works when the point is on an edge of a tile", () => {
 		const tiles = new Tiles();
-		tiles.set(0, 0, BasicTile.BASIC_TILE);
+		tiles.set(0, 0, TowerTile.TOWER_TILE);
 
 		const octantsTop = tiles.angularMotionBlockers(new Vector(1, 0), "clockwise");
 		assert.sameMembers(octantsTop, ["right", "down-right", "down", "down-left", "left"]);
@@ -116,7 +116,7 @@ describe("Entitites.angularMotionBlockers", () => {
 describe("PointOnSurface.nextPoint", () => {
 	it("works when moving from a tile to an entity", () => {
 		const world = new World(false);
-		world.tiles.set(0, 0, BasicTile.BASIC_TILE);
+		world.tiles.set(0, 0, TowerTile.TOWER_TILE);
 		world.entities.add(new InvisibleRectangle(new Rectangle(10, -10, 10, 10)));
 
 		const point = new PointOnSurface(new Vector(10, 0), "up");
@@ -126,7 +126,7 @@ describe("PointOnSurface.nextPoint", () => {
 	});
 	it("works when moving from a tile to an entity counterclockwise", () => {
 		const world = new World(false);
-		world.tiles.set(0, 0, BasicTile.BASIC_TILE);
+		world.tiles.set(0, 0, TowerTile.TOWER_TILE);
 		world.entities.add(new InvisibleRectangle(new Rectangle(10, -10, 10, 10)));
 
 		const point = new PointOnSurface(new Vector(10, 0), "up");

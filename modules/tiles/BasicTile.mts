@@ -10,20 +10,13 @@ import { Renderable } from "../world/Renderer.mjs";
 import { Tiles } from "../world/Tiles.mjs";
 import { World } from "../world/World.mjs";
 import { Tile } from "./Tile.mjs";
-import { TowerTile } from "./TowerTile.mjs";
 
-export class BasicTile extends Tile {
-	static BASIC_TILE = new BasicTile();
-
-	private constructor() {
-		super();
-	}
-
+export abstract class BasicTile extends Tile {
 	copy() {
-		return BasicTile.BASIC_TILE;
+		return this;
 	}
 	reflect(): BasicTile {
-		return BasicTile.BASIC_TILE;
+		return this;
 	}
 	equals(tile: unknown) {
 		return tile instanceof BasicTile;
@@ -57,21 +50,7 @@ export class BasicTile extends Tile {
 		);
 	}
 
-	render(position: Vector, world: World) {
-		return [
-			new Renderable(c => this.display(c, position.x, position.y), "tile"),
-			new Renderable(c => this.displayAccent(position, c, world), "tile-accent"),
-		];
-	}
-	displayAccent(position: Vector, canvasIO: CanvasIO, world: World) {
-		TowerTile.displayTileAccent(position, canvasIO, world);
-	}
-	display(canvasIO: CanvasIO, x: number, y: number): void {
-		canvasIO.ctx.fillStyle = WorldData.TILE_COLORS["tower"];
-		canvasIO.ctx.beginPath();
-		this.addToPath(new Vector(x, y), canvasIO);
-		canvasIO.ctx.fill();
-	}
+	abstract render(position: Vector, world: World): Renderable[];
 
 	rayIntersectionDistance(tilePosition: Vector, rayStart: Vector, rayDirection: Vector): number {
 		return GameUtils.rayIntersectsRectangle(rayStart, rayDirection, Tiles.getTileSquare(tilePosition));

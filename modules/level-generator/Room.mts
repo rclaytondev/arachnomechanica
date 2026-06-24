@@ -7,6 +7,7 @@ import { Gate } from "../entities/Gate.mjs";
 import { World } from "../world/World.mjs";
 import { Portal } from "../entities/Portal.mjs";
 import { BasicTile } from "../tiles/BasicTile.mjs";
+import { TowerTile } from "../tiles/TowerTile.mjs";
 import { Rooms, ROOMS } from "../constants/Rooms.mjs";
 import { SpawnPoint } from "../entities/SpawnPoint.mjs";
 import { HealthPickup } from "../entities/HealthPickup.mjs";
@@ -63,7 +64,7 @@ export class Room {
 
 		for(const [direction, position] of this.exitTiles.entries()) {
 			if(direction !== "none" && !exits.has(direction)) {
-				world.addOriginalTile(position.add(tileOffset), BasicTile.BASIC_TILE);
+				world.addOriginalTile(position.add(tileOffset), TowerTile.TOWER_TILE);
 				Gate.deleteGateAt(position.add(tileOffset), world);
 			}
 		}

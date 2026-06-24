@@ -2,9 +2,9 @@ import { Direction, Directions } from "../../utils-ts/modules/geometry/Direction
 import { Vector } from "../../utils-ts/modules/geometry/Vector.mjs";
 import { WorldData } from "../constants/GameData.mjs";
 import { RoomEntity } from "../level-generator/Room.mjs";
-import { BasicTile } from "../tiles/BasicTile.mjs";
 import { Platform } from "../tiles/Platform.mjs";
 import { Slope, SlopeTile } from "../tiles/SlopeTile.mjs";
+import { TowerTile } from "../tiles/TowerTile.mjs";
 import { Entities } from "../world/Entities.mjs";
 import { Tiles } from "../world/Tiles.mjs";
 import { World } from "../world/World.mjs";
@@ -17,7 +17,7 @@ export class WorldPart<EntityType extends RoomEntity> {
 		const tiles = new Tiles();
 		for(const { x, y, type } of tilesData) {
 			const tile = (
-				type === "solid" ? BasicTile.BASIC_TILE
+				type === "solid" ? TowerTile.TOWER_TILE
 				: SlopeTile.isSlope(type as string) ? new SlopeTile(type as Slope)
 				: Platform.PLATFORM
 			);

@@ -2,13 +2,36 @@ import { CanvasIO } from "../../utils-ts/modules/CanvasIO.mjs";
 import { Direction, Directions } from "../../utils-ts/modules/geometry/Direction.mjs";
 import { Vector } from "../../utils-ts/modules/geometry/Vector.mjs";
 import { WorldData } from "../constants/GameData.mjs";
+import { Renderable } from "../world/Renderer.mjs";
 import { Tiles } from "../world/Tiles.mjs";
 import { World } from "../world/World.mjs";
 import { BasicTile } from "./BasicTile.mjs";
 import { Slope, SlopeTile } from "./SlopeTile.mjs";
 import { Tile } from "./Tile.mjs";
 
-export class TowerTile {
+export class TowerTile extends BasicTile {
+	static TOWER_TILE = new TowerTile();
+
+	private constructor() {
+		super();
+	}
+
+	render(position: Vector, world: World) {
+		return [
+			new Renderable(c => this.display(c, position.x, position.y), "tile"),
+			new Renderable(c => this.displayAccent(position, c, world), "tile-accent"),
+		];
+	}
+	displayAccent(position: Vector, canvasIO: CanvasIO, world: World) {
+		TowerTile.displayTileAccent(position, canvasIO, world);
+	}
+	display(canvasIO: CanvasIO, x: number, y: number): void {
+		canvasIO.ctx.fillStyle = WorldData.TILE_COLORS["tower"];
+		canvasIO.ctx.beginPath();
+		this.addToPath(new Vector(x, y), canvasIO);
+		canvasIO.ctx.fill();
+	}
+
 	static displaySlopedAccent(position: Vector, canvasIO: CanvasIO, tile: Slope, world: World) {
 		const inwardNormal = {
 			"slope-floor-left": new Vector(-1, 1),
