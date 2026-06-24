@@ -75,6 +75,10 @@ export class LevelGeneratorData {
 
 export class WorldGeneratorData {
 	static GENERATION_DISTANCE = WorldData.TILE_SIZE * 20;
+
+	static TOWER_OUTSIDE_WIDTH = 15;
+	static GROUND_DEPTH = 10;
+	static GROUND_OFFSET = 8;
 }
 
 export class PlayerData {
