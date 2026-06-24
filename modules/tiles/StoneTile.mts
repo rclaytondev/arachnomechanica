@@ -10,6 +10,7 @@ import { Camera } from "../world/Camera.mjs";
 import { Renderable } from "../world/Renderer.mjs";
 import { World } from "../world/World.mjs";
 import { BasicTile } from "./BasicTile.mjs";
+import { StoneSlope } from "./StoneSlope.mjs";
 
 export class StoneTile extends BasicTile {
 	static STONE_TILE = new StoneTile();
@@ -79,7 +80,7 @@ export class StoneTile extends BasicTile {
 		for(let x = visibleTileRegion.left(); x < visibleTileRegion.right(); x ++) {
 			for(let y = visibleTileRegion.top(); y < visibleTileRegion.bottom(); y ++) {
 				const tile = world.tiles.get(x, y);
-				if(tile instanceof StoneTile) {
+				if(tile instanceof StoneTile || tile instanceof StoneSlope) {
 					tile.addToPath(new Vector(x, y), canvasIO);
 				}
 			}
