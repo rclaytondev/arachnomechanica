@@ -42,7 +42,7 @@ export class World {
 
 	render(canvasIO: CanvasIO, camera: Camera, renderer: Renderer) {
 		this.entities.render(camera, renderer, canvasIO, this);
-		this.staticEntities.render(renderer, this);
+		this.staticEntities.render(renderer, this, camera);
 		this.tiles.render(camera, renderer, canvasIO, this);
 		this.particles.render(renderer);
 

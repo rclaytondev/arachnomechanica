@@ -1,10 +1,11 @@
 import { CanvasIO } from "../../utils-ts/modules/CanvasIO.mjs";
+import { Camera } from "../world/Camera.mjs";
 import { Renderable, Renderer } from "../world/Renderer.mjs";
 import { World } from "../world/World.mjs";
 
 export abstract class StaticEntity {
 	abstract update(world: World, canvasIO: CanvasIO): void;
-	abstract render(world: World): Renderable[];
+	abstract render(world: World, camera: Camera): Renderable[];
 }
 
 export class StaticEntities {
@@ -15,9 +16,9 @@ export class StaticEntities {
 			entity.update(world, canvasIO);
 		}
 	}
-	render(renderer: Renderer, world: World) {
+	render(renderer: Renderer, world: World, camera: Camera) {
 		for(const entity of this.entitiesList) {
-			for(const renderable of entity.render(world)) {
+			for(const renderable of entity.render(world, camera)) {
 				renderer.renderables.push(renderable);
 			}
 		}
