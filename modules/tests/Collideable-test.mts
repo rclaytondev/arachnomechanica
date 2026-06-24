@@ -6,7 +6,7 @@ import { RectangularCollideable } from "../game-utilities/physics-engine/Rectang
 import { Collideable } from "../game-utilities/physics-engine/Collideable.mjs";
 import { Vector } from "../../utils-ts/modules/geometry/Vector.mjs";
 import { WorldData } from "../constants/GameData.mjs";
-import { SlopeTile } from "../tiles/SlopeTile.mjs";
+import { TowerSlope } from "../tiles/TowerSlope.mjs";
 
 class CollideableSpy extends RectangularCollideable {
 	name: string;
@@ -201,7 +201,7 @@ describe("Collideable.moveUnit", () => {
 		const world = createWorld([
 			collideable = new CollideableSpy(new Rectangle(0, -10, 10, 10), "collideable", true),
 		], [
-			{ position: new Vector(0, 0), tile: new SlopeTile("slope-floor-left") },
+			{ position: new Vector(0, 0), tile: new TowerSlope("slope-floor-left") },
 		]);
 		collideable.moveUnit("right", world, canvasIO!, { });
 
@@ -212,7 +212,7 @@ describe("Collideable.moveUnit", () => {
 		const world = createWorld([
 			collideable = new CollideableSpy(new Rectangle(WorldData.TILE_SIZE - 10, -10, 10, 10), "collideable", true),
 		], [
-			{ position: new Vector(0, 0), tile: new SlopeTile("slope-floor-right") },
+			{ position: new Vector(0, 0), tile: new TowerSlope("slope-floor-right") },
 		]);
 		collideable.moveUnit("left", world, canvasIO!, { });
 
@@ -223,7 +223,7 @@ describe("Collideable.moveUnit", () => {
 		const world = createWorld([
 			collideable = new CollideableSpy(new Rectangle(WorldData.TILE_SIZE, WorldData.TILE_SIZE - 10, 10, 10), "collideable", true),
 		], [
-			{ position: new Vector(0, 0), tile: new SlopeTile("slope-floor-left") },
+			{ position: new Vector(0, 0), tile: new TowerSlope("slope-floor-left") },
 		]);
 		collideable.moveUnit("left", world, canvasIO!, { });
 
@@ -234,7 +234,7 @@ describe("Collideable.moveUnit", () => {
 		const world = createWorld([
 			collideable = new CollideableSpy(new Rectangle(-10, WorldData.TILE_SIZE - 10, 10, 10), "collideable", true),
 		], [
-			{ position: new Vector(0, 0), tile: new SlopeTile("slope-floor-right") },
+			{ position: new Vector(0, 0), tile: new TowerSlope("slope-floor-right") },
 		]);
 		collideable.moveUnit("right", world, canvasIO!, { });
 
@@ -247,7 +247,7 @@ describe("Collideable.moveUnit", () => {
 			pusher = new CollideableSpy(new Rectangle(-10, WorldData.TILE_SIZE - 20, 10, 20), "pusher", true),
 			pushed = new CollideableSpy(new Rectangle(0, WorldData.TILE_SIZE - 20, 10, 10), "pushed", true),
 		], [
-			{ position: new Vector(0, 0), tile: new SlopeTile("slope-floor-right") },
+			{ position: new Vector(0, 0), tile: new TowerSlope("slope-floor-right") },
 		]);
 		pusher.moveUnit("right", world, canvasIO!, { });
 
@@ -264,7 +264,7 @@ describe("Collideable.moveUnit", () => {
 			pusher = new CollideableSpy(new Rectangle(-10, WorldData.TILE_SIZE - 10, 10, 10), "pusher", true),
 			pushable = new CollideableSpy(new Rectangle(-10, WorldData.TILE_SIZE - 20, 10, 10), "pushable", true),
 		], [
-			{ position: new Vector(0, 0), tile: new SlopeTile("slope-floor-right") },
+			{ position: new Vector(0, 0), tile: new TowerSlope("slope-floor-right") },
 		]);
 		pusher.moveUnit("right", world, canvasIO!, { });
 
@@ -279,7 +279,7 @@ describe("Collideable.moveUnit", () => {
 			pusher = new CollideableSpy(new Rectangle(0, -10, 10, 10), "pusher", true),
 			pushed = new CollideableSpy(new Rectangle(10, -10, 10, 20), "pushed", true),
 		], [
-			{ position: new Vector(0, 0), tile: new SlopeTile("slope-floor-left") },
+			{ position: new Vector(0, 0), tile: new TowerSlope("slope-floor-left") },
 		]);
 		pusher.moveUnit("right", world, canvasIO!, { });
 
@@ -292,7 +292,7 @@ describe("Collideable.moveUnit", () => {
 			pusher = new CollideableSpy(new Rectangle(0, -10, 20, 10), "pusher", true),
 			pushable = new CollideableSpy(new Rectangle(10, 0, 10, 10), "pushable", true),
 		], [
-			{ position: new Vector(0, 0), tile: new SlopeTile("slope-floor-left") },
+			{ position: new Vector(0, 0), tile: new TowerSlope("slope-floor-left") },
 		]);
 		pusher.moveUnit("right", world, canvasIO!, { });
 

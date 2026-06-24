@@ -21,6 +21,7 @@ import { Camera } from "./world/Camera.mjs";
 import { SlopeTile } from "./tiles/SlopeTile.mjs";
 import { Renderable, Renderer } from "./world/Renderer.mjs";
 import { Entities } from "./world/Entities.mjs";
+import { TowerSlope } from "./tiles/TowerSlope.mjs";
 
 export class RoomEditor {
 	room: Room;
@@ -88,7 +89,7 @@ export class RoomEditor {
 					"down-left": "slope-floor-left",
 					"down-right": "slope-floor-right",
 				} as const)[this.direction];
-				this.setTile(position, new SlopeTile(tile));
+				this.setTile(position, new TowerSlope(tile));
 			}
 		}
 		else {

@@ -7,15 +7,12 @@ import { WorldData } from "../constants/GameData.mjs";
 import { GameUtils } from "../game-utilities/GameUtils.mjs";
 import { Octant, Octants } from "../game-utilities/Octant.mjs";
 import { Collideable } from "../game-utilities/physics-engine/Collideable.mjs";
-import { Renderable } from "../world/Renderer.mjs";
 import { Tiles } from "../world/Tiles.mjs";
-import { World } from "../world/World.mjs";
 import { Tile } from "./Tile.mjs";
-import { TowerTile } from "./TowerTile.mjs";
 
 export type Slope = (typeof WorldData.SLOPES)[number];
 
-export class SlopeTile extends Tile {
+export abstract class SlopeTile extends Tile {
 	readonly shape: Slope;
 
 	constructor(shape: Slope) {
@@ -23,34 +20,7 @@ export class SlopeTile extends Tile {
 		this.shape = shape;
 	}
 
-	copy() {
-		return new SlopeTile(this.shape);
-	}
-	reflect() {
-		const reflections: { [key: string]: Slope } = {
-			"slope-floor-left": "slope-floor-right",
-			"slope-floor-right": "slope-floor-left",
-			"slope-ceiling-left": "slope-ceiling-right",
-			"slope-ceiling-right": "slope-ceiling-left",
-		};
-		return new SlopeTile(reflections[this.shape]);
-	}
-	equals(tile: unknown) {
-		return tile instanceof SlopeTile && tile.shape === this.shape;
-	}
 
-	render(position: Vector, world: World) {
-		return [
-			new Renderable(c => this.display(c, position.x, position.y), "tile"),
-			new Renderable(c => this.displayAccent(position, c, world), "tile-accent"),
-		];
-	}
-	display(canvasIO: CanvasIO, x: number, y: number): void {
-		canvasIO.ctx.fillStyle = WorldData.TILE_COLORS["tower"];
-		canvasIO.ctx.beginPath();
-		this.addToPath(new Vector(x, y), canvasIO);
-		canvasIO.ctx.fill();
-	}
 	addToPath(position: Vector, canvasIO: CanvasIO) {
 		const center = position.add(1/2, 1/2).multiply(WorldData.TILE_SIZE);
 		const angles = {
@@ -68,9 +38,6 @@ export class SlopeTile extends Tile {
 			-WorldData.TILE_SIZE / 2, WorldData.TILE_SIZE / 2,
 		);
 		canvasIO.ctx.restore();
-	}
-	displayAccent(position: Vector, canvasIO: CanvasIO, world: World) {
-		TowerTile.displaySlopedAccent(position, canvasIO, this.shape as Slope, world);
 	}
 
 	contains(point: Vector, tilePosition: Vector) {
