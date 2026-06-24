@@ -1,3 +1,5 @@
+import { Vector } from "../../utils-ts/modules/geometry/Vector.mjs";
+import { Portal } from "../entities/Portal.mjs";
 import { WorldPart } from "../world-generator/WorldPart.mjs";
 
 export let FLOOR_ZERO = new WorldPart();
@@ -120,6 +122,7 @@ export class FloorZeroData {
 				{ x: 8, y: 11, type: "solid" },
 			],
 			[
+				new Portal(new Vector(12 * 50, 8 * 50)),
 			],
 		);
 	}
