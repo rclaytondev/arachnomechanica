@@ -6,7 +6,7 @@ import { LevelGenerator } from "../level-generator/LevelGenerator.mjs";
 import { Main } from "../Main.mjs";
 import { WorldScreen } from "../world/WorldScreen.mjs";
 
-import "../debug-scenarios/stone-graphics-test.mjs";
+import "../debug-scenarios/showcase.mjs";
 
 
 if(DEBUG_SETTINGS.GENERATOR_VISUALIZATION.ENABLED && Main.screen instanceof WorldScreen) {
