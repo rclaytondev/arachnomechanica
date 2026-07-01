@@ -56,6 +56,7 @@ export class Debug {
 	}
 	static displayFramerate(canvasIO: CanvasIO) {
 		canvasIO.ctx.resetTransform();
+		if(!DEBUG_SETTINGS.SHOW_FRAMERATE) { return; }
 		canvasIO.ctx.fillStyle = "red";
 		canvasIO.ctx.textBaseline = "top";
 		canvasIO.ctx.textAlign = "right";
