@@ -35,6 +35,7 @@ export abstract class Collideable extends Entity {
 	slideUpSlopes: boolean = true;
 	slideDownSlopes: boolean = true;
 	tangible: boolean = true;
+	damageable: boolean = true;
 
 
 

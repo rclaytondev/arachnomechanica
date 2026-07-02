@@ -146,7 +146,7 @@ export class World {
 			this.player.damage(hurtbox, this);
 		}
 		for(const entity of this.entities.collideablesIntersecting(hurtbox)) {
-			if(damages(entity)) {
+			if(damages(entity) && entity.damageable) {
 				entity.damage(hurtbox, this, canvasIO);
 			}
 		}
