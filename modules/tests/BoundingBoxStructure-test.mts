@@ -45,4 +45,33 @@ describe("BoundingBoxStructure", () => {
 			assert.includeMembers([...actual], expected);
 		}
 	});
+	it("correctly handles operations involving entities that have infinitely large bounding boxes", () => {
+		const rect1 = Rectangle.fromBounds(1, 3, 1, 3);
+		const rect2 = Rectangle.fromBounds(2, 4, 1, 3);
+
+		const infiniteRight = Rectangle.fromBounds(5, Infinity, 3, 4);
+		const infiniteBottomLeft = Rectangle.fromBounds(-Infinity, -5, 5, Infinity);
+		const infiniteAll = Rectangle.fromBounds(-Infinity, Infinity, -Infinity, Infinity);
+
+		const structure = new BoundingBoxStructure<Rectangle>(10, r => r);
+		structure.add(rect1);
+		structure.add(rect2);
+		structure.add(infiniteRight);
+		structure.add(infiniteBottomLeft);
+		structure.add(infiniteAll);
+
+		assert.sameMembers([...structure], [rect1, rect2, infiniteRight, infiniteBottomLeft, infiniteAll]);
+
+		const testCases = [
+			Rectangle.fromBounds(1, 3, 1, 3),
+			Rectangle.fromBounds(2, 4, 1, 3),
+			Rectangle.fromBounds(-100, 100, -100, 100),
+			Rectangle.fromBounds(4, 6, 5, 7),
+		];
+		for(const rect of testCases) {
+			const actual = structure.possiblyIntersecting(rect);
+			const expected = [rect1, rect2, infiniteRight, infiniteBottomLeft, infiniteAll].filter(r => r.intersects(rect));
+			assert.includeMembers([...actual], expected);
+		}
+	});
 });

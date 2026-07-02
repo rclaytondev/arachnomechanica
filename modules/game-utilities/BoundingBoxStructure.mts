@@ -9,6 +9,7 @@ export class BoundingBoxStructure<T> {
 	chunkSize: number;
 	private positions = new Map<T, Vector[]>();
 	private entities = new Grid<Set<T> | null>(null);
+	private infiniteEntities = new Set<T>();
 
 	constructor(chunkSize: number, boundingBox: (entity: T) => Rectangle) {
 		this.chunkSize = chunkSize;
@@ -26,47 +27,63 @@ export class BoundingBoxStructure<T> {
 		);
 	}
 	add(entity: T) {
-		const positions = this.entityGridPositions(this.boundingBox(entity)).squares();
-		for(const position of positions) {
-			this.addEntityToGrid(entity, position);
+		const gridRect = this.entityGridPositions(this.boundingBox(entity));
+		if(gridRect.isInfinite()) {
+			this.infiniteEntities.add(entity);
 		}
-		this.positions.set(entity, positions);
+		else {
+			const positions = this.entityGridPositions(this.boundingBox(entity)).squares();
+			for(const position of positions) {
+				this.addEntityToGrid(entity, position);
+			}
+			this.positions.set(entity, positions);
+		}
 	}
 	updatePosition(entity: T) {
-		if(!this.positions.has(entity)) {
+		if(!this.has(entity)) {
 			return;
 		}
-		const positions = this.entityGridPositions(this.boundingBox(entity)).squares();
-		for(const position of positions) {
-			this.addEntityToGrid(entity, position);
+		const gridRect = this.entityGridPositions(this.boundingBox(entity));
+		if(gridRect.isInfinite()) {
+			this.deleteFromGrid(entity);
+			this.infiniteEntities.add(entity);
 		}
-		for(const position of this.positions.get(entity) ?? []) {
-			if(!positions.some(p => p.equals(position))) {
-				this.removeEntityFromGrid(entity, position);
+		else {
+			this.infiniteEntities.delete(entity);
+			const positions = gridRect.squares();
+			for(const position of positions) {
+				this.addEntityToGrid(entity, position);
 			}
+			for(const position of this.positions.get(entity) ?? []) {
+				if(!positions.some(p => p.equals(position))) {
+					this.removeEntityFromGrid(entity, position);
+				}
+			}
+			this.positions.set(entity, positions);
 		}
-		this.positions.set(entity, positions);
 	}
 	has(entity: T) {
-		return this.positions.has(entity);
+		return this.infiniteEntities.has(entity) || this.positions.has(entity);
 	}
 	delete(entity: T) {
-		for(const position of this.positions.get(entity) ?? []) {
-			this.removeEntityFromGrid(entity, position);
-		}
-		this.positions.delete(entity);
+		this.deleteFromGrid(entity);
+		this.infiniteEntities.delete(entity);
 	}
 	clear() {
 		this.positions = new Map();
 		this.entities = new Grid(null);
+		this.infiniteEntities = new Set();
 	}
 	*[Symbol.iterator]() {
 		const values = [...this.entities.values()].filter(v => v != null);
-		yield* SetUtils.union(...values);
+		yield* SetUtils.union(...values, this.infiniteEntities);
 	}
 	possiblyIntersecting(rectangle: Rectangle) {
 		const positions = [...this.entityGridPositions(rectangle).squares()];
-		return new Set(positions.flatMap(v => [...(this.entities.get(v) ?? [])]));
+		return new Set([
+			...positions.flatMap(v => [...(this.entities.get(v) ?? [])]),
+			...[...this.infiniteEntities].filter(e => this.boundingBox(e).intersects(rectangle)),
+		]);
 	}
 
 	private addEntityToGrid(entity: T, gridSquare: Vector) {
@@ -87,11 +104,23 @@ export class BoundingBoxStructure<T> {
 			}
 		}
 	}
+	private deleteFromGrid(entity: T) {
+		for(const position of this.positions.get(entity) ?? []) {
+			this.removeEntityFromGrid(entity, position);
+		}
+		this.positions.delete(entity);
+	}
 
 	isValid(entity: T) {
-		const squares1 = this.entityGridPositions(this.boundingBox(entity)).squares();
+		const gridRect = this.entityGridPositions(this.boundingBox(entity));
+		if(gridRect.isInfinite()) {
+			return !this.positions.has(entity) && ![...this.entities.values()].some(s => s && s.has(entity));
+		}
+		const squares1 = gridRect.squares();
 		const squares2 = this.positions.get(entity);
 		const squares3 = [...this.entities.positions()].filter(p => (this.entities.get(p) ?? new Set()).has(entity));
+
+		if(this.infiniteEntities.has(entity)) { return false; }
 
 		if(squares2) {
 			const set1 = new HashSet(squares1);
