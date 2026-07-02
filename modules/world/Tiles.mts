@@ -36,10 +36,10 @@ export class Tiles extends Grid<Tile> {
 		return this.get(Tiles.getTileCoordinates(onscreenPosition));
 	}
 	*getTilesAt(rectangle: Rectangle) {
-		const left = Tiles.getTileX(rectangle.left());
-		const right = Tiles.getTileX(rectangle.right() - 1);
-		const top = Tiles.getTileY(rectangle.top());
-		const bottom = Tiles.getTileY(rectangle.bottom() - 1);
+		const left = Tiles.getTileX(rectangle.left);
+		const right = Tiles.getTileX(rectangle.right - 1);
+		const top = Tiles.getTileY(rectangle.top);
+		const bottom = Tiles.getTileY(rectangle.bottom - 1);
 		for(let x = left; x <= right; x ++) {
 			for(let y = top; y <= bottom; y ++) {
 				yield { position: new Vector(x, y), tile: this.get(x, y) };

@@ -19,10 +19,10 @@ export class BoundingBoxStructure<T> {
 
 	private entityGridPositions(rectangle: Rectangle) {
 		return Rectangle.fromBounds(
-			Math.floor(rectangle.left() / this.chunkSize),
-			Math.ceil((rectangle.right() + 1) / this.chunkSize),
-			Math.floor(rectangle.top() / this.chunkSize),
-			Math.ceil((rectangle.bottom() + 1) / this.chunkSize),
+			Math.floor(rectangle.left / this.chunkSize),
+			Math.ceil((rectangle.right + 1) / this.chunkSize),
+			Math.floor(rectangle.top / this.chunkSize),
+			Math.ceil((rectangle.bottom + 1) / this.chunkSize),
 		);
 	}
 	add(entity: T) {

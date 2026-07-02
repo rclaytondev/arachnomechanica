@@ -11,7 +11,7 @@ export abstract class RectangularCollideable extends Collideable {
 	constructor(hitbox: Rectangle) {
 		super();
 		const corner = hitbox.getCorner("top-left");
-		this.hitbox = new Rectangle(
+		this.hitbox = Rectangle.fromDimensions(
 			Math.floor(hitbox.x), Math.floor(hitbox.y),
 			hitbox.width, hitbox.height,
 		);

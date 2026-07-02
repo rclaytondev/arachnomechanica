@@ -27,7 +27,7 @@ export class Portal extends Entity {
 		}
 	}
 	teleportHitbox() {
-		return new Rectangle(
+		return Rectangle.fromDimensions(
 			this.position.x - PortalData.HITBOX_WIDTH / 2, this.position.y - PortalData.HITBOX_HEIGHT,
 			PortalData.HITBOX_WIDTH, PortalData.HITBOX_HEIGHT,
 		);
@@ -83,7 +83,7 @@ export class Portal extends Entity {
 		return [];
 	}
 	boundingBox() {
-		return new Rectangle(
+		return Rectangle.fromDimensions(
 			this.position.x - PortalData.WIDTH / 2,
 			this.position.y - PortalData.HITBOX_HEIGHT,
 			PortalData.WIDTH,

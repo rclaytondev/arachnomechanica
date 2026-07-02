@@ -24,7 +24,7 @@ export class StoneTile extends BasicTile {
 	}
 	static initializePoints() {
 		return GameUtils.randomEvenlySpaced({
-			generate: () => GameUtils.randomInRect(new Rectangle(0, 0, WorldData.STONE_PATTERN_WIDTH, WorldData.STONE_PATTERN_HEIGHT)),
+			generate: () => GameUtils.randomInRect(Rectangle.fromDimensions(0, 0, WorldData.STONE_PATTERN_WIDTH, WorldData.STONE_PATTERN_HEIGHT)),
 			metric: StoneTile.distance,
 			amount: WorldData.STONE_PATTERN_WIDTH * WorldData.STONE_PATTERN_HEIGHT * WorldData.STONE_LINE_AMOUNT,
 			trials: WorldData.STONE_LINE_EVENNESS,
@@ -66,8 +66,8 @@ export class StoneTile extends BasicTile {
 		canvasIO.ctx.lineWidth = WorldData.STONE_LINE_THICKNESS;
 		for(const { point1, point2 } of lines) {
 			canvasIO.pointedLine(
-				point1.x - box.left(), point1.y - box.top(),
-				point2.x - box.left(), point2.y - box.top(),
+				point1.x - box.left, point1.y - box.top,
+				point2.x - box.left, point2.y - box.top,
 			);
 		}
 		StoneTile.linesImage = canvasIO.canvas;
@@ -77,8 +77,8 @@ export class StoneTile extends BasicTile {
 	static displayStoneTiles(world: World, canvasIO: CanvasIO, visibleTileRegion: Rectangle) {
 		canvasIO.ctx.save();
 		canvasIO.ctx.beginPath();
-		for(let x = visibleTileRegion.left(); x < visibleTileRegion.right(); x ++) {
-			for(let y = visibleTileRegion.top(); y < visibleTileRegion.bottom(); y ++) {
+		for(let x = visibleTileRegion.left; x < visibleTileRegion.right; x ++) {
+			for(let y = visibleTileRegion.top; y < visibleTileRegion.bottom; y ++) {
 				const tile = world.tiles.get(x, y);
 				if(tile instanceof StoneTile || tile instanceof StoneSlope) {
 					tile.addToPath(new Vector(x, y), canvasIO);
@@ -91,8 +91,8 @@ export class StoneTile extends BasicTile {
 			WorldData.TILE_SIZE / WorldData.STONE_PATTERN_WIDTH,
 			WorldData.TILE_SIZE / WorldData.STONE_PATTERN_HEIGHT,
 		);
-		for(let x = Math.floor(patternRegion.left() - 1); x < patternRegion.right(); x ++) {
-			for(let y = Math.floor(patternRegion.top() - 1); y < patternRegion.bottom(); y ++) {
+		for(let x = Math.floor(patternRegion.left - 1); x < patternRegion.right; x ++) {
+			for(let y = Math.floor(patternRegion.top - 1); y < patternRegion.bottom; y ++) {
 				canvasIO.ctx.drawImage(
 					StoneTile.initializeLinesImage(),
 					x * WorldData.STONE_PATTERN_WIDTH,

@@ -117,20 +117,20 @@ describe("PointOnSurface.nextPoint", () => {
 	it("works when moving from a tile to an entity", () => {
 		const world = new World(false);
 		world.tiles.set(0, 0, TowerTile.TOWER_TILE);
-		world.entities.add(new InvisibleRectangle(new Rectangle(10, -10, 10, 10)));
+		world.entities.add(new InvisibleRectangle(Rectangle.fromDimensions(10, -10, 10, 10)));
 
 		const point = new PointOnSurface(new Vector(10, 0), "up");
-		const next = point.nextPoint(new InvisibleRectangle(new Rectangle(-100, -100, 1, 1)), world, "clockwise");
+		const next = point.nextPoint(new InvisibleRectangle(Rectangle.fromDimensions(-100, -100, 1, 1)), world, "clockwise");
 		assert.isNotNull(next);
 		assert.deepEqual(next, new PointOnSurface(new Vector(10, -1), "left"));
 	});
 	it("works when moving from a tile to an entity counterclockwise", () => {
 		const world = new World(false);
 		world.tiles.set(0, 0, TowerTile.TOWER_TILE);
-		world.entities.add(new InvisibleRectangle(new Rectangle(10, -10, 10, 10)));
+		world.entities.add(new InvisibleRectangle(Rectangle.fromDimensions(10, -10, 10, 10)));
 
 		const point = new PointOnSurface(new Vector(10, 0), "up");
-		const next = point.nextPoint(new InvisibleRectangle(new Rectangle(-100, -100, 1, 1)), world, "counterclockwise");
+		const next = point.nextPoint(new InvisibleRectangle(Rectangle.fromDimensions(-100, -100, 1, 1)), world, "counterclockwise");
 		assert.isNotNull(next);
 		assert.deepEqual(next, new PointOnSurface(new Vector(9, 0), "up"));
 	});

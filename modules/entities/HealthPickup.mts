@@ -21,10 +21,10 @@ export class HealthPickup extends RectangularCollideable {
 	}
 	update(world: World) {
 		const hitbox = Rectangle.fromBounds(
-			this.hitbox.left() - HealthPickupData.HITBOX_RADIUS,
-			this.hitbox.right() + HealthPickupData.HITBOX_RADIUS,
-			this.hitbox.top() - HealthPickupData.HITBOX_RADIUS,
-			this.hitbox.bottom() + HealthPickupData.HITBOX_RADIUS,
+			this.hitbox.left - HealthPickupData.HITBOX_RADIUS,
+			this.hitbox.right + HealthPickupData.HITBOX_RADIUS,
+			this.hitbox.top - HealthPickupData.HITBOX_RADIUS,
+			this.hitbox.bottom + HealthPickupData.HITBOX_RADIUS,
 		);
 		const player = world.player.hitbox;
 		if(player.intersects(hitbox)) {

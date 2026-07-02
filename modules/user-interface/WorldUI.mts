@@ -34,7 +34,7 @@ export class WorldUI {
 			canvasIO.fillSquare(x, y, WorldUIData.ITEM_BOX_SIZE);
 
 			if(item) {
-				const rect = new Rectangle(x, y, WorldUIData.ITEM_BOX_SIZE, WorldUIData.ITEM_BOX_SIZE);
+				const rect = Rectangle.fromDimensions(x, y, WorldUIData.ITEM_BOX_SIZE, WorldUIData.ITEM_BOX_SIZE);
 				item.displayIcon(canvasIO, rect);
 			}
 		}

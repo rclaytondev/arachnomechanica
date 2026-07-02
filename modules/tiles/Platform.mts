@@ -74,9 +74,9 @@ export class Platform extends Tile {
 	}
 	blocksMovement(tilePosition: Vector, collideable: Collideable, direction: Direction, hitboxes: Rectangle[]): boolean {
 		return direction === "down" && hitboxes.some(hitbox => (
-			hitbox.bottom() === tilePosition.y * WorldData.TILE_SIZE
-			&& hitbox.right() >= tilePosition.x * WorldData.TILE_SIZE
-			&& hitbox.left() <= (tilePosition.x + 1) * WorldData.TILE_SIZE
+			hitbox.bottom === tilePosition.y * WorldData.TILE_SIZE
+			&& hitbox.right >= tilePosition.x * WorldData.TILE_SIZE
+			&& hitbox.left <= (tilePosition.x + 1) * WorldData.TILE_SIZE
 		));
 	}
 	rectIntersectionDistance(tilePosition: Vector, rect: Rectangle, direction: Direction) {

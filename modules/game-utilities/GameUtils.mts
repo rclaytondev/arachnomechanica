@@ -138,8 +138,8 @@ export class GameUtils {
 	}
 	static randomInRect(rectangle: Rectangle, random: (min: number, max: number) => number = GameUtils.random) {
 		return new Vector(
-			random(rectangle.left(), rectangle.right()),
-			random(rectangle.top(), rectangle.bottom()),
+			random(rectangle.left, rectangle.right),
+			random(rectangle.top, rectangle.bottom),
 		);
 	}
 
@@ -314,10 +314,10 @@ export class GameUtils {
 			return 0;
 		}
 		return Math.min(
-			GameUtils.rayIntersectsHSegment(rayStart, rayDirection, rectangle.top(), rectangle.left(), rectangle.right()),
-			GameUtils.rayIntersectsHSegment(rayStart, rayDirection, rectangle.bottom(), rectangle.left(), rectangle.right()),
-			GameUtils.rayIntersectsVSegment(rayStart, rayDirection, rectangle.left(), rectangle.top(), rectangle.bottom()),
-			GameUtils.rayIntersectsVSegment(rayStart, rayDirection, rectangle.right(), rectangle.top(), rectangle.bottom()),
+			GameUtils.rayIntersectsHSegment(rayStart, rayDirection, rectangle.top, rectangle.left, rectangle.right),
+			GameUtils.rayIntersectsHSegment(rayStart, rayDirection, rectangle.bottom, rectangle.left, rectangle.right),
+			GameUtils.rayIntersectsVSegment(rayStart, rayDirection, rectangle.left, rectangle.top, rectangle.bottom),
+			GameUtils.rayIntersectsVSegment(rayStart, rayDirection, rectangle.right, rectangle.top, rectangle.bottom),
 		);
 	}
 	static rayIntersectsSegment(rayStart: Vector, rayDirection: Vector, endpoint1: Vector, endpoint2: Vector) {
@@ -392,17 +392,17 @@ export class GameUtils {
 	static rectIntersectionDistance(rect: Rectangle, direction: Direction, target: Rectangle) {
 		if(rect.intersects(target)) { return 0; }
 		if(Directions.isHorizontal(direction)) {
-			if(!(rect.bottom() > target.y && rect.y < target.bottom())) {
+			if(!(rect.bottom > target.y && rect.y < target.bottom)) {
 				return Infinity;
 			}
-			const distance = (direction === "right") ? target.x - rect.right() : rect.x - target.right();
+			const distance = (direction === "right") ? target.x - rect.right : rect.x - target.right;
 			return distance >= 0 ? distance : Infinity;
 		}
 		else {
-			if(!(rect.right() > target.x && rect.x < target.right())) {
+			if(!(rect.right > target.x && rect.x < target.right)) {
 				return Infinity;
 			}
-			const distance = (direction === "down") ? target.y - rect.bottom() : rect.y - target.bottom();
+			const distance = (direction === "down") ? target.y - rect.bottom : rect.y - target.bottom;
 			return distance >= 0 ? distance : Infinity;
 		}
 	}

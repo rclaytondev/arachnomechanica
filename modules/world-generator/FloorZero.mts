@@ -11,8 +11,8 @@ export class FloorZero extends WorldGenerationSegment {
 
 	static getRegion() {
 		const floorOne = TowerGenerator.nextLevelTileRectangle(0, true);
-		return new Rectangle(
-			floorOne.x, floorOne.bottom(),
+		return Rectangle.fromDimensions(
+			floorOne.x, floorOne.bottom,
 			floorOne.width,
 			FLOOR_ZERO.tiles.boundingBox().height,
 		);

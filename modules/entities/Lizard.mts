@@ -333,19 +333,19 @@ export class Lizard extends Collideable {
 		const lookaheadPoint = this.lookaheadPoint();
 		let nextTurn: Direction | null = null;
 		if(
-			player.bottom() > this.position.y - LizardData.PLAYER_DETECTION_WIDTH / 2 &&
-			player.top() < this.position.y + LizardData.PLAYER_DETECTION_WIDTH / 2 &&
+			player.bottom > this.position.y - LizardData.PLAYER_DETECTION_WIDTH / 2 &&
+			player.top < this.position.y + LizardData.PLAYER_DETECTION_WIDTH / 2 &&
 			!this.isObstructed(
 				world, xDirection, LizardData.LOOKAHEAD_DISTANCE,
-				Math.min(MathUtils.dist(lookaheadPoint.x, player.left()), MathUtils.dist(lookaheadPoint.x, player.right())) - LizardData.LOOKAHEAD_DISTANCE,
+				Math.min(MathUtils.dist(lookaheadPoint.x, player.left), MathUtils.dist(lookaheadPoint.x, player.right)) - LizardData.LOOKAHEAD_DISTANCE,
 			)
 		) { nextTurn = xDirection; }
 		else if(
-			player.right() > this.position.x - LizardData.PLAYER_DETECTION_WIDTH / 2 &&
-			player.left() < this.position.x + LizardData.PLAYER_DETECTION_WIDTH / 2 &&
+			player.right > this.position.x - LizardData.PLAYER_DETECTION_WIDTH / 2 &&
+			player.left < this.position.x + LizardData.PLAYER_DETECTION_WIDTH / 2 &&
 			!this.isObstructed(
 				world, yDirection, LizardData.LOOKAHEAD_DISTANCE,
-				Math.min(MathUtils.dist(lookaheadPoint.y, player.top()), MathUtils.dist(lookaheadPoint.y, player.bottom())) - LizardData.LOOKAHEAD_DISTANCE,
+				Math.min(MathUtils.dist(lookaheadPoint.y, player.top), MathUtils.dist(lookaheadPoint.y, player.bottom)) - LizardData.LOOKAHEAD_DISTANCE,
 			)
 		) { nextTurn = yDirection; }
 		if(nextTurn !== null && nextTurn !== Directions.opposite[this.direction]) {
@@ -375,13 +375,13 @@ export class Lizard extends Collideable {
 				joint.y === next.y &&
 				rectangle.intersects(Lizard.segmentHitbox(joint, next))
 			) {
-				return distance + ((joint.x > next.x) ? joint.x - rectangle.right() : rectangle.left() - joint.x);
+				return distance + ((joint.x > next.x) ? joint.x - rectangle.right : rectangle.left - joint.x);
 			}
 			if(
 				joint.x === next.x &&
 				rectangle.intersects(Lizard.segmentHitbox(joint, next))
 			) {
-				return distance + ((joint.y > next.y) ? joint.y - rectangle.bottom() : rectangle.top() - joint.y);
+				return distance + ((joint.y > next.y) ? joint.y - rectangle.bottom : rectangle.top - joint.y);
 			}
 			distance += Vector.dist(joint, next);
 		}
@@ -462,13 +462,13 @@ export class Lizard extends Collideable {
 	lookaheadRectangle(direction: Direction = this.direction, distance: number = LizardData.LOOKAHEAD_DISTANCE, length: number = 1, width: number = LizardData.LOOKAHEAD_WIDTH) {
 		const point = this.lookaheadPoint(direction, distance);
 		if(Directions.isHorizontal(direction)) {
-			return new Rectangle(
+			return Rectangle.fromDimensions(
 				point.x - (direction === "left" ? length : 0), point.y - width / 2,
 				length, width,
 			);
 		}
 		else {
-			return new Rectangle(
+			return Rectangle.fromDimensions(
 				point.x - width / 2, point.y - (direction === "up" ? length : 0),
 				width, length,
 			);

@@ -74,25 +74,25 @@ export class Gate extends RectangularCollideable {
 
 	static getPhysicsBox(tilePosition: Vector, direction: Direction, closedness: number) {
 		if(direction === "down") {
-			return new Rectangle(
+			return Rectangle.fromDimensions(
 				tilePosition.x * WorldData.TILE_SIZE, tilePosition.y * WorldData.TILE_SIZE,
 				WorldData.TILE_SIZE, closedness * WorldData.TILE_SIZE,
 			);
 		}
 		else if(direction === "up") {
-			return new Rectangle(
+			return Rectangle.fromDimensions(
 				tilePosition.x * WorldData.TILE_SIZE, (tilePosition.y + 1 - closedness) * WorldData.TILE_SIZE,
 				WorldData.TILE_SIZE, closedness * WorldData.TILE_SIZE,
 			);
 		}
 		else if(direction === "left") {
-			return new Rectangle(
+			return Rectangle.fromDimensions(
 				(tilePosition.x + 1 - closedness) * WorldData.TILE_SIZE, tilePosition.y * WorldData.TILE_SIZE,
 				closedness * WorldData.TILE_SIZE, WorldData.TILE_SIZE,
 			);
 		}
 		else {
-			return new Rectangle(
+			return Rectangle.fromDimensions(
 				tilePosition.x * WorldData.TILE_SIZE, tilePosition.y * WorldData.TILE_SIZE,
 				closedness * WorldData.TILE_SIZE, WorldData.TILE_SIZE,
 			);
@@ -179,14 +179,14 @@ export class Gate extends RectangularCollideable {
 		if(Directions.isVertical(this.direction)) {
 			const gatesLeft = this.adjacentGates(world, x, y, "left");
 			const gatesRight = this.adjacentGates(world, x, y, "right");
-			const onLeft = (hitbox.right() <= (x - gatesLeft) * WorldData.TILE_SIZE - GateData.TOGGLE_DISTANCE);
+			const onLeft = (hitbox.right <= (x - gatesLeft) * WorldData.TILE_SIZE - GateData.TOGGLE_DISTANCE);
 			const onRight = (hitbox.x >= (x + gatesRight + 1) * WorldData.TILE_SIZE + GateData.TOGGLE_DISTANCE);
 			return onLeft ? "negative" : (onRight ? "positive" : this.playerSide);
 		}
 		else {
 			const gatesAbove = this.adjacentGates(world, x, y, "up");
 			const gatesBelow = this.adjacentGates(world, x, y, "down");
-			const above = hitbox.bottom() <= (y - gatesAbove) * WorldData.TILE_SIZE - GateData.TOGGLE_DISTANCE;
+			const above = hitbox.bottom <= (y - gatesAbove) * WorldData.TILE_SIZE - GateData.TOGGLE_DISTANCE;
 			const below = hitbox.y >= (y + gatesBelow + 1) * WorldData.TILE_SIZE + GateData.TOGGLE_DISTANCE;
 			return above ? "negative" : (below ? "positive" : this.playerSide);
 		}
@@ -196,8 +196,8 @@ export class Gate extends RectangularCollideable {
 		const tilePosition = this.tilePosition();
 		const { x, y } = tilePosition;
 		const sameRowOrColumn = (Directions.isVertical(this.direction)
-			? (hitbox.bottom() >= (y + 1 - GateData.HITBOX_SIZE) * WorldData.TILE_SIZE && hitbox.top() <= (y + GateData.HITBOX_SIZE) * WorldData.TILE_SIZE)
-			: (hitbox.right() >= (x + 1 - GateData.HITBOX_SIZE) * WorldData.TILE_SIZE && hitbox.left() <= (x + GateData.HITBOX_SIZE) * WorldData.TILE_SIZE)
+			? (hitbox.bottom >= (y + 1 - GateData.HITBOX_SIZE) * WorldData.TILE_SIZE && hitbox.top <= (y + GateData.HITBOX_SIZE) * WorldData.TILE_SIZE)
+			: (hitbox.right >= (x + 1 - GateData.HITBOX_SIZE) * WorldData.TILE_SIZE && hitbox.left <= (x + GateData.HITBOX_SIZE) * WorldData.TILE_SIZE)
 		);
 
 
@@ -239,8 +239,8 @@ export class Gate extends RectangularCollideable {
 	}
 	reflect(): Gate {
 		const hitbox = Rectangle.fromBounds(
-			RoomData.SIZE * WorldData.TILE_SIZE - this.hitbox.right(), RoomData.SIZE * WorldData.TILE_SIZE - this.hitbox.left(),
-			this.hitbox.top(), this.hitbox.bottom(),
+			RoomData.SIZE * WorldData.TILE_SIZE - this.hitbox.right, RoomData.SIZE * WorldData.TILE_SIZE - this.hitbox.left,
+			this.hitbox.top, this.hitbox.bottom,
 		);
 		return new Gate(hitbox, Directions.reflectX[this.direction], this.toggled);
 	}

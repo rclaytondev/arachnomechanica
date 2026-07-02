@@ -20,7 +20,7 @@ export class Spikeball extends RectangularCollideable {
 	lastCollisionFrame: number = -1;
 
 	constructor(position: Vector, velocity: Vector) {
-		super(new Rectangle(position.x, position.y, 2 * SpikeballData.RADIUS, 2 * SpikeballData.RADIUS));
+		super(Rectangle.fromDimensions(position.x, position.y, 2 * SpikeballData.RADIUS, 2 * SpikeballData.RADIUS));
 		this.velocity = velocity;
 	}
 

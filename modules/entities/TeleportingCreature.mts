@@ -61,7 +61,7 @@ export class TeleportingCreature extends RectangularCollideable {
 	fireSpawner: FireSpawner = new FireSpawner(new Vector(0, 0), "up", TeleportingCreatureData.FIRE);
 
 	private constructor(position: Vector) {
-		super(new Rectangle(position.x, position.y, TeleportingCreatureData.HITBOX_WIDTH, TeleportingCreatureData.HITBOX_HEIGHT));
+		super(Rectangle.fromDimensions(position.x, position.y, TeleportingCreatureData.HITBOX_WIDTH, TeleportingCreatureData.HITBOX_HEIGHT));
 	}
 	static atTile(tilePosition: Vector) {
 		return new TeleportingCreature(
@@ -151,7 +151,7 @@ export class TeleportingCreature extends RectangularCollideable {
 			const targetTile = playerTile.add(0, yDistance);
 			const targetTileCenter = Tiles.getTileSquare(targetTile).center();
 			const targetHitbox = Rectangle.fromCenter(targetTileCenter.x, targetTileCenter.y, TeleportingCreatureData.HITBOX_WIDTH, TeleportingCreatureData.HITBOX_HEIGHT);
-			const searchRegion = new Rectangle(targetHitbox.x, targetHitbox.bottom(), targetHitbox.width, TeleportingCreatureData.TELEPORT_LOOKBELOW_DISTANCE);
+			const searchRegion = Rectangle.fromDimensions(targetHitbox.x, targetHitbox.bottom, targetHitbox.width, TeleportingCreatureData.TELEPORT_LOOKBELOW_DISTANCE);
 			const collideables = world.entities.collideablesIntersecting(searchRegion);
 			if(!world.isInSolid(targetHitbox, e => e !== this) && ![...collideables].some(c => c instanceof TeleportingCreature && c !== this)) {
 				return targetHitbox.getCorner("top-left");

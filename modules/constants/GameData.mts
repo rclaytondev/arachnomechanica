@@ -108,7 +108,7 @@ export class PlayerData {
 	static HEAD_RADIUS = WorldData.TILE_SIZE * 0.2;
 
 	static FACE_COLOR = "rgb(130, 130, 130)";
-	static FACE = new Rectangle(0, -5, 100, 100);
+	static FACE = Rectangle.fromDimensions(0, -5, 100, 100);
 
 	static EYE_COLOR = "rgb(0, 128, 50)";
 	static EYE_OFFSET = new Vector(7, 9);

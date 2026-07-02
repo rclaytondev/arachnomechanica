@@ -10,8 +10,8 @@ import { TowerSlope } from "../tiles/TowerSlope.mjs";
 
 const world = new World(false);
 
-world.tiles.fillRect(new Rectangle(-2, 0, 10, 6), TowerTile.TOWER_TILE);
-world.tiles.fillRect(new Rectangle(-1, 1, 8, 4), EmptyTile.EMPTY);
+world.tiles.fillRect(Rectangle.fromDimensions(-2, 0, 10, 6), TowerTile.TOWER_TILE);
+world.tiles.fillRect(Rectangle.fromDimensions(-1, 1, 8, 4), EmptyTile.EMPTY);
 const laserBlock = LaserBlock.generate(new Vector(3, -1));
 world.entities.add(laserBlock);
 laserBlock.lasers = 1;

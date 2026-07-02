@@ -126,7 +126,7 @@ export abstract class SlopeTile extends Tile {
 			const bottomCorner = rect.getCorner(Directions.createDiagonal[direction]["down"]);
 			return Math.min(...[
 				...[topCorner, bottomCorner].map(c => this.rayIntersectionDistance(tilePosition, c, rayDirection))],
-				...[tileSquare.top(), tileSquare.bottom()].filter(y => y >= rect.top() && y <= rect.bottom())
+				...[tileSquare.top, tileSquare.bottom].filter(y => y >= rect.top && y <= rect.bottom)
 				.map(y => this.rayIntersectionDistance(tilePosition, new Vector(topCorner.x, y), rayDirection)),
 			);
 		}
@@ -135,7 +135,7 @@ export abstract class SlopeTile extends Tile {
 			const rightCorner = rect.getCorner(Directions.createDiagonal["right"][direction]);
 			return Math.min(...[
 				...[leftCorner, rightCorner].map(c => this.rayIntersectionDistance(tilePosition, c, rayDirection)),
-				...[tileSquare.left(), tileSquare.right()].filter(x => x >= rect.left() && x <= rect.right())
+				...[tileSquare.left, tileSquare.right].filter(x => x >= rect.left && x <= rect.right)
 				.map(x => this.rayIntersectionDistance(tilePosition, new Vector(x, leftCorner.y), rayDirection)),
 			]);
 		}

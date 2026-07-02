@@ -30,7 +30,7 @@ export class Player extends RectangularCollideable {
 	equippedItems: [ThrowableTile | null, ThrowableTile | null] = [null, null];
 
 	constructor() {
-		super(new Rectangle(0, -WorldData.TILE_SIZE, PlayerData.HITBOX_WIDTH, PlayerData.HITBOX_HEIGHT));
+		super(Rectangle.fromDimensions(0, -WorldData.TILE_SIZE, PlayerData.HITBOX_WIDTH, PlayerData.HITBOX_HEIGHT));
 	}
 
 	render() {
@@ -50,10 +50,10 @@ export class Player extends RectangularCollideable {
 		const y = crouched ? PlayerData.CROUCHED_BODY_Y : PlayerData.BODY_Y;
 		const height = crouched ? PlayerData.CROUCHED_BODY_HEIGHT : PlayerData.BODY_HEIGHT;
 		canvasIO.fillPoly(
-			this.hitbox.left(), this.hitbox.y + y,
-			this.hitbox.left() + offset, this.hitbox.y + y + height,
-			this.hitbox.right() + offset, this.hitbox.y + y + height,
-			this.hitbox.right(), this.hitbox.y + y,
+			this.hitbox.left, this.hitbox.y + y,
+			this.hitbox.left + offset, this.hitbox.y + y + height,
+			this.hitbox.right + offset, this.hitbox.y + y + height,
+			this.hitbox.right, this.hitbox.y + y,
 		);
 	}
 	displayFace(canvasIO: CanvasIO) {

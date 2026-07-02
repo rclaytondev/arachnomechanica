@@ -53,19 +53,19 @@ export class WorldPart<EntityType extends RoomEntity> {
 
 		const boundingBox = this.tiles.boundingBox();
 		if(Directions.isHorizontal(direction)) {
-			const sourceX = (direction === "left") ? boundingBox.left() : (boundingBox.right() - 1);
+			const sourceX = (direction === "left") ? boundingBox.left : (boundingBox.right - 1);
 			for(let i = 0; i < amount; i ++) {
-				const targetX = (direction === "left") ? (boundingBox.left() - i - 1) : (boundingBox.right() + i);
-				for(let y = boundingBox.top(); y < boundingBox.bottom(); y ++) {
+				const targetX = (direction === "left") ? (boundingBox.left - i - 1) : (boundingBox.right + i);
+				for(let y = boundingBox.top; y < boundingBox.bottom; y ++) {
 					copy.tiles.set(targetX, y, this.tiles.get(sourceX, y));
 				}
 			}
 		}
 		else {
-			const sourceY = (direction === "up") ? boundingBox.top() : (boundingBox.bottom() - 1);
+			const sourceY = (direction === "up") ? boundingBox.top : (boundingBox.bottom - 1);
 			for(let i = 0; i < amount; i ++) {
-				const targetY = (direction === "up") ? (boundingBox.top() - i - 1) : (boundingBox.bottom() + i);
-				for(let x = boundingBox.left(); x < boundingBox.right(); x ++) {
+				const targetY = (direction === "up") ? (boundingBox.top - i - 1) : (boundingBox.bottom + i);
+				for(let x = boundingBox.left; x < boundingBox.right; x ++) {
 					copy.tiles.set(x, targetY, this.tiles.get(x, sourceY));
 				}
 			}

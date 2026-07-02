@@ -89,15 +89,15 @@ class TallCreatureStabber {
 	}
 	checkStabbing(tallCreature: TallCreature, world: World) {
 		const yIntersects = (
-			world.player.hitbox.bottom() > tallCreature.head.top() &&
-			world.player.hitbox.top() < tallCreature.head.bottom()
+			world.player.hitbox.bottom > tallCreature.head.top &&
+			world.player.hitbox.top < tallCreature.head.bottom
 		);
 		if(!yIntersects) { return; }
 
 		const distance = (
 			this.direction === "left"
-			? tallCreature.head.left() - world.player.hitbox.right()
-			: world.player.hitbox.left() - tallCreature.head.right()
+			? tallCreature.head.left - world.player.hitbox.right
+			: world.player.hitbox.left - tallCreature.head.right
 		);
 		if(distance < 0) { return; }
 
@@ -159,7 +159,7 @@ export class TallCreature extends Collideable {
 	constructor(position: Vector, legHeight: number, world: World) {
 		super();
 		const rect = Rectangle.fromCenter(position.x, position.y, TallCreatureData.HEAD_WIDTH, TallCreatureData.HEAD_HEIGHT);
-		this.head = new Rectangle(Math.floor(rect.x), Math.floor(rect.y), Math.floor(rect.width), Math.floor(rect.height));
+		this.head = Rectangle.fromDimensions(Math.floor(rect.x), Math.floor(rect.y), Math.floor(rect.width), Math.floor(rect.height));
 		this.subpixel = rect.getCorner("top-left").subtract(rect.getCorner("top-left").floor());
 		this.legHeight = legHeight;
 		this.legs = TallCreatureData.LEG_ATTACHMENTS.map((o, i) => TallCreatureLeg.initialize(this, o, i % 2 === 0 ? 1 : -1, world));
@@ -236,8 +236,8 @@ export class TallCreature extends Collideable {
 
 	legsHitbox() {
 		const center = this.head.x + this.head.width / 2;
-		return new Rectangle(
-			center - TallCreatureData.LEG_HITBOX_WIDTH / 2, this.head.bottom(),
+		return Rectangle.fromDimensions(
+			center - TallCreatureData.LEG_HITBOX_WIDTH / 2, this.head.bottom,
 			TallCreatureData.LEG_HITBOX_WIDTH, this.legHeight,
 		);
 	}

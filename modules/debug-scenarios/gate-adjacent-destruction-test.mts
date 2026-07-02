@@ -10,7 +10,7 @@ import { WorldScreen } from "../world/WorldScreen.mjs";
 const world = new World(false);
 world.tiles.set(5, -3, TowerTile.TOWER_TILE);
 world.tiles.set(7, -3, TowerTile.TOWER_TILE);
-world.tiles.fillRect(new Rectangle(0, 0, 10, 1), TowerTile.TOWER_TILE);
+world.tiles.fillRect(Rectangle.fromDimensions(0, 0, 10, 1), TowerTile.TOWER_TILE);
 const gate = Gate.atTile(new Vector(6, -3), "right", false);
 world.addEntityIfEmpty(gate);
 

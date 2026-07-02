@@ -247,8 +247,8 @@ export class LevelGenerator {
 	}
 	addBorders(world: World) {
 		const fillSolidRect = (x: number, y: number, w: number, h: number) => {
-			world.tiles.fillRect(new Rectangle(x, y, w, h), TowerTile.TOWER_TILE);
-			world.originalTiles.fillRect(new Rectangle(x, y, w, h), TowerTile.TOWER_TILE);
+			world.tiles.fillRect(Rectangle.fromDimensions(x, y, w, h), TowerTile.TOWER_TILE);
+			world.originalTiles.fillRect(Rectangle.fromDimensions(x, y, w, h), TowerTile.TOWER_TILE);
 		};
 
 		fillSolidRect(
@@ -342,7 +342,7 @@ export class LevelGenerator {
 	}
 
 	levelRectangle() {
-		return new Rectangle(0, 0, LevelGeneratorData.WIDTH, LevelGeneratorData.HEIGHT);
+		return Rectangle.fromDimensions(0, 0, LevelGeneratorData.WIDTH, LevelGeneratorData.HEIGHT);
 	}
 	connectedEdges() {
 		return MathUtils.sum(this.levelRectangle().squares().map(s => this.rooms.get(s)?.exits.size ?? 0));

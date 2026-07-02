@@ -33,15 +33,15 @@ world.addOriginalTile(new Vector(4, -1), new TowerSlope("slope-floor-left"));
 
 world.addOriginalTile(new Vector(7, -2), TowerTile.TOWER_TILE);
 world.addOriginalTile(new Vector(7, -1), TowerTile.TOWER_TILE);
-world.tiles.fillRect(new Rectangle(4, 1, 3, 1), TowerTile.TOWER_TILE);
+world.tiles.fillRect(Rectangle.fromDimensions(4, 1, 3, 1), TowerTile.TOWER_TILE);
 
 Spider.spawn(new Vector(6, -2), world);
 const spider = [...world.entities].find(e => e instanceof Spider);
 (spider!.movement as CrawlingMovementData).direction = "counterclockwise";
 
 
-world.tiles.fillRect(new Rectangle(3, -3, 5, 1), TowerTile.TOWER_TILE);
-world.tiles.fillRect(new Rectangle(3, -1, 1, 3), TowerTile.TOWER_TILE);
+world.tiles.fillRect(Rectangle.fromDimensions(3, -3, 5, 1), TowerTile.TOWER_TILE);
+world.tiles.fillRect(Rectangle.fromDimensions(3, -1, 1, 3), TowerTile.TOWER_TILE);
 world.originalTiles = world.tiles.copy();
 
 Main.screen = new WorldScreen(world);

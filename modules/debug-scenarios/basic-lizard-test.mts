@@ -10,7 +10,7 @@ import { WorldScreen } from "../world/WorldScreen.mjs";
 
 const world = new World(false);
 
-world.tiles.fillRect(new Rectangle(-2, 0, 10, 10), TowerTile.TOWER_TILE);
+world.tiles.fillRect(Rectangle.fromDimensions(-2, 0, 10, 10), TowerTile.TOWER_TILE);
 world.entities.add(new Lizard(new Vector(3.5 * WorldData.TILE_SIZE, -5 * WorldData.TILE_SIZE), "down", 300, 3));
 world.tiles.set(3, -1, new TowerSlope("slope-floor-left"));
 

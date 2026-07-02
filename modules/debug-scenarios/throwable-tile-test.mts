@@ -11,8 +11,8 @@ import { WorldScreen } from "../world/WorldScreen.mjs";
 
 const world = new World(false);
 
-world.tiles.fillRect(new Rectangle(1, 0, 10, 10), TowerTile.TOWER_TILE);
-world.tiles.fillRect(new Rectangle(5, 0, 10, 1), EmptyTile.EMPTY);
+world.tiles.fillRect(Rectangle.fromDimensions(1, 0, 10, 10), TowerTile.TOWER_TILE);
+world.tiles.fillRect(Rectangle.fromDimensions(5, 0, 10, 1), EmptyTile.EMPTY);
 
 // world.entities.add(new ThrowableTileEntity(new Vector(3, -2).multiply(WorldData.TILE_SIZE), []));
 world.entities.add(new ThrowableTileEntity(new Vector(0, 0).multiply(WorldData.TILE_SIZE), []));

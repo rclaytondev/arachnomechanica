@@ -22,8 +22,8 @@ export class TowerGenerator extends WorldGenerationSegment {
 		const rectangle = levelGenerator.levelRectangle().scale(RoomData.SIZE);
 		const startRoom = levelGenerator.path[levelGenerator.path.length - 1];
 		EntitySpawner.spawnAllEntities(
-			Rectangle.fromBounds(rectangle.left() + 1, rectangle.right() - 1, rectangle.top() + 1, rectangle.bottom() - 1),
-			new Rectangle(startRoom.x, startRoom.y, 1, 1).scale(RoomData.SIZE),
+			Rectangle.fromBounds(rectangle.left + 1, rectangle.right - 1, rectangle.top + 1, rectangle.bottom - 1),
+			Rectangle.fromDimensions(startRoom.x, startRoom.y, 1, 1).scale(RoomData.SIZE),
 			world,
 		);
 		return this;
@@ -42,7 +42,7 @@ export class TowerGenerator extends WorldGenerationSegment {
 	}
 	static nextLevelTileRectangle(levels: number, includeBorder: boolean = false) {
 		const levelHeight = RoomData.SIZE * LevelGeneratorData.HEIGHT + LevelGeneratorData.BORDER_Y;
-		const rect = new Rectangle(0, -levels * levelHeight, LevelGeneratorData.WIDTH * RoomData.SIZE, LevelGeneratorData.HEIGHT * RoomData.SIZE);
+		const rect = Rectangle.fromDimensions(0, -levels * levelHeight, LevelGeneratorData.WIDTH * RoomData.SIZE, LevelGeneratorData.HEIGHT * RoomData.SIZE);
 		if(includeBorder) {
 			return (rect
 				.extend("left", LevelGeneratorData.BORDER_X).extend("right", LevelGeneratorData.BORDER_X)
@@ -62,8 +62,8 @@ export class TowerGenerator extends WorldGenerationSegment {
 		const rectangle = generator.levelRectangle().scale(RoomData.SIZE).translate(new Vector(0, -levelHeight * this.levelsGenerated));
 		const startRoom = generator.path[generator.path.length - 1];
 		EntitySpawner.spawnAllEntities(
-			Rectangle.fromBounds(rectangle.left() + 1, rectangle.right() - 1, rectangle.top() + 1, rectangle.bottom() - 1),
-			new Rectangle(startRoom.x, startRoom.y, 1, 1).scale(RoomData.SIZE).translate(new Vector(0, -levelHeight * this.levelsGenerated)),
+			Rectangle.fromBounds(rectangle.left + 1, rectangle.right - 1, rectangle.top + 1, rectangle.bottom - 1),
+			Rectangle.fromDimensions(startRoom.x, startRoom.y, 1, 1).scale(RoomData.SIZE).translate(new Vector(0, -levelHeight * this.levelsGenerated)),
 			world,
 		);
 		this.nextPlayerSpawnRoom = generator.path[generator.path.length - 1];
@@ -72,7 +72,7 @@ export class TowerGenerator extends WorldGenerationSegment {
 	update(world: World): void {
 		super.update(world);
 
-		if(world.player.hitbox.top() < -(this.levelsVisited - 1) * TowerGenerator.LEVEL_HEIGHT) {
+		if(world.player.hitbox.top < -(this.levelsVisited - 1) * TowerGenerator.LEVEL_HEIGHT) {
 			this.levelsVisited ++;
 			const floorText = `${this.levelsVisited.toString().padStart(2, "0")}`;
 			world.worldScreen?.visualEffects.effectsList.add(new OverlayText(`Floor ${floorText}`));
@@ -80,6 +80,6 @@ export class TowerGenerator extends WorldGenerationSegment {
 	}
 
 	shouldGenerate(world: World) {
-		return world.player.hitbox.top() < RoomData.SIZE * WorldData.TILE_SIZE - this.levelsGenerated * TowerGenerator.LEVEL_HEIGHT;
+		return world.player.hitbox.top < RoomData.SIZE * WorldData.TILE_SIZE - this.levelsGenerated * TowerGenerator.LEVEL_HEIGHT;
 	}
 }

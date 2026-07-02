@@ -13,16 +13,16 @@ export class Octants {
 		if (!rect.contains(point)) { return []; }
 
 		const result: Octant[] = [];
-		if (point.x > rect.left() && point.y > rect.top()) {
+		if (point.x > rect.left && point.y > rect.top) {
 			result.push("left", "up-left");
 		}
-		if (point.x > rect.left() && point.y < rect.bottom()) {
+		if (point.x > rect.left && point.y < rect.bottom) {
 			result.push("down", "down-left");
 		}
-		if (point.x < rect.right() && point.y > rect.top()) {
+		if (point.x < rect.right && point.y > rect.top) {
 			result.push("up", "up-right");
 		}
-		if (point.x < rect.right() && point.y < rect.bottom()) {
+		if (point.x < rect.right && point.y < rect.bottom) {
 			result.push("right", "down-right");
 		}
 		return result;

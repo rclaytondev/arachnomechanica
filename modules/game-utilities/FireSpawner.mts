@@ -100,25 +100,25 @@ export class FireSpawner {
 	hurtbox(size: number = this.hurtboxSize) {
 		const length = Math.max(0, size - this.hurtboxOffset);
 		if(this.direction === "left") {
-			return new Rectangle(
+			return Rectangle.fromDimensions(
 				this.position.x - this.hurtboxOffset - length, this.position.y - this.hurtboxWidth / 2,
 				length, this.hurtboxWidth,
 			);
 		}
 		else if(this.direction === "right") {
-			return new Rectangle(
+			return Rectangle.fromDimensions(
 				this.position.x + this.hurtboxOffset, this.position.y - this.hurtboxWidth / 2,
 				length, this.hurtboxWidth,
 			);
 		}
 		else if(this.direction === "up") {
-			return new Rectangle(
+			return Rectangle.fromDimensions(
 				this.position.x - this.hurtboxWidth / 2, this.position.y - this.hurtboxOffset - length,
 				this.hurtboxWidth, length,
 			);
 		}
 		else {
-			return new Rectangle(
+			return Rectangle.fromDimensions(
 				this.position.x - this.hurtboxWidth / 2, this.position.y + this.hurtboxOffset,
 				this.hurtboxWidth, Math.max(0,size - this.hurtboxOffset),
 			);
