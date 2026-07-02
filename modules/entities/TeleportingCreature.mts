@@ -140,10 +140,14 @@ export class TeleportingCreature extends RectangularCollideable {
 		this.move(this.velocity, world, canvasIO, {});
 		this.velocity.y += PlayerData.GRAVITY;
 	}
+	hasLineOfSight(world: World) {
+		return world.hasLineOfSight(this.hitbox.center(), world.player.hitbox, (e) => e !== this);
+	}
+	isInRangeOfPlayer(playerCenter: Vector) {
+		return Vector.dist(this.hitbox.center(), playerCenter) < TeleportingCreatureData.MAX_TELEPORT_RANGE;
+	}
 	seesPlayer(world: World) {
-		const lineOfSight = world.hasLineOfSight(this.hitbox.center(), world.player.hitbox, (e) => e !== this);
-		const closeEnough = Vector.dist(this.hitbox.center(), world.player.hitbox.center()) < TeleportingCreatureData.MAX_TELEPORT_RANGE;
-		return lineOfSight && closeEnough;
+		return this.isInRangeOfPlayer(world.player.hitbox.center()) && this.hasLineOfSight(world);
 	}
 	getTeleportDestination(world: World) {
 		const playerTile = Tiles.getTileCoordinates(world.player.hitbox.center());
