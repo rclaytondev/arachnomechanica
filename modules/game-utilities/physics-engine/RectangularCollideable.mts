@@ -10,12 +10,16 @@ export abstract class RectangularCollideable extends Collideable {
 
 	constructor(hitbox: Rectangle) {
 		super();
-		const corner = hitbox.getCorner("top-left");
-		this.hitbox = Rectangle.fromDimensions(
-			Math.floor(hitbox.x), Math.floor(hitbox.y),
-			hitbox.width, hitbox.height,
-		);
-		this.subpixel = corner.subtract(corner.floor());
+
+		this.hitbox = hitbox;
+		if(Number.isFinite(hitbox.left)) {
+			this.subpixel.x = hitbox.left - Math.floor(hitbox.left);
+			hitbox.x = Math.floor(hitbox.x);
+		}
+		if(Number.isFinite(hitbox.top)) {
+			this.subpixel.y = hitbox.top - Math.floor(hitbox.top);
+			hitbox.y = Math.floor(hitbox.y);
+		}
 	}
 
 	hitboxes() {
