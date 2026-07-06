@@ -63,4 +63,8 @@ export abstract class BasicTile extends Tile {
 		const tileSquare = Tiles.getTileSquare(tilePosition);
 		return newHitboxes.some(h => h.interiorIntersects(tileSquare));
 	}
+	corners(tilePosition: Vector): Vector[] {
+		const square = Tiles.getTileSquare(tilePosition);
+		return square.getCorners();
+	}
 }

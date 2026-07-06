@@ -144,4 +144,18 @@ export abstract class SlopeTile extends Tile {
 	static isSlope(value: unknown): value is (typeof WorldData.SLOPES)[number] {
 		return (WorldData.SLOPES as readonly unknown[]).includes(value);
 	}
+
+	corners(tilePosition: Vector) {
+		const tileSquare = Tiles.getTileSquare(tilePosition);
+		const topLeft = new Vector(tileSquare.left, tileSquare.top);
+		const topRight = new Vector(tileSquare.right, tileSquare.top);
+		const bottomLeft = new Vector(tileSquare.left, tileSquare.bottom);
+		const bottomRight = new Vector(tileSquare.right, tileSquare.bottom);
+		return ({
+			"slope-floor-left": [topLeft, bottomLeft, bottomRight],
+			"slope-floor-right": [topRight, bottomLeft, bottomRight],
+			"slope-ceiling-left": [topLeft, topRight, bottomLeft],
+			"slope-ceiling-right": [topLeft, topRight, bottomRight],
+		})[this.shape];
+	}
 }

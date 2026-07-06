@@ -2,6 +2,7 @@ import { CanvasIO, canvasIO } from "../../../utils-ts/modules/CanvasIO.mjs";
 import { Direction, Directions } from "../../../utils-ts/modules/geometry/Direction.mjs";
 import { Rectangle } from "../../../utils-ts/modules/geometry/Rectangle.mjs";
 import { Vector } from "../../../utils-ts/modules/geometry/Vector.mjs";
+import { HashSet } from "../../../utils-ts/modules/HashSet.mjs";
 import { DEBUG_SETTINGS } from "../../constants/DebugSettings.mjs";
 import { WorldData } from "../../constants/GameData.mjs";
 import { Platform } from "../../tiles/Platform.mjs";
@@ -208,5 +209,12 @@ export abstract class Collideable extends Entity {
 		for(const hitbox of this.hitboxes()) {
 			canvasIO.strokeRect(hitbox);
 		}
+	}
+
+	corners() {
+		const hitboxes = this.hitboxes();
+		const corners = hitboxes.flatMap(r => r.getCorners());
+		const intersections = hitboxes.flatMap(r => hitboxes.flatMap(s => r.intersections(s)));
+		return [...new HashSet([...corners, ...intersections])];
 	}
 }

@@ -26,7 +26,7 @@ export class WorldScreen {
 	}
 
 	update(canvasIO: CanvasIO) {
-		this.world.update(canvasIO);
+		this.world.update(canvasIO, this.camera);
 		this.camera.update(this.world.player.hitbox.center(), this.world.entities, canvasIO);
 		this.visualEffects.update();
 	}

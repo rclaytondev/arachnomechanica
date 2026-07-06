@@ -2,7 +2,7 @@ import { Rectangle } from "../../utils-ts/modules/geometry/Rectangle.mjs";
 import { Vector } from "../../utils-ts/modules/geometry/Vector.mjs";
 import { LaserBlock } from "../entities/LaserBlock.mjs";
 import { Lizard } from "../entities/Lizard.mjs";
-import { CrawlingMovementData, Spider } from "../entities/Spider.mjs";
+import { CrawlingState, Spider } from "../entities/Spider.mjs";
 import { Main } from "../Main.mjs";
 import { TowerSlope } from "../tiles/TowerSlope.mjs";
 import { TowerTile } from "../tiles/TowerTile.mjs";
@@ -37,7 +37,7 @@ world.tiles.fillRect(Rectangle.fromDimensions(4, 1, 3, 1), TowerTile.TOWER_TILE)
 
 Spider.spawn(new Vector(6, -2), world);
 const spider = [...world.entities].find(e => e instanceof Spider);
-(spider!.movement as CrawlingMovementData).direction = "counterclockwise";
+(spider!.movement as CrawlingState).direction = "counterclockwise";
 
 
 world.tiles.fillRect(Rectangle.fromDimensions(3, -3, 5, 1), TowerTile.TOWER_TILE);

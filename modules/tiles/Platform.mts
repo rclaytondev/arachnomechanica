@@ -86,4 +86,8 @@ export class Platform extends Tile {
 		const tileSquare = Tiles.getTileSquare(tilePosition);
 		return GameUtils.rectIntersectionDistance(rect, direction, tileSquare);
 	}
+	corners(tilePosition: Vector): Vector[] {
+		const rect = Tiles.getTileSquare(tilePosition);
+		return [new Vector(rect.left, rect.top), new Vector(rect.right, rect.top)];
+	}
 }

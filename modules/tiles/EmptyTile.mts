@@ -33,4 +33,7 @@ export class EmptyTile extends Tile {
 	rectIntersectionDistance() {
 		return Infinity;
 	}
+	corners() {
+		return [];
+	}
 }

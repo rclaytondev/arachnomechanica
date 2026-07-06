@@ -9,6 +9,7 @@ import { InvisibleRectangle } from "../game-utilities/physics-engine/InvisibleRe
 import { Rectangle } from "../../utils-ts/modules/geometry/Rectangle.mjs";
 import { Tiles } from "../world/Tiles.mjs";
 import { Entities } from "../world/Entities.mjs";
+import { Platform } from "../tiles/Platform.mjs";
 
 // describe("PointOnSurface.surfaceEndDistanceCW", () => {
 // 	it("can return distance to the end of a tile when on the left edge", () => {
@@ -113,14 +114,14 @@ describe("Entitites.angularMotionBlockers", () => {
 	});
 });
 
-describe("PointOnSurface.nextPoint", () => {
+describe("PointOnSurface.move1Pixel", () => {
 	it("works when moving from a tile to an entity", () => {
 		const world = new World(false);
 		world.tiles.set(0, 0, TowerTile.TOWER_TILE);
 		world.entities.add(new InvisibleRectangle(Rectangle.fromDimensions(10, -10, 10, 10)));
 
 		const point = new PointOnSurface(new Vector(10, 0), "up");
-		const next = point.nextPoint(new InvisibleRectangle(Rectangle.fromDimensions(-100, -100, 1, 1)), world, "clockwise");
+		const next = point.move1Pixel(new InvisibleRectangle(Rectangle.fromDimensions(-100, -100, 1, 1)), world, "clockwise");
 		assert.isNotNull(next);
 		assert.deepEqual(next, new PointOnSurface(new Vector(10, -1), "left"));
 	});
@@ -130,8 +131,136 @@ describe("PointOnSurface.nextPoint", () => {
 		world.entities.add(new InvisibleRectangle(Rectangle.fromDimensions(10, -10, 10, 10)));
 
 		const point = new PointOnSurface(new Vector(10, 0), "up");
-		const next = point.nextPoint(new InvisibleRectangle(Rectangle.fromDimensions(-100, -100, 1, 1)), world, "counterclockwise");
+		const next = point.move1Pixel(new InvisibleRectangle(Rectangle.fromDimensions(-100, -100, 1, 1)), world, "counterclockwise");
 		assert.isNotNull(next);
 		assert.deepEqual(next, new PointOnSurface(new Vector(9, 0), "up"));
+	});
+});
+describe("PointOnSurface.move", () => {
+	it("returns the distance until reaching a corner", () => {
+		const world = new World(false);
+		world.tiles.set(new Vector(0, 0), TowerTile.TOWER_TILE);
+
+		const point = new PointOnSurface(new Vector(5, 0), "up");
+		const [distance, newPoint] = point.move(null, world, "clockwise", 2 * WorldData.TILE_SIZE);
+		assert.equal(distance, WorldData.TILE_SIZE - 5);
+		assert.equal(newPoint.normal, "right");
+	});
+	it("works when there is a corner of a tile that is not a corner of the surface due to an adjacent tile", () => {
+		const world = new World(false);
+		world.tiles.set(new Vector(0, 0), TowerTile.TOWER_TILE);
+		world.tiles.set(new Vector(1, 0), TowerTile.TOWER_TILE);
+
+		const point = new PointOnSurface(new Vector(5, 0), "up");
+		const [distance, newPoint] = point.move(null, world, "clockwise", 2 * WorldData.TILE_SIZE);
+		assert.equal(distance, 2 * WorldData.TILE_SIZE - 5);
+		assert.equal(newPoint.normal, "right");
+	});
+	it("works when stopping due to reaching the end of a platform", () => {
+		const world = new World(false);
+		world.tiles.set(0, 0, TowerTile.TOWER_TILE);
+		world.tiles.set(1, 0, Platform.PLATFORM);
+
+		const point = new PointOnSurface(new Vector(5, 0), "up");
+		const [distance, newPoint] = point.move(null, world, "clockwise", 4 * WorldData.TILE_SIZE);
+		assert.equal(distance, 2 * WorldData.TILE_SIZE - 5);
+		assert.equal(newPoint.normal, "up");
+	});
+	it("returns the maximum distance and the current normal when there is no turn up to the maximum distance", () => {
+		const world = new World(false);
+		world.tiles.set(new Vector(0, 0), TowerTile.TOWER_TILE);
+		world.tiles.set(new Vector(1, 0), TowerTile.TOWER_TILE);
+
+		const point = new PointOnSurface(new Vector(5, 0), "up");
+		const [distance, newPoint] = point.move(null, world, "clockwise", WorldData.TILE_SIZE);
+		assert.equal(distance, WorldData.TILE_SIZE);
+		assert.equal(newPoint.normal, "up");
+	});
+	it("works when there are overlapping entities that are an odd number of pixels away", () => {
+		/* Overlapping entities are allowed in rare cases (e.g. spikeballs being spawned) */
+		const world = new World(false);
+		world.entities.add(new InvisibleRectangle(Rectangle.fromBounds(-20, 0, 0, 20)));
+		world.entities.add(new InvisibleRectangle(Rectangle.fromBounds(-10, 10, 10, 30)));
+
+		const point = new PointOnSurface(new Vector(0, 5), "right");
+		const [distance, newPoint] = point.move(null, world, "clockwise", 10, true);
+
+		assert.equal(distance, 5);
+		assert.equal(newPoint.normal, "up");
+	});
+	it("works when there are overlapping entities that are an even number of pixels away", () => {
+		const world = new World(false);
+		world.entities.add(new InvisibleRectangle(Rectangle.fromBounds(-20, 0, 0, 20)));
+		world.entities.add(new InvisibleRectangle(Rectangle.fromBounds(-10, 10, 10, 30)));
+
+		const point = new PointOnSurface(new Vector(0, 6), "right");
+		const [distance, newPoint] = point.move(null, world, "clockwise", 10, true);
+
+		assert.equal(distance, 4);
+		assert.equal(newPoint.normal, "up");
+	});
+	it("works when encountering an entity that is partway through a platform", () => {
+		const world = new World(false);
+		world.tiles.set(0, 0, Platform.PLATFORM);
+		world.entities.add(new InvisibleRectangle(Rectangle.fromBounds(10, 20, -10, 10)));
+
+		const point = new PointOnSurface(new Vector(0, 0), "up");
+		const [distance, newPoint] = point.move(null, world, "clockwise", 50, true);
+
+		assert.equal(distance, 10);
+		assert.equal(newPoint.normal, "left");
+	});
+
+	it("works when moving a fixed distance and the point has just gone past a corner", () => {
+		const world = new World(false);
+		world.tiles.set(new Vector(0, 0), TowerTile.TOWER_TILE);
+		world.tiles.set(new Vector(1, 0), TowerTile.TOWER_TILE);
+
+		const point = new PointOnSurface(new Vector(0, 0), "up");
+		const [distance, newPoint] = point.move(null, world, "clockwise", 10, false);
+		assert.equal(distance, 10);
+		assert.equal(newPoint.normal, "up");
+		assert.deepEqual(newPoint.position, new Vector(10, 0));
+	});
+	it("works when moving a fixed distance and the point is about to go around a corner", () => {
+		const world = new World(false);
+		world.tiles.set(new Vector(0, 0), TowerTile.TOWER_TILE);
+		world.tiles.set(new Vector(1, 0), TowerTile.TOWER_TILE);
+
+		const point = new PointOnSurface(new Vector(0, 0), "left");
+		const [distance, newPoint] = point.move(null, world, "clockwise", 10, false);
+		assert.equal(distance, 10);
+		assert.equal(newPoint.normal, "up");
+		assert.deepEqual(newPoint.position, new Vector(10, 0));
+	});
+	it("stops at the end when moving a fixed distance and encountering a platform edge", () => {
+		const world = new World(false);
+		world.tiles.set(0, 0, Platform.PLATFORM);
+
+		const point = new PointOnSurface(new Vector(35, 0), "up");
+		const [distance, newPoint] = point.move(null, world, "clockwise", 55, false);
+
+		assert.equal(newPoint.normal, "up");
+		assert.deepEqual(newPoint.position, new Vector(50, 0));
+	});
+	it("works when stopping on a segment that ends with a platform edge", () => {
+		const world = new World(false);
+		world.tiles.set(0, 0, TowerTile.TOWER_TILE);
+		world.tiles.set(1, 1, Platform.PLATFORM);
+
+		const point = new PointOnSurface(new Vector(WorldData.TILE_SIZE, 35), "right");
+		const [distance, newPoint] = point.move(null, world, "clockwise", 50, false);
+		assert.equal(newPoint.normal, "up");
+		assert.deepEqual(newPoint.position, new Vector(WorldData.TILE_SIZE + 35, WorldData.TILE_SIZE));
+	});
+	it("works when moving through a platform from below", () => {
+		const world = new World(false);
+		world.tiles.set(-1, 0, TowerTile.TOWER_TILE);
+		world.tiles.set(0, 0, Platform.PLATFORM);
+
+		const point = new PointOnSurface(new Vector(0, 10), "right");
+		const [distance, newPoint] = point.move(null, world, "counterclockwise", 50, false);
+		assert.equal(newPoint.normal, "up");
+		assert.deepEqual(newPoint.position, new Vector(-40, 0));
 	});
 });

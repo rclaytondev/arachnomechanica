@@ -38,6 +38,9 @@ export class GameUtils {
 		return value.add(direction.multiply(speed));
 	}
 	static lerp(value: number, min1: number, max1: number, min2: number, max2: number) {
+		if(min1 === max1) {
+			throw new Error("Cannot lerp because the source range had a length of zero.");
+		}
 		return (value - min1) / (max1 - min1) * (max2 - min2) + min2;
 	}
 	static lerpAngle(value: number, min1: number, max1: number, min2: number, max2: number) {
@@ -343,6 +346,21 @@ export class GameUtils {
 			&& Rectangle.fromOppositeCorners(endpoint1, endpoint2).contains(intersection)
 		) { return distance; }
 		return Infinity;
+	}
+	static rayIntersectsPoint(rayStart: Vector, rayDirection: Vector, point: Vector) {
+		if(point.equals(rayStart)) { return 0; }
+		if(rayDirection.x === 0) {
+			const intersects = rayDirection.y !== 0 && point.x === rayStart.x && Math.sign(point.y - rayStart.y) === Math.sign(rayDirection.y);
+			return intersects ? (point.y - rayStart.y) / rayDirection.y : Infinity;
+		}
+		if(rayDirection.y === 0) {
+			const intersects = rayDirection.x !== 0 && point.y === rayStart.y && Math.sign(point.x - rayStart.x) === Math.sign(rayDirection.x);
+			return intersects ? (point.x - rayStart.x) / rayDirection.x : Infinity;
+		}
+		const multiplierX = (point.x - rayStart.x) / rayDirection.x;
+		const multiplierY = (point.y - rayStart.y) / rayDirection.y;
+		const intersects = multiplierX === multiplierY && multiplierX > 0;
+		return intersects ? multiplierX : Infinity;
 	}
 	static gridSquaresContaining(point: Vector, gridSize: number = 1) {
 		point = point.divide(gridSize);

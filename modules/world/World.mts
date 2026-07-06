@@ -152,9 +152,10 @@ export class World {
 		}
 	}
 
-	intersectingEntities() {
-		const entities = [...this.entities].filter(e => e instanceof Collideable);
-		const pairs = entities.flatMap((e1, i1) => entities.slice(i1 + 1).map(e2 => [e1, e2] as [Collideable, Collideable]));
-		return pairs.filter(([e1, e2]) => e1.intersects(e2));
+	static intersectingSolids(tiles: TileWithPosition[], entities: Iterable<Entity>) {
+		const collideables = [...entities].filter(e => e instanceof Collideable);
+		const entityCollisions = collideables.flatMap((e1, i1) => collideables.slice(i1 + 1).map(e2 => [e1, e2] as [Collideable, Collideable]));
+		const tileCollisions = collideables.flatMap(e => tiles.filter(t => e.hitboxes().some(h => t.tile.intersects(h, t.position))).map(t => [e, t] as [Collideable, TileWithPosition]));
+		return [...entityCollisions, ...tileCollisions];
 	}
 }

@@ -1,8 +1,8 @@
 import { CanvasIO } from "../../utils-ts/modules/CanvasIO.mjs";
-import { ArrayUtils } from "../../utils-ts/modules/core-extensions/ArrayUtils.mjs";
 import { Diagonal, Direction, Directions } from "../../utils-ts/modules/geometry/Direction.mjs";
 import { Rectangle } from "../../utils-ts/modules/geometry/Rectangle.mjs";
 import { Vector } from "../../utils-ts/modules/geometry/Vector.mjs";
+import { HashSet } from "../../utils-ts/modules/HashSet.mjs";
 import { MathUtils } from "../../utils-ts/modules/math/MathUtils.mjs";
 import { LoadingManager } from "../app-entry-points/LoadingManager.mjs";
 import { DEBUG_SETTINGS } from "../constants/DebugSettings.mjs";
@@ -21,22 +21,79 @@ import { Fireball } from "./Fireball.mjs";
 
 export class PointOnSurface {
 	readonly normal: Direction | Diagonal;
-	readonly point: Vector;
+	readonly position: Vector;
 	constructor(point: Vector, normal: Direction | Diagonal) {
-		this.point = point;
+		this.position = point;
 		this.normal = normal;
 	}
 
-	nextPoint(self: Collideable, world: World, direction: "clockwise" | "counterclockwise") {
-		const blockers = world.angularMotionBlockers(this.point, direction, (e) => e !== self);
+	move1Pixel(self: Collideable | null, world: World, direction: "clockwise" | "counterclockwise") {
+		const blockers = world.angularMotionBlockers(this.position, direction, (e) => e !== self);
 		if(blockers.length === 0) {
 			const opposite = (direction === "clockwise" ? "counterclockwise" : "clockwise");
-			const onPlatformEnd = world.angularMotionBlockers(this.point, opposite, e => e !== self).length !== 0;
+			const onPlatformEnd = world.angularMotionBlockers(this.position, opposite, e => e !== self).length !== 0;
 			return onPlatformEnd ? "on-platform-end" : "floating";
 		}
 		const newTangent = Directions.nextIn(blockers, this.normal, direction);
 		const newNormal = (direction === "clockwise") ? Directions.rotateCounterclockwise[newTangent] : Directions.rotateClockwise[newTangent];
-		return new PointOnSurface(this.point.add(Vector.gridUnit(newTangent)), newNormal);
+		return new PointOnSurface(this.position.add(Vector.gridUnit(newTangent)), newNormal);
+	}
+
+	nextCornerSearchRegion(maxDistance: number, angularDirection: "clockwise" | "counterclockwise") {
+		const direction = this.tangentVector(angularDirection);
+		const endpoint = this.position.add(Vector.unit(direction).multiply(maxDistance));
+		const thinSearchRegion = Rectangle.fromOppositeCorners(this.position, endpoint);
+		return thinSearchRegion.extend("all", 2);
+	}
+	nextPossibleCorner(maxDistance: number, angularDirection: "clockwise" | "counterclockwise", world: World) {
+		const searchRegion = this.nextCornerSearchRegion(maxDistance, angularDirection);
+		const entities = [...world.entities.collideablesIntersecting(searchRegion)];
+		const entityCorners = entities.flatMap(e => e.corners());
+		const tiles = [...world.tiles.getTilesAt(searchRegion)];
+		const overlaps = World.intersectingSolids(tiles, entities);
+		if(overlaps.length !== 0) {
+			return 0;
+		}
+		const tileCorners = tiles.flatMap(({ position, tile }) => tile.corners(position));
+		const corners = new HashSet([...entityCorners, ...tileCorners]);
+		const direction = this.tangentVector(angularDirection);
+		const searchVector = Vector.gridUnit(direction);
+		const hitboxes = entities.flatMap(e => e.hitboxes());
+		const cornerDistances = [...corners].map(c => GameUtils.rayIntersectsPoint(this.position, searchVector, c));
+		const entityDistances = hitboxes.map(h => GameUtils.rayIntersectsRectangle(this.position, searchVector, h.extend("all", -1)) - 1);
+		return Math.max(0, Math.min(maxDistance, ...cornerDistances, ...entityDistances));
+	}
+	move(self: Collideable | null, world: World, direction: "clockwise" | "counterclockwise", max: number, stopAfterTurn: boolean = true): [number, PointOnSurface] {
+		let totalDistance = 0;
+		const currentDirection = direction;
+		// eslint-disable-next-line @typescript-eslint/no-this-alias
+		let currentPoint: PointOnSurface = this;
+		while(true) {
+			const distanceToTurn = currentPoint.nextPossibleCorner(max, currentDirection, world);
+			const nextPoint = currentPoint.position.add(Vector.gridUnit(currentPoint.tangentVector(currentDirection)).multiply(distanceToTurn));
+			const next = new PointOnSurface(nextPoint, currentPoint.normal);
+			const afterTurn = next.move1Pixel(self, world, currentDirection);
+			if(totalDistance + distanceToTurn > max) {
+				return [
+					max,
+					new PointOnSurface(
+						currentPoint.position.add(Vector.gridUnit(currentPoint.tangentVector(currentDirection)).multiply(max - totalDistance)),
+						currentPoint.normal,
+					),
+				];
+			}
+			if(!(afterTurn instanceof PointOnSurface)) {
+				return [totalDistance + distanceToTurn, next];
+			}
+			totalDistance += distanceToTurn + 1;
+			if(stopAfterTurn && totalDistance <= max && afterTurn.normal !== currentPoint.normal) {
+				return [
+					totalDistance - 1,
+					afterTurn,
+				];
+			}
+			currentPoint = afterTurn;
+		}
 	}
 
 
@@ -45,22 +102,35 @@ export class PointOnSurface {
 	tangentVector(direction: "clockwise" | "counterclockwise") {
 		return Directions.rotate[direction][this.normal];
 	}
+
+	equals(pointOnSurface: PointOnSurface) {
+		return this.normal === pointOnSurface.normal && this.position.equals(pointOnSurface.position);
+	}
 }
 
-export class CrawlingMovementData {
-	pointOnSurface: PointOnSurface;
-	direction: "clockwise" | "counterclockwise";
-	subpixel: number = 0;
-	cachedSurfaceData: CachedSurfaceData;
+class Turn {
+	distance: number;
+	point: PointOnSurface;
 
-	constructor(pointOnSurface: PointOnSurface, direction: "clockwise" | "counterclockwise") {
-		this.pointOnSurface = pointOnSurface;
-		this.direction = direction;
-		this.cachedSurfaceData = new CachedSurfaceData(pointOnSurface);
+	constructor(distance: number, point: PointOnSurface) {
+		this.distance = distance;
+		this.point = point;
+	}
+}
+
+class SpiderHitboxCalculator {
+	normal: Direction | Diagonal;
+	previousTurn: Turn;
+	nextTurn: Turn;
+
+	constructor(normal: Direction | Diagonal, previousTurn: Turn, nextTurn: Turn) {
+		this.normal = normal;
+		this.previousTurn = previousTurn;
+		this.nextTurn = nextTurn;
 	}
 
-	wallDistance(world: World, nextTurnDistance: number, previousTurnDistance: number) {
-		const distanceToTurn = Math.min(nextTurnDistance, previousTurnDistance);
+	wallDistance() {
+		const distanceToTurn = Math.min(this.nextTurn.distance, this.previousTurn.distance);
 		if(distanceToTurn >= SpiderData.TURN_WALL_DURATION) {
 			return SpiderData.SIZE / 2;
 		}
@@ -70,50 +140,63 @@ export class CrawlingMovementData {
 			SpiderData.TURN_WALL_DISTANCE, 0,
 		);
 	}
-	smoothedNormalAngle(nextTurnDistance: number, nextTurnNormal: Direction | Diagonal, previousTurnDistance: number, previousTurnNormal: Direction | Diagonal) {
-		if(previousTurnDistance + nextTurnDistance < 2 * SpiderData.TURN_WALL_DURATION) {
-			const halfAngle1 = GameUtils.lerpAngle(1/2, 0, 1, Directions.angle[previousTurnNormal], Directions.angle[this.pointOnSurface.normal]);
-			const halfAngle2 = GameUtils.lerpAngle(1/2, 0, 1, Directions.angle[this.pointOnSurface.normal], Directions.angle[nextTurnNormal]);
+	smoothedNormalAngle() {
+		if(this.previousTurn.distance === 0 && this.nextTurn.distance === 0) {
+			/* This is an edge case that can happen when moving past a platform from below. */
+			const previousAngle = Directions.angle[this.previousTurn.point.normal];
+			const nextAngle = Directions.angle[this.nextTurn.point.normal];
+			return GameUtils.lerpAngle(1/2, 0, 1, previousAngle, nextAngle);
+		}
+		else if(this.previousTurn.distance + this.nextTurn.distance < 2 * SpiderData.TURN_WALL_DURATION) {
+			const halfAngle1 = GameUtils.lerpAngle(1/2, 0, 1, Directions.angle[this.previousTurn.point.normal], Directions.angle[this.normal]);
+			const halfAngle2 = GameUtils.lerpAngle(1/2, 0, 1, Directions.angle[this.normal], Directions.angle[this.nextTurn.point.normal]);
 			return GameUtils.lerpAngle(
-				previousTurnDistance,
-				0, previousTurnDistance + nextTurnDistance,
+				this.previousTurn.distance,
+				0, this.previousTurn.distance + this.nextTurn.distance,
 				halfAngle1, halfAngle2,
 			);
 		}
-		else if(previousTurnDistance < SpiderData.TURN_WALL_DURATION) {
+		else if(this.previousTurn.distance < SpiderData.TURN_WALL_DURATION) {
 			const halfAngle = GameUtils.lerpAngle(
 				1/2, 0, 1,
-				Directions.angle[this.pointOnSurface.normal], Directions.angle[previousTurnNormal],
+				Directions.angle[this.normal], Directions.angle[this.previousTurn.point.normal],
 			);
 			return GameUtils.lerpAngle(
-				previousTurnDistance,
+				this.previousTurn.distance,
 				0, SpiderData.TURN_WALL_DURATION,
-				halfAngle, Directions.angle[this.pointOnSurface.normal],
+				halfAngle, Directions.angle[this.normal],
 			);
 		}
-		else if(nextTurnDistance < SpiderData.TURN_WALL_DURATION) {
+		else if(this.nextTurn.distance < SpiderData.TURN_WALL_DURATION) {
 			const halfAngle = GameUtils.lerpAngle(
 				1/2, 0, 1,
-				Directions.angle[this.pointOnSurface.normal], Directions.angle[nextTurnNormal],
+				Directions.angle[this.normal], Directions.angle[this.nextTurn.point.normal],
 			);
 			const result = GameUtils.lerpAngle(
-				nextTurnDistance,
+				this.nextTurn.distance,
 				0, SpiderData.TURN_WALL_DURATION,
-				halfAngle, Directions.angle[this.pointOnSurface.normal],
+				halfAngle, Directions.angle[this.normal],
 			);
 			return result;
 		}
 		else {
-			return Directions.angle[this.pointOnSurface.normal];
+			return Directions.angle[this.normal];
 		}
 	}
-	scaledSmoothedNormal(self: Spider, world: World) {
-		const opposite = (this.direction === "clockwise" ? "counterclockwise" : "clockwise");
-		const [nextTurnDistance, nextTurnNormal] = this.cachedSurfaceData.nextTurn(self, world, this.direction, 2 * SpiderData.TURN_WALL_DURATION);
-		const [previousTurnDistance, previousTurnNormal] = this.cachedSurfaceData.nextTurn(self, world, opposite, 2 * SpiderData.TURN_WALL_DURATION);
-		const wallDistance = this.wallDistance(world, nextTurnDistance, previousTurnDistance);
-		const angle = this.smoothedNormalAngle(nextTurnDistance, nextTurnNormal, previousTurnDistance, previousTurnNormal);
+	scaledSmoothedNormal(angle: number = this.smoothedNormalAngle()) {
+		const wallDistance = this.wallDistance();
 		return new Vector(Math.cos(angle), -Math.sin(angle)).multiply(wallDistance);
+	}
+}
+
+export class CrawlingState {
+	pointOnSurface: PointOnSurface;
+	direction: "clockwise" | "counterclockwise";
+	subpixel: number = 0;
+
+	constructor(pointOnSurface: PointOnSurface, direction: "clockwise" | "counterclockwise") {
+		this.pointOnSurface = pointOnSurface;
+		this.direction = direction;
 	}
 
 	update(spider: Spider, world: World, canvasIO: CanvasIO) {
@@ -121,99 +204,74 @@ export class CrawlingMovementData {
 			spider.beginFalling();
 			return;
 		}
+		this.move(spider, world, canvasIO);
+		spider.projectileState.update(spider, world);
+	}
+	move(spider: Spider, world: World, canvasIO: CanvasIO) {
 		this.subpixel += spider.projectileState.speed;
 		let amountMoved = 0;
 		while(this.subpixel >= 1) {
 			amountMoved ++;
-			this.subpixel --;
-			const nextPoint = this.pointOnSurface.nextPoint(spider, world, this.direction);
-			if(nextPoint === "on-platform-end" || nextPoint === "floating") {
-				this.direction = (this.direction === "clockwise" ? "counterclockwise" : "clockwise");
-			}
-			else {
-				this.pointOnSurface = nextPoint;
-				if(amountMoved % SpiderData.MAX_DISTANCE_PER_MOVE === 0) {
-					this.cachedSurfaceData = new CachedSurfaceData(this.pointOnSurface);
-					this.updateHitbox(spider, world, canvasIO);
-				}
+			const moved = this.move1Pixel(spider, world);
+			if(moved && amountMoved % SpiderData.MAX_DISTANCE_PER_MOVE === 0 && this.subpixel >= 1) {
+				this.updateHitbox(spider, world, canvasIO);
 			}
 		}
-		this.cachedSurfaceData = new CachedSurfaceData(this.pointOnSurface);
-		this.updateHitbox(spider, world, canvasIO);
-
-		const opposite = (this.direction === "clockwise" ? "counterclockwise" : "clockwise");
-		const [nextTurnDistance, nextTurnNormal] = this.cachedSurfaceData.nextTurn(spider, world, this.direction, 2 * SpiderData.TURN_WALL_DURATION);
-		const [previousTurnDistance, previousTurnNormal] = this.cachedSurfaceData.nextTurn(spider, world, opposite, 2 * SpiderData.TURN_WALL_DURATION);
-		spider.angle = GameUtils.moveAngleTowards(spider.angle, this.smoothedNormalAngle(nextTurnDistance, nextTurnNormal, previousTurnDistance, previousTurnNormal), SpiderData.ANGULAR_SPEED);
-
-		spider.projectileState.update(spider, world);
+		const [normal, angle] = this.getNormalAndAngle(spider, world);
+		this.updateHitbox(spider, world, canvasIO, normal);
+		spider.angle = GameUtils.moveAngleTowards(spider.angle, angle, SpiderData.ANGULAR_SPEED);
 	}
-	updateHitbox(spider: Spider, world: World, canvasIO: CanvasIO) {
-		const normal = this.scaledSmoothedNormal(spider, world);
-		const preferredCenter = this.pointOnSurface.point.add(normal);
+	move1Pixel(spider: Spider, world: World) {
+		const nextPoint = this.pointOnSurface.move1Pixel(spider, world, this.direction);
+		this.subpixel --;
+		if(nextPoint === "on-platform-end" || nextPoint === "floating") {
+			this.direction = (this.direction === "clockwise" ? "counterclockwise" : "clockwise");
+			return false;
+		}
+		this.pointOnSurface = nextPoint;
+		return true;
+	}
+	hitboxCalculator(spider: Spider, world: World) {
+		const opposite = (this.direction === "clockwise" ? "counterclockwise" : "clockwise");
+		const [nextTurnDistance, nextTurn] = this.pointOnSurface.move(spider, world, this.direction, 2 * SpiderData.TURN_WALL_DURATION);
+		const [previousTurnDistance, previousTurn] = this.pointOnSurface.move(spider, world, opposite, 2 * SpiderData.TURN_WALL_DURATION);
+		return new SpiderHitboxCalculator(
+			this.pointOnSurface.normal,
+			new Turn(previousTurnDistance, previousTurn),
+			new Turn(nextTurnDistance, nextTurn),
+		);
+	}
+	getNormalAndAngle(spider: Spider, world: World): [Vector, number] {
+		const hitboxCalculator = this.hitboxCalculator(spider, world);
+		const angle = hitboxCalculator.smoothedNormalAngle();
+		const normal = hitboxCalculator.scaledSmoothedNormal(angle);
+		return [normal, angle];
+	}
+	updateHitbox(spider: Spider, world: World, canvasIO: CanvasIO, normal?: Vector) {
+		normal ??= this.getNormalAndAngle(spider, world)[0];
+		const preferredCenter = this.pointOnSurface.position.add(normal);
 		const offset = preferredCenter.subtract(spider.hitbox.center().add(spider.subpixel));
 		const collides = (obj: Collideable | TileWithPosition) => !(obj instanceof Fireball && obj.ignoredEntities.includes(spider));
 		spider.move(offset, world, canvasIO, { collides });
 	}
 	isFloating(spider: Spider, world: World) {
 		const opposite = this.direction === "clockwise" ? "counterclockwise" : "clockwise";
-		const blockers1 = world.angularMotionBlockers(this.pointOnSurface.point, this.direction, (o) => o !== spider);
-		const blockers2 = world.angularMotionBlockers(this.pointOnSurface.point, opposite, (o) => o !== spider);
+		const blockers1 = world.angularMotionBlockers(this.pointOnSurface.position, this.direction, (o) => o !== spider);
+		const blockers2 = world.angularMotionBlockers(this.pointOnSurface.position, opposite, (o) => o !== spider);
 		return blockers1.length === 0 && blockers2.length === 0;
 	}
 	isBasepointDetached(spider: Spider) {
-		const distance = Vector.dist(spider.hitbox.center(), this.pointOnSurface.point);
+		const distance = Vector.dist(spider.hitbox.center(), this.pointOnSurface.position);
 		return (distance > SpiderData.MAX_BASEPOINT_DISTANCE);
 	}
 
 	runAway(point: Vector) {
-		const distance = Vector.dist(this.pointOnSurface.point, point);
+		const distance = Vector.dist(this.pointOnSurface.position, point);
 		const direction = this.pointOnSurface.tangentVector(this.direction);
-		const nextDistance = Vector.dist(this.pointOnSurface.point.add(Vector.unit(direction)), point);
+		const nextDistance = Vector.dist(this.pointOnSurface.position.add(Vector.unit(direction)), point);
 		if(nextDistance < distance) {
 			this.direction = (this.direction === "clockwise" ? "counterclockwise" : "clockwise");
 		}
-	}
-}
-
-export class CachedSurfaceData {
-	clockwise: (PointOnSurface | null)[];
-	counterclockwise: (PointOnSurface | null)[];
-
-	constructor(point: PointOnSurface) {
-		this.clockwise = [point];
-		this.counterclockwise = [point];
-	}
-
-
-	getPoint(distance: number, direction: "clockwise" | "counterclockwise", self: Collideable, world: World) {
-		const points = this[direction];
-		while(points.length < distance && ArrayUtils.last(points) != null) {
-			const last = ArrayUtils.last(points)!;
-			const next = last.nextPoint(self, world, direction);
-			if(next instanceof PointOnSurface) {
-				points.push(next);
-			}
-			else {
-				points.push(null);
-			}
-		}
-		const last = points[Math.min(distance, points.length - 1)];
-		if(last === null) {
-			return points[Math.min(distance - 1, points.length - 2)]!;
-		}
-		else {
-			return last;
-		}
-	}
-	nextTurn(self: Collideable, world: World, direction: "clockwise" | "counterclockwise", max: number): [number, Direction | Diagonal] {
-		for(let i = 0; i <= max; i ++) {
-			const point = this.getPoint(i, direction, self, world);
-			if(point.normal !== this[direction][0]!.normal) {
-				return [i, point.normal];
-			}
-		}
-		return [max, this[direction][0]!.normal];
 	}
 }
 
@@ -252,11 +310,12 @@ export class SpiderLeg {
 		this.position = GameUtils.moveVectorTowards(this.position, destination, updateSpeed);
 	}
 	destination(spider: Spider, world: World) {
-		if(spider.movement instanceof FallingMovementData || spider.movement.isFloating(spider, world)) {
+		if(spider.movement instanceof FallingState || spider.movement.isFloating(spider, world)) {
 			return this.position;
 		}
 		const direction = this.distance > 0 ? "clockwise" : "counterclockwise";
-		return spider.movement.cachedSurfaceData.getPoint(Math.abs(this.distance), direction, spider, world).point;
+		const [distance, point] = spider.movement.pointOnSurface.move(spider, world, direction, Math.abs(this.distance), false);
+		return point.position;
 	}
 	jointPosition(spider: Spider, position: Vector) {
 		const center = spider.hitbox.center();
@@ -283,7 +342,7 @@ export class SpiderLeg {
 	}
 }
 
-export class FallingMovementData {
+export class FallingState {
 	velocity: Vector = new Vector(0, 0);
 
 	update(spider: Spider, world: World, canvasIO: CanvasIO) {
@@ -361,7 +420,7 @@ class RechargingState extends ProjectileState {
 	update(spider: Spider, world: World) {
 		if(spider.seesPlayer(world)) {
 			this.rechargeProgress = 0;
-			if(spider.movement instanceof CrawlingMovementData) {
+			if(spider.movement instanceof CrawlingState) {
 				spider.movement.runAway(world.player.hitbox.center());
 			}
 		}
@@ -373,7 +432,6 @@ class RechargingState extends ProjectileState {
 			spider.projectileState = new DefaultState();
 		}
 	}
-	display() { }
 
 	numGlowingEyes() {
 		return Math.floor(GameUtils.lerp(
@@ -386,12 +444,12 @@ class RechargingState extends ProjectileState {
 
 
 export class Spider extends RectangularCollideable {
-	movement: CrawlingMovementData | FallingMovementData;
+	movement: CrawlingState | FallingState;
 	projectileState: TelegraphState | DefaultState | RechargingState = new DefaultState();
 	angle: number = 0;
 	legs: SpiderLeg[] = [];
 
-	constructor(position: Vector, movement: CrawlingMovementData | FallingMovementData, world: World) {
+	constructor(position: Vector, movement: CrawlingState | FallingState, world: World) {
 		super(Rectangle.square(position.x, position.y, SpiderData.HITBOX_SIZE));
 		this.movement = movement;
 		this.legs = this.initializeLegs(world);
@@ -479,22 +537,20 @@ export class Spider extends RectangularCollideable {
 			SpiderData.GLOW_COLOR.red, SpiderData.GLOW_COLOR.green, SpiderData.GLOW_COLOR.blue,
 		);
 	}
-	numGlowingEyes() {
-	}
 	displayLegs(canvasIO: CanvasIO) {
 		for(const leg of this.legs) {
 			leg.display(this, canvasIO);
 		}
 	}
 	displayDebug(canvasIO: CanvasIO, world: World): void {
-		if(this.movement instanceof FallingMovementData || this.movement.isFloating(this, world) || !DEBUG_SETTINGS.SPIDER_VISUALIZATION) { return; }
-		const point = this.movement.pointOnSurface.point;
+		if(this.movement instanceof FallingState || this.movement.isFloating(this, world) || !DEBUG_SETTINGS.SPIDER_VISUALIZATION) { return; }
+		const point = this.movement.pointOnSurface.position;
 		const normalEndpoint = point.add(Vector.unit(this.movement.pointOnSurface.normal).multiply(20));
 		canvasIO.ctx.strokeStyle = "red";
 		canvasIO.ctx.lineWidth = 3;
 		canvasIO.strokeLine(point.x, point.y, normalEndpoint.x, normalEndpoint.y);
 
-		const smoothedNormal = this.movement.scaledSmoothedNormal(this, world);
+		const [smoothedNormal] = this.movement.getNormalAndAngle(this, world);
 		const smoothedEndpoint = point.add(smoothedNormal);
 		canvasIO.ctx.strokeStyle = "green";
 		canvasIO.ctx.lineWidth = 3;
@@ -534,7 +590,7 @@ export class Spider extends RectangularCollideable {
 				const possibleBasepoint = new Vector(centerBottom.x + sign * distance, centerBottom.y);
 				const motionBlockers = world.angularMotionBlockers(possibleBasepoint, "clockwise", collides);
 				if(motionBlockers.some(d => ["up-left", "left", "down-left", "down-right", "right", "up-right"].includes(d))) {
-					this.movement = new CrawlingMovementData(
+					this.movement = new CrawlingState(
 						new PointOnSurface(possibleBasepoint, "up"),
 						"clockwise",
 					);
@@ -545,7 +601,7 @@ export class Spider extends RectangularCollideable {
 		return false;
 	}
 	beginFalling() {
-		this.movement = new FallingMovementData();
+		this.movement = new FallingState();
 	}
 
 	static spawn(tilePosition: Vector, world: World): boolean {
@@ -559,17 +615,17 @@ export class Spider extends RectangularCollideable {
 
 		const tileSquare = Tiles.getTileSquare(tilePosition);
 		const pointOnSurface = new PointOnSurface(tileSquare.edgeCenter(direction), Directions.opposite[direction]);
-		const movement = new CrawlingMovementData(pointOnSurface, "clockwise");
+		const movement = new CrawlingState(pointOnSurface, "clockwise");
 		const position = tileSquare.center().subtract(SpiderData.HITBOX_SIZE / 2, SpiderData.HITBOX_SIZE / 2);
 		const spider = new Spider(position, movement, world);
 		return world.addEntityIfEmpty(spider);
 	}
 
 	onCollision(collision: CollisionEvent, world: World): void {
-		if(collision.directionOf(this) === "down" && this.movement instanceof FallingMovementData) {
+		if(collision.directionOf(this) === "down" && this.movement instanceof FallingState) {
 			this.beginCrawling(world);
 		}
-		else if(this.movement instanceof CrawlingMovementData) {
+		else if(this.movement instanceof CrawlingState) {
 			const collisionDirection = Vector.unit(collision.directionOf(this));
 			const tangent = Vector.unit(this.movement.pointOnSurface.tangentVector(this.movement.direction));
 			const opposite = (this.movement.direction === "clockwise" ? "counterclockwise" : "clockwise");
@@ -582,7 +638,7 @@ export class Spider extends RectangularCollideable {
 
 	translate(amount: Vector, world: World): void {
 		super.translate(amount, world);
-		if(this.movement instanceof FallingMovementData) {
+		if(this.movement instanceof FallingState) {
 			for(const leg of this.legs) {
 				leg.position = leg.position.add(amount);
 			}

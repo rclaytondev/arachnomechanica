@@ -50,6 +50,6 @@ Things to do for "1.0 release":
 - [x] Start screen
 
 Less important things:
-- [ ] Spider optimizations
+- [x] Spider optimizations
 - [ ] Pausing
 - [ ] Custom controls
