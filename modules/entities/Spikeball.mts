@@ -12,7 +12,83 @@ import { Renderable } from "../world/Renderer.mjs";
 import { Player } from "../Player.mjs";
 import { Collideable } from "../game-utilities/physics-engine/Collideable.mjs";
 
+abstract class SpikeballState {
+	abstract update(self: Spikeball, world: World, canvasIO: CanvasIO): void;
+
+	abstract render(self: Spikeball): Renderable[];
+}
+
+class MovingState extends SpikeballState {
+	update(self: Spikeball, world: World, canvasIO: CanvasIO): void {
+		self.move(self.velocity, world, canvasIO, {
+			collides: (obj) => self.collides(obj),
+		});
+	}
+
+	render() {
+		return [];
+	}
+}
+
+class AttackState extends SpikeballState {
+	timeInState: number = 0;
+
+	update(self: Spikeball, world: World): void {
+		this.timeInState ++;
+
+		if(this.timeInState > SpikeballData.TELEGRAPH_DELAY) {
+			this.attack(self, world);
+			if(this.timeInState > SpikeballData.TELEGRAPH_DELAY + SpikeballData.ATTACK_DURATION) {
+				self.state = new MovingState();
+			}
+		}
+	}
+	attack(self: Spikeball, world: World) {
+		const center = self.hitbox.center();
+		const hurtbox = Rectangle.fromCenter(center.x, center.y, SpikeballData.HURTBOX_SIZE, SpikeballData.HURTBOX_SIZE);
+		if(world.player.hitbox.intersects(hurtbox)) {
+			world.player.damage(hurtbox, world);
+		}
+	}
+
+
+	render(self: Spikeball) {
+		return [new Renderable(c => this.display(self, c), "glow")];
+	}
+	display(self: Spikeball, canvasIO: CanvasIO) {
+		if(this.timeInState > SpikeballData.TELEGRAPH_DELAY) {
+			this.displayLightning(self, canvasIO);
+		}
+		else {
+			this.displayTelegraph(self, canvasIO);
+		}
+	}
+	displayLightning(self: Spikeball, canvasIO: CanvasIO) {
+		const center = self.hitbox.center();
+		canvasIO.ctx.strokeStyle = SpikeballData.ELECTRICITY_COLOR;
+		canvasIO.ctx.lineWidth = SpikeballData.ELECTRICITY_WIDTH;
+		for(let i = 0; i < SpikeballData.NUM_ELECTRIC_ARCS; i ++) {
+			const endpoints = GameUtils.randomEvenlySpaced({
+				generate: () => GameUtils.randomInCircle(center.x, center.y, SpikeballData.TELEGRAPH_RADIUS),
+				metric: Vector.dist,
+				amount: SpikeballData.ELECTRICITY_SEGMENTS,
+				trials: SpikeballData.ELECTRICITY_EVENNESS,
+			});
+			for(let i = 0; i < endpoints.length - 1; i ++) {
+				const [point, next] = [endpoints[i], endpoints[i+1]];
+				canvasIO.strokeLine(point.x, point.y, next.x, next.y);
+			}
+		}
+	}
+	displayTelegraph(self: Spikeball, canvasIO: CanvasIO) {
+		const center = self.hitbox.center();
+		const thickness = GameUtils.lerp(this.timeInState, 0, SpikeballData.TELEGRAPH_DELAY, SpikeballData.TELEGRAPH_THICKNESS, 1);
+		GameUtils.glowCircleOutline(center.x, center.y, SpikeballData.TELEGRAPH_RADIUS, thickness, 1, canvasIO, 255, 255, 0);
+	}
+}
+
 export class Spikeball extends RectangularCollideable {
+	state: SpikeballState = new MovingState();
 	velocity: Vector;
 	age: number = 0;
 	bounces: number = SpikeballData.BOUNCES;
@@ -38,28 +114,30 @@ export class Spikeball extends RectangularCollideable {
 		return [
 			new Renderable(this.display.bind(this), "entity"),
 			new Renderable(this.displayGlowEffect.bind(this), "glow"),
+			...this.state.render(this),
 		];
 	}
 	display(canvasIO: CanvasIO) {
 		const center = this.hitbox.center();
+		canvasIO.ctx.save();
+		canvasIO.ctx.translate(center.x, center.y);
+		canvasIO.ctx.rotate(this.velocity.angle());
 		canvasIO.ctx.fillStyle = SpikeballData.COLOR;
-		canvasIO.fillCircle(center.x, center.y, SpikeballData.RADIUS);
-
-
-		canvasIO.ctx.strokeStyle = SpikeballData.ELECTRICITY_COLOR;
-		canvasIO.ctx.lineWidth = SpikeballData.ELECTRICITY_WIDTH;
-		for(let i = 0; i < SpikeballData.NUM_ELECTRIC_ARCS; i ++) {
-			const endpoints = GameUtils.randomEvenlySpaced({
-				generate: () => GameUtils.randomInCircle(center.x, center.y, SpikeballData.ELECTRICITY_RADIUS),
-				metric: Vector.dist,
-				amount: SpikeballData.ELECTRICITY_SEGMENTS,
-				trials: SpikeballData.ELECTRICITY_EVENNESS,
-			});
-			for(let i = 0; i < endpoints.length - 1; i ++) {
-				const [point, next] = [endpoints[i], endpoints[i+1]];
-				canvasIO.strokeLine(point.x, point.y, next.x, next.y);
-			}
-		}
+		canvasIO.fillPoly(
+			-SpikeballData.WING_WIDTH, SpikeballData.WING_WIDTH,
+			-SpikeballData.INNER_LENGTH, 0,
+			-SpikeballData.WING_WIDTH, -SpikeballData.WING_WIDTH,
+			SpikeballData.SPIKE_LENGTH, 0,
+		);
+		canvasIO.ctx.fillStyle = "yellow";
+		canvasIO.ctx.scale(0.25, 0.25);
+		canvasIO.fillPoly(
+			-SpikeballData.WING_WIDTH, SpikeballData.WING_WIDTH,
+			-SpikeballData.INNER_LENGTH, 0,
+			-SpikeballData.WING_WIDTH, -SpikeballData.WING_WIDTH,
+			SpikeballData.SPIKE_LENGTH, 0,
+		);
+		canvasIO.ctx.restore();
 	}
 	displayGlowEffect(canvasIO: CanvasIO) {
 		const center = this.hitbox.center();
@@ -74,12 +152,13 @@ export class Spikeball extends RectangularCollideable {
 		canvasIO.ctx.restore();
 	}
 
-	onCollision(collision: CollisionEvent, world: World) {
+	onCollision(collision: CollisionEvent) {
 		if(this.lastCollisionFrame === GameUtils.frameCount) {
 			return;
 		}
 		this.lastCollisionFrame = GameUtils.frameCount;
-		if(collision.movingObject === this) {
+		const collidingObject = collision.collidingObject(this);
+		if(collision.movingObject === this && !(collidingObject instanceof Player)) {
 			this.bounces --;
 			if(Directions.isHorizontal(collision.direction)) {
 				this.velocity.x *= -1;
@@ -88,15 +167,12 @@ export class Spikeball extends RectangularCollideable {
 				this.velocity.y *= -1;
 			}
 		}
-		const collidingObject = collision.collidingObject(this);
-		if(collidingObject instanceof Player) {
-			collidingObject.damage(this.hitbox, world);
+		if(collidingObject instanceof Player && this.state instanceof MovingState) {
+			this.state = new AttackState();
 		}
 	}
 	update(world: World, canvasIO: CanvasIO) {
-		this.move(this.velocity, world, canvasIO, {
-			collides: (obj) => this.collides(obj),
-		});
+		this.state.update(this, world, canvasIO);
 		if(this.bounces < 0) {
 			world.entities.delete(this);
 			this.die(world, canvasIO);

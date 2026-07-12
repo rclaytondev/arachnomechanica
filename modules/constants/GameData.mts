@@ -367,8 +367,12 @@ export class BackgroundData {
 	];
 }
 export class SpikeballData {
-	static RADIUS = WorldData.TILE_SIZE * 0.15;
-	static COLOR = "rgb(255, 255, 0)";
+	static RADIUS = WorldData.TILE_SIZE * 0.3;
+	static WING_WIDTH = 15;
+	static SPIKE_LENGTH = 20;
+	static INNER_LENGTH = 5;
+
+	static COLOR = "rgb(0, 0, 0)";
 	static ACCENT_COLOR = {
 		red: 255,
 		green: 255,
@@ -378,16 +382,20 @@ export class SpikeballData {
 	static GLOW_INTENSITY = 0.4;
 	static GLOW_FADE_TIME = 20;
 
+	static SPEED = 5;
+	static BOUNCES = 3;
+	static HURTBOX_SIZE = WorldData.TILE_SIZE * 1.8;
+	static TELEGRAPH_DELAY = 33;
+	static ATTACK_DURATION = 20;
+
+	static TELEGRAPH_RADIUS = SpikeballData.HURTBOX_SIZE / 2;
+	static TELEGRAPH_THICKNESS = 20;
+
 	static NUM_ELECTRIC_ARCS = 3;
 	static ELECTRICITY_COLOR = "yellow";
-	static ELECTRICITY_RADIUS = WorldData.TILE_SIZE * 0.4;
 	static ELECTRICITY_SEGMENTS = 4;
 	static ELECTRICITY_EVENNESS = 6;
 	static ELECTRICITY_WIDTH = 1;
-
-	static SPEED = 3.5;
-	static BOUNCES = 3;
-	static HURTBOX_SIZE = WorldData.TILE_SIZE * 0.3;
 
 	static SHATTER_PIECES = 10;
 	static SHATTER_PARTICLE_SPEED = 3;
@@ -420,7 +428,7 @@ export class SpikeballBlockData {
 			],
 		],
 	];
-	static BOUNCES_LEFT_BEFORE_SPAWN = 1;
+	static BOUNCES_LEFT_BEFORE_SPAWN = 2;
 
 	static TILE_COLOR = LaserBlockData.TILE_COLOR;
 	static DOOR_COLOR = "rgb(50, 50, 50)";

@@ -80,7 +80,7 @@ export class Particle {
 		this.solid = settings.solid ?? true;
 		this.glowSize = Particle.randomize(settings.glowSize ?? 0);
 		this.glowIntensity = Particle.randomize(settings.glowIntensity ?? 1);
-		this.glowGradient = GameUtils.glowCircleGradient(0, 0, this.glowSize, this.glowIntensity);
+		this.glowGradient = GameUtils.glowCircleGradient(0, this.glowSize, this.glowIntensity);
 		this.thickness = Particle.randomize(settings.thickness ?? 1);
 	}
 
