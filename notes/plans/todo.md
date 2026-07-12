@@ -6,6 +6,11 @@ Features to add to improve game feel:
 	- [ ] Placing a block on a spikeball spawner does not stop the spawner; it just makes the spikeballs move in a janky way
 	- [ ] Gates sometimes (rarely) do not toggle when the player goes through
 	- [ ] When multiple teleporting creatures are nearby, there is no way to know which will teleport.
+	- [ ] Health pickup rooms spawn much more rarely than intended.
+	- [ ] Some enemies have undesirable behavior in certain specific rooms. To fix this, designate some rooms as being unable to spawn in the presence of certain enemy types.
+		- Spiders often get stuck in the room `gate-arch`.
+		- Teleporting creatures almost always destroy the gate in `slope-gate`.
+		- Teleporting creatures and lasers can make `the-maze` nearly impossible to traverse.
 - [ ] **Graphical improvements**
 	- [ ] Activated lasers should have a crackly lightning appearance
 	- [ ] Remove grey particles from unactivated lasers
@@ -16,6 +21,7 @@ Features to add to improve game feel:
 	- [ ] Fire should have a glow effect (one large glow effect, not one for each particle)
 	- [ ] Explosions should have a single large glow effect that fades quickly
 	- [ ] Spikeball spawner graphic improvements (they look slightly weird now; I'm not sure how to improve them)
+	- [ ] Activated spikeballs should have lightning that branches out from the center, is thicker, and is re-randomized every few frames (not every frame).
 	- [ ] Improved enemy death animations - make them fall out of the world while shrinking out of existence
 	- [ ] Improved tile destruction animations
 	- [ ] Improved telegraph and increased delay on teleporting creature's attack
@@ -42,7 +48,7 @@ Features to add to improve game feel:
 	- [ ] **Slide jump?** - after rolling down a slope, press jump for a long, low jump
 	- [ ] **Reverse slide jump?** - after rolling down a slope, press the opposite direction and jump for a very high jump
 - [ ] Large gameplay changes
-	- [ ] **Spikeball overhaul** - replace them with a small triangular spaceship-like projectile that indicates the direction of motion with an arrow. When the player gets near, it pauses and then zaps electricity in a small circle around itself, damaging the player.
+	- [x] **Spikeball overhaul** - replace them with a small triangular spaceship-like projectile that indicates the direction of motion with an arrow. When the player gets near, it pauses and then zaps electricity in a small circle around itself, damaging the player.
 	- [ ] **Tiles** - add more custom throwable tiles (see [[items]]), and make them spawn in the world. (I think this will significantly increase the quality of the game, by giving the player interesting choices about when to use their limited resources).
 	- [ ] **Enemy item drops** - to reward the player for destroying enemies, I could make them drop an item on death. I have considered making them drop a small item that can be combined with others to make an explosive box.
 
