@@ -1,55 +1,75 @@
-Things to do:
-- Bug fixes / remaining unimplemented behavior:
-	- [x] Fix lighting order
-	- [x] Spider bugfixes:
-		- [x] Add behavior for when the block under a spider gets destroyed
-		- [x] Improve spider collision with entities (e.g. throwable tiles - they should be able to walk on them)
-		- [x] Fix spider interaction with weird layouts (e.g. a common bug is when there's a  ceiling slope above platform)
-		- [ ] Fix the performance issues
-	- [x] Improve lizards (make them use the new collision engine)
-	- [ ] Fix the bug with gates (sometimes they toggle randomly - very hard to reproduce)
-	- [ ] Fix lizards being able to breathe fire at the player even when obstructed
-- Small / medium-size features:
-	- [ ] Non-flat walls outside the tower
-- Small gameplay improvements:
-	- [x] Telegraph for the spider attack (line showing shot trajectory)
-	- [ ] Indicator for spikeball direction (a triangle on the spikeball)
-	- [x] Higher friction for objects on ground
-	- [x] Better tile spawn positions
-- Graphical improvements:
-	- [ ] Tile breaking animations
-	- [ ] Fancier overlay text (add lines above and below where it says "Floor 01")
+Features to add to improve game feel:
+- [ ] **Bugfixes** - fix all the small bugs and inconsistencies that affect gameplay
+	- [ ] Lizards can breathe fire at the player even when the player is on the other side of a wall
+	- [ ] Lizards that meet each other head-on can have unpredictable behavior afterwards (one can destroy the other at the next turn; which one it is depends on their exact pixel positioning)
+	- [ ] Lizards that breathe fire horizontally can (maybe?) destroy throwable tiles on top of their heads
+	- [ ] Placing a block on a spikeball spawner does not stop the spawner; it just makes the spikeballs move in a janky way
+	- [ ] Gates sometimes (rarely) do not toggle when the player goes through
+	- [ ] When multiple teleporting creatures are nearby, there is no way to know which will teleport.
+- [ ] **Graphical improvements**
+	- [ ] Activated lasers should have a crackly lightning appearance
+	- [ ] Remove grey particles from unactivated lasers
+	- [ ] Tile graphics - maybe add a faint crisscrossing lattice?
+	- [ ] Squish effect when jumping
+	- [ ] Particles when jumping and double jumping
+	- [ ] Fire particles should be circular, have hue variation, and decrease in size over time
+	- [ ] Fire should have a glow effect (one large glow effect, not one for each particle)
+	- [ ] Explosions should have a single large glow effect that fades quickly
+	- [ ] Spikeball spawner graphic improvements (they look slightly weird now; I'm not sure how to improve them)
+	- [ ] Improved enemy death animations - make them fall out of the world while shrinking out of existence
+	- [ ] Improved tile destruction animations
+	- [ ] Improved telegraph and increased delay on teleporting creature's attack
 	- [ ] Chains
 	- [ ] Teeth on the lizards
-
-Future features:
-- Make lots of rooms
-	- [x] 10
-	- [x] 20
-	- [x] 30
-	- [x] 40
-	- [x] 50
-	- [ ] 60
-- Physics tweaks (some inspired by Celeste):
-	- [x] Hold up to jump higher
+	- [ ] Improved background (idea: blurred and parallaxed rectangles, with multiple background layers)
+- [ ] **Better rooms** - a lot of the older rooms are very boring.
+- [ ] **Movement and input tweaks**
 	- [ ] Jumping gives a small amount of horizontal speed
+	- [ ] Jumping while holding the opposite of the direction of motion sets horizontal velocity to 0
 	- [ ] Buffer inputs (so far only jump inputs make sense to buffer)
-	- [ ] Coyote time
-	- [ ] Slip past corners and preserve velocity?
-	- [x] Leniency when throwing items (if the throw is obstructed, try nudging it a little)
-- [ ] Player graphics!
+	- [ ] Slip past corners and preserve velocity
+	- [ ] Improve controllable jump height (make it more controllable)
+	- [ ] Throwing tiles push the player in the opposite direction when thrown
+- [ ] **Movement tech**
+	- [ ] **Downward smash attack**
+		- [ ] Add a brief pause before doing it (maybe)
+		- [ ] Add a line that shows the trajectory
+		- [ ] Add particles when landing
+	- [ ] **Stun enemies**: make the downward smash attack stuns any enemies hit
+		- [ ] Enemies flash white for a brief moment when stunned
+		- [ ] Enemies "pop" (become larger and rotate slightly for a brief moment) when stunned
+	- [ ] **Roll** out of a downward smash attack
+	- [ ] **Slide jump?** - after rolling down a slope, press jump for a long, low jump
+	- [ ] **Reverse slide jump?** - after rolling down a slope, press the opposite direction and jump for a very high jump
+- [ ] Large gameplay changes
+	- [ ] **Spikeball overhaul** - replace them with a small triangular spaceship-like projectile that indicates the direction of motion with an arrow. When the player gets near, it pauses and then zaps electricity in a small circle around itself, damaging the player.
+	- [ ] **Tiles** - add more custom throwable tiles (see [[items]]), and make them spawn in the world. (I think this will significantly increase the quality of the game, by giving the player interesting choices about when to use their limited resources).
+	- [ ] **Enemy item drops** - to reward the player for destroying enemies, I could make them drop an item on death. I have considered making them drop a small item that can be combined with others to make an explosive box.
 
-Things to do for "1.0 release":
-- [x] Player graphics
-- [x] Health display
-- [x] Items display
-- [x] Death screen (stats + "press space to play again")
-- [x] Support for re-entering portals
-- [x] Portal at the bottom of the tower
-- [x] World border
-- [x] Start screen
+More drastic measures to improve game feel (to be implemented if the above are insufficient):
+- [ ] **More inherent movement abilities** - the movement system is now rather basic; often there is essentially one way to approach each room (usually by double-jumping a lot). This means the player just does this approach and it either works or it doesn't, resulting in the game feeling random. To fix this, I could make the movement system more expressive by adding new moves that let the player traverse the world in more ways.
+	- [ ] **Teleporting** - an early version of the game had an ability that let the player teleport as far as possible in the current facing direction. But I am not sure whether this is a good idea - see pros and cons below.
+		- When playing around with teleporting, I found it extremely fun.
+		- Teleporting is very gimmicky and centralizing. I found that it basically replaced the jump key.
+		- Teleporting up a tall vertical room is much more quick and fun than spamming double jump.
+		- Teleporting is very strong and lets the player bypass single enemies and even groups of enemies. If I re-added it, I imagine the optimal strategy would be to find the right place to stand such that you can get past the next group of enemies in a single teleport. But this is not very interesting gameplay.
+		- If teleporting is too strong, I could add it as a limited-time item (30 second cooldown?) or a limited-uses item (but this is less good since teleporting isn't fun unless you can spam it).
+	- [ ] **Parrying** - when the parry button is pressed, the player briefly ignores damage in the direction of the held arrow keys, or the current facing direction if no keys are held. Unsuccessful parries have a long cooldown (maybe 0.75 seconds) but successful parries have no cooldown.
+		- I could make vertical parries bounce the player upwards or downwards, which sounds very cool.
+		- Parrying could possibly mess up the laser gameplay which is already perfect. A single laser can be bypassed easily with a parry, but I imagine that dodging and parrying several lasers simultaneously could be very fun.
+		- Parrying would improve the teleporting creatures (especially when they are in a narrow vertical shaft), but I imagine this will also be improved when I add a downward smash attack that stuns enemies.
+		- Parrying spider projectiles sounds fun but could also trivialize the spider's attack. But it also might not, especially if I make it not work on explosions (or require a quick additional parry for the explosion itself!)
+		- Parrying spikeballs would massively improve them, but I have other fixes planned for the spikeballs that will make parrying no longer necessary.
+	- [ ] **Wall jumping** - at least it's more interesting than double jumping, while still allowing the player to traverse most of the existing room layouts. But a double jump increases player agency while midair, allowing for more movement options; so perhaps I should keep the double jump.
+	- [ ] **Horizontal dash** - this could let the player evade enemies, which is good. But most of the game is traversed vertically, and this doesn't really affect vertical movement.
+		- I could make the horizontal dash use the down arrow key instead of requiring its own key.
+- [ ] **Object-dependent movement** - I could add objects that can be used by the player for mobility. I imagine these would be in fixed positions and would be manually placed in each room template they appear in. (Note: I want these to increase the options for traversing the rooms, so if I add these, I should not design rooms in a way to require usage of these objects).
+	- [ ] **Springs** - when encountering a spring, the player gets bounced up vertically by a large amount.
+	- [ ] **"Trampolines"** - when the player does a downward smash attack on them, the player gets bounced up a large amount.
+	- [ ] **Double jump devices** - I could remove the double jump and add objects that bounce the player upwards when the player presses a button on them, like the green orbs in Nine Sols. But what button would it be? Just having it be "jump" is boring; perhaps "jump+down" would be better, but this is kind of strange.
 
-Less important things:
-- [x] Spider optimizations
+Other features (old, lower priority):
+- [ ] Fancier overlay text (add lines above and below where it says "Floor 01")
+- [ ] Non-flat walls outside the tower
 - [ ] Pausing
 - [ ] Custom controls
