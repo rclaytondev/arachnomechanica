@@ -1,6 +1,6 @@
 export const DEBUG_SETTINGS = {
-	SHOW_FRAMERATE: true,
-	SHOW_MOUSE_COORDINATES: true,
+	SHOW_FRAMERATE: false,
+	SHOW_MOUSE_COORDINATES: false,
 	HITBOX_COLOR: "rgb(0, 128, 255, 0)",
 
 	EDITOR: {
@@ -12,7 +12,7 @@ export const DEBUG_SETTINGS = {
 	},
 
 	RNG: {
-		LOG_KEY: "KeyR" as string | null,
+		LOG_KEY: null as string | null,
 		OVERRIDE_VALUES: [],
 	},
 
@@ -27,7 +27,7 @@ export const DEBUG_SETTINGS = {
 	},
 
 	FREE_CAMERA_MODE: {
-		ENABLED: true,
+		ENABLED: false,
 		SPEED: 20,
 	},
 
