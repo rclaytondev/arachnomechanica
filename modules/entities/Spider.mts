@@ -506,7 +506,7 @@ export class Spider extends RectangularCollideable {
 		canvasIO.ctx.translate(position.x, position.y);
 		canvasIO.ctx.rotate(-this.angle);
 		canvasIO.ctx.fillStyle = SpiderData.COLOR;
-		if(this.seesPlayer(world) && DEBUG_SETTINGS.SPIDER_VISUALIZATION) {
+		if(this.seesPlayer(world) && DEBUG_SETTINGS.SPIDERS.VISUALIZE) {
 			canvasIO.ctx.fillStyle = "green";
 		}
 		canvasIO.fillRegularPoly(new Vector(0, 0), SpiderData.SIZE / 2, 6);
@@ -543,7 +543,7 @@ export class Spider extends RectangularCollideable {
 		}
 	}
 	displayDebug(canvasIO: CanvasIO, world: World): void {
-		if(this.movement instanceof FallingState || this.movement.isFloating(this, world) || !DEBUG_SETTINGS.SPIDER_VISUALIZATION) { return; }
+		if(this.movement instanceof FallingState || this.movement.isFloating(this, world) || !DEBUG_SETTINGS.SPIDERS.VISUALIZE) { return; }
 		const point = this.movement.pointOnSurface.position;
 		const normalEndpoint = point.add(Vector.unit(this.movement.pointOnSurface.normal).multiply(20));
 		canvasIO.ctx.strokeStyle = "red";

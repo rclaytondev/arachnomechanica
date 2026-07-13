@@ -115,7 +115,7 @@ export class RoomEditor {
 		this.room.worldPart.tiles.set(position, tile);
 	}
 	checkForKeyPresses(canvasIO: CanvasIO) {
-		if(canvasIO.keys[DEBUG_SETTINGS.LOG_BLOCKS_KEY]) {
+		if(canvasIO.keys[DEBUG_SETTINGS.EDITOR.LOG_KEY]) {
 			this.logBlocks();
 		}
 		this.updateDirection(canvasIO);
@@ -189,7 +189,7 @@ export class RoomEditor {
 
 	displayHoveredTile(canvasIO: CanvasIO) {
 		const position = Tiles.getTileCoordinates(canvasIO.mouse.position).multiply(WorldData.TILE_SIZE);
-		canvasIO.ctx.strokeStyle = DEBUG_SETTINGS.HOVERED_TILE_COLOR;
+		canvasIO.ctx.strokeStyle = DEBUG_SETTINGS.EDITOR.HOVERED_TILE_COLOR;
 		canvasIO.ctx.strokeRect(position.x, position.y, WorldData.TILE_SIZE, WorldData.TILE_SIZE);
 	}
 	displayArrow(canvasIO: CanvasIO, position: Vector, direction: Direction) {
@@ -201,12 +201,12 @@ export class RoomEditor {
 	}
 	displayExits(canvasIO: CanvasIO) {
 		for(const [tile, position] of this.room.exitTiles.entries()) {
-			canvasIO.ctx.strokeStyle = DEBUG_SETTINGS.EXIT_TILE_COLOR;
+			canvasIO.ctx.strokeStyle = DEBUG_SETTINGS.EDITOR.EXIT_TILE_COLOR;
 			this.displayArrow(canvasIO, position, tile as Direction);
 		}
 	}
 	displayInfo(canvasIO: CanvasIO) {
-		canvasIO.ctx.fillStyle = DEBUG_SETTINGS.EDITOR_UI_COLOR;
+		canvasIO.ctx.fillStyle = DEBUG_SETTINGS.EDITOR.UI_COLOR;
 		canvasIO.ctx.textAlign = "right";
 		canvasIO.ctx.textBaseline = "top";
 		canvasIO.ctx.font = "30px monospace";

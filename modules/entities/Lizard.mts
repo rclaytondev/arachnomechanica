@@ -79,7 +79,7 @@ export class Lizard extends Collideable {
 		}
 	}
 	displayJoints(canvasIO: CanvasIO) {
-		canvasIO.ctx.strokeStyle = DEBUG_SETTINGS.LIZARD_JOINT_COLOR;
+		canvasIO.ctx.strokeStyle = DEBUG_SETTINGS.LIZARDS.JOINT_COLOR;
 		for(const joint of this.joints) {
 			canvasIO.drawArrow(joint.position, 10, joint.direction);
 		}
@@ -183,12 +183,12 @@ export class Lizard extends Collideable {
 	}
 	displayDebug(canvasIO: CanvasIO) {
 		const hurtbox = this.fireSpawner.hurtbox();
-		canvasIO.ctx.strokeStyle = DEBUG_SETTINGS.LIZARD_HURTBOX_COLOR;
+		canvasIO.ctx.strokeStyle = DEBUG_SETTINGS.LIZARDS.HURTBOX_COLOR;
 		canvasIO.strokeRect(hurtbox);
 	}
 	displayLookaheadRectangle(canvasIO: CanvasIO) {
 		const rectangle = this.lookaheadRectangle();
-		canvasIO.ctx.strokeStyle = DEBUG_SETTINGS.LIZARD_LOOKAHEAD_COLOR;
+		canvasIO.ctx.strokeStyle = DEBUG_SETTINGS.LIZARDS.LOOKAHEAD_COLOR;
 		canvasIO.strokeRect(rectangle);
 	}
 

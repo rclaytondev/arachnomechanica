@@ -1,22 +1,35 @@
 export const DEBUG_SETTINGS = {
-	LIZARD_JOINT_COLOR: "rgba(255, 150, 0, 0)", // set to transparent to disable
-	LOG_BLOCKS_KEY: "Enter",
-	HOVERED_TILE_COLOR: "rgb(0, 0, 0)", // set to transparent to disable
-	EXIT_TILE_COLOR: "rgb(0, 200, 0)",
-	EDITOR_ROOM: null as string | number | null,
 	SHOW_FRAMERATE: true,
-	EDITOR_UI_COLOR: "rgb(255, 150, 0)",
-	GATE_VISUALIZATION_COLOR: "rgb(255, 150, 0)",
-	LIZARD_LOOKAHEAD_COLOR: "rgb(255, 0, 0, 0)",
-	LIZARD_HURTBOX_COLOR: "rgba(255, 0, 255, 0)",
-	PRINT_RNG_KEY: "KeyR" as string | null,
 	SHOW_MOUSE_COORDINATES: true,
-	RNG_OVERRIDE_VALUES: [],
-	SPIDER_VISUALIZATION: false,
 	HITBOX_COLOR: "rgb(0, 128, 255, 0)",
 
-	FREE_CAMERA_MODE: true,
-	FREE_CAMERA_SPEED: 20,
+	EDITOR: {
+		UI_COLOR: "rgb(255, 150, 0)",
+		ROOM: null as string | number | null,
+		EXIT_TILE_COLOR: "rgb(0, 200, 0)",
+		HOVERED_TILE_COLOR: "rgb(0, 0, 0)",
+		LOG_KEY: "Enter",
+	},
+
+	RNG: {
+		LOG_KEY: "KeyR" as string | null,
+		OVERRIDE_VALUES: [],
+	},
+
+	SPIDERS: {
+		VISUALIZE: false,
+	},
+
+	LIZARDS: {
+		LOOKAHEAD_COLOR: "rgb(255, 0, 0, 0)",
+		HURTBOX_COLOR: "rgba(255, 0, 255, 0)",
+		JOINT_COLOR: "rgba(255, 150, 0, 0)",
+	},
+
+	FREE_CAMERA_MODE: {
+		ENABLED: true,
+		SPEED: 20,
+	},
 
 	GENERATOR_VISUALIZATION: {
 		ENABLED: false,

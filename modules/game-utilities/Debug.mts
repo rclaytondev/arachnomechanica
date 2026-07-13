@@ -15,8 +15,8 @@ export class Debug {
 	static initializeRNGOverride() {
 		const oldRandom = Math.random;
 		Math.random = () => {
-			const result = (Debug.rngOverrideIndex < DEBUG_SETTINGS.RNG_OVERRIDE_VALUES.length)
-				? DEBUG_SETTINGS.RNG_OVERRIDE_VALUES[Debug.rngOverrideIndex]
+			const result = (Debug.rngOverrideIndex < DEBUG_SETTINGS.RNG.OVERRIDE_VALUES.length)
+				? DEBUG_SETTINGS.RNG.OVERRIDE_VALUES[Debug.rngOverrideIndex]
 				: oldRandom();
 			Debug.rngOverrideIndex ++;
 			Debug.recordedRNG.push(result);
@@ -24,7 +24,7 @@ export class Debug {
 		};
 	}
 	static checkRNGLogging(canvasIO: CanvasIO) {
-		if(DEBUG_SETTINGS.PRINT_RNG_KEY != null && canvasIO.keys[DEBUG_SETTINGS.PRINT_RNG_KEY]) {
+		if(DEBUG_SETTINGS.RNG.LOG_KEY != null && canvasIO.keys[DEBUG_SETTINGS.RNG.LOG_KEY]) {
 			// eslint-disable-next-line no-console
 			console.log(Debug.recordedRNG.join(", "));
 		}
@@ -32,12 +32,12 @@ export class Debug {
 
 	static initializeEditor() {
 		const room = (
-			(typeof DEBUG_SETTINGS.EDITOR_ROOM === "number") ? ROOMS[DEBUG_SETTINGS.EDITOR_ROOM]
-			: (typeof DEBUG_SETTINGS.EDITOR_ROOM === "string") ? ROOMS.find(r => r.name === DEBUG_SETTINGS.EDITOR_ROOM)
+			(typeof DEBUG_SETTINGS.EDITOR.ROOM === "number") ? ROOMS[DEBUG_SETTINGS.EDITOR.ROOM]
+			: (typeof DEBUG_SETTINGS.EDITOR.ROOM === "string") ? ROOMS.find(r => r.name === DEBUG_SETTINGS.EDITOR.ROOM)
 			: [...ROOMS].reverse().find(r => !r.name.includes("-reflected") && !r.name.includes("-toggled"))
 		);
 		if(!room) {
-			throw new Error(`Room "${DEBUG_SETTINGS.EDITOR_ROOM}" does not exist.`);
+			throw new Error(`Room "${DEBUG_SETTINGS.EDITOR.ROOM}" does not exist.`);
 		}
 
 		// eslint-disable-next-line no-console
@@ -81,7 +81,7 @@ export class Debug {
 
 		const keyDirection = canvasIO!.keyDirection(true);
 		if(keyDirection != null && Debug.freeCameraMode) {
-			camera.position = camera.position.add(Vector.gridUnit(keyDirection).multiply(DEBUG_SETTINGS.FREE_CAMERA_SPEED));
+			camera.position = camera.position.add(Vector.gridUnit(keyDirection).multiply(DEBUG_SETTINGS.FREE_CAMERA_MODE.SPEED));
 		}
 	}
 }

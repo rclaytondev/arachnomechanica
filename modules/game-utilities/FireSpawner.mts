@@ -140,7 +140,7 @@ export class FireSpawner {
 		world.damage(hurtbox, canvasIO);
 	}
 	displayHurtbox(canvasIO: CanvasIO) {
-		canvasIO.ctx.strokeStyle = DEBUG_SETTINGS.LIZARD_HURTBOX_COLOR;
+		canvasIO.ctx.strokeStyle = DEBUG_SETTINGS.LIZARDS.HURTBOX_COLOR;
 		canvasIO.strokeRect(this.hurtbox());
 	}
 }
