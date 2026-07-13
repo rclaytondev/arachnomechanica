@@ -711,7 +711,7 @@ export class StartScreenData {
 	static BACKGROUND_COLOR = "rgb(30, 30, 30)";
 	static TITLE_FONT = "100px monospace";
 	static TITLE_COLOR = "white";
-	static TITLE_TEXT = "title goes here";
+	static TITLE_TEXT = "Arachnomechanica";
 
 	static INSTRUCTIONS_FONT = "30px monospace";
 	static INSTRUCTIONS_COLOR = "white";
