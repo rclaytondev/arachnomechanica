@@ -1,0 +1,1 @@
+{"version":3,"file":"WorldBorder.mjs","sourceRoot":"","sources":["../../../modules/entities/WorldBorder.mts"],"names":[],"mappings":"AACA,OAAO,EAAE,sBAAsB,EAAE,MAAM,6DAA6D,CAAC;AAErG,MAAM,OAAO,WAAY,SAAQ,sBAAsB;IACtD,UAAU,GAAY,KAAK,CAAC;IAE5B,YAAY,MAAiB;QAC5B,KAAK,CAAC,MAAM,CAAC,CAAC;IACf,CAAC;IAED,MAAM,KAAK,OAAO,EAAE,CAAC,CAAC,CAAC;IACvB,MAAM,KAAK,CAAC;CACZ"}

@@ -1,0 +1,217 @@
+import { ArrayUtils } from "../utils-ts/modules/core-extensions/ArrayUtils.mjs";
+import { Directions } from "../utils-ts/modules/geometry/Direction.mjs";
+import { Rectangle } from "../utils-ts/modules/geometry/Rectangle.mjs";
+import { Vector } from "../utils-ts/modules/geometry/Vector.mjs";
+import { MathUtils } from "../utils-ts/modules/math/MathUtils.mjs";
+import { ItemData, PlayerData, WorldData } from "./constants/GameData.mjs";
+import { Debug } from "./game-utilities/Debug.mjs";
+import { GameUtils } from "./game-utilities/GameUtils.mjs";
+import { RectangularCollideable } from "./game-utilities/physics-engine/RectangularCollideable.mjs";
+import { ScreenFade } from "./game-utilities/visual-effects/ScreenFade.mjs";
+import { ThrowableTileEntity } from "./items/ThrowableTileEntity.mjs";
+import { Main } from "./Main.mjs";
+import { RoomEditor } from "./RoomEditor.mjs";
+import { DeathScreen } from "./user-interface/DeathScreen.mjs";
+import { Renderable } from "./world/Renderer.mjs";
+export class Player extends RectangularCollideable {
+    velocity = new Vector(0, 0);
+    hasDoubleJump = false;
+    dead = false;
+    facing = "left";
+    coyoteTime = 0;
+    health = PlayerData.INITIAL_HEALTH;
+    invulnerabilityTime = 0;
+    equippedItems = [null, null];
+    constructor() {
+        super(Rectangle.fromDimensions(0, -WorldData.TILE_SIZE, PlayerData.HITBOX_WIDTH, PlayerData.HITBOX_HEIGHT));
+    }
+    render() {
+        return [new Renderable(this.display.bind(this), "player")];
+    }
+    display(canvasIO) {
+        const center = this.hitbox.center();
+        this.displayBody(canvasIO);
+        this.displayFace(canvasIO);
+        GameUtils.glowCircle(center.x, center.y, PlayerData.GLOW_SIZE, PlayerData.GLOW_INTENSITY, canvasIO);
+    }
+    displayBody(canvasIO) {
+        canvasIO.ctx.fillStyle = PlayerData.BODY_COLOR;
+        const offset = MathUtils.constrain(-this.velocity.x, -PlayerData.MAX_BODY_SLANT, PlayerData.MAX_BODY_SLANT);
+        const crouched = this.isCrouched();
+        const y = crouched ? PlayerData.CROUCHED_BODY_Y : PlayerData.BODY_Y;
+        const height = crouched ? PlayerData.CROUCHED_BODY_HEIGHT : PlayerData.BODY_HEIGHT;
+        canvasIO.fillPoly(this.hitbox.left, this.hitbox.y + y, this.hitbox.left + offset, this.hitbox.y + y + height, this.hitbox.right + offset, this.hitbox.y + y + height, this.hitbox.right, this.hitbox.y + y);
+    }
+    displayFace(canvasIO) {
+        const center = this.hitbox.center();
+        canvasIO.ctx.fillStyle = PlayerData.BODY_COLOR;
+        canvasIO.fillCircle(center.x, this.hitbox.y + PlayerData.HEAD_Y, PlayerData.HEAD_RADIUS);
+        const faceRect = PlayerData.FACE.translate(new Vector(center.x, this.hitbox.y + PlayerData.HEAD_Y));
+        const reflectedRect = (this.facing === "left") ? faceRect.reflectX(center.x) : faceRect;
+        canvasIO.ctx.save();
+        canvasIO.ctx.beginPath();
+        canvasIO.circle(center.x, this.hitbox.y + PlayerData.HEAD_Y, PlayerData.HEAD_RADIUS);
+        canvasIO.ctx.clip();
+        canvasIO.ctx.fillStyle = PlayerData.FACE_COLOR;
+        canvasIO.fillRect(reflectedRect);
+        canvasIO.ctx.restore();
+        canvasIO.ctx.fillStyle = PlayerData.EYE_COLOR;
+        canvasIO.fillDiamond(center.x + (this.facing === "right" ? 1 : -1) * PlayerData.EYE_OFFSET.x, this.hitbox.y + PlayerData.EYE_OFFSET.y, PlayerData.EYE_RADIUS);
+    }
+    update(world, canvasIO) {
+        if (Main.screen instanceof RoomEditor) {
+            return;
+        }
+        this.checkInputs(world, canvasIO);
+        this.coyoteTime--;
+        this.invulnerabilityTime--;
+        if (this.onGround(world, canvasIO)) {
+            this.hasDoubleJump = true;
+            if (this.isCrouched()) {
+                this.velocity.x *= PlayerData.CROUCHED_FRICTION;
+            }
+        }
+        this.velocity.y += canvasIO.keys.KeyZ && this.velocity.y <= 0 ? PlayerData.GRAVITY_WHILE_JUMPING : PlayerData.GRAVITY;
+        this.velocity.x = MathUtils.constrain(this.velocity.x, -PlayerData.MAX_X_VELOCITY, PlayerData.MAX_X_VELOCITY);
+        this.move(new Vector(this.velocity.x, 0), world, canvasIO, {});
+        this.move(new Vector(0, this.velocity.y), world, canvasIO, {});
+    }
+    onCollision(collision) {
+        if (collision.movingObject === this) {
+            if (Directions.isVertical(collision.direction)) {
+                this.velocity.y = 0;
+            }
+            else {
+                this.velocity.x = 0;
+            }
+        }
+    }
+    checkInputs(world, canvasIO) {
+        if (canvasIO.keys.ArrowRight && !canvasIO.keys.ArrowLeft && !Debug.freeCameraMode) {
+            this.velocity.x += PlayerData.HORIZONTAL_ACCELERATION;
+            this.facing = "right";
+        }
+        if (canvasIO.keys.ArrowLeft && !canvasIO.keys.ArrowRight && !Debug.freeCameraMode) {
+            this.velocity.x -= PlayerData.HORIZONTAL_ACCELERATION;
+            this.facing = "left";
+        }
+        if ((!canvasIO.keys.ArrowLeft && !canvasIO.keys.ArrowRight) ||
+            (canvasIO.keys.ArrowLeft && this.velocity.x > 0) ||
+            (canvasIO.keys.ArrowRight && this.velocity.x < 0)) {
+            this.velocity.x *= PlayerData.FRICTION_X;
+        }
+        const onGround = this.onGround(world, canvasIO);
+        if (onGround) {
+            this.coyoteTime = PlayerData.COYOTE_FRAMES;
+        }
+        if (canvasIO.keys.KeyZ && !GameUtils.pastKeys.KeyZ && (this.coyoteTime > 0 || this.hasDoubleJump)) {
+            this.velocity.y = -PlayerData.JUMP_VELOCITY;
+            this.hasDoubleJump = (this.coyoteTime > 0);
+            this.coyoteTime = -1;
+        }
+        if (canvasIO.keys.KeyX && !GameUtils.pastKeys.KeyX) {
+            const used = this.equippedItems[0]?.use(world, canvasIO);
+            if (used) {
+                this.equippedItems[0] = null;
+            }
+        }
+        if (canvasIO.keys.KeyC && !GameUtils.pastKeys.KeyC) {
+            const used = this.equippedItems[1]?.use(world, canvasIO);
+            if (used) {
+                this.equippedItems[1] = null;
+            }
+        }
+        if (canvasIO.keys.ArrowDown && this.onGround(world, canvasIO)) {
+            this.crouch();
+        }
+        if ((!canvasIO.keys.ArrowDown && this.onGround(world, canvasIO)) ||
+            (this.velocity.y > 0)) {
+            this.uncrouch(world);
+        }
+        if (canvasIO.keys.Space && !GameUtils.pastKeys.Space) {
+            this.collectNearestItem(world);
+        }
+    }
+    onGround(world, canvasIO) {
+        return !this.canMove("down", world, canvasIO);
+    }
+    damage(hurtbox, world) {
+        if (this.invulnerabilityTime < 0) {
+            this.health--;
+            world.worldScreen?.visualEffects.effectsList.add(new ScreenFade(PlayerData.DAMAGE_FLASH_TIME, PlayerData.DAMAGE_FLASH_OPACITY, 0, PlayerData.DAMAGE_FLASH_COLOR, "damage-flash"));
+            if (this.health <= 0 && !this.dead) {
+                DeathScreen.show(world);
+                this.dead = true;
+                world.entities.delete(this);
+            }
+            this.invulnerabilityTime = PlayerData.INVULNERABIlITY_TIME;
+        }
+    }
+    crouch() {
+        this.hitbox = this.hitbox.extend("up", PlayerData.CROUCHED_HITBOX_HEIGHT - this.hitbox.height);
+    }
+    uncrouch(world) {
+        const newHitbox = this.hitbox.extend("up", PlayerData.HITBOX_HEIGHT - this.hitbox.height);
+        if (!world.isInSolid(newHitbox, o => o !== this)) {
+            this.hitbox = newHitbox;
+        }
+    }
+    isCrouched() {
+        return this.hitbox.height === PlayerData.CROUCHED_HITBOX_HEIGHT;
+    }
+    itemThrowVelocity(canvasIO) {
+        if (canvasIO.keys.ArrowDown) {
+            return ItemData.DOWN_THROW_VELOCITY.clone();
+        }
+        return (this.facing === "left") ? ItemData.THROW_VELOCITY.reflectX() : ItemData.THROW_VELOCITY.clone();
+    }
+    throwDirection(canvasIO) {
+        if (canvasIO.keys.ArrowDown) {
+            return "down";
+        }
+        return this.facing;
+    }
+    attemptThrow(item, itemCenter, world, canvasIO) {
+        const throwStart = new Vector(itemCenter.x - item.hitbox.width / 2, itemCenter.y - item.hitbox.height / 2);
+        if (!world.isInSolid(item.hitbox.translate(throwStart))) {
+            item.translate(throwStart, world);
+            item.velocity = this.itemThrowVelocity(canvasIO);
+            world.entities.add(item);
+            return true;
+        }
+        return false;
+    }
+    throw(item, world, canvasIO) {
+        const direction = this.throwDirection(canvasIO);
+        const size = (direction === "down" ? item.hitbox.height : item.hitbox.width);
+        const throwStartCenter = this.hitbox.edgeCenter(direction).add(Vector.unit(direction).multiply(ItemData.THROW_OFFSET + size / 2));
+        for (let correctionAmount = 0; correctionAmount < ItemData.THROW_CORRECTION; correctionAmount++) {
+            for (const correctionDirection of [Directions.rotateClockwise[direction], Directions.rotateCounterclockwise[direction]]) {
+                const threw = this.attemptThrow(item, throwStartCenter.add(Vector.unit(correctionDirection).multiply(correctionAmount)), world, canvasIO);
+                if (threw) {
+                    return true;
+                }
+            }
+        }
+        return false;
+    }
+    collectNearestItem(world) {
+        const rect = this.hitbox.extend("all", ItemData.PICKUP_DISTANCE);
+        const allItems = [...world.entities.collideablesIntersecting(rect)].filter(i => i instanceof ThrowableTileEntity);
+        if (allItems.length !== 0) {
+            const closest = ArrayUtils.minValue(allItems, item => item.hitbox.distanceToRect(this.hitbox));
+            this.collect(closest, world);
+        }
+    }
+    collect(itemEntity, world) {
+        const firstEmptySlot = this.equippedItems.indexOf(null);
+        if (firstEmptySlot !== -1) {
+            this.equippedItems[firstEmptySlot] = itemEntity.getItem();
+            for (const modifier of this.equippedItems[firstEmptySlot].modifiers) {
+                modifier.reset();
+            }
+            world.entities.delete(itemEntity);
+        }
+    }
+}
+//# sourceMappingURL=Player.mjs.map

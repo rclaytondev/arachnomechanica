@@ -1,0 +1,1 @@
+{"version":3,"file":"TileModifier.mjs","sourceRoot":"","sources":["../../../modules/items/TileModifier.mts"],"names":[],"mappings":"AAOA,iDAAiD;AAEjD,MAAM,OAAgB,YAAY;IACjC,OAAO,GAAkC,QAAQ,CAAC;IAClD,SAAS,GAAkB,CAAC,CAAC;IAE7B,MAAM,CAAC,IAAyB,EAAE,KAAY,EAAE,QAAkB,IAAI,CAAC;IAEvE,WAAW,CAAC,IAAyB,EAAE,SAAyB,EAAE,KAAY,EAAE,QAAkB,IAAI,CAAC;CAEvG"}

@@ -1,0 +1,52 @@
+import { Backgrounds } from "../backgrounds/Backgrounds.mjs";
+import { GearsBackground } from "../backgrounds/GearsBackground.mjs";
+import { SkyBackground } from "../backgrounds/SkyBackground.mjs";
+import { PlayerData } from "../constants/GameData.mjs";
+import { ScreenFade } from "../game-utilities/visual-effects/ScreenFade.mjs";
+import { VisualEffects } from "../game-utilities/visual-effects/VisualEffects.mjs";
+import { WorldUI } from "../user-interface/WorldUI.mjs";
+import { Camera } from "./Camera.mjs";
+import { Renderable } from "./Renderer.mjs";
+import { World } from "./World.mjs";
+export class WorldScreen {
+    world;
+    worldUI = new WorldUI();
+    backgrounds = new Backgrounds([
+        GearsBackground.generate(),
+        new SkyBackground(),
+    ]);
+    camera = new Camera();
+    visualEffects = new VisualEffects();
+    constructor(world) {
+        this.world = world;
+        this.world.worldScreen = this;
+    }
+    update(canvasIO) {
+        this.world.update(canvasIO, this.camera);
+        this.camera.update(this.world.player.hitbox.center(), this.world.entities, canvasIO);
+        this.visualEffects.update();
+    }
+    render(canvasIO, renderer) {
+        renderer.renderables.push(new Renderable(() => this.backgrounds.display(canvasIO, this.camera), "backgrounds"));
+        this.world.render(canvasIO, this.camera, renderer);
+        this.visualEffects.render(renderer);
+        renderer.renderables.push(new Renderable(() => this.worldUI.display(this.world, canvasIO), "world-ui"));
+    }
+    resetWorld() {
+        this.world = new World(true);
+        this.world.worldScreen = this;
+        this.camera.position = this.world.player.hitbox.center();
+    }
+    beginDeathTransition() {
+        const delay = new ScreenFade(PlayerData.DEATH_RESET_DELAY, 0, 0, "black", "transition-start-delay");
+        const fadeOut = new ScreenFade(PlayerData.FADE_DURATION, 0, 1, "black", "transition-fade-out");
+        const pause = new ScreenFade(PlayerData.FADE_DELAY, 1, 1, "black", "transition-pause", () => this.resetWorld());
+        const fadeIn = new ScreenFade(PlayerData.FADE_DURATION, 1, 0, "black", "transition-fade-in");
+        this.visualEffects.effectsList.add(ScreenFade.sequence([delay, fadeOut, pause, fadeIn], this.visualEffects));
+    }
+    isTransitioning() {
+        const types = ["transition-start-delay", "transition-fade-out", "transition-pause", "transition-fade-in"];
+        return this.world.staticEntities.entitiesList.some(e => (e instanceof ScreenFade && types.includes(e.type)));
+    }
+}
+//# sourceMappingURL=WorldScreen.mjs.map

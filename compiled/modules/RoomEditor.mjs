@@ -1,0 +1,235 @@
+import { Directions } from "../utils-ts/modules/geometry/Direction.mjs";
+import { Vector } from "../utils-ts/modules/geometry/Vector.mjs";
+import { Room } from "./level-generator/Room.mjs";
+import { DEBUG_SETTINGS } from "./constants/DebugSettings.mjs";
+import { Gate } from "./entities/Gate.mjs";
+import { World } from "./world/World.mjs";
+import { BackgroundData, PortalData, WorldData } from "./constants/GameData.mjs";
+import { ROOMS } from "./constants/Rooms.mjs";
+import { GameUtils } from "./game-utilities/GameUtils.mjs";
+import { Portal } from "./entities/Portal.mjs";
+import { BasicTile } from "./tiles/BasicTile.mjs";
+import { EmptyTile } from "./tiles/EmptyTile.mjs";
+import { Platform } from "./tiles/Platform.mjs";
+import { TowerTile } from "./tiles/TowerTile.mjs";
+import { Tiles } from "./world/Tiles.mjs";
+import { HealthPickup } from "./entities/HealthPickup.mjs";
+import { SpawnPoint } from "./entities/SpawnPoint.mjs";
+import { Camera } from "./world/Camera.mjs";
+import { SlopeTile } from "./tiles/SlopeTile.mjs";
+import { Renderable } from "./world/Renderer.mjs";
+import { Entities } from "./world/Entities.mjs";
+import { TowerSlope } from "./tiles/TowerSlope.mjs";
+export class RoomEditor {
+    room;
+    world = new World(false);
+    mode = "solid";
+    direction = "right";
+    static MODES = ["solid", "platform", "exit", "gate-open", "gate-closed", "portal", "slope"];
+    constructor(room = Room.parse("editor room", [], [], [], () => false, [])) {
+        this.room = room;
+        this.world = new World(false);
+        for (const [tile, position] of this.room.worldPart.tiles.entries()) {
+            this.world.tiles.set(position, tile);
+        }
+        for (const entity of this.room.worldPart.entities) {
+            this.world.entities.add(entity);
+        }
+    }
+    update(canvasIO) {
+        this.world.update(canvasIO);
+        this.checkForClicks(canvasIO);
+        this.checkForKeyPresses(canvasIO);
+        this.world.originalTiles = this.world.tiles;
+        const numberKeys = canvasIO.numberKeys();
+        if (numberKeys.length !== 0) {
+            const key = numberKeys[0];
+            if (key > 0 && key <= RoomEditor.MODES.length) {
+                this.mode = RoomEditor.MODES[key - 1];
+            }
+        }
+    }
+    checkForClicks(canvasIO) {
+        if (!canvasIO.mouse.pressed) {
+            return;
+        }
+        const position = Tiles.getTileCoordinates(canvasIO.mouse.position);
+        if (canvasIO.mouse.button === "left") {
+            if (this.mode === "solid") {
+                this.setTile(position, canvasIO.mouse.button === "left" ? TowerTile.TOWER_TILE : EmptyTile.EMPTY);
+            }
+            else if (this.mode === "platform") {
+                this.setTile(position, canvasIO.mouse.button === "left" ? Platform.PLATFORM : EmptyTile.EMPTY);
+            }
+            else if (this.mode === "exit" && Directions.isDirection(this.direction)) {
+                this.room.exitTiles.set(position, this.direction);
+            }
+            else if ((this.mode === "gate-open" || this.mode === "gate-closed") && Directions.isDirection(this.direction)) {
+                const gateExists = Gate.isGateAt(position, this.world);
+                if (!gateExists) {
+                    const gate = Gate.atTile(position, this.direction, (this.mode === "gate-open"));
+                    this.addEntity(gate);
+                }
+            }
+            else if (this.mode === "portal") {
+                const portalPosition = this.getPortalPosition(position);
+                if (![...this.room.worldPart.entities].some(p => p instanceof Portal && p.position.equals(portalPosition))) {
+                    this.addEntity(new Portal(portalPosition));
+                }
+            }
+            else if (this.mode === "slope" && Directions.isDiagonal(this.direction)) {
+                const tile = {
+                    "up-left": "slope-ceiling-left",
+                    "up-right": "slope-ceiling-right",
+                    "down-left": "slope-floor-left",
+                    "down-right": "slope-floor-right",
+                }[this.direction];
+                this.setTile(position, new TowerSlope(tile));
+            }
+        }
+        else {
+            if (this.mode === "exit") {
+                this.room.exitTiles.set(position, "none");
+            }
+            else if (this.mode !== "portal") {
+                this.setTile(position, EmptyTile.EMPTY);
+            }
+            else {
+                const portalPosition = this.getPortalPosition(position);
+                this.filterEntities(e => !(e instanceof Portal && e.position.equals(portalPosition)));
+            }
+            this.filterEntities(e => !(e instanceof Gate && e.tilePosition().equals(position)));
+        }
+    }
+    getPortalPosition(tilePosition) {
+        return Tiles.getTileCoordinates(tilePosition.multiply(WorldData.TILE_SIZE).add(PortalData.WIDTH / 2, 0))
+            .add(0, 1).multiply(WorldData.TILE_SIZE);
+    }
+    setTile(position, tile) {
+        this.world.tiles.set(position, tile);
+        this.room.worldPart.tiles.set(position, tile);
+    }
+    checkForKeyPresses(canvasIO) {
+        if (canvasIO.keys[DEBUG_SETTINGS.EDITOR.LOG_KEY]) {
+            this.logBlocks();
+        }
+        this.updateDirection(canvasIO);
+        if (canvasIO.keys.Equal && !GameUtils.pastKeys.Equal) {
+            this.loadNextRoom();
+        }
+        else if (canvasIO.keys.Minus && !GameUtils.pastKeys.Minus) {
+            this.loadPreviousRoom();
+        }
+    }
+    updateDirection(canvasIO) {
+        const KEYS = ["ArrowLeft", "ArrowRight", "ArrowUp", "ArrowDown"];
+        if (KEYS.some(k => canvasIO.keys[k] && !GameUtils.pastKeys[k])) {
+            this.direction = canvasIO.keyDirection(true) ?? this.direction;
+        }
+    }
+    loadRoom(room) {
+        this.room = room;
+        this.world = new World(false);
+        room.add(new Vector(0, 0), this.world, new Set(["left", "right", "up", "down"]));
+    }
+    loadNextRoom() {
+        const index = ROOMS.indexOf(this.room);
+        if (index < ROOMS.length - 1) {
+            this.loadRoom(ROOMS[index + 1]);
+            // eslint-disable-next-line no-console
+            console.log(`loaded room ${index + 1} (${ROOMS[index + 1].name}) in the editor`);
+        }
+    }
+    loadPreviousRoom() {
+        const index = ROOMS.indexOf(this.room);
+        if (index > 0) {
+            this.loadRoom(ROOMS[index - 1]);
+            // eslint-disable-next-line no-console
+            console.log(`loaded room ${index - 1} (${ROOMS[index - 1].name}) in the editor`);
+        }
+    }
+    render(canvasIO, renderer) {
+        this.world.render(canvasIO, new Camera(canvasIO.boundingBox().center()), renderer);
+        renderer.renderables.push(new Renderable(() => canvasIO.fillCanvas(BackgroundData.BACKGROUND_COLOR), "editor-background"), new Renderable(() => {
+            this.displayHoveredTile(canvasIO);
+            this.displayExits(canvasIO);
+            this.displayInfo(canvasIO);
+        }, "editor-ui"));
+    }
+    addEntity(entity) {
+        this.room.worldPart.entities.add(entity);
+        this.world.entities.add(entity);
+    }
+    filterEntities(callback) {
+        this.room.worldPart.entities = new Entities([...this.room.worldPart.entities].filter(callback));
+        for (const entity of this.world.entities) {
+            const valid = (entity instanceof Portal || entity instanceof HealthPickup || entity instanceof SpawnPoint || entity instanceof Gate);
+            if (valid && !callback(entity)) {
+                this.world.entities.delete(entity);
+            }
+        }
+    }
+    displayHoveredTile(canvasIO) {
+        const position = Tiles.getTileCoordinates(canvasIO.mouse.position).multiply(WorldData.TILE_SIZE);
+        canvasIO.ctx.strokeStyle = DEBUG_SETTINGS.EDITOR.HOVERED_TILE_COLOR;
+        canvasIO.ctx.strokeRect(position.x, position.y, WorldData.TILE_SIZE, WorldData.TILE_SIZE);
+    }
+    displayArrow(canvasIO, position, direction) {
+        canvasIO.drawArrow(position.add(1 / 2, 1 / 2).multiply(WorldData.TILE_SIZE), WorldData.TILE_SIZE / 3, direction);
+    }
+    displayExits(canvasIO) {
+        for (const [tile, position] of this.room.exitTiles.entries()) {
+            canvasIO.ctx.strokeStyle = DEBUG_SETTINGS.EDITOR.EXIT_TILE_COLOR;
+            this.displayArrow(canvasIO, position, tile);
+        }
+    }
+    displayInfo(canvasIO) {
+        canvasIO.ctx.fillStyle = DEBUG_SETTINGS.EDITOR.UI_COLOR;
+        canvasIO.ctx.textAlign = "right";
+        canvasIO.ctx.textBaseline = "top";
+        canvasIO.ctx.font = "30px monospace";
+        canvasIO.ctx.fillText(this.mode, canvasIO.canvas.width, 0);
+        canvasIO.ctx.fillText(this.direction, canvasIO.canvas.width, 30);
+    }
+    getTileString(tile) {
+        if (tile instanceof EmptyTile) {
+            return "\"empty\"";
+        }
+        else if (tile instanceof Platform) {
+            return "\"platform\"";
+        }
+        else if (tile instanceof BasicTile) {
+            return "\"solid\"";
+        }
+        else if (tile instanceof SlopeTile) {
+            return `"${tile.shape}"`;
+        }
+        else {
+            throw new Error("Found unexpected tile in level editor.");
+        }
+    }
+    logBlocks() {
+        let result = "[\n";
+        for (const [tile, position] of this.room.worldPart.tiles.entries()) {
+            result += `\t{ x: ${position.x}, y: ${position.y}, type: ${this.getTileString(tile)} },\n`;
+        }
+        result += "],\n[\n";
+        for (const [direction, position] of this.room.exitTiles.entries()) {
+            result += `\t{ x: ${position.x}, y: ${position.y}, direction: "${direction}" },\n`;
+        }
+        result += "],\n[\n";
+        for (const entity of this.room.worldPart.entities) {
+            if (entity instanceof Portal) {
+                result += `\tnew Portal(new Vector${entity.position}),\n`;
+            }
+            else if (entity instanceof Gate) {
+                const position = entity.tilePosition();
+                result += `\tGate.atTile(new Vector(${position.x}, ${position.y}), "${entity.direction}", ${entity.toggled}),\n`;
+            }
+        }
+        result += "],";
+        // eslint-disable-next-line no-console
+        console.log(result);
+    }
+}
+//# sourceMappingURL=RoomEditor.mjs.map

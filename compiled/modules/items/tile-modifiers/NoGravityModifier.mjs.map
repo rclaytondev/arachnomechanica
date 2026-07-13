@@ -1,0 +1,1 @@
+{"version":3,"file":"NoGravityModifier.mjs","sourceRoot":"","sources":["../../../../modules/items/tile-modifiers/NoGravityModifier.mts"],"names":[],"mappings":"AAAA,OAAO,EAAE,YAAY,EAAE,MAAM,qBAAqB,CAAC;AAEnD,MAAM,OAAO,iBAAkB,SAAQ,YAAY;IAClD,OAAO,GAAG,MAAe,CAAC;IAC1B,SAAS,GAAG,IAAa,CAAC;IAE1B,WAAW;QACV,OAAO;IACR,CAAC;IAED,KAAK,KAAK,CAAC;CACX"}

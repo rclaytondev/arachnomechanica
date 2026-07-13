@@ -1,0 +1,67 @@
+import { Rectangle } from "../../utils-ts/modules/geometry/Rectangle.mjs";
+import { Vector } from "../../utils-ts/modules/geometry/Vector.mjs";
+import { PortalData, RoomData, WorldData } from "../constants/GameData.mjs";
+import { Entity } from "../game-utilities/Entity.mjs";
+import { GameUtils } from "../game-utilities/GameUtils.mjs";
+import { Particle } from "../game-utilities/Particle.mjs";
+import { Renderable } from "../world/Renderer.mjs";
+import { SpawnPoint } from "./SpawnPoint.mjs";
+export class Portal extends Entity {
+    position;
+    constructor(position) {
+        super();
+        this.position = position;
+    }
+    update(world, canvasIO) {
+        if (GameUtils.frameCount % PortalData.FRAMES_PER_LINE === 0) {
+            this.addLine(world, canvasIO);
+        }
+        if (world.player.hitbox.intersects(this.teleportHitbox())) {
+            this.teleportPlayer(world);
+        }
+    }
+    teleportHitbox() {
+        return Rectangle.fromDimensions(this.position.x - PortalData.HITBOX_WIDTH / 2, this.position.y - PortalData.HITBOX_HEIGHT, PortalData.HITBOX_WIDTH, PortalData.HITBOX_HEIGHT);
+    }
+    addLine(world, canvasIO) {
+        world.particles.add(new Particle(new Vector(this.position.x + GameUtils.random(-PortalData.LINE_SPAWN_WIDTH / 2, PortalData.LINE_SPAWN_WIDTH / 2), this.position.y), new Vector(0, -PortalData.LINE_SPEED), PortalData.PARTICLE_SETTINGS), world, canvasIO);
+    }
+    teleportPlayer(world) {
+        const generator = world.worldGenerator;
+        if (generator) {
+            if (generator.towerGenerator.levelsGenerated <= generator.towerGenerator.levelsVisited) {
+                generator.towerGenerator.generate(world);
+            }
+            const nextLevel = generator.towerGenerator.nextLevelTileRectangle().scale(WorldData.TILE_SIZE);
+            const nextSpawn = [...world.entities.possiblyIntersecting(nextLevel)].find(e => e instanceof SpawnPoint);
+            world.player.hitbox.x = nextSpawn.position.x;
+            world.player.hitbox.y = nextSpawn.position.y;
+        }
+    }
+    render() {
+        return [new Renderable(this.display.bind(this), "entity")];
+    }
+    display(canvasIO) {
+        canvasIO.ctx.fillStyle = PortalData.COLOR;
+        canvasIO.ctx.fillRect(this.position.x - PortalData.WIDTH / 2, this.position.y - PortalData.BASE_HEIGHT, PortalData.WIDTH, PortalData.BASE_HEIGHT);
+    }
+    reflect() {
+        return new Portal(new Vector(RoomData.SIZE * WorldData.TILE_SIZE - this.position.x, this.position.y));
+    }
+    copyAndTranslate(offset) {
+        return new Portal(this.position.add(offset));
+    }
+    translate(amount) {
+        this.position = this.position.add(amount);
+    }
+    copy() {
+        return new Portal(this.position.clone());
+    }
+    hitboxes() {
+        return [];
+    }
+    boundingBox() {
+        return Rectangle.fromDimensions(this.position.x - PortalData.WIDTH / 2, this.position.y - PortalData.HITBOX_HEIGHT, PortalData.WIDTH, PortalData.HITBOX_HEIGHT);
+    }
+}
+//# sourceMappingURL=Portal.mjs.map

@@ -1,0 +1,1 @@
+{"version":3,"file":"EditorInitializer.mjs","sourceRoot":"","sources":["../../../modules/app-entry-points/EditorInitializer.mts"],"names":[],"mappings":"AAAA,OAAO,mBAAmB,CAAC;AAC3B,OAAO,EAAE,KAAK,EAAE,MAAM,6BAA6B,CAAC;AACpD,OAAO,EAAE,IAAI,EAAE,MAAM,aAAa,CAAC;AACnC,OAAO,EAAE,UAAU,EAAE,MAAM,mBAAmB,CAAC;AAE/C,IAAI,CAAC,MAAM,GAAG,IAAI,UAAU,EAAE,CAAC;AAC/B,KAAK,CAAC,gBAAgB,EAAE,CAAC"}

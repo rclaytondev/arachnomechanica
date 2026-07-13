@@ -1,0 +1,1 @@
+{"version":3,"file":"RoomPlaceholder.mjs","sourceRoot":"","sources":["../../../modules/level-generator/RoomPlaceholder.mts"],"names":[],"mappings":"AAGA,MAAM,OAAO,eAAe;IAC3B,KAAK,CAAiB;IACtB,IAAI,CAAO;IACX,SAAS,GAAY,KAAK,CAAC;IAE3B,YAAY,KAA0B,EAAE,IAAU;QACjD,IAAI,CAAC,KAAK,GAAG,IAAI,GAAG,CAAC,KAAK,CAAC,CAAC;QAC5B,IAAI,CAAC,IAAI,GAAG,IAAI,CAAC;IAClB,CAAC;CACD"}

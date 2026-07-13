@@ -1,0 +1,115 @@
+import { Vector } from "../../utils-ts/modules/geometry/Vector.mjs";
+import { Renderable } from "../world/Renderer.mjs";
+import { GameUtils } from "./GameUtils.mjs";
+export class Particle {
+    position;
+    velocity;
+    size;
+    color;
+    opacity;
+    opacityDecay;
+    shape;
+    gravity;
+    sizeDecay;
+    rotationalVelocity;
+    rotation;
+    solid;
+    glowSize;
+    glowIntensity;
+    glowGradient;
+    thickness;
+    static randomize(info) {
+        if (typeof info === "number") {
+            return info;
+        }
+        return GameUtils.random(info.min, info.max);
+    }
+    constructor(position, velocity, settings) {
+        this.position = position;
+        this.velocity = velocity;
+        this.size = Particle.randomize(settings.size);
+        if (settings.colorVariance) {
+            const red = settings.color.red + GameUtils.random(-settings.colorVariance, settings.colorVariance);
+            const green = settings.color.green + GameUtils.random(-settings.colorVariance, settings.colorVariance);
+            const blue = settings.color.blue + GameUtils.random(-settings.colorVariance, settings.colorVariance);
+            this.color = `rgb(${red}, ${green}, ${blue})`;
+        }
+        else if (settings.grayscaleColorVariance) {
+            const offset = GameUtils.random(-settings.grayscaleColorVariance, settings.grayscaleColorVariance);
+            this.color = `rgb(${settings.color.red + offset}, ${settings.color.green + offset}, ${settings.color.blue + offset})`;
+        }
+        else {
+            this.color = `rgb(${settings.color.red}, ${settings.color.green}, ${settings.color.blue})`;
+        }
+        this.opacity = Particle.randomize(settings.opacity ?? 1);
+        this.opacityDecay = Particle.randomize(settings.opacityDecay ?? 1 / 20);
+        this.shape = settings.shape ?? "circle";
+        this.gravity = Particle.randomize(settings.gravity ?? 0);
+        this.sizeDecay = Particle.randomize(settings.sizeDecay ?? 0);
+        this.rotationalVelocity = Particle.randomize(settings.rotationalVelocity ?? 0);
+        this.rotation = Particle.randomize(settings.rotation ?? { min: 0, max: 2 * Math.PI });
+        this.solid = settings.solid ?? true;
+        this.glowSize = Particle.randomize(settings.glowSize ?? 0);
+        this.glowIntensity = Particle.randomize(settings.glowIntensity ?? 1);
+        this.glowGradient = GameUtils.glowCircleGradient(0, this.glowSize, this.glowIntensity);
+        this.thickness = Particle.randomize(settings.thickness ?? 1);
+    }
+    render() {
+        return [
+            new Renderable(this.display.bind(this), "particle"),
+            new Renderable(this.displayGlow.bind(this), "glow"),
+        ];
+    }
+    display(canvasIO) {
+        canvasIO.ctx.save();
+        canvasIO.ctx.translate(this.position.x, this.position.y);
+        canvasIO.ctx.rotate(this.rotation);
+        canvasIO.ctx.fillStyle = this.color;
+        canvasIO.ctx.strokeStyle = this.color;
+        canvasIO.ctx.lineWidth = this.thickness;
+        canvasIO.ctx.globalAlpha = this.opacity;
+        if (this.solid) {
+            if (this.shape === "circle") {
+                canvasIO.fillCircle(0, 0, this.size);
+            }
+            else if (typeof this.shape === "number") {
+                canvasIO.fillRegularPoly(new Vector(0, 0), this.size, this.shape);
+            }
+            else {
+                this.shape(canvasIO);
+            }
+        }
+        else {
+            if (this.shape === "circle") {
+                canvasIO.strokeCircle(0, 0, this.size);
+            }
+            else if (typeof this.shape === "number") {
+                canvasIO.strokeRegularPoly(new Vector(0, 0), this.size, this.shape);
+            }
+            else {
+                this.shape(canvasIO);
+            }
+        }
+        canvasIO.ctx.restore();
+    }
+    displayGlow(canvasIO) {
+        if (this.glowSize !== 0 && this.glowIntensity !== 0 && this.glowGradient !== null) {
+            canvasIO.ctx.fillStyle = this.glowGradient;
+            canvasIO.fillCircle(this.position.x, this.position.y, this.glowSize);
+        }
+    }
+    update() {
+        this.velocity = this.velocity.add(0, this.gravity);
+        this.position = this.position.add(this.velocity);
+        this.rotation += this.rotationalVelocity;
+        this.size = Math.max(0, this.size - this.sizeDecay);
+        this.opacity = Math.max(0, this.opacity - this.opacityDecay);
+    }
+    lifetime() {
+        return Math.min(this.size / this.sizeDecay, this.opacity / this.opacityDecay);
+    }
+    isDead() {
+        return this.size <= 0 || this.opacity <= 0;
+    }
+}
+//# sourceMappingURL=Particle.mjs.map

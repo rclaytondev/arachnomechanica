@@ -1,0 +1,199 @@
+import { Rectangle } from "../../utils-ts/modules/geometry/Rectangle.mjs";
+import { Vector } from "../../utils-ts/modules/geometry/Vector.mjs";
+import { LoadingManager } from "../app-entry-points/LoadingManager.mjs";
+import { PlayerData, RoomData, TeleportingCreatureData, WorldData } from "../constants/GameData.mjs";
+import { Entity } from "../game-utilities/Entity.mjs";
+import { FireSpawner } from "../game-utilities/FireSpawner.mjs";
+import { GameUtils } from "../game-utilities/GameUtils.mjs";
+import { RectangularCollideable } from "../game-utilities/physics-engine/RectangularCollideable.mjs";
+import { EntitySpawner } from "../level-generator/EntitySpawner.mjs";
+import { Renderable } from "../world/Renderer.mjs";
+import { Tiles } from "../world/Tiles.mjs";
+class ReadyMode {
+    update(self, world) {
+        if (self.seesPlayer(world)) {
+            const teleported = self.teleport(world);
+            if (teleported) {
+                self.mode = new PauseMode();
+            }
+        }
+    }
+}
+class PauseMode {
+    timeInMode = 0;
+    update(self) {
+        this.timeInMode++;
+        if (this.timeInMode > TeleportingCreatureData.TELEGRAPH_DURATION) {
+            self.fireSpawner.startFire(TeleportingCreatureData.FIRE_DURATION);
+            self.mode = new FiringMode();
+        }
+    }
+}
+class FiringMode {
+    update(self) {
+        if (self.fireSpawner.timeLeft < 0) {
+            self.mode = new CooldownMode();
+        }
+    }
+}
+class CooldownMode {
+    timeInMode = 0;
+    update(self) {
+        this.timeInMode++;
+        if (this.timeInMode > TeleportingCreatureData.COOLDOWN_DURATION) {
+            self.mode = new ReadyMode();
+        }
+    }
+}
+export class TeleportingCreature extends RectangularCollideable {
+    velocity = new Vector(0, 0);
+    mode = new ReadyMode();
+    fireSpawner = new FireSpawner(new Vector(0, 0), "up", TeleportingCreatureData.FIRE);
+    constructor(position) {
+        super(Rectangle.fromDimensions(position.x, position.y, TeleportingCreatureData.HITBOX_WIDTH, TeleportingCreatureData.HITBOX_HEIGHT));
+    }
+    static atTile(tilePosition) {
+        return new TeleportingCreature(tilePosition
+            .add(0.5, 0.5)
+            .multiply(WorldData.TILE_SIZE)
+            .subtract(TeleportingCreatureData.HITBOX_WIDTH / 2, TeleportingCreatureData.HITBOX_HEIGHT / 2));
+    }
+    static spawn(tilePosition, world) {
+        return world.addEntityIfEmpty(TeleportingCreature.atTile(tilePosition));
+    }
+    render() {
+        return this.renderWithGlow();
+    }
+    renderWithGlow() {
+        return [
+            new Renderable(c => this.display(c, true), "entity"),
+            new Renderable(c => this.displayGlowEffect(c), "glow"),
+            new Renderable(c => this.fireSpawner.displayHurtbox(c), "hitbox"),
+        ];
+    }
+    renderWithoutGlow() {
+        return [
+            new Renderable(c => this.display(c, false), "entity"),
+        ];
+    }
+    display(canvasIO, glow) {
+        canvasIO.ctx.save();
+        canvasIO.ctx.translate(0, TeleportingCreatureData.GRAPHICS.BODY_OFFSET_Y);
+        this.displayBody(canvasIO);
+        this.displayEye(canvasIO, glow);
+        this.displayLegs(canvasIO);
+        canvasIO.ctx.restore();
+    }
+    displayBody(canvasIO) {
+        const center = this.hitbox.center();
+        canvasIO.ctx.fillStyle = TeleportingCreatureData.GRAPHICS.COLOR;
+        canvasIO.fillRegularPoly(center, TeleportingCreatureData.GRAPHICS.BODY_SIZE, 3, -Math.PI / 6);
+    }
+    displayEye(canvasIO, glow) {
+        const center = this.hitbox.center();
+        const eyeColor = `rgb(${TeleportingCreatureData.GRAPHICS.EYE_COLOR.red}, ${TeleportingCreatureData.GRAPHICS.EYE_COLOR.green}, ${TeleportingCreatureData.GRAPHICS.EYE_COLOR.blue})`; // TODO: refactor (extract Color class)
+        canvasIO.ctx.fillStyle = glow ? eyeColor : TeleportingCreatureData.GRAPHICS.UNLIT_EYE_COLOR;
+        canvasIO.fillDiamond(center.x, center.y, TeleportingCreatureData.GRAPHICS.EYE_SIZE);
+    }
+    displayLegs(canvasIO) {
+        const center = this.hitbox.center();
+        canvasIO.ctx.strokeStyle = TeleportingCreatureData.GRAPHICS.COLOR;
+        canvasIO.ctx.lineWidth = TeleportingCreatureData.GRAPHICS.LEG_WIDTH;
+        for (const sign of [1, -1]) {
+            canvasIO.strokeLine(center.x + sign * TeleportingCreatureData.GRAPHICS.LEG_ENDPOINT_1.x, center.y + TeleportingCreatureData.GRAPHICS.LEG_ENDPOINT_1.y, center.x + sign * TeleportingCreatureData.GRAPHICS.LEG_ENDPOINT_2.x, center.y + TeleportingCreatureData.GRAPHICS.LEG_ENDPOINT_2.y);
+        }
+    }
+    displayGlowEffect(canvasIO) {
+        const center = this.hitbox.center();
+        GameUtils.glowCircle(center.x, center.y, TeleportingCreatureData.GRAPHICS.GLOW_SIZE, TeleportingCreatureData.GRAPHICS.GLOW_INTENSITY, canvasIO, TeleportingCreatureData.GRAPHICS.EYE_COLOR.red, TeleportingCreatureData.GRAPHICS.EYE_COLOR.green, TeleportingCreatureData.GRAPHICS.EYE_COLOR.blue);
+    }
+    update(world, canvasIO) {
+        this.mode.update(this, world);
+        this.fireSpawner.position = this.hitbox.center();
+        this.fireSpawner.update(world, canvasIO);
+        this.fireSpawner.updateHurtbox(world, canvasIO);
+        this.move(this.velocity, world, canvasIO, {});
+        this.velocity.y += PlayerData.GRAVITY;
+    }
+    hasLineOfSight(world) {
+        return world.hasLineOfSight(this.hitbox.center(), world.player.hitbox, (e) => e !== this);
+    }
+    isInRangeOfPlayer(playerCenter) {
+        return Vector.dist(this.hitbox.center(), playerCenter) < TeleportingCreatureData.MAX_TELEPORT_RANGE;
+    }
+    seesPlayer(world) {
+        return this.isInRangeOfPlayer(world.player.hitbox.center()) && this.hasLineOfSight(world);
+    }
+    getTeleportDestination(world) {
+        const playerTile = Tiles.getTileCoordinates(world.player.hitbox.center());
+        for (let yDistance = 0; yDistance < TeleportingCreatureData.MAX_TELEPORT_DISTANCE_Y; yDistance++) {
+            const targetTile = playerTile.add(0, yDistance);
+            const targetTileCenter = Tiles.getTileSquare(targetTile).center();
+            const targetHitbox = Rectangle.fromCenter(targetTileCenter.x, targetTileCenter.y, TeleportingCreatureData.HITBOX_WIDTH, TeleportingCreatureData.HITBOX_HEIGHT);
+            const searchRegion = Rectangle.fromDimensions(targetHitbox.x, targetHitbox.bottom, targetHitbox.width, TeleportingCreatureData.TELEPORT_LOOKBELOW_DISTANCE);
+            const collideables = world.entities.collideablesIntersecting(searchRegion);
+            if (!world.isInSolid(targetHitbox, e => e !== this) && ![...collideables].some(c => c instanceof TeleportingCreature && c !== this)) {
+                return targetHitbox.getCorner("top-left");
+            }
+        }
+        return null;
+    }
+    teleport(world) {
+        const destination = this.getTeleportDestination(world);
+        if (destination) {
+            const initialPosition = this.hitbox.center();
+            this.hitbox.x = destination.x;
+            this.hitbox.y = destination.y;
+            world.entities.updatePosition(this);
+            const newPosition = this.hitbox.center();
+            world.entities.add(new TeleportParticle(initialPosition, newPosition));
+            return true;
+        }
+        return false;
+    }
+    onCollision(collision) {
+        if (collision.directionOf(this) === "down") {
+            this.velocity.y = 0;
+        }
+    }
+}
+class TeleportParticle extends Entity {
+    endpoint1;
+    endpoint2;
+    lineWidth;
+    constructor(endpoint1, endpoint2) {
+        super();
+        this.endpoint1 = endpoint1;
+        this.endpoint2 = endpoint2;
+        this.lineWidth = TeleportingCreatureData.ZAP_WIDTH;
+    }
+    update(world) {
+        this.lineWidth -= TeleportingCreatureData.ZAP_WIDTH_DECAY;
+        if (this.lineWidth <= 0) {
+            world.entities.delete(this);
+        }
+    }
+    render() {
+        return [
+            new Renderable(c => this.display(c), "telegraph"),
+        ];
+    }
+    display(canvasIO) {
+        canvasIO.ctx.strokeStyle = TeleportingCreatureData.ZAP_COLOR;
+        canvasIO.ctx.lineWidth = this.lineWidth;
+        canvasIO.strokeLine(this.endpoint1.x, this.endpoint1.y, this.endpoint2.x, this.endpoint2.y);
+    }
+    boundingBox() {
+        return Rectangle.boundingBox([this.endpoint1, this.endpoint2]);
+    }
+}
+LoadingManager.onload(() => {
+    EntitySpawner.registerEntityType((tileRegion, safeRegion, world) => {
+        // EntitySpawner.registerMandatoryEntityType((tileRegion: Rectangle, safeRegion: Rectangle, world: World) => {
+        EntitySpawner.spawnEntities(tileRegion.area() / (RoomData.SIZE ** 2) * TeleportingCreatureData.CREATURES_PER_ROOM, TeleportingCreatureData.SPAWN_EVENNESS, tileRegion, [
+            EntitySpawner.spawnRequirements.replaceEmpty,
+            EntitySpawner.spawnRequirements.solidBelow,
+        ], TeleportingCreature.spawn, safeRegion, world);
+    });
+});
+//# sourceMappingURL=TeleportingCreature.mjs.map
