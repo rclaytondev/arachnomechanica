@@ -594,6 +594,13 @@ export class WorldUIData {
     static ITEM_BOX_SIZE = 60;
     static ITEM_BOX_MARGIN = 15;
     static ITEM_BOX_COLOR = "rgb(150, 150, 150)";
+    static CONTROLS_TEXT = {
+        TEXT: "Arrow keys to move, Z to jump",
+        FADE_SPEED: 1 / 30,
+        OPACITY: 5,
+        OFFSET: new Vector(0, 200),
+        FONT: "30px monospace",
+    };
 }
 export class StartScreenData {
     static BACKGROUND_COLOR = "rgb(30, 30, 30)";

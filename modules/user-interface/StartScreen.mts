@@ -1,6 +1,7 @@
 import { CanvasIO } from "../../utils-ts/modules/CanvasIO.mjs";
-import { PlayerData, StartScreenData } from "../constants/GameData.mjs";
+import { PlayerData, StartScreenData, WorldUIData } from "../constants/GameData.mjs";
 import { GameUtils } from "../game-utilities/GameUtils.mjs";
+import { OverlayText } from "../game-utilities/visual-effects/OverlayText.mjs";
 import { ScreenFade } from "../game-utilities/visual-effects/ScreenFade.mjs";
 import { Main } from "../Main.mjs";
 import { Renderable, Renderer } from "../world/Renderer.mjs";
@@ -47,6 +48,16 @@ export class StartScreen {
 			const worldScreen = new WorldScreen(new World(true));
 			worldScreen.resetWorld();
 			Main.screen = worldScreen;
+
+			worldScreen.visualEffects.effectsList.add(new OverlayText(
+				WorldUIData.CONTROLS_TEXT.TEXT,
+				{
+					offset: WorldUIData.CONTROLS_TEXT.OFFSET,
+					font: WorldUIData.CONTROLS_TEXT.FONT,
+					fadeSpeed: WorldUIData.CONTROLS_TEXT.FADE_SPEED,
+					initialOpacity: WorldUIData.CONTROLS_TEXT.OPACITY,
+				},
+			));
 		});
 		const fadeIn = new ScreenFade(PlayerData.FADE_DURATION, 1, 0, "black", "transition-fade-in");
 		Main.visualEffects.effectsList.add(ScreenFade.sequence([fadeOut, pause, fadeIn], Main.visualEffects));
