@@ -3,4 +3,4 @@
 
 export PATH="/usr/local/bin:$PATH"
 
-npx lint-staged
+./node_modules/.bin/lint-staged lint-staged
