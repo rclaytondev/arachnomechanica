@@ -3,4 +3,4 @@
 
 export PATH="/usr/local/bin:$PATH"
 
-npx eslint modules
+npx lint-staged
