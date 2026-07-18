@@ -1,5 +1,5 @@
 import { CanvasIO } from "../utils-ts/modules/CanvasIO.mjs";
-import { GameUtils } from "./game-utilities/GameUtils.mjs";
+import { InputUtils } from "./game-utilities/InputUtils.mjs";
 import { RoomEditor } from "./RoomEditor.mjs";
 import { Debug } from "./game-utilities/Debug.mjs";
 import { WorldScreen } from "./world/WorldScreen.mjs";
@@ -17,7 +17,7 @@ export class Main {
 		Main.visualEffects.update();
 		this.screen?.update(canvasIO);
 
-		Object.assign(GameUtils.pastKeys, canvasIO.keys);
+		Object.assign(InputUtils.pastKeys, canvasIO.keys);
 		Debug.checkRNGLogging(canvasIO);
 		Debug.updateFramerate();
 	}

@@ -1,6 +1,6 @@
 import { CanvasIO } from "../../../utils-ts/modules/CanvasIO.mjs";
 import { Renderable } from "../../world/Renderer.mjs";
-import { GameUtils } from "../GameUtils.mjs";
+import { RandomUtils } from "../RandomUtils.mjs";
 import { VisualEffect } from "./VisualEffect.mjs";
 import { VisualEffects } from "./VisualEffects.mjs";
 
@@ -28,8 +28,8 @@ export class ShakeEffect extends VisualEffect {
 		];
 	}
 	display(canvasIO: CanvasIO): void {
-		const amountX = GameUtils.random(-this.intensity, this.intensity);
-		const amountY = GameUtils.random(-this.intensity, this.intensity);
+		const amountX = RandomUtils.random(-this.intensity, this.intensity);
+		const amountY = RandomUtils.random(-this.intensity, this.intensity);
 		canvasIO.ctx.translate(amountX, amountY);
 	}
 }

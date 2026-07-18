@@ -1,6 +1,6 @@
 import { CanvasIO } from "../../utils-ts/modules/CanvasIO.mjs";
 import { PlayerData, StartScreenData, WorldUIData } from "../constants/GameData.mjs";
-import { GameUtils } from "../game-utilities/GameUtils.mjs";
+import { InputUtils } from "../game-utilities/InputUtils.mjs";
 import { OverlayText } from "../game-utilities/visual-effects/OverlayText.mjs";
 import { ScreenFade } from "../game-utilities/visual-effects/ScreenFade.mjs";
 import { Main } from "../Main.mjs";
@@ -35,7 +35,7 @@ export class StartScreen {
 		const transitioning = false; // TODO
 		if(
 			this.timeInScreen > StartScreenData.TIME_BEFORE_CONTINUE
-			&& GameUtils.startedPressingKey(canvasIO)
+			&& InputUtils.startedPressingKey(canvasIO)
 			&& !transitioning
 		) {
 			this.beginTransition();

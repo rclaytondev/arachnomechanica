@@ -2,7 +2,9 @@ import { CanvasIO } from "../../utils-ts/modules/CanvasIO.mjs";
 import { Direction, Directions } from "../../utils-ts/modules/geometry/Direction.mjs";
 import { Vector } from "../../utils-ts/modules/geometry/Vector.mjs";
 import { MathUtils } from "../../utils-ts/modules/math/MathUtils.mjs";
-import { GameUtils } from "../game-utilities/GameUtils.mjs";
+import { GeomUtils } from "../game-utilities/GeomUtils.mjs";
+import { GraphicsUtils } from "../game-utilities/GraphicsUtils.mjs";
+import { RandomUtils } from "../game-utilities/RandomUtils.mjs";
 import { DEBUG_SETTINGS } from "../constants/DebugSettings.mjs";
 import { World } from "../world/World.mjs";
 import { Rectangle } from "../../utils-ts/modules/geometry/Rectangle.mjs";
@@ -87,7 +89,7 @@ export class Lizard extends Collideable {
 	displayGlowEffect(canvasIO: CanvasIO) {
 		canvasIO.ctx.save();
 		this.transformToHead(canvasIO);
-		GameUtils.glowCircle(
+		GraphicsUtils.glowCircle(
 			0, LizardData.EYE_Y + LizardData.HEAD_OFFSET,
 			LizardData.LIGHT_SIZE, LizardData.LIGHT_INTENSITY,
 			canvasIO,
@@ -104,21 +106,21 @@ export class Lizard extends Collideable {
 		if(distance < distanceBefore + LizardData.LEG_ROTATION_START && jointBefore !=="head") {
 			const index = this.joints.indexOf(jointBefore);
 			const previousDirection = this.joints[index - 1]?.direction ?? this.direction;
-			return GameUtils.lerpAngle(
+			return GeomUtils.lerpAngle(
 				distance,
 				distanceBefore,
 				distanceBefore + LizardData.LEG_ROTATION_START,
-				GameUtils.diagonalAngle(directionBefore, previousDirection),
+				GeomUtils.diagonalAngle(directionBefore, previousDirection),
 				angleBefore,
 			);
 		}
 		else if(distance > distanceAfter - LizardData.LEG_ROTATION_END && jointAfter !== "tail") {
-			return GameUtils.lerpAngle(
+			return GeomUtils.lerpAngle(
 				distance,
 				distanceAfter - LizardData.LEG_ROTATION_END,
 				distanceAfter,
 				angleBefore,
-				GameUtils.diagonalAngle(directionBefore, jointAfter.direction),
+				GeomUtils.diagonalAngle(directionBefore, jointAfter.direction),
 			);
 		}
 		else {
@@ -227,7 +229,7 @@ export class Lizard extends Collideable {
 	}
 	updateLegs() {
 		if(this.waitingTimer < 0) {
-			this.legPosition = GameUtils.moveTowards(this.legPosition, this.legDestination, this.speed * LizardData.LEG_SPEED_MULTIPLIER);
+			this.legPosition = GeomUtils.moveTowards(this.legPosition, this.legDestination, this.speed * LizardData.LEG_SPEED_MULTIPLIER);
 		}
 		if(this.legPosition >= LizardData.LEG_MAX) {
 			this.legDestination = LizardData.LEG_MIN;
@@ -238,7 +240,7 @@ export class Lizard extends Collideable {
 	}
 	updateMouth() {
 		if(this.waitingTimer < 0) {
-			this.mouthAngle = GameUtils.moveTowards(
+			this.mouthAngle = GeomUtils.moveTowards(
 				this.mouthAngle, this.mouthDestination,
 				(this.mouthAngle < this.mouthDestination) ? LizardData.MOUTH_SPEED_OPENING : LizardData.MOUTH_SPEED_CLOSING,
 			);
@@ -305,7 +307,7 @@ export class Lizard extends Collideable {
 			[this.headAngle, this.headAngle - 2 * Math.PI, this.headAngle + 2 * Math.PI],
 			angle => MathUtils.dist(angle, this.targetHeadAngle),
 		);
-		this.headAngle = GameUtils.moveTowards(minValue, this.targetHeadAngle, LizardData.HEAD_ROTATION_SPEED);
+		this.headAngle = GeomUtils.moveTowards(minValue, this.targetHeadAngle, LizardData.HEAD_ROTATION_SPEED);
 
 		this.headAngle = MathUtils.generalizedModulo(this.headAngle, 2 * Math.PI);
 		this.targetHeadAngle = MathUtils.generalizedModulo(this.targetHeadAngle, 2 * Math.PI);
@@ -438,8 +440,8 @@ export class Lizard extends Collideable {
 	spawnDamageParticle(endpoint1: Vector, endpoint2: Vector, world: World, canvasIO: CanvasIO) {
 		const midpoint = endpoint1.add(endpoint2).divide(2);
 		const velocity = new Vector(
-			GameUtils.random(-LizardData.DAMAGE_PARTICLES.VELOCITY.X, LizardData.DAMAGE_PARTICLES.VELOCITY.X),
-			GameUtils.random(LizardData.DAMAGE_PARTICLES.VELOCITY.Y.MIN, LizardData.DAMAGE_PARTICLES.VELOCITY.Y.MAX),
+			RandomUtils.random(-LizardData.DAMAGE_PARTICLES.VELOCITY.X, LizardData.DAMAGE_PARTICLES.VELOCITY.X),
+			RandomUtils.random(LizardData.DAMAGE_PARTICLES.VELOCITY.Y.MIN, LizardData.DAMAGE_PARTICLES.VELOCITY.Y.MAX),
 		);
 		const settings = {
 			...LizardData.DAMAGE_PARTICLES.SETTINGS,
@@ -559,11 +561,11 @@ export class Lizard extends Collideable {
 			return LizardData.MAX_LENGTH;
 		});
 		if(maxLength >= LizardData.MIN_LENGTH) {
-			const length = GameUtils.randomInt(maxLength, LizardData.MAX_LENGTH);
+			const length = RandomUtils.randomInt(maxLength, LizardData.MAX_LENGTH);
 			return world.addEntityIfEmpty(new Lizard(
 				tilePosition.add(1/2, 1/2).multiply(WorldData.TILE_SIZE),
 				direction,
-				(GameUtils.randomInt(LizardData.MIN_LENGTH, length) + 1/2) * WorldData.TILE_SIZE,
+				(RandomUtils.randomInt(LizardData.MIN_LENGTH, length) + 1/2) * WorldData.TILE_SIZE,
 				LizardData.SPEED,
 			));
 			return true;

@@ -4,7 +4,7 @@ import { Rectangle } from "../../utils-ts/modules/geometry/Rectangle.mjs";
 import { Vector } from "../../utils-ts/modules/geometry/Vector.mjs";
 import { WorldData } from "../constants/GameData.mjs";
 import { Player } from "../Player.mjs";
-import { GameUtils } from "../game-utilities/GameUtils.mjs";
+import { GeomUtils } from "../game-utilities/GeomUtils.mjs";
 import { Entities } from "./Entities.mjs";
 import { Entity } from "../game-utilities/Entity.mjs";
 import { Collideable } from "../game-utilities/physics-engine/Collideable.mjs";
@@ -107,7 +107,7 @@ export class World {
 	hasLineOfSight(position: Vector, rectangle: Rectangle, collides: (entity: Entity) => boolean) {
 		const center = rectangle.center();
 		const direction = center.subtract(position);
-		const distance = GameUtils.rayIntersectsRectangle(position, direction, rectangle);
+		const distance = GeomUtils.rayIntersectsRectangle(position, direction, rectangle);
 		return distance <= this.lineIntersectionDistance(position, direction, distance, [], collides);
 	}
 

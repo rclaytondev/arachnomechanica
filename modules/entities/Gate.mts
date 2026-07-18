@@ -3,7 +3,7 @@ import { Direction, Directions } from "../../utils-ts/modules/geometry/Direction
 import { Rectangle } from "../../utils-ts/modules/geometry/Rectangle.mjs";
 import { Vector } from "../../utils-ts/modules/geometry/Vector.mjs";
 import { GateData, RoomData, WorldData } from "../constants/GameData.mjs";
-import { GameUtils } from "../game-utilities/GameUtils.mjs";
+import { GeomUtils } from "../game-utilities/GeomUtils.mjs";
 import { Player } from "../Player.mjs";
 import { TileWithPosition, World } from "../world/World.mjs";
 import { RectangularCollideable } from "../game-utilities/physics-engine/RectangularCollideable.mjs";
@@ -15,6 +15,7 @@ import { StaticEntity } from "../game-utilities/StaticEntity.mjs";
 import { BasicTile } from "../tiles/BasicTile.mjs";
 import { RoomEditor } from "../RoomEditor.mjs";
 import { Main } from "../Main.mjs";
+import { GameUtils } from "../game-utilities/GameUtils.mjs";
 
 class GateController extends StaticEntity {
 	cooldown: number = 0;
@@ -33,7 +34,7 @@ class GateController extends StaticEntity {
 
 	update(world: World) {
 		const closedBefore = (this.openness === 0 || this.openness === 1);
-		this.openness = GameUtils.moveTowards(this.openness, this.open ? 1 : 0, GateData.SPEED);
+		this.openness = GeomUtils.moveTowards(this.openness, this.open ? 1 : 0, GateData.SPEED);
 		const closedNow = (this.openness === 0 || this.openness === 1);
 		if(closedNow && !closedBefore) {
 			world.worldScreen?.visualEffects.effectsList.add(new ShakeEffect(GateData.SCREEN_SHAKE_TIME, GateData.SCREEN_SHAKE_INTENSITY));

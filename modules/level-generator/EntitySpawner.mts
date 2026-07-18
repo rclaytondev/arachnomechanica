@@ -1,7 +1,7 @@
 import { Directions } from "../../utils-ts/modules/geometry/Direction.mjs";
 import { Rectangle } from "../../utils-ts/modules/geometry/Rectangle.mjs";
 import { Vector } from "../../utils-ts/modules/geometry/Vector.mjs";
-import { GameUtils } from "../game-utilities/GameUtils.mjs";
+import { RandomUtils } from "../game-utilities/RandomUtils.mjs";
 import { Gate } from "../entities/Gate.mjs";
 import { BasicTile } from "../tiles/BasicTile.mjs";
 import { World } from "../world/World.mjs";
@@ -21,7 +21,7 @@ export class EntitySpawner {
 	}
 
 	static spawnAllEntities(tileRegion: Rectangle, safeRegion: Rectangle, world: World) {
-		const optionalEntities = GameUtils.randomPermutation([...EntitySpawner.entityTypes]).slice(0, 2);
+		const optionalEntities = RandomUtils.randomPermutation([...EntitySpawner.entityTypes]).slice(0, 2);
 		for(const spawnAll of [...optionalEntities, ...EntitySpawner.mandatoryEntityTypes]) {
 			spawnAll(tileRegion, safeRegion, world);
 		}
@@ -34,7 +34,7 @@ export class EntitySpawner {
 		let possiblePositions = positions.filter(position => requirements.every(r => r(position, world)));
 		const spawnedPositions: Vector[] = [];
 		while(spawnedPositions.length < amount && possiblePositions.length > 0) {
-			const [position] = GameUtils.randomEvenlySpaced({
+			const [position] = RandomUtils.randomEvenlySpaced({
 				generate: () => ArrayUtils.randomItem(possiblePositions),
 				metric: Vector.dist,
 				amount: 1,

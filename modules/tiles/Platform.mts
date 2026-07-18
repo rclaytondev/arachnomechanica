@@ -3,7 +3,7 @@ import { Direction } from "../../utils-ts/modules/geometry/Direction.mjs";
 import { Rectangle } from "../../utils-ts/modules/geometry/Rectangle.mjs";
 import { Vector } from "../../utils-ts/modules/geometry/Vector.mjs";
 import { WorldData } from "../constants/GameData.mjs";
-import { GameUtils } from "../game-utilities/GameUtils.mjs";
+import { GeomUtils } from "../game-utilities/GeomUtils.mjs";
 import { Collideable } from "../game-utilities/physics-engine/Collideable.mjs";
 import { Renderable } from "../world/Renderer.mjs";
 import { Tiles } from "../world/Tiles.mjs";
@@ -65,7 +65,7 @@ export class Platform extends Tile {
 		if(rayDirection.y <= 0) {
 			return Infinity;
 		}
-		return GameUtils.rayIntersectsHSegment(
+		return GeomUtils.rayIntersectsHSegment(
 			rayStart, rayDirection,
 			tilePosition.y * WorldData.TILE_SIZE,
 			tilePosition.x * WorldData.TILE_SIZE,
@@ -84,7 +84,7 @@ export class Platform extends Tile {
 			return Infinity;
 		}
 		const tileSquare = Tiles.getTileSquare(tilePosition);
-		return GameUtils.rectIntersectionDistance(rect, direction, tileSquare);
+		return GeomUtils.rectIntersectionDistance(rect, direction, tileSquare);
 	}
 	corners(tilePosition: Vector): Vector[] {
 		const rect = Tiles.getTileSquare(tilePosition);

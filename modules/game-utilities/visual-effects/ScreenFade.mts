@@ -1,7 +1,7 @@
 import { CanvasIO } from "../../../utils-ts/modules/CanvasIO.mjs";
 import { MathUtils } from "../../../utils-ts/modules/math/MathUtils.mjs";
 import { Renderable } from "../../world/Renderer.mjs";
-import { GameUtils } from "../GameUtils.mjs";
+import { GeomUtils } from "../GeomUtils.mjs";
 import { VisualEffect } from "./VisualEffect.mjs";
 import { VisualEffects } from "./VisualEffects.mjs";
 
@@ -34,7 +34,7 @@ export class ScreenFade extends VisualEffect {
 		}
 	}
 	opacity() {
-		const opacity = GameUtils.lerp(
+		const opacity = GeomUtils.lerp(
 			this.timeElapsed,
 			0, this.duration,
 			this.startOpacity, this.endOpacity,

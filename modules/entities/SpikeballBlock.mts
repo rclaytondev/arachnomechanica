@@ -3,7 +3,9 @@ import { Direction, Directions } from "../../utils-ts/modules/geometry/Direction
 import { Vector } from "../../utils-ts/modules/geometry/Vector.mjs";
 import { RoomData, SpikeballBlockData, SpikeballData, SpikeballPattern, WorldData } from "../constants/GameData.mjs";
 import { Spikeball } from "./Spikeball.mjs";
-import { GameUtils } from "../game-utilities/GameUtils.mjs";
+import { GeomUtils } from "../game-utilities/GeomUtils.mjs";
+import { GraphicsUtils } from "../game-utilities/GraphicsUtils.mjs";
+import { RandomUtils } from "../game-utilities/RandomUtils.mjs";
 import { World } from "../world/World.mjs";
 import { Diagonal } from "../../utils-ts/modules/geometry/Direction.mjs";
 import { Particle } from "../game-utilities/Particle.mjs";
@@ -40,7 +42,7 @@ export class SpikeballBlock extends RectangularCollideable {
 
 	displayGlowEffect(canvasIO: CanvasIO) {
 		const center = this.hitbox.center();
-		GameUtils.glowCircle(
+		GraphicsUtils.glowCircle(
 			center.x, center.y, SpikeballBlockData.GLOW_SIZE,
 			SpikeballBlockData.GLOW_INTENSITY,
 			canvasIO,
@@ -85,7 +87,7 @@ export class SpikeballBlock extends RectangularCollideable {
 			canvasIO.ctx.save();
 			canvasIO.ctx.translate(center.x, center.y);
 			canvasIO.rotateTo("up", direction);
-			canvasIO.ctx.strokeStyle = GameUtils.formatColor(SpikeballData.ACCENT_COLOR);
+			canvasIO.ctx.strokeStyle = GraphicsUtils.formatColor(SpikeballData.ACCENT_COLOR);
 			canvasIO.ctx.lineWidth = SpikeballBlockData.ACCENT_WIDTH;
 			canvasIO.ctx.lineCap = "round";
 			for(const sign of [1, -1]) {
@@ -137,7 +139,7 @@ export class SpikeballBlock extends RectangularCollideable {
 					&& this.timeSinceSpawn < SpikeballBlockData.DOOR_CLOSE_DELAY
 				);
 				const target = open ? SpikeballBlockData.DOOR_OPENNESS : 0;
-				this.doors[direction] = GameUtils.moveTowards(this.doors[direction], target, SpikeballBlockData.DOOR_OPENING_SPEED);
+				this.doors[direction] = GeomUtils.moveTowards(this.doors[direction], target, SpikeballBlockData.DOOR_OPENING_SPEED);
 				if(open) {
 					this.spawnParticles(xDirection, yDirection, world, canvasIO);
 				}
@@ -150,8 +152,8 @@ export class SpikeballBlock extends RectangularCollideable {
 		const perpendicular = Directions.rotateClockwise[diagonal];
 		for(let i = 0; i < SpikeballBlockData.PARTICLE_SPAWN_ATTEMPTS; i ++) {
 			if(Math.random() < SpikeballBlockData.PARTICLE_SPAWN_PROBABILITY) {
-				const offset = GameUtils.random(-SpikeballBlockData.PARTICLE_PERPENDICULAR_OFFSET, SpikeballBlockData.PARTICLE_PERPENDICULAR_OFFSET);
-				const velocity = GameUtils.random(SpikeballBlockData.PARTICLE_MIN_VELOCITY, SpikeballBlockData.PARTICLE_MAX_VELOCITY);
+				const offset = RandomUtils.random(-SpikeballBlockData.PARTICLE_PERPENDICULAR_OFFSET, SpikeballBlockData.PARTICLE_PERPENDICULAR_OFFSET);
+				const velocity = RandomUtils.random(SpikeballBlockData.PARTICLE_MIN_VELOCITY, SpikeballBlockData.PARTICLE_MAX_VELOCITY);
 				world.particles.add(new Particle(
 					center.add(Vector.unit(perpendicular).multiply(offset)),
 					Vector.unit(diagonal).multiply(velocity),

@@ -8,7 +8,8 @@ import { LoadingManager } from "../app-entry-points/LoadingManager.mjs";
 import { DEBUG_SETTINGS } from "../constants/DebugSettings.mjs";
 import { PlayerData, RoomData, SpiderData } from "../constants/GameData.mjs";
 import { Entity } from "../game-utilities/Entity.mjs";
-import { GameUtils } from "../game-utilities/GameUtils.mjs";
+import { GeomUtils } from "../game-utilities/GeomUtils.mjs";
+import { GraphicsUtils } from "../game-utilities/GraphicsUtils.mjs";
 import { Collideable } from "../game-utilities/physics-engine/Collideable.mjs";
 import { CollisionEvent } from "../game-utilities/physics-engine/CollisionEvent.mjs";
 import { RectangularCollideable } from "../game-utilities/physics-engine/RectangularCollideable.mjs";
@@ -59,8 +60,8 @@ export class PointOnSurface {
 		const direction = this.tangentVector(angularDirection);
 		const searchVector = Vector.gridUnit(direction);
 		const hitboxes = entities.flatMap(e => e.hitboxes());
-		const cornerDistances = [...corners].map(c => GameUtils.rayIntersectsPoint(this.position, searchVector, c));
-		const entityDistances = hitboxes.map(h => GameUtils.rayIntersectsRectangle(this.position, searchVector, h.extend("all", -1)) - 1);
+		const cornerDistances = [...corners].map(c => GeomUtils.rayIntersectsPoint(this.position, searchVector, c));
+		const entityDistances = hitboxes.map(h => GeomUtils.rayIntersectsRectangle(this.position, searchVector, h.extend("all", -1)) - 1);
 		return Math.max(0, Math.min(maxDistance, ...cornerDistances, ...entityDistances));
 	}
 	move(self: Collideable | null, world: World, direction: "clockwise" | "counterclockwise", max: number, stopAfterTurn: boolean = true): [number, PointOnSurface] {
@@ -134,7 +135,7 @@ class SpiderHitboxCalculator {
 		if(distanceToTurn >= SpiderData.TURN_WALL_DURATION) {
 			return SpiderData.SIZE / 2;
 		}
-		return SpiderData.SIZE / 2 + GameUtils.lerp(
+		return SpiderData.SIZE / 2 + GeomUtils.lerp(
 			distanceToTurn,
 			0, SpiderData.TURN_WALL_DURATION,
 			SpiderData.TURN_WALL_DISTANCE, 0,
@@ -145,34 +146,34 @@ class SpiderHitboxCalculator {
 			/* This is an edge case that can happen when moving past a platform from below. */
 			const previousAngle = Directions.angle[this.previousTurn.point.normal];
 			const nextAngle = Directions.angle[this.nextTurn.point.normal];
-			return GameUtils.lerpAngle(1/2, 0, 1, previousAngle, nextAngle);
+			return GeomUtils.lerpAngle(1/2, 0, 1, previousAngle, nextAngle);
 		}
 		else if(this.previousTurn.distance + this.nextTurn.distance < 2 * SpiderData.TURN_WALL_DURATION) {
-			const halfAngle1 = GameUtils.lerpAngle(1/2, 0, 1, Directions.angle[this.previousTurn.point.normal], Directions.angle[this.normal]);
-			const halfAngle2 = GameUtils.lerpAngle(1/2, 0, 1, Directions.angle[this.normal], Directions.angle[this.nextTurn.point.normal]);
-			return GameUtils.lerpAngle(
+			const halfAngle1 = GeomUtils.lerpAngle(1/2, 0, 1, Directions.angle[this.previousTurn.point.normal], Directions.angle[this.normal]);
+			const halfAngle2 = GeomUtils.lerpAngle(1/2, 0, 1, Directions.angle[this.normal], Directions.angle[this.nextTurn.point.normal]);
+			return GeomUtils.lerpAngle(
 				this.previousTurn.distance,
 				0, this.previousTurn.distance + this.nextTurn.distance,
 				halfAngle1, halfAngle2,
 			);
 		}
 		else if(this.previousTurn.distance < SpiderData.TURN_WALL_DURATION) {
-			const halfAngle = GameUtils.lerpAngle(
+			const halfAngle = GeomUtils.lerpAngle(
 				1/2, 0, 1,
 				Directions.angle[this.normal], Directions.angle[this.previousTurn.point.normal],
 			);
-			return GameUtils.lerpAngle(
+			return GeomUtils.lerpAngle(
 				this.previousTurn.distance,
 				0, SpiderData.TURN_WALL_DURATION,
 				halfAngle, Directions.angle[this.normal],
 			);
 		}
 		else if(this.nextTurn.distance < SpiderData.TURN_WALL_DURATION) {
-			const halfAngle = GameUtils.lerpAngle(
+			const halfAngle = GeomUtils.lerpAngle(
 				1/2, 0, 1,
 				Directions.angle[this.normal], Directions.angle[this.nextTurn.point.normal],
 			);
-			const result = GameUtils.lerpAngle(
+			const result = GeomUtils.lerpAngle(
 				this.nextTurn.distance,
 				0, SpiderData.TURN_WALL_DURATION,
 				halfAngle, Directions.angle[this.normal],
@@ -219,7 +220,7 @@ export class CrawlingState {
 		}
 		const [normal, angle] = this.getNormalAndAngle(spider, world);
 		this.updateHitbox(spider, world, canvasIO, normal);
-		spider.angle = GameUtils.moveAngleTowards(spider.angle, angle, SpiderData.ANGULAR_SPEED);
+		spider.angle = GeomUtils.moveAngleTowards(spider.angle, angle, SpiderData.ANGULAR_SPEED);
 	}
 	move1Pixel(spider: Spider, world: World) {
 		const nextPoint = this.pointOnSurface.move1Pixel(spider, world, this.direction);
@@ -302,12 +303,12 @@ export class SpiderLeg {
 		}
 
 		if(!(spider.projectileState instanceof TelegraphState)) {
-			this.distance = GameUtils.moveTowards(this.distance, this.destinationDistance, SpiderData.LEG_SPEED);
+			this.distance = GeomUtils.moveTowards(this.distance, this.destinationDistance, SpiderData.LEG_SPEED);
 		}
 
 		const destination = this.destination(spider, world);
 		const updateSpeed = spider.projectileState.speed + SpiderData.LEG_UPDATE_SPEED;
-		this.position = GameUtils.moveVectorTowards(this.position, destination, updateSpeed);
+		this.position = GeomUtils.moveVectorTowards(this.position, destination, updateSpeed);
 	}
 	destination(spider: Spider, world: World) {
 		if(spider.movement instanceof FallingState || spider.movement.isFloating(spider, world)) {
@@ -384,9 +385,9 @@ class TelegraphState extends ProjectileState {
 		const center = spider.hitbox.center();
 		const player = world.player.hitbox.center();
 		const timerProgress = MathUtils.constrain(this.timerProgress, 0, SpiderData.SHOT_DELAY);
-		const opacity = GameUtils.lerp(timerProgress, 0, SpiderData.SHOT_DELAY, 0, 1);
-		const width = GameUtils.lerp(timerProgress, 0, SpiderData.SHOT_DELAY, 30, 2);
-		GameUtils.glowOutline(
+		const opacity = GeomUtils.lerp(timerProgress, 0, SpiderData.SHOT_DELAY, 0, 1);
+		const width = GeomUtils.lerp(timerProgress, 0, SpiderData.SHOT_DELAY, 30, 2);
+		GraphicsUtils.glowOutline(
 			center.x, center.y,
 			player.x, player.y,
 			width, opacity, canvasIO,
@@ -434,7 +435,7 @@ class RechargingState extends ProjectileState {
 	}
 
 	numGlowingEyes() {
-		return Math.floor(GameUtils.lerp(
+		return Math.floor(GeomUtils.lerp(
 			MathUtils.constrain(this.rechargeProgress, 0, SpiderData.RECHARGE_TIME),
 			0, SpiderData.RECHARGE_TIME,
 			0, SpiderData.NUM_EYES,
@@ -525,12 +526,12 @@ export class Spider extends RectangularCollideable {
 	}
 	displayGlowEffect(canvasIO: CanvasIO) {
 		const center = this.hitbox.center();
-		const glowIntensity = GameUtils.lerp(
+		const glowIntensity = GeomUtils.lerp(
 			this.projectileState.numGlowingEyes(),
 			0, SpiderData.NUM_EYES,
 			0, SpiderData.GLOW_INTENSITY,
 		);
-		GameUtils.glowCircle(
+		GraphicsUtils.glowCircle(
 			center.x, center.y,
 			SpiderData.GLOW_SIZE, glowIntensity,
 			canvasIO,

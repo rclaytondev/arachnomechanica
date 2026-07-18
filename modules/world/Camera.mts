@@ -4,7 +4,7 @@ import { Vector } from "../../utils-ts/modules/geometry/Vector.mjs";
 import { WorldData } from "../constants/GameData.mjs";
 import { WorldBorder } from "../entities/WorldBorder.mjs";
 import { Debug } from "../game-utilities/Debug.mjs";
-import { GameUtils } from "../game-utilities/GameUtils.mjs";
+import { GeomUtils } from "../game-utilities/GeomUtils.mjs";
 import { Entities } from "./Entities.mjs";
 
 export class Camera {
@@ -60,7 +60,7 @@ export class Camera {
 	}
 	update(target: Vector, entities: Entities, canvasIO: CanvasIO) {
 		if(!Debug.freeCameraMode) {
-			const newPosition = GameUtils.moveVectorTowards(this.position, target, WorldData.CAMERA_SPEED);
+			const newPosition = GeomUtils.moveVectorTowards(this.position, target, WorldData.CAMERA_SPEED);
 			this.moveCameraIfValid(new Vector(newPosition.x - this.position.x, 0), entities, canvasIO);
 			this.moveCameraIfValid(new Vector(0, newPosition.y - this.position.y), entities, canvasIO);
 		}

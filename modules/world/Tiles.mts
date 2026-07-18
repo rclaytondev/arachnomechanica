@@ -4,7 +4,7 @@ import { Rectangle } from "../../utils-ts/modules/geometry/Rectangle.mjs";
 import { Vector } from "../../utils-ts/modules/geometry/Vector.mjs";
 import { Grid } from "../../utils-ts/modules/Grid.mjs";
 import { WorldData } from "../constants/GameData.mjs";
-import { GameUtils } from "../game-utilities/GameUtils.mjs";
+import { GeomUtils } from "../game-utilities/GeomUtils.mjs";
 import { Collideable } from "../game-utilities/physics-engine/Collideable.mjs";
 import { EmptyTile } from "../tiles/EmptyTile.mjs";
 import { Tile } from "../tiles/Tile.mjs";
@@ -64,7 +64,7 @@ export class Tiles extends Grid<Tile> {
 	rayIntersectionDistance(rayStart: Vector, rayDirection: Vector, maxDistance: number, ignoredTiles: Tile[] = []) {
 		let result = Infinity;
 		let iterationsSinceFound = -Infinity;
-		for(const tilePosition of GameUtils.gridSquaresOnRay(rayStart, rayDirection, maxDistance, WorldData.TILE_SIZE)) {
+		for(const tilePosition of GeomUtils.gridSquaresOnRay(rayStart, rayDirection, maxDistance, WorldData.TILE_SIZE)) {
 			const tile = this.get(tilePosition);
 			if(!ignoredTiles.includes(tile)) {
 				const distance = this.get(tilePosition).rayIntersectionDistance(tilePosition, rayStart, rayDirection);

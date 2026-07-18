@@ -4,7 +4,7 @@ import { Traversability } from "../level-generator/Room.mjs";
 import { GateState } from "../level-generator/GateState.mjs";
 import { Direction } from "../../utils-ts/modules/geometry/Direction.mjs";
 import { FireSpawnerSettings } from "../game-utilities/FireSpawner.mjs";
-import { GameUtils } from "../game-utilities/GameUtils.mjs";
+import { GraphicsUtils } from "../game-utilities/GraphicsUtils.mjs";
 import { Rectangle } from "../../utils-ts/modules/geometry/Rectangle.mjs";
 
 export class WorldData {
@@ -585,7 +585,7 @@ export class PhysicsData {
 export class HealthPickupData {
 	static SIZE = WorldData.TILE_SIZE;
 
-	static IMAGE = GameUtils.loadImage("graphics/health-pickup.png", WorldData.TILE_SIZE, WorldData.TILE_SIZE);
+	static IMAGE = GraphicsUtils.loadImage("graphics/health-pickup.png", WorldData.TILE_SIZE, WorldData.TILE_SIZE);
 	static HITBOX_RADIUS = 10;
 }
 

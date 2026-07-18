@@ -6,7 +6,7 @@ import { DEBUG_SETTINGS } from "../constants/DebugSettings.mjs";
 import { Platform } from "../tiles/Platform.mjs";
 import { Tile } from "../tiles/Tile.mjs";
 import { World } from "../world/World.mjs";
-import { GameUtils } from "./GameUtils.mjs";
+import { RandomUtils } from "./RandomUtils.mjs";
 import { Particle, ParticleSettings } from "./Particle.mjs";
 
 export type FireSpawnerSettings = {
@@ -77,8 +77,8 @@ export class FireSpawner {
 	}
 
 	generateFireParticleVelocity() {
-		const speed = this.particleSpeed + GameUtils.random(-this.particleSpeedVariance, this.particleSpeedVariance);
-		const crossSpeed = GameUtils.random(-this.particleCrossSpeedVariance, this.particleCrossSpeedVariance);
+		const speed = this.particleSpeed + RandomUtils.random(-this.particleSpeedVariance, this.particleSpeedVariance);
+		const crossSpeed = RandomUtils.random(-this.particleCrossSpeedVariance, this.particleCrossSpeedVariance);
 		if(Directions.isHorizontal(this.direction)) {
 			return new Vector(
 				speed * (this.direction === "left" ? -1 : 1),

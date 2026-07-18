@@ -4,7 +4,8 @@ import { Rectangle } from "../../utils-ts/modules/geometry/Rectangle.mjs";
 import { Vector } from "../../utils-ts/modules/geometry/Vector.mjs";
 import { MathUtils } from "../../utils-ts/modules/math/MathUtils.mjs";
 import { WorldData } from "../constants/GameData.mjs";
-import { GameUtils } from "../game-utilities/GameUtils.mjs";
+import { GeomUtils } from "../game-utilities/GeomUtils.mjs";
+import { RandomUtils } from "../game-utilities/RandomUtils.mjs";
 import { StaticEntity } from "../game-utilities/StaticEntity.mjs";
 import { Camera } from "../world/Camera.mjs";
 import { Renderable } from "../world/Renderer.mjs";
@@ -20,11 +21,11 @@ export class StoneTile extends BasicTile {
 	}
 
 	static distance(v1: Vector, v2: Vector) {
-		return GameUtils.toroidalDistance(v1, v2, WorldData.STONE_PATTERN_WIDTH, WorldData.STONE_PATTERN_HEIGHT);
+		return GeomUtils.toroidalDistance(v1, v2, WorldData.STONE_PATTERN_WIDTH, WorldData.STONE_PATTERN_HEIGHT);
 	}
 	static initializePoints() {
-		return GameUtils.randomEvenlySpaced({
-			generate: () => GameUtils.randomInRect(Rectangle.fromDimensions(0, 0, WorldData.STONE_PATTERN_WIDTH, WorldData.STONE_PATTERN_HEIGHT)),
+		return RandomUtils.randomEvenlySpaced({
+			generate: () => RandomUtils.randomInRect(Rectangle.fromDimensions(0, 0, WorldData.STONE_PATTERN_WIDTH, WorldData.STONE_PATTERN_HEIGHT)),
 			metric: StoneTile.distance,
 			amount: WorldData.STONE_PATTERN_WIDTH * WorldData.STONE_PATTERN_HEIGHT * WorldData.STONE_LINE_AMOUNT,
 			trials: WorldData.STONE_LINE_EVENNESS,

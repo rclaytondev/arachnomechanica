@@ -4,13 +4,16 @@ import { Vector } from "../../utils-ts/modules/geometry/Vector.mjs";
 import { MathUtils } from "../../utils-ts/modules/math/MathUtils.mjs";
 import { LoadingManager } from "../app-entry-points/LoadingManager.mjs";
 import { LaserBlockData, RoomData, WorldData } from "../constants/GameData.mjs";
-import { GameUtils } from "../game-utilities/GameUtils.mjs";
+import { GeomUtils } from "../game-utilities/GeomUtils.mjs";
+import { GraphicsUtils } from "../game-utilities/GraphicsUtils.mjs";
+import { RandomUtils } from "../game-utilities/RandomUtils.mjs";
 import { Particle } from "../game-utilities/Particle.mjs";
 import { RectangularCollideable } from "../game-utilities/physics-engine/RectangularCollideable.mjs";
 import { EntitySpawner } from "../level-generator/EntitySpawner.mjs";
 import { Renderable } from "../world/Renderer.mjs";
 import { Tiles } from "../world/Tiles.mjs";
 import { World } from "../world/World.mjs";
+import { GameUtils } from "../game-utilities/GameUtils.mjs";
 
 export class LaserBlock extends RectangularCollideable {
 	lasers: number;
@@ -40,7 +43,7 @@ export class LaserBlock extends RectangularCollideable {
 			tilePosition.multiply(WorldData.TILE_SIZE),
 			LaserBlockData.BEAMS_PER_BLOCK,
 			LaserBlockData.SPEED * direction,
-			GameUtils.random(0, 2 * Math.PI),
+			RandomUtils.random(0, 2 * Math.PI),
 			direction,
 		);
 	}
@@ -61,7 +64,7 @@ export class LaserBlock extends RectangularCollideable {
 		const center = this.hitbox.center();
 		for(const [i, angle] of this.angles().entries()) {
 			const distance = this.lengths[i];
-			canvasIO.ctx.strokeStyle = GameUtils.formatColor(this.color());
+			canvasIO.ctx.strokeStyle = GraphicsUtils.formatColor(this.color());
 			canvasIO.ctx.save();
 			canvasIO.ctx.translate(center.x, center.y);
 			canvasIO.ctx.rotate(angle);
@@ -79,7 +82,7 @@ export class LaserBlock extends RectangularCollideable {
 			const distance = this.lengths[i];
 			const endpoint = center.add(new Vector(distance, 0).rotate(MathUtils.toDegrees(angle)));
 			const color = this.color();
-			GameUtils.glowOutline(
+			GraphicsUtils.glowOutline(
 				center.x, center.y, endpoint.x, endpoint.y,
 				LaserBlockData.LASER_GLOW_SIZE, LaserBlockData.LASER_GLOW_INTENSITY,
 				canvasIO,
@@ -108,15 +111,15 @@ export class LaserBlock extends RectangularCollideable {
 		const player = world.player.hitbox;
 		for(const [i, direction] of this.directions().entries()) {
 			const length = this.endpointDistance(direction, world);
-			this.lengths[i] = GameUtils.moveTowards(this.lengths[i], length, LaserBlockData.LASER_LINEAR_SPEED);
+			this.lengths[i] = GeomUtils.moveTowards(this.lengths[i], length, LaserBlockData.LASER_LINEAR_SPEED);
 			this.lengths[i] = Math.min(this.lengths[i], length);
 			if(this.lengths[i] === length && this.lengths[i] < LaserBlockData.MAX_LENGTH && GameUtils.frameCount % LaserBlockData.FRAMES_PER_PARTICLE == 0) {
 				const particlePosition = this.hitbox.center().add(direction.multiply(length));
 				world.particles.add(new Particle(
 					particlePosition,
 					new Vector(
-						GameUtils.random(-LaserBlockData.PARTICLE_SPEED, LaserBlockData.PARTICLE_SPEED),
-						GameUtils.random(-LaserBlockData.PARTICLE_SPEED, LaserBlockData.PARTICLE_SPEED),
+						RandomUtils.random(-LaserBlockData.PARTICLE_SPEED, LaserBlockData.PARTICLE_SPEED),
+						RandomUtils.random(-LaserBlockData.PARTICLE_SPEED, LaserBlockData.PARTICLE_SPEED),
 					),
 					LaserBlockData.PARTICLE_INFO,
 				), world, canvasIO);
@@ -163,7 +166,7 @@ export class LaserBlock extends RectangularCollideable {
 	}
 	intersectsBox(direction: Vector, box: Rectangle, length: number) {
 		const onscreenPosition = this.hitbox.center();
-		return GameUtils.rayIntersectsRectangle(
+		return GeomUtils.rayIntersectsRectangle(
 			onscreenPosition, direction,
 			box,
 		) <= length;

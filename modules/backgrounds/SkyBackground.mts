@@ -1,7 +1,7 @@
 import { CanvasIO } from "../../utils-ts/modules/CanvasIO.mjs";
 import { Vector } from "../../utils-ts/modules/geometry/Vector.mjs";
 import { BackgroundData } from "../constants/GameData.mjs";
-import { GameUtils } from "../game-utilities/GameUtils.mjs";
+import { RandomUtils } from "../game-utilities/RandomUtils.mjs";
 import { Background } from "./Background.mjs";
 
 export class SkyBackground extends Background {
@@ -29,10 +29,10 @@ export class SkyBackground extends Background {
 
 	initialize(canvasIO: CanvasIO) {
 		const amount = canvasIO.canvas.width * canvasIO.canvas.height * BackgroundData.STAR_DENSITY;
-		this.stars = GameUtils.randomEvenlySpaced({
+		this.stars = RandomUtils.randomEvenlySpaced({
 			generate: () => new Vector(
-				GameUtils.random(0, canvasIO.canvas.width),
-				GameUtils.random(0, 1) ** 5 * canvasIO.canvas.height,
+				RandomUtils.random(0, canvasIO.canvas.width),
+				RandomUtils.random(0, 1) ** 5 * canvasIO.canvas.height,
 			),
 			amount: amount,
 			trials: BackgroundData.STAR_EVENNESS,

@@ -7,7 +7,7 @@ import { Gate } from "./entities/Gate.mjs";
 import { World } from "./world/World.mjs";
 import { BackgroundData, PortalData, WorldData } from "./constants/GameData.mjs";
 import { ROOMS } from "./constants/Rooms.mjs";
-import { GameUtils } from "./game-utilities/GameUtils.mjs";
+import { InputUtils } from "./game-utilities/InputUtils.mjs";
 import { Portal } from "./entities/Portal.mjs";
 import { BasicTile } from "./tiles/BasicTile.mjs";
 import { EmptyTile } from "./tiles/EmptyTile.mjs";
@@ -119,16 +119,16 @@ export class RoomEditor {
 			this.logBlocks();
 		}
 		this.updateDirection(canvasIO);
-		if(canvasIO.keys.Equal && !GameUtils.pastKeys.Equal) {
+		if(canvasIO.keys.Equal && !InputUtils.pastKeys.Equal) {
 			this.loadNextRoom();
 		}
-		else if(canvasIO.keys.Minus && !GameUtils.pastKeys.Minus) {
+		else if(canvasIO.keys.Minus && !InputUtils.pastKeys.Minus) {
 			this.loadPreviousRoom();
 		}
 	}
 	updateDirection(canvasIO: CanvasIO) {
 		const KEYS = ["ArrowLeft", "ArrowRight", "ArrowUp", "ArrowDown"];
-		if(KEYS.some(k => canvasIO.keys[k] && !GameUtils.pastKeys[k])) {
+		if(KEYS.some(k => canvasIO.keys[k] && !InputUtils.pastKeys[k])) {
 			this.direction = canvasIO.keyDirection(true) ?? this.direction;
 		}
 	}

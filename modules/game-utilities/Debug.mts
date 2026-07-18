@@ -6,7 +6,7 @@ import { RoomEditor } from "../RoomEditor.mjs";
 import { LoadingManager } from "../app-entry-points/LoadingManager.mjs";
 import { Camera } from "../world/Camera.mjs";
 import { WorldData } from "../constants/GameData.mjs";
-import { GameUtils } from "./GameUtils.mjs";
+import { InputUtils } from "./InputUtils.mjs";
 import { Vector } from "../../utils-ts/modules/geometry/Vector.mjs";
 
 export class Debug {
@@ -75,7 +75,7 @@ export class Debug {
 
 	static freeCameraMode = false;
 	static updateFreeCameraMode(camera: Camera) {
-		if(canvasIO?.keys.Enter && !GameUtils.pastKeys.Enter && DEBUG_SETTINGS.FREE_CAMERA_MODE) {
+		if(canvasIO?.keys.Enter && !InputUtils.pastKeys.Enter && DEBUG_SETTINGS.FREE_CAMERA_MODE) {
 			Debug.freeCameraMode = !Debug.freeCameraMode;
 		}
 

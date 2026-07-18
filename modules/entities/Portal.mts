@@ -3,11 +3,12 @@ import { Rectangle } from "../../utils-ts/modules/geometry/Rectangle.mjs";
 import { Vector } from "../../utils-ts/modules/geometry/Vector.mjs";
 import { PortalData, RoomData, WorldData } from "../constants/GameData.mjs";
 import { Entity } from "../game-utilities/Entity.mjs";
-import { GameUtils } from "../game-utilities/GameUtils.mjs";
+import { RandomUtils } from "../game-utilities/RandomUtils.mjs";
 import { Particle } from "../game-utilities/Particle.mjs";
 import { Renderable } from "../world/Renderer.mjs";
 import { World } from "../world/World.mjs";
 import { SpawnPoint } from "./SpawnPoint.mjs";
+import { GameUtils } from "../game-utilities/GameUtils.mjs";
 
 export class Portal extends Entity {
 	position: Vector;
@@ -35,7 +36,7 @@ export class Portal extends Entity {
 	addLine(world: World, canvasIO: CanvasIO) {
 		world.particles.add(new Particle(
 			new Vector(
-				this.position.x + GameUtils.random(-PortalData.LINE_SPAWN_WIDTH / 2, PortalData.LINE_SPAWN_WIDTH / 2),
+				this.position.x + RandomUtils.random(-PortalData.LINE_SPAWN_WIDTH / 2, PortalData.LINE_SPAWN_WIDTH / 2),
 				this.position.y,
 			),
 			new Vector(0, -PortalData.LINE_SPEED),

@@ -1,6 +1,6 @@
 import { CanvasIO } from "../../utils-ts/modules/CanvasIO.mjs";
 import { DeathScreenData } from "../constants/GameData.mjs";
-import { GameUtils } from "../game-utilities/GameUtils.mjs";
+import { InputUtils } from "../game-utilities/InputUtils.mjs";
 import { StaticEntity } from "../game-utilities/StaticEntity.mjs";
 import { Renderable } from "../world/Renderer.mjs";
 import { World } from "../world/World.mjs";
@@ -56,7 +56,7 @@ export class DeathScreen extends StaticEntity {
 		this.timeOnScreen ++;
 		if(
 			this.timeOnScreen > DeathScreenData.TIME_BEFORE_CONTINUE
-			&& GameUtils.startedPressingKey(canvasIO)
+			&& InputUtils.startedPressingKey(canvasIO)
 			&& world.worldScreen && !world.worldScreen.isTransitioning()
 		) {
 			world.worldScreen.beginDeathTransition();

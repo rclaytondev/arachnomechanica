@@ -1,6 +1,6 @@
 import { Directions } from "../../../utils-ts/modules/geometry/Direction.mjs";
 import { ItemData } from "../../constants/GameData.mjs";
-import { GameUtils } from "../../game-utilities/GameUtils.mjs";
+import { GeomUtils } from "../../game-utilities/GeomUtils.mjs";
 import { ThrowableTileEntity } from "../ThrowableTileEntity.mjs";
 import { TileModifier } from "../TileModifier.mjs";
 import { CollisionEvent } from "../../game-utilities/physics-engine/CollisionEvent.mjs";
@@ -13,7 +13,7 @@ export class MovingModifier extends TileModifier {
 	update(tile: ThrowableTileEntity): void {
 		this.movingCooldown --;
 		if(this.direction !== "none") {
-			tile.velocity.x = GameUtils.moveTowards(
+			tile.velocity.x = GeomUtils.moveTowards(
 				tile.velocity.x,
 				(this.direction === "left" ? -1 : 1) * ItemData.TILE_MODIFIERS.MOVING.SPEED,
 				ItemData.TILE_MODIFIERS.MOVING.ACCELERATION,

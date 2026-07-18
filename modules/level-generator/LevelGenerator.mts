@@ -7,6 +7,7 @@ import { MathUtils } from "../../utils-ts/modules/math/MathUtils.mjs";
 import { DEBUG_SETTINGS } from "../constants/DebugSettings.mjs";
 import { LevelGeneratorData, RoomData } from "../constants/GameData.mjs";
 import { GameUtils } from "../game-utilities/GameUtils.mjs";
+import { RandomUtils } from "../game-utilities/RandomUtils.mjs";
 import { BasicTile } from "../tiles/BasicTile.mjs";
 import { TowerTile } from "../tiles/TowerTile.mjs";
 import { World } from "../world/World.mjs";
@@ -43,7 +44,7 @@ export class LevelGenerator {
 	generatePath() {
 		const defaultRoom = ROOMS.find(r => r.name === "control-room-junction")!;
 
-		let x = GameUtils.randomInt(0, LevelGeneratorData.WIDTH - 1);
+		let x = RandomUtils.randomInt(0, LevelGeneratorData.WIDTH - 1);
 		let y = 0;
 		this.path.push(new Vector(x, y));
 		const portalRoom = new RoomPlaceholder([], ROOMS.find(r => r.hasPortal())!);
@@ -143,11 +144,11 @@ export class LevelGenerator {
 		const allPositions = this.levelRectangle().squares();
 		const offPath = allPositions.filter(p => !this.path.some(q => p.equals(q)));
 		const positions = [
-			...GameUtils.randomPermutation(offPath),
-			...GameUtils.randomPermutation(this.path.slice(1, this.path.length - 1)),
+			...RandomUtils.randomPermutation(offPath),
+			...RandomUtils.randomPermutation(this.path.slice(1, this.path.length - 1)),
 		];
 		const healthPickupRooms = ROOMS.filter(r => [...r.worldPart.entities].some(e => e instanceof HealthPickup));
-		for(const room of GameUtils.randomPermutation(healthPickupRooms)) {
+		for(const room of RandomUtils.randomPermutation(healthPickupRooms)) {
 			for(const position of positions) {
 				const roomPlaceholder = this.rooms.get(position);
 				if(roomPlaceholder != null && room.canSpawnWithExits(roomPlaceholder.exits)) {
@@ -208,14 +209,14 @@ export class LevelGenerator {
 		const minConnectivity = Math.min(...roomsWithConnectivities.keys());
 		const rooms = roomsWithConnectivities.get(minConnectivity)!;
 		const weights = rooms.map(r => this.getWeight(r, minConnectivity));
-		return GameUtils.weightedRandom(rooms, weights);
+		return RandomUtils.weightedRandom(rooms, weights);
 	}
 	// getRoomCandidate(roomsWithConnectivities: Map<number, Room[]>) {
 	// 	const connectivities = [...roomsWithConnectivities.keys()];
 	// 	const rooms = connectivities.flatMap(c => roomsWithConnectivities.get(c)!);
 	// 	const weights = connectivities.flatMap(c => roomsWithConnectivities.get(c)!.flatMap(r => this.getWeight(r, c)));
 	// 	console.log(rooms.map((r, i) => [r.originalName, weights[i]]));
-	// 	const result = GameUtils.weightedRandom(rooms, weights);
+	// 	const result = RandomUtils.weightedRandom(rooms, weights);
 	// 	if(weights[rooms.indexOf(result)] === 0) { debugger; }
 	// 	return result;
 	// }

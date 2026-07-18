@@ -9,7 +9,7 @@ import { Platform } from "../../tiles/Platform.mjs";
 import { Tiles } from "../../world/Tiles.mjs";
 import { World, TileWithPosition } from "../../world/World.mjs";
 import { Entity } from "../Entity.mjs";
-import { GameUtils } from "../GameUtils.mjs";
+
 import { CollisionEvent } from "./CollisionEvent.mjs";
 
 /* eslint @typescript-eslint/no-unused-vars: 0 */

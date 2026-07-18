@@ -4,7 +4,7 @@ import { Rectangle } from "../../utils-ts/modules/geometry/Rectangle.mjs";
 import { Vector } from "../../utils-ts/modules/geometry/Vector.mjs";
 import { MathUtils } from "../../utils-ts/modules/math/MathUtils.mjs";
 import { WorldData } from "../constants/GameData.mjs";
-import { GameUtils } from "../game-utilities/GameUtils.mjs";
+import { GeomUtils } from "../game-utilities/GeomUtils.mjs";
 import { Octant, Octants } from "../game-utilities/Octant.mjs";
 import { Collideable } from "../game-utilities/physics-engine/Collideable.mjs";
 import { Tiles } from "../world/Tiles.mjs";
@@ -107,9 +107,9 @@ export abstract class SlopeTile extends Tile {
 			"slope-ceiling-right": ["top-left", "top-right", "bottom-right"],
 		} as const)[this.shape];
 		return Math.min(
-			GameUtils.rayIntersectsSegment(rayStart, rayDirection, tileSquare.getCorner(endpoints[0]), tileSquare.getCorner(endpoints[1])),
-			GameUtils.rayIntersectsSegment(rayStart, rayDirection, tileSquare.getCorner(endpoints[1]), tileSquare.getCorner(endpoints[2])),
-			GameUtils.rayIntersectsSegment(rayStart, rayDirection, tileSquare.getCorner(endpoints[2]), tileSquare.getCorner(endpoints[0])),
+			GeomUtils.rayIntersectsSegment(rayStart, rayDirection, tileSquare.getCorner(endpoints[0]), tileSquare.getCorner(endpoints[1])),
+			GeomUtils.rayIntersectsSegment(rayStart, rayDirection, tileSquare.getCorner(endpoints[1]), tileSquare.getCorner(endpoints[2])),
+			GeomUtils.rayIntersectsSegment(rayStart, rayDirection, tileSquare.getCorner(endpoints[2]), tileSquare.getCorner(endpoints[0])),
 		);
 	}
 	blocksMovement(tilePosition: Vector, collideable: Collideable, direction: Direction, hitboxes: Rectangle[], newHitboxes: Rectangle[]): boolean {

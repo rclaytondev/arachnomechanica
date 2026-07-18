@@ -3,7 +3,7 @@ import { Diagonal, Direction } from "../../utils-ts/modules/geometry/Direction.m
 import { Rectangle } from "../../utils-ts/modules/geometry/Rectangle.mjs";
 import { Vector } from "../../utils-ts/modules/geometry/Vector.mjs";
 import { WorldData } from "../constants/GameData.mjs";
-import { GameUtils } from "../game-utilities/GameUtils.mjs";
+import { GeomUtils } from "../game-utilities/GeomUtils.mjs";
 import { Octant, Octants } from "../game-utilities/Octant.mjs";
 import { Collideable } from "../game-utilities/physics-engine/Collideable.mjs";
 import { Renderable } from "../world/Renderer.mjs";
@@ -53,11 +53,11 @@ export abstract class BasicTile extends Tile {
 	abstract render(position: Vector, world: World): Renderable[];
 
 	rayIntersectionDistance(tilePosition: Vector, rayStart: Vector, rayDirection: Vector): number {
-		return GameUtils.rayIntersectsRectangle(rayStart, rayDirection, Tiles.getTileSquare(tilePosition));
+		return GeomUtils.rayIntersectsRectangle(rayStart, rayDirection, Tiles.getTileSquare(tilePosition));
 	}
 	rectIntersectionDistance(tilePosition: Vector, rect: Rectangle, direction: Direction) {
 		const tileSquare = Tiles.getTileSquare(tilePosition);
-		return GameUtils.rectIntersectionDistance(rect, direction, tileSquare);
+		return GeomUtils.rectIntersectionDistance(rect, direction, tileSquare);
 	}
 	blocksMovement(tilePosition: Vector, collideable: Collideable, direction: Direction, hitboxes: Rectangle[], newHitboxes: Rectangle[]): boolean {
 		const tileSquare = Tiles.getTileSquare(tilePosition);

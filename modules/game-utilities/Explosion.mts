@@ -4,7 +4,7 @@ import { Vector } from "../../utils-ts/modules/geometry/Vector.mjs";
 import { WorldData } from "../constants/GameData.mjs";
 import { Gate } from "../entities/Gate.mjs";
 import { World } from "../world/World.mjs";
-import { GameUtils } from "./GameUtils.mjs";
+import { RandomUtils } from "./RandomUtils.mjs";
 import { Particle, ParticleSettings } from "./Particle.mjs";
 import { ShakeEffect } from "./visual-effects/ShakeEffect.mjs";
 
@@ -74,7 +74,7 @@ export class Explosion {
 		const area = Math.PI * this.visualRadius ** 2;
 		const numParticles = Math.floor(area / (WorldData.TILE_SIZE ** 2) * this.particleDensity);
 		for(let i = 0; i < numParticles; i ++) {
-			const position = GameUtils.randomInCircle(this.position.x, this.position.y, this.visualRadius);
+			const position = RandomUtils.randomInCircle(this.position.x, this.position.y, this.visualRadius);
 			const particle = new Particle(position, new Vector(0, 0), this.particleSettings);
 			world.particles.add(particle, world, canvasIO);
 		}

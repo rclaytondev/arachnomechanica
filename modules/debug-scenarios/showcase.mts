@@ -1,6 +1,5 @@
 import { Rectangle } from "../../utils-ts/modules/geometry/Rectangle.mjs";
 import { Vector } from "../../utils-ts/modules/geometry/Vector.mjs";
-import { LaserBlock } from "../entities/LaserBlock.mjs";
 import { Lizard } from "../entities/Lizard.mjs";
 import { CrawlingState, Spider } from "../entities/Spider.mjs";
 import { Main } from "../Main.mjs";

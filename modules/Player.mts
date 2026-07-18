@@ -6,7 +6,8 @@ import { Vector } from "../utils-ts/modules/geometry/Vector.mjs";
 import { MathUtils } from "../utils-ts/modules/math/MathUtils.mjs";
 import { ItemData, PlayerData, WorldData } from "./constants/GameData.mjs";
 import { Debug } from "./game-utilities/Debug.mjs";
-import { GameUtils } from "./game-utilities/GameUtils.mjs";
+import { GraphicsUtils } from "./game-utilities/GraphicsUtils.mjs";
+import { InputUtils } from "./game-utilities/InputUtils.mjs";
 import { CollisionEvent } from "./game-utilities/physics-engine/CollisionEvent.mjs";
 import { RectangularCollideable } from "./game-utilities/physics-engine/RectangularCollideable.mjs";
 import { ScreenFade } from "./game-utilities/visual-effects/ScreenFade.mjs";
@@ -41,7 +42,7 @@ export class Player extends RectangularCollideable {
 		this.displayBody(canvasIO);
 		this.displayFace(canvasIO);
 
-		GameUtils.glowCircle(center.x, center.y, PlayerData.GLOW_SIZE, PlayerData.GLOW_INTENSITY, canvasIO);
+		GraphicsUtils.glowCircle(center.x, center.y, PlayerData.GLOW_SIZE, PlayerData.GLOW_INTENSITY, canvasIO);
 	}
 	displayBody(canvasIO: CanvasIO) {
 		canvasIO.ctx.fillStyle = PlayerData.BODY_COLOR;
@@ -125,17 +126,17 @@ export class Player extends RectangularCollideable {
 		if(onGround) {
 			this.coyoteTime = PlayerData.COYOTE_FRAMES;
 		}
-		if(canvasIO.keys.KeyZ && !GameUtils.pastKeys.KeyZ && (this.coyoteTime > 0 || this.hasDoubleJump)) {
+		if(canvasIO.keys.KeyZ && !InputUtils.pastKeys.KeyZ && (this.coyoteTime > 0 || this.hasDoubleJump)) {
 			this.velocity.y = -PlayerData.JUMP_VELOCITY;
 			this.hasDoubleJump = (this.coyoteTime > 0);
 			this.coyoteTime = -1;
 		}
 
-		if(canvasIO.keys.KeyX && !GameUtils.pastKeys.KeyX) {
+		if(canvasIO.keys.KeyX && !InputUtils.pastKeys.KeyX) {
 			const used = this.equippedItems[0]?.use(world, canvasIO);
 			if(used) { this.equippedItems[0] = null; }
 		}
-		if(canvasIO.keys.KeyC && !GameUtils.pastKeys.KeyC) {
+		if(canvasIO.keys.KeyC && !InputUtils.pastKeys.KeyC) {
 			const used = this.equippedItems[1]?.use(world, canvasIO);
 			if(used) { this.equippedItems[1] = null; }
 		}
@@ -146,7 +147,7 @@ export class Player extends RectangularCollideable {
 			(!canvasIO.keys.ArrowDown && this.onGround(world, canvasIO)) ||
 			(this.velocity.y > 0)
 		) { this.uncrouch(world); }
-		if(canvasIO.keys.Space && !GameUtils.pastKeys.Space) {
+		if(canvasIO.keys.Space && !InputUtils.pastKeys.Space) {
 			this.collectNearestItem(world);
 		}
 	}

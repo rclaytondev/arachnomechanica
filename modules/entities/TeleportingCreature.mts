@@ -5,7 +5,7 @@ import { LoadingManager } from "../app-entry-points/LoadingManager.mjs";
 import { PlayerData, RoomData, TeleportingCreatureData, WorldData } from "../constants/GameData.mjs";
 import { Entity } from "../game-utilities/Entity.mjs";
 import { FireSpawner } from "../game-utilities/FireSpawner.mjs";
-import { GameUtils } from "../game-utilities/GameUtils.mjs";
+import { GraphicsUtils } from "../game-utilities/GraphicsUtils.mjs";
 import { CollisionEvent } from "../game-utilities/physics-engine/CollisionEvent.mjs";
 import { RectangularCollideable } from "../game-utilities/physics-engine/RectangularCollideable.mjs";
 import { EntitySpawner } from "../level-generator/EntitySpawner.mjs";
@@ -124,7 +124,7 @@ export class TeleportingCreature extends RectangularCollideable {
 	}
 	displayGlowEffect(canvasIO: CanvasIO) {
 		const center = this.hitbox.center();
-		GameUtils.glowCircle(
+		GraphicsUtils.glowCircle(
 			center.x, center.y,
 			TeleportingCreatureData.GRAPHICS.GLOW_SIZE, TeleportingCreatureData.GRAPHICS.GLOW_INTENSITY,
 			canvasIO,

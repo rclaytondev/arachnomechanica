@@ -4,6 +4,8 @@ import { Vector } from "../../utils-ts/modules/geometry/Vector.mjs";
 import { MathUtils } from "../../utils-ts/modules/math/MathUtils.mjs";
 import { BackgroundData, BackgroundGearLayerData, LevelGeneratorData, RoomData, WorldData } from "../constants/GameData.mjs";
 import { GameUtils } from "../game-utilities/GameUtils.mjs";
+import { GeomUtils } from "../game-utilities/GeomUtils.mjs";
+import { RandomUtils } from "../game-utilities/RandomUtils.mjs";
 import { Camera } from "../world/Camera.mjs";
 import { Background } from "./Background.mjs";
 
@@ -70,8 +72,8 @@ class BackgroundGear {
 	}
 
 	intersects(gear: BackgroundGear, parallax: number) {
-		const distX = GameUtils.signedModularDistance(this.position.x, gear.position.x, BackgroundData.BACKGROUND_REPEAT_SIZE);
-		const distY = GameUtils.signedModularDistance(this.position.y, gear.position.y, BackgroundData.BACKGROUND_REPEAT_SIZE);
+		const distX = GeomUtils.signedModularDistance(this.position.x, gear.position.x, BackgroundData.BACKGROUND_REPEAT_SIZE);
+		const distY = GeomUtils.signedModularDistance(this.position.y, gear.position.y, BackgroundData.BACKGROUND_REPEAT_SIZE);
 		const distance = Math.sqrt(distX ** 2 + distY ** 2);
 		return distance * parallax < this.size + gear.size;
 	}
@@ -92,8 +94,8 @@ class GearLayer {
 		canvasIO.ctx.save();
 		for(const gear of this.gears) {
 			const repeatedPosition = new Vector(
-				cameraPosition.x + GameUtils.signedModularDistance(cameraPosition.x, gear.position.x, BackgroundData.BACKGROUND_REPEAT_SIZE),
-				cameraPosition.y + GameUtils.signedModularDistance(cameraPosition.y, gear.position.y, BackgroundData.BACKGROUND_REPEAT_SIZE),
+				cameraPosition.x + GeomUtils.signedModularDistance(cameraPosition.x, gear.position.x, BackgroundData.BACKGROUND_REPEAT_SIZE),
+				cameraPosition.y + GeomUtils.signedModularDistance(cameraPosition.y, gear.position.y, BackgroundData.BACKGROUND_REPEAT_SIZE),
 			);
 			const position = repeatedPosition.subtract(cameraPosition).multiply(this.parallax).add(canvasIO.canvas.width / 2, canvasIO.canvas.height / 2);
 			if(BackgroundGear.isVisible(position, gear.size, canvasIO)) {
@@ -111,20 +113,20 @@ class GearLayer {
 			let attempts = 0;
 			while(!spawned) {
 				attempts ++;
-				const [position] = GameUtils.randomEvenlySpaced({
-					generate: () => GameUtils.randomInRect(Rectangle.square(0, 0, BackgroundData.BACKGROUND_REPEAT_SIZE), GameUtils.randomInt),
-					metric: (v1, v2) => GameUtils.toroidalDistance(v1, v2, BackgroundData.BACKGROUND_REPEAT_SIZE),
+				const [position] = RandomUtils.randomEvenlySpaced({
+					generate: () => RandomUtils.randomInRect(Rectangle.square(0, 0, BackgroundData.BACKGROUND_REPEAT_SIZE), RandomUtils.randomInt),
+					metric: (v1, v2) => GeomUtils.toroidalDistance(v1, v2, BackgroundData.BACKGROUND_REPEAT_SIZE),
 					amount: 1,
 					trials: info.evenness,
 				});
 				const gear = new BackgroundGear(
 					position,
-					GameUtils.random(info.minSize, info.maxSize),
-					GameUtils.randomInt(info.minTeeth, info.maxTeeth),
-					GameUtils.random(info.minInnerRadius, info.maxInnerRadius),
-					GameUtils.random(info.minSpeed, info.maxSpeed) * (Math.random() < 0.5 ? 1 : -1),
+					RandomUtils.random(info.minSize, info.maxSize),
+					RandomUtils.randomInt(info.minTeeth, info.maxTeeth),
+					RandomUtils.random(info.minInnerRadius, info.maxInnerRadius),
+					RandomUtils.random(info.minSpeed, info.maxSpeed) * (Math.random() < 0.5 ? 1 : -1),
 					info.color,
-					GameUtils.randomInt(0, 360),
+					RandomUtils.randomInt(0, 360),
 				);
 				if(!gears.some(g => g.intersects(gear, info.parallax))) {
 					gears.push(gear);

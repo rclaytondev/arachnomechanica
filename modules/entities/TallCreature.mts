@@ -3,7 +3,8 @@ import { Directions } from "../../utils-ts/modules/geometry/Direction.mjs";
 import { Rectangle } from "../../utils-ts/modules/geometry/Rectangle.mjs";
 import { Vector } from "../../utils-ts/modules/geometry/Vector.mjs";
 import { TallCreatureData } from "../constants/GameData.mjs";
-import { GameUtils } from "../game-utilities/GameUtils.mjs";
+import { GeomUtils } from "../game-utilities/GeomUtils.mjs";
+import { GraphicsUtils } from "../game-utilities/GraphicsUtils.mjs";
 import { Collideable } from "../game-utilities/physics-engine/Collideable.mjs";
 import { CollisionEvent } from "../game-utilities/physics-engine/CollisionEvent.mjs";
 import { InvisibleRectangle } from "../game-utilities/physics-engine/InvisibleRectangle.mjs";
@@ -47,7 +48,7 @@ class TallCreatureLeg {
 	}
 	updatePosition(tallCreature: TallCreature, world: World) {
 		const destination = this.destination(tallCreature, world);
-		this.position = GameUtils.moveVectorTowards(this.position, destination, TallCreatureData.LEG_UPDATE_SPEED);
+		this.position = GeomUtils.moveVectorTowards(this.position, destination, TallCreatureData.LEG_UPDATE_SPEED);
 	}
 	updateOffset() {
 		this.offsetX += this.offsetDirection * TallCreatureData.LEG_SPEED;
@@ -182,7 +183,7 @@ export class TallCreature extends Collideable {
 	}
 	displayEyes(canvasIO: CanvasIO) {
 		const center = this.head.center();
-		canvasIO.ctx.fillStyle = GameUtils.formatColor(TallCreatureData.EYE_COLOR);
+		canvasIO.ctx.fillStyle = GraphicsUtils.formatColor(TallCreatureData.EYE_COLOR);
 		canvasIO.fillDiamond(center.x, center.y, TallCreatureData.EYE_RADIUS);
 		canvasIO.fillDiamond(center.x + TallCreatureData.EYE_SPACING, center.y, TallCreatureData.EYE_RADIUS);
 		canvasIO.fillDiamond(center.x - TallCreatureData.EYE_SPACING, center.y, TallCreatureData.EYE_RADIUS);
@@ -194,7 +195,7 @@ export class TallCreature extends Collideable {
 	}
 	displayGlowEffect(canvasIO: CanvasIO): void {
 		const center = this.head.center();
-		GameUtils.glowCircle(
+		GraphicsUtils.glowCircle(
 			center.x, center.y,
 			TallCreatureData.GLOW_SIZE, TallCreatureData.GLOW_INTENSITY, canvasIO,
 			TallCreatureData.EYE_COLOR.red, TallCreatureData.EYE_COLOR.green, TallCreatureData.EYE_COLOR.blue,

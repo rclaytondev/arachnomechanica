@@ -10,7 +10,7 @@ import { Camera } from "./Camera.mjs";
 import { CanvasIO } from "../../utils-ts/modules/CanvasIO.mjs";
 import { World } from "./World.mjs";
 import { Renderable, Renderer } from "./Renderer.mjs";
-import { GameUtils } from "../game-utilities/GameUtils.mjs";
+import { GeomUtils } from "../game-utilities/GeomUtils.mjs";
 
 export class Entities<EntityType extends Entity = Entity> extends BoundingBoxStructure<EntityType> {
 	constructor(entities: Iterable<EntityType> = []) {
@@ -50,7 +50,7 @@ export class Entities<EntityType extends Entity = Entity> extends BoundingBoxStr
 		for(const entity of this.possiblyIntersecting(rectangle)) {
 			if(!(entity instanceof Collideable) || !collides(entity) || !entity.tangible) { continue; }
 			for(const hitbox of entity.hitboxes()) {
-				result = Math.min(result, GameUtils.rayIntersectsRectangle(position, direction, hitbox));
+				result = Math.min(result, GeomUtils.rayIntersectsRectangle(position, direction, hitbox));
 			}
 		}
 		return result;
@@ -59,7 +59,7 @@ export class Entities<EntityType extends Entity = Entity> extends BoundingBoxStr
 		const searchRegion = Rectangle.boundingBox([rect, rect.translate(Vector.unit(direction).multiply(maxDistance))]);
 		const entities = this.possiblyIntersecting(searchRegion);
 		const hitboxes = [...entities].filter(e => e instanceof Collideable && collides(e) && e.tangible).flatMap(e => (e as unknown as Collideable).hitboxes());
-		const distances = hitboxes.map(h => GameUtils.rectIntersectionDistance(rect, direction, h));
+		const distances = hitboxes.map(h => GeomUtils.rectIntersectionDistance(rect, direction, h));
 		return Math.min(maxDistance, ...distances);
 	}
 

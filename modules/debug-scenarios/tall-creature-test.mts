@@ -2,7 +2,6 @@ import { Rectangle } from "../../utils-ts/modules/geometry/Rectangle.mjs";
 import { Vector } from "../../utils-ts/modules/geometry/Vector.mjs";
 import { TallCreature } from "../entities/TallCreature.mjs";
 import { Main } from "../Main.mjs";
-import { BasicTile } from "../tiles/BasicTile.mjs";
 import { TowerTile } from "../tiles/TowerTile.mjs";
 import { EmptyTile } from "../tiles/EmptyTile.mjs";
 import { World } from "../world/World.mjs";

@@ -2,7 +2,9 @@ import { CanvasIO } from "../../utils-ts/modules/CanvasIO.mjs";
 import { Rectangle } from "../../utils-ts/modules/geometry/Rectangle.mjs";
 import { Vector } from "../../utils-ts/modules/geometry/Vector.mjs";
 import { SpikeballData, WorldData } from "../constants/GameData.mjs";
-import { GameUtils } from "../game-utilities/GameUtils.mjs";
+import { GeomUtils } from "../game-utilities/GeomUtils.mjs";
+import { GraphicsUtils } from "../game-utilities/GraphicsUtils.mjs";
+import { RandomUtils } from "../game-utilities/RandomUtils.mjs";
 import { TileWithPosition, World } from "../world/World.mjs";
 import { Directions } from "../../utils-ts/modules/geometry/Direction.mjs";
 import { RectangularCollideable } from "../game-utilities/physics-engine/RectangularCollideable.mjs";
@@ -11,6 +13,7 @@ import { SpikeballBlock } from "./SpikeballBlock.mjs";
 import { Renderable } from "../world/Renderer.mjs";
 import { Player } from "../Player.mjs";
 import { Collideable } from "../game-utilities/physics-engine/Collideable.mjs";
+import { GameUtils } from "../game-utilities/GameUtils.mjs";
 
 abstract class SpikeballState {
 	abstract update(self: Spikeball, world: World, canvasIO: CanvasIO): void;
@@ -68,8 +71,8 @@ class AttackState extends SpikeballState {
 		canvasIO.ctx.strokeStyle = SpikeballData.ELECTRICITY_COLOR;
 		canvasIO.ctx.lineWidth = SpikeballData.ELECTRICITY_WIDTH;
 		for(let i = 0; i < SpikeballData.NUM_ELECTRIC_ARCS; i ++) {
-			const endpoints = GameUtils.randomEvenlySpaced({
-				generate: () => GameUtils.randomInCircle(center.x, center.y, SpikeballData.TELEGRAPH_RADIUS),
+			const endpoints = RandomUtils.randomEvenlySpaced({
+				generate: () => RandomUtils.randomInCircle(center.x, center.y, SpikeballData.TELEGRAPH_RADIUS),
 				metric: Vector.dist,
 				amount: SpikeballData.ELECTRICITY_SEGMENTS,
 				trials: SpikeballData.ELECTRICITY_EVENNESS,
@@ -82,8 +85,8 @@ class AttackState extends SpikeballState {
 	}
 	displayTelegraph(self: Spikeball, canvasIO: CanvasIO) {
 		const center = self.hitbox.center();
-		const thickness = GameUtils.lerp(this.timeInState, 0, SpikeballData.TELEGRAPH_DELAY, SpikeballData.TELEGRAPH_THICKNESS, 1);
-		GameUtils.glowCircleOutline(center.x, center.y, SpikeballData.TELEGRAPH_RADIUS, thickness, 1, canvasIO, 255, 255, 0);
+		const thickness = GeomUtils.lerp(this.timeInState, 0, SpikeballData.TELEGRAPH_DELAY, SpikeballData.TELEGRAPH_THICKNESS, 1);
+		GraphicsUtils.glowCircleOutline(center.x, center.y, SpikeballData.TELEGRAPH_RADIUS, thickness, 1, canvasIO, 255, 255, 0);
 	}
 }
 
@@ -143,7 +146,7 @@ export class Spikeball extends RectangularCollideable {
 		const center = this.hitbox.center();
 		canvasIO.ctx.save();
 		canvasIO.ctx.globalAlpha = this.age / SpikeballData.GLOW_FADE_TIME;
-		GameUtils.glowCircle(
+		GraphicsUtils.glowCircle(
 			center.x, center.y,
 			SpikeballData.GLOW_SIZE, SpikeballData.GLOW_INTENSITY,
 			canvasIO,
@@ -187,7 +190,7 @@ export class Spikeball extends RectangularCollideable {
 	}
 
 	die(world: World, canvasIO: CanvasIO) {
-		GameUtils.shatterParticles(
+		GraphicsUtils.shatterParticles(
 			(canvasIO: CanvasIO) => this.display(canvasIO),
 			world,
 			this.hitbox.center(),
