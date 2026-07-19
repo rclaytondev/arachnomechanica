@@ -8,7 +8,6 @@ import { Particle } from "../game-utilities/Particle.mjs";
 import { Renderable } from "../world/Renderer.mjs";
 import { World } from "../world/World.mjs";
 import { SpawnPoint } from "./SpawnPoint.mjs";
-import { GameUtils } from "../game-utilities/GameUtils.mjs";
 
 export class Portal extends Entity {
 	position: Vector;
@@ -19,7 +18,7 @@ export class Portal extends Entity {
 	}
 
 	update(world: World, canvasIO: CanvasIO) {
-		if(GameUtils.frameCount % PortalData.FRAMES_PER_LINE === 0) {
+		if(world.frameCount % PortalData.FRAMES_PER_LINE === 0) {
 			this.addLine(world, canvasIO);
 		}
 

@@ -31,6 +31,7 @@ export class WorldScreen {
 		this.world.update(canvasIO, this.camera);
 		this.camera.update(this.world.player.hitbox.center(), this.world.entities, canvasIO);
 		this.visualEffects.update();
+		this.backgrounds.update();
 		Debug.updateInputRecord(canvasIO);
 	}
 

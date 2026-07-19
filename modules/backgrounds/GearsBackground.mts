@@ -3,7 +3,6 @@ import { Rectangle } from "../../utils-ts/modules/geometry/Rectangle.mjs";
 import { Vector } from "../../utils-ts/modules/geometry/Vector.mjs";
 import { MathUtils } from "../../utils-ts/modules/math/MathUtils.mjs";
 import { BackgroundData, BackgroundGearLayerData, LevelGeneratorData, RoomData, WorldData } from "../constants/GameData.mjs";
-import { GameUtils } from "../game-utilities/GameUtils.mjs";
 import { GeomUtils } from "../game-utilities/GeomUtils.mjs";
 import { RandomUtils } from "../game-utilities/RandomUtils.mjs";
 import { Camera } from "../world/Camera.mjs";
@@ -54,13 +53,13 @@ class BackgroundGear {
 		ctx.restore();
 		return canvas;
 	}
-	display(position: Vector, blur: number, canvasIO: CanvasIO) {
+	display(position: Vector, blur: number, frameCount: number, canvasIO: CanvasIO) {
 		if(!this.image) {
 			this.image = this.getRenderImage(blur);
 		}
 		canvasIO.ctx.save();
 		canvasIO.ctx.translate(position.x, position.y);
-		canvasIO.ctx.rotate((this.startAngle + this.speed * GameUtils.frameCount) * Math.PI / 180);
+		canvasIO.ctx.rotate((this.startAngle + this.speed * frameCount) * Math.PI / 180);
 		canvasIO.ctx.drawImage(this.image, -this.image.width / 2, -this.image.height / 2);
 		canvasIO.ctx.restore();
 	}
@@ -90,7 +89,7 @@ class GearLayer {
 		this.gears = gears;
 	}
 
-	display(cameraPosition: Vector, canvasIO: CanvasIO) {
+	display(cameraPosition: Vector, frameCount: number, canvasIO: CanvasIO) {
 		canvasIO.ctx.save();
 		for(const gear of this.gears) {
 			const repeatedPosition = new Vector(
@@ -99,7 +98,7 @@ class GearLayer {
 			);
 			const position = repeatedPosition.subtract(cameraPosition).multiply(this.parallax).add(canvasIO.canvas.width / 2, canvasIO.canvas.height / 2);
 			if(BackgroundGear.isVisible(position, gear.size, canvasIO)) {
-				gear.display(position, this.blur, canvasIO);
+				gear.display(position, this.blur, frameCount, canvasIO);
 			}
 		}
 		canvasIO.ctx.restore();
@@ -143,6 +142,7 @@ class GearLayer {
 
 export class GearsBackground extends Background {
 	zIndex: number = 1;
+	frameCount: number = 0;
 
 	layers: GearLayer[];
 	constructor(layers: GearLayer[]) {
@@ -160,9 +160,12 @@ export class GearsBackground extends Background {
 		);
 		canvasIO.fillCanvas(BackgroundData.BACKGROUND_COLOR);
 		for(let i = this.layers.length - 1; i >= 0; i --) {
-			this.layers[i].display(camera.position, canvasIO);
+			this.layers[i].display(camera.position, this.frameCount, canvasIO);
 		}
 		canvasIO.ctx.restore();
+	}
+	update() {
+		this.frameCount ++;
 	}
 
 	static generate() {

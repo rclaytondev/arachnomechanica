@@ -13,7 +13,6 @@ import { SpikeballBlock } from "./SpikeballBlock.mjs";
 import { Renderable } from "../world/Renderer.mjs";
 import { Player } from "../Player.mjs";
 import { Collideable } from "../game-utilities/physics-engine/Collideable.mjs";
-import { GameUtils } from "../game-utilities/GameUtils.mjs";
 
 abstract class SpikeballState {
 	abstract update(self: Spikeball, world: World, canvasIO: CanvasIO): void;
@@ -155,11 +154,11 @@ export class Spikeball extends RectangularCollideable {
 		canvasIO.ctx.restore();
 	}
 
-	onCollision(collision: CollisionEvent) {
-		if(this.lastCollisionFrame === GameUtils.frameCount) {
+	onCollision(collision: CollisionEvent, world: World) {
+		if(this.lastCollisionFrame === world.frameCount) {
 			return;
 		}
-		this.lastCollisionFrame = GameUtils.frameCount;
+		this.lastCollisionFrame = world.frameCount;
 		const collidingObject = collision.collidingObject(this);
 		if(collision.movingObject === this && !(collidingObject instanceof Player)) {
 			this.bounces --;

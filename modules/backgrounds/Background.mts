@@ -5,4 +5,5 @@ export abstract class Background {
 	abstract zIndex: number;
 
 	abstract display(canvasIO: CanvasIO, camera: Camera): void;
+	abstract update(): void;
 }

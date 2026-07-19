@@ -14,4 +14,10 @@ export class Backgrounds {
 			background.display(canvasIO, camera);
 		}
 	}
+
+	update() {
+		for(const background of this.backgroundsList) {
+			background.update();
+		}
+	}
 }

@@ -26,6 +26,7 @@ export class SkyBackground extends Background {
 			canvasIO.fillCircle(star.x, star.y, BackgroundData.STAR_SIZE);
 		}
 	}
+	update() { }
 
 	initialize(canvasIO: CanvasIO) {
 		const amount = canvasIO.canvas.width * canvasIO.canvas.height * BackgroundData.STAR_DENSITY;
