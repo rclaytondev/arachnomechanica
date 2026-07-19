@@ -15,6 +15,9 @@ export const DEBUG_SETTINGS = {
 		LOG_KEY: "KeyR" as string | null,
 		OVERRIDE_VALUES: [],
 	},
+	INPUT_RECORD: [
+
+	] as { [key: string]: boolean }[],
 
 	SPIDERS: {
 		VISUALIZE: false,

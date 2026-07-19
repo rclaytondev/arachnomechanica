@@ -3,6 +3,7 @@ import { Backgrounds } from "../backgrounds/Backgrounds.mjs";
 import { GearsBackground } from "../backgrounds/GearsBackground.mjs";
 import { SkyBackground } from "../backgrounds/SkyBackground.mjs";
 import { PlayerData } from "../constants/GameData.mjs";
+import { Debug } from "../game-utilities/Debug.mjs";
 import { FadeType, ScreenFade } from "../game-utilities/visual-effects/ScreenFade.mjs";
 import { VisualEffects } from "../game-utilities/visual-effects/VisualEffects.mjs";
 import { WorldUI } from "../user-interface/WorldUI.mjs";
@@ -29,6 +30,7 @@ export class WorldScreen {
 		this.world.update(canvasIO, this.camera);
 		this.camera.update(this.world.player.hitbox.center(), this.world.entities, canvasIO);
 		this.visualEffects.update();
+		Debug.updateInputRecord(canvasIO);
 	}
 
 	render(canvasIO: CanvasIO, renderer: Renderer) {

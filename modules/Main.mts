@@ -17,7 +17,9 @@ export class Main {
 		Main.visualEffects.update();
 		this.screen?.update(canvasIO);
 
-		Object.assign(InputUtils.pastKeys, canvasIO.keys);
+		InputUtils.pastKeys = {};
+		Object.assign(InputUtils.pastKeys, Debug.getInput(canvasIO));
+
 		Debug.checkRNGLogging(canvasIO);
 		Debug.updateFramerate();
 	}

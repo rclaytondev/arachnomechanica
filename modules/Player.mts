@@ -91,7 +91,8 @@ export class Player extends RectangularCollideable {
 				this.velocity.x *= PlayerData.CROUCHED_FRICTION;
 			}
 		}
-		this.velocity.y += canvasIO.keys.KeyZ && this.velocity.y <= 0 ? PlayerData.GRAVITY_WHILE_JUMPING : PlayerData.GRAVITY;
+		const input = Debug.getInput(canvasIO);
+		this.velocity.y += input.KeyZ && this.velocity.y <= 0 ? PlayerData.GRAVITY_WHILE_JUMPING : PlayerData.GRAVITY;
 		this.velocity.x = MathUtils.constrain(this.velocity.x, -PlayerData.MAX_X_VELOCITY, PlayerData.MAX_X_VELOCITY);
 		this.move(new Vector(this.velocity.x, 0), world, canvasIO, { });
 		this.move(new Vector(0, this.velocity.y), world, canvasIO, {});
@@ -107,18 +108,19 @@ export class Player extends RectangularCollideable {
 		}
 	}
 	checkInputs(world: World, canvasIO: CanvasIO) {
-		if(canvasIO.keys.ArrowRight && !canvasIO.keys.ArrowLeft && !Debug.freeCameraMode) {
+		const input = Debug.getInput(canvasIO);
+		if(input.ArrowRight && !input.ArrowLeft && !Debug.freeCameraMode) {
 			this.velocity.x += PlayerData.HORIZONTAL_ACCELERATION;
 			this.facing = "right";
 		}
-		if(canvasIO.keys.ArrowLeft && !canvasIO.keys.ArrowRight && !Debug.freeCameraMode) {
+		if(input.ArrowLeft && !input.ArrowRight && !Debug.freeCameraMode) {
 			this.velocity.x -= PlayerData.HORIZONTAL_ACCELERATION;
 			this.facing = "left";
 		}
 		if(
-			(!canvasIO.keys.ArrowLeft && !canvasIO.keys.ArrowRight) ||
-			(canvasIO.keys.ArrowLeft && this.velocity.x > 0) ||
-			(canvasIO.keys.ArrowRight && this.velocity.x < 0)
+			(!input.ArrowLeft && !input.ArrowRight) ||
+			(input.ArrowLeft && this.velocity.x > 0) ||
+			(input.ArrowRight && this.velocity.x < 0)
 		) {
 			this.velocity.x *= PlayerData.FRICTION_X;
 		}
@@ -126,28 +128,28 @@ export class Player extends RectangularCollideable {
 		if(onGround) {
 			this.coyoteTime = PlayerData.COYOTE_FRAMES;
 		}
-		if(canvasIO.keys.KeyZ && !InputUtils.pastKeys.KeyZ && (this.coyoteTime > 0 || this.hasDoubleJump)) {
+		if(input.KeyZ && !InputUtils.pastKeys.KeyZ && (this.coyoteTime > 0 || this.hasDoubleJump)) {
 			this.velocity.y = -PlayerData.JUMP_VELOCITY;
 			this.hasDoubleJump = (this.coyoteTime > 0);
 			this.coyoteTime = -1;
 		}
 
-		if(canvasIO.keys.KeyX && !InputUtils.pastKeys.KeyX) {
+		if(input.KeyX && !InputUtils.pastKeys.KeyX) {
 			const used = this.equippedItems[0]?.use(world, canvasIO);
 			if(used) { this.equippedItems[0] = null; }
 		}
-		if(canvasIO.keys.KeyC && !InputUtils.pastKeys.KeyC) {
+		if(input.KeyC && !InputUtils.pastKeys.KeyC) {
 			const used = this.equippedItems[1]?.use(world, canvasIO);
 			if(used) { this.equippedItems[1] = null; }
 		}
-		if(canvasIO.keys.ArrowDown && this.onGround(world, canvasIO)) {
+		if(input.ArrowDown && this.onGround(world, canvasIO)) {
 			this.crouch();
 		}
 		if(
-			(!canvasIO.keys.ArrowDown && this.onGround(world, canvasIO)) ||
+			(!input.ArrowDown && this.onGround(world, canvasIO)) ||
 			(this.velocity.y > 0)
 		) { this.uncrouch(world); }
-		if(canvasIO.keys.Space && !InputUtils.pastKeys.Space) {
+		if(input.Space && !InputUtils.pastKeys.Space) {
 			this.collectNearestItem(world);
 		}
 	}
@@ -186,13 +188,15 @@ export class Player extends RectangularCollideable {
 	}
 
 	itemThrowVelocity(canvasIO: CanvasIO) {
-		if(canvasIO.keys.ArrowDown) {
+		const input = Debug.getInput(canvasIO);
+		if(input.ArrowDown) {
 			return ItemData.DOWN_THROW_VELOCITY.clone();
 		}
 		return (this.facing === "left") ? ItemData.THROW_VELOCITY.reflectX() : ItemData.THROW_VELOCITY.clone();
 	}
 	throwDirection(canvasIO: CanvasIO) {
-		if(canvasIO.keys.ArrowDown) {
+		const input = Debug.getInput(canvasIO);
+		if(input.ArrowDown) {
 			return "down";
 		}
 		return this.facing;

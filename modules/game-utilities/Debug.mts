@@ -8,6 +8,7 @@ import { Camera } from "../world/Camera.mjs";
 import { WorldData } from "../constants/GameData.mjs";
 import { InputUtils } from "./InputUtils.mjs";
 import { Vector } from "../../utils-ts/modules/geometry/Vector.mjs";
+import { GameUtils } from "./GameUtils.mjs";
 
 export class Debug {
 	static recordedRNG: number[] = [];
@@ -27,6 +28,8 @@ export class Debug {
 		if(DEBUG_SETTINGS.RNG.LOG_KEY != null && canvasIO.keys[DEBUG_SETTINGS.RNG.LOG_KEY]) {
 			// eslint-disable-next-line no-console
 			console.log(Debug.recordedRNG.join(", "));
+			// eslint-disable-next-line no-console
+			console.log(Debug.recordedInput.map(input => JSON.stringify(input)).join(", "));
 		}
 	}
 
@@ -83,6 +86,19 @@ export class Debug {
 		if(keyDirection != null && Debug.freeCameraMode) {
 			camera.position = camera.position.add(Vector.gridUnit(keyDirection).multiply(DEBUG_SETTINGS.FREE_CAMERA_MODE.SPEED));
 		}
+	}
+
+
+	static recordedInput: { [key: string]: boolean }[] = [];
+	static getInput(canvasIO: CanvasIO) {
+		if(GameUtils.frameCount < DEBUG_SETTINGS.INPUT_RECORD.length) {
+			return DEBUG_SETTINGS.INPUT_RECORD[GameUtils.frameCount];
+		}
+		return canvasIO.keys;
+	}
+	static updateInputRecord(canvasIO: CanvasIO) {
+		const keys = Object.keys(canvasIO.keys).filter(k => canvasIO.keys[k]);
+		Debug.recordedInput.push(Object.fromEntries(keys.map(k => [k, true])));
 	}
 }
 
