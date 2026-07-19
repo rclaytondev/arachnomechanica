@@ -122,6 +122,7 @@ class TallCreatureStabber {
 			for(let i = 0; i < this.extension - amount; i ++) {
 				rect.moveRiders(Directions.opposite[this.direction], world, canvasIO, {
 					canMoveRider: (o) => o !== tallCreature,
+					movedObjects: new Set(),
 				});
 			}
 			this.extension = Math.max(0, amount);

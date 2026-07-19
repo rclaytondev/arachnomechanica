@@ -73,7 +73,7 @@ describe("Collideable.moveUnit", () => {
 		const world = createWorld([
 			collideable = new CollideableSpy(Rectangle.fromDimensions(0, 0, 10, 10), "collideable", true),
 		]);
-		collideable.moveUnit("right", world, canvasIO!, {});
+		collideable.moveUnit("right", world, canvasIO!, { movedObjects: new Set() });
 
 		assert.deepEqual(collideable.hitbox, Rectangle.fromDimensions(1, 0, 10, 10));
 		assert.equal(collideable.collisions, 0);
@@ -84,7 +84,7 @@ describe("Collideable.moveUnit", () => {
 			pusher = new CollideableSpy(Rectangle.fromDimensions(0, 0, 10, 10), "pusher", true),
 			pushed = new CollideableSpy(Rectangle.fromDimensions(10, 0, 10, 10), "pushed", true),
 		]);
-		pusher.moveUnit("right", world, canvasIO!, {});
+		pusher.moveUnit("right", world, canvasIO!, { movedObjects: new Set() });
 
 		assert.deepEqual(pusher.hitbox, Rectangle.fromDimensions(1, 0, 10, 10));
 		assert.deepEqual(pushed.hitbox, Rectangle.fromDimensions(11, 0, 10, 10));
@@ -97,7 +97,7 @@ describe("Collideable.moveUnit", () => {
 			pusher = new CollideableSpy(Rectangle.fromDimensions(0, 0, 10, 10), "pusher", true),
 			pushed = new CollideableSpy(Rectangle.fromDimensions(10, 0, 10, 10), "pushed", false),
 		]);
-		pusher.moveUnit("right", world, canvasIO!, {});
+		pusher.moveUnit("right", world, canvasIO!, { movedObjects: new Set() });
 
 		assert.deepEqual(pusher.hitbox, Rectangle.fromDimensions(0, 0, 10, 10));
 		assert.deepEqual(pushed.hitbox, Rectangle.fromDimensions(10, 0, 10, 10));
@@ -111,7 +111,7 @@ describe("Collideable.moveUnit", () => {
 			pushed = new CollideableSpy(Rectangle.fromDimensions(10, 0, 10, 10), "pushed", true),
 			unpushable = new CollideableSpy(Rectangle.fromDimensions(20, 0, 10, 10), "unpushable", false),
 		]);
-		pusher.moveUnit("right", world, canvasIO!, {});
+		pusher.moveUnit("right", world, canvasIO!, { movedObjects: new Set() });
 
 		assert.deepEqual(pusher.hitbox, Rectangle.fromDimensions(1, 0, 10, 10));
 		assert.deepEqual(unpushable.hitbox, Rectangle.fromDimensions(20, 0, 10, 10));
@@ -132,7 +132,7 @@ describe("Collideable.moveUnit", () => {
 			unpushable1 = new CollideableSpy(Rectangle.fromDimensions(10, 10, 10, 10), "unpushable1", false),
 			unpushable2 = new CollideableSpy(Rectangle.fromDimensions(20, 0, 10, 10), "unpushable2", false),
 		]);
-		pusher.moveUnit("right", world, canvasIO!, {});
+		pusher.moveUnit("right", world, canvasIO!, { movedObjects: new Set() });
 
 		assert.deepEqual(pusher.amountTranslated, new Vector(0, 0));
 		assert.deepEqual(pushable.amountTranslated, new Vector(0, 0));
@@ -155,7 +155,7 @@ describe("Collideable.moveUnit", () => {
 			last = new CollideableSpy(Rectangle.fromDimensions(20, 0, 10, 10), "last", true),
 			uninvolved = new CollideableSpy(Rectangle.fromDimensions(40, 0, 10, 10), "uninvolved", true),
 		]);
-		first.moveUnit("right", world, canvasIO!, {});
+		first.moveUnit("right", world, canvasIO!, { movedObjects: new Set() });
 
 		assert.deepEqual(first.amountTranslated, new Vector(1, 0));
 		assert.deepEqual(middle1.amountTranslated, new Vector(1, 0));
@@ -171,7 +171,7 @@ describe("Collideable.moveUnit", () => {
 			pushable = new CollideableSpy(Rectangle.fromDimensions(10, 0, 10, 10), "pushable", true, false),
 			unpushable = new CollideableSpy(Rectangle.fromDimensions(20, 0, 10, 10), "unpushable", false),
 		]);
-		pusher.moveUnit("right", world, canvasIO!, {});
+		pusher.moveUnit("right", world, canvasIO!, { movedObjects: new Set() });
 
 		assert.deepEqual(pusher.amountTranslated, new Vector(0, 0));
 		assert.deepEqual(pushable.amountTranslated, new Vector(0, 0));
@@ -185,7 +185,7 @@ describe("Collideable.moveUnit", () => {
 			pushableButUncrushable = new CollideableSpy(Rectangle.fromDimensions(10, 10, 10, 10), "pushableButUncrushable", true, false),
 			unpushable = new CollideableSpy(Rectangle.fromDimensions(20, 10, 10, 10), "unpushable", false),
 		]);
-		pusher.moveUnit("right", world, canvasIO!, {});
+		pusher.moveUnit("right", world, canvasIO!, { movedObjects: new Set() });
 
 		assert.deepEqual(pusher.amountTranslated, new Vector(0, 0));
 		assert.deepEqual(pushable.amountTranslated, new Vector(0, 0));
@@ -203,7 +203,7 @@ describe("Collideable.moveUnit", () => {
 		], [
 			{ position: new Vector(0, 0), tile: new TowerSlope("slope-floor-left") },
 		]);
-		collideable.moveUnit("right", world, canvasIO!, { });
+		collideable.moveUnit("right", world, canvasIO!, { movedObjects: new Set() });
 
 		assert.deepEqual(collideable.amountTranslated, new Vector(1, 1));
 	});
@@ -214,7 +214,7 @@ describe("Collideable.moveUnit", () => {
 		], [
 			{ position: new Vector(0, 0), tile: new TowerSlope("slope-floor-right") },
 		]);
-		collideable.moveUnit("left", world, canvasIO!, { });
+		collideable.moveUnit("left", world, canvasIO!, { movedObjects: new Set() });
 
 		assert.deepEqual(collideable.amountTranslated, new Vector(-1, 1));
 	});
@@ -225,7 +225,7 @@ describe("Collideable.moveUnit", () => {
 		], [
 			{ position: new Vector(0, 0), tile: new TowerSlope("slope-floor-left") },
 		]);
-		collideable.moveUnit("left", world, canvasIO!, { });
+		collideable.moveUnit("left", world, canvasIO!, { movedObjects: new Set() });
 
 		assert.deepEqual(collideable.amountTranslated, new Vector(-1, -1));
 	});
@@ -236,7 +236,7 @@ describe("Collideable.moveUnit", () => {
 		], [
 			{ position: new Vector(0, 0), tile: new TowerSlope("slope-floor-right") },
 		]);
-		collideable.moveUnit("right", world, canvasIO!, { });
+		collideable.moveUnit("right", world, canvasIO!, { movedObjects: new Set() });
 
 		assert.deepEqual(collideable.amountTranslated, new Vector(1, -1));
 	});
@@ -249,7 +249,7 @@ describe("Collideable.moveUnit", () => {
 		], [
 			{ position: new Vector(0, 0), tile: new TowerSlope("slope-floor-right") },
 		]);
-		pusher.moveUnit("right", world, canvasIO!, { });
+		pusher.moveUnit("right", world, canvasIO!, { movedObjects: new Set() });
 
 		assert.deepEqual(pusher.amountTranslated, new Vector(1, -1));
 		assert.deepEqual(pushed.amountTranslated, new Vector(1, -1));
@@ -266,7 +266,7 @@ describe("Collideable.moveUnit", () => {
 		], [
 			{ position: new Vector(0, 0), tile: new TowerSlope("slope-floor-right") },
 		]);
-		pusher.moveUnit("right", world, canvasIO!, { });
+		pusher.moveUnit("right", world, canvasIO!, { movedObjects: new Set() });
 
 		assert.deepEqual(pusher.amountTranslated, new Vector(0, 0));
 		assert.deepEqual(pushable.amountTranslated, new Vector(0, 0));
@@ -281,7 +281,7 @@ describe("Collideable.moveUnit", () => {
 		], [
 			{ position: new Vector(0, 0), tile: new TowerSlope("slope-floor-left") },
 		]);
-		pusher.moveUnit("right", world, canvasIO!, { });
+		pusher.moveUnit("right", world, canvasIO!, { movedObjects: new Set() });
 
 		assert.deepEqual(pusher.amountTranslated, new Vector(1, 1));
 		assert.deepEqual(pushed.amountTranslated, new Vector(1, 1));
@@ -294,7 +294,7 @@ describe("Collideable.moveUnit", () => {
 		], [
 			{ position: new Vector(0, 0), tile: new TowerSlope("slope-floor-left") },
 		]);
-		pusher.moveUnit("right", world, canvasIO!, { });
+		pusher.moveUnit("right", world, canvasIO!, { movedObjects: new Set() });
 
 		assert.deepEqual(pusher.amountTranslated, new Vector(1, 0));
 		assert.deepEqual(pushable.amountTranslated, new Vector(0, 0));

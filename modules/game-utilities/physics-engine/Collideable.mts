@@ -14,14 +14,15 @@ import { CollisionEvent } from "./CollisionEvent.mjs";
 
 /* eslint @typescript-eslint/no-unused-vars: 0 */
 
-type MoveOptions = {
+export type MoveOptions = {
 	collides?: (object: Collideable | TileWithPosition) => boolean,
 	onCollision?: (collision: CollisionEvent) => void,
 	moveRiders?: boolean,
 	canMoveRider?: (object: Collideable) => boolean,
 };
 export type MoveUnitOptions = MoveOptions & {
-	queryOnly?: boolean
+	queryOnly?: boolean,
+	movedObjects: Set<Collideable>,
 };
 
 export abstract class Collideable extends Entity {
@@ -45,7 +46,7 @@ export abstract class Collideable extends Entity {
 		for(const axis of ["x", "y"] as const) {
 			while(this.subpixel[axis] < 0) {
 				const direction = (axis === "x") ? "left" : "up";
-				const moved = this.moveUnit(direction, world, canvasIO, options);
+				const moved = this.moveUnit(direction, world, canvasIO, { ...options, movedObjects: new Set() });
 				this.subpixel[axis] ++;
 				if(!moved) {
 					this.subpixel[axis] = 0;
@@ -54,7 +55,7 @@ export abstract class Collideable extends Entity {
 			}
 			while(this.subpixel[axis] >= 1) {
 				const direction = (axis === "x") ? "right" : "down";
-				const moved = this.moveUnit(direction, world, canvasIO, options);
+				const moved = this.moveUnit(direction, world, canvasIO, { ...options, movedObjects: new Set() });
 				this.subpixel[axis] --;
 				if(!moved) {
 					this.subpixel[axis] = 0;
@@ -106,19 +107,23 @@ export abstract class Collideable extends Entity {
 
 		if(this.tangible) {
 			for(const pushable of collidingObjects as Collideable[]) {
-				pushable.moveUnit(direction, world, canvasIO, {
-					onCollision: (collision: CollisionEvent) => {
-						if(pushable.tangible && !collision.moveSuccessful) {
-							for(const collidingHitbox of this.collidingHitboxes(pushable, Vector.unit(direction))) {
-								pushable.damage(collidingHitbox, world, canvasIO!);
+				if(!options.movedObjects.has(pushable)) {
+					pushable.moveUnit(direction, world, canvasIO, {
+						onCollision: (collision: CollisionEvent) => {
+							if(pushable.tangible && !collision.moveSuccessful) {
+								for(const collidingHitbox of this.collidingHitboxes(pushable, Vector.unit(direction))) {
+									pushable.damage(collidingHitbox, world, canvasIO!);
+								}
 							}
-						}
-					},
-					queryOnly: options.queryOnly,
-				});
+						},
+						queryOnly: options.queryOnly,
+						movedObjects: options.movedObjects,
+					});
+				}
 			}
 		}
-		if(!options.queryOnly) {
+		if(!options.queryOnly && !options.movedObjects.has(this)) {
+			options.movedObjects.add(this);
 			this.callCollisionHandlers(direction, collidingObjects, true, options.onCollision ?? (() => {}), world, canvasIO);
 			this.translate(Vector.unit(direction), world);
 			if(options.moveRiders ?? true) {
@@ -171,7 +176,7 @@ export abstract class Collideable extends Entity {
 		return this.canPush(obj);
 	}
 	canMove(direction: Direction, world: World, canvasIO: CanvasIO) {
-		return this.moveUnit(direction, world, canvasIO, { queryOnly: true });
+		return this.moveUnit(direction, world, canvasIO, { queryOnly: true, movedObjects: new Set() });
 	}
 	intersects(entity: Collideable) {
 		return this.intersectsRects(entity.hitboxes());
@@ -200,7 +205,7 @@ export abstract class Collideable extends Entity {
 	}
 	moveRiders(direction: Direction, world: World, canvasIO: CanvasIO, options: MoveUnitOptions) {
 		for(const rider of this.getRiders(world, options.canMoveRider ?? (() => true))) {
-			rider.moveUnit(direction, world, canvasIO, {});
+			rider.moveUnit(direction, world, canvasIO, { movedObjects: options.movedObjects });
 		}
 	}
 
