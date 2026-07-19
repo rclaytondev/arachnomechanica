@@ -16,7 +16,7 @@ import { BasicTile } from "../tiles/BasicTile.mjs";
 import { RoomEditor } from "../RoomEditor.mjs";
 import { Main } from "../Main.mjs";
 
-class GateController extends StaticEntity {
+export class GateController extends StaticEntity {
 	cooldown: number = 0;
 	open: boolean = false;
 	openness: number = 0;
