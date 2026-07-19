@@ -11,7 +11,9 @@
 		"noImplicitAny": true,
 		"noImplicitReturns": true,
 		"strictNullChecks": true,
-		"allowSyntheticDefaultImports": true
+		"allowSyntheticDefaultImports": true,
+
+		"types": ["mocha"]
 	},
 
 	"include": ["modules", "utils-ts"],
