@@ -10,6 +10,7 @@ import { WorldScreen } from "../world/WorldScreen.mjs";
 
 export class StartScreen {
 	timeInScreen: number = 0;
+	startedTransitioning: boolean = false;
 
 	display(canvasIO: CanvasIO) {
 		canvasIO.fillCanvas(StartScreenData.BACKGROUND_COLOR);
@@ -32,21 +33,20 @@ export class StartScreen {
 
 	update(canvasIO: CanvasIO) {
 		this.timeInScreen ++;
-		const transitioning = false; // TODO
 		if(
 			this.timeInScreen > StartScreenData.TIME_BEFORE_CONTINUE
 			&& InputUtils.startedPressingKey(canvasIO)
-			&& !transitioning
+			&& !this.startedTransitioning
 		) {
 			this.beginTransition();
 		}
 	}
 
 	beginTransition() {
+		this.startedTransitioning = true;
 		const fadeOut = new ScreenFade(PlayerData.FADE_DURATION, 0, 1, "black", "transition-fade-out");
 		const pause = new ScreenFade(PlayerData.FADE_DELAY, 1, 1, "black", "transition-pause", () => {
 			const worldScreen = new WorldScreen(new World(true));
-			worldScreen.resetWorld();
 			Main.screen = worldScreen;
 
 			worldScreen.visualEffects.effectsList.add(new OverlayText(

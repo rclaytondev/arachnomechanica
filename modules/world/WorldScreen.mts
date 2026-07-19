@@ -24,6 +24,7 @@ export class WorldScreen {
 	constructor(world: World) {
 		this.world = world;
 		this.world.worldScreen = this;
+		this.initializeCamera();
 	}
 
 	update(canvasIO: CanvasIO) {
@@ -49,6 +50,9 @@ export class WorldScreen {
 	resetWorld() {
 		this.world = new World(true);
 		this.world.worldScreen = this;
+		this.initializeCamera();
+	}
+	initializeCamera() {
 		this.camera.position = this.world.player.hitbox.center();
 	}
 	beginDeathTransition() {
