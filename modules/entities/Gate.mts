@@ -15,7 +15,6 @@ import { StaticEntity } from "../game-utilities/StaticEntity.mjs";
 import { BasicTile } from "../tiles/BasicTile.mjs";
 import { RoomEditor } from "../RoomEditor.mjs";
 import { Main } from "../Main.mjs";
-import { GameUtils } from "../game-utilities/GameUtils.mjs";
 
 class GateController extends StaticEntity {
 	cooldown: number = 0;
@@ -136,10 +135,10 @@ export class Gate extends RectangularCollideable {
 		canvasIO.ctx.restore();
 	}
 	update(world: World, canvasIO: CanvasIO) {
-		if(this.lastFrameUpdated !== GameUtils.frameCount - 1) {
+		if(this.lastFrameUpdated !== world.frameCount - 1) {
 			this.initialize(world.player);
 		}
-		this.lastFrameUpdated = GameUtils.frameCount;
+		this.lastFrameUpdated = world.frameCount;
 		this.checkPlayer(world);
 		this.updateOpenness(world, canvasIO);
 		this.checkAdjacentTiles(world);

@@ -32,6 +32,8 @@ export class World {
 	player: Player = new Player();
 	staticEntities: StaticEntities = new StaticEntities();
 
+	frameCount: number;
+
 	constructor(enableGeneration: boolean) {
 		if(enableGeneration) {
 			this.worldGenerator = new WorldGenerator();
@@ -68,6 +70,7 @@ export class World {
 		this.staticEntities.update(this, canvasIO);
 		this.particles.update();
 		this.worldGenerator?.update(this);
+		this.frameCount ++;
 	}
 
 	onSlope(rectangle: Rectangle, slope: Slope, mode: "up" | "down") {
