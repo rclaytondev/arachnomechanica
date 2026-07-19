@@ -1,8 +1,6 @@
 import { canvasIO } from "../../utils-ts/modules/CanvasIO.mjs";
 import { GameUtils } from "../game-utilities/GameUtils.mjs";
 import { Main } from "../Main.mjs";
-import { World } from "../world/World.mjs";
-import { WorldScreen } from "../world/WorldScreen.mjs";
 import { LoadingManager } from "./LoadingManager.mjs";
 
 import "../entities/Spider.mjs";
@@ -13,8 +11,6 @@ import "../entities/TeleportingCreature.mjs";
 import { StartScreen } from "../user-interface/StartScreen.mjs";
 
 LoadingManager.loaded();
-const screen = new WorldScreen(new World(true));
-Main.screen = screen;
 
 Main.screen = new StartScreen();
 
