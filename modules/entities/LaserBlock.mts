@@ -13,7 +13,6 @@ import { EntitySpawner } from "../level-generator/EntitySpawner.mjs";
 import { Renderable } from "../world/Renderer.mjs";
 import { Tiles } from "../world/Tiles.mjs";
 import { World } from "../world/World.mjs";
-import { GameUtils } from "../game-utilities/GameUtils.mjs";
 
 export class LaserBlock extends RectangularCollideable {
 	lasers: number;
@@ -25,8 +24,8 @@ export class LaserBlock extends RectangularCollideable {
 	mode: "unactivated" | "waiting" | "activated" = "unactivated";
 	modeStartTime: number = 0;
 
-	get angle() {
-		return this.startAngle + GameUtils.frameCount * this.speed;
+	angle(frameCount: number) {
+		return this.startAngle + frameCount * this.speed;
 	}
 
 	private constructor(position: Vector, lasers: number, speed: number, startAngle: number, direction: 1 | -1) {
@@ -48,21 +47,21 @@ export class LaserBlock extends RectangularCollideable {
 		);
 	}
 
-	render() {
+	render(world: World) {
 		return [
-			new Renderable(this.display.bind(this), "tile-entity"),
-			new Renderable(this.displayGlowEffect.bind(this), "glow"),
+			new Renderable((canvasIO: CanvasIO) => this.display(canvasIO, world.frameCount), "tile-entity"),
+			new Renderable((canvasIO: CanvasIO) => this.displayGlowEffect(world.frameCount, canvasIO), "glow"),
 		];
 	}
-	display(canvasIO: CanvasIO) {
+	display(canvasIO: CanvasIO, frameCount: number) {
 		canvasIO.ctx.fillStyle = LaserBlockData.TILE_COLOR;
 		canvasIO.fillRect(this.hitbox);
-		this.displayLasers(canvasIO);
+		this.displayLasers(canvasIO, frameCount);
 	}
-	displayLasers(canvasIO: CanvasIO) {
+	displayLasers(canvasIO: CanvasIO, frameCount: number) {
 		canvasIO.ctx.lineWidth = (this.mode === "activated") ? LaserBlockData.ACTIVATED_THICKNESS : LaserBlockData.LASER_THICKNESS;
 		const center = this.hitbox.center();
-		for(const [i, angle] of this.angles().entries()) {
+		for(const [i, angle] of this.angles(frameCount).entries()) {
 			const distance = this.lengths[i];
 			canvasIO.ctx.strokeStyle = GraphicsUtils.formatColor(this.color());
 			canvasIO.ctx.save();
@@ -76,9 +75,9 @@ export class LaserBlock extends RectangularCollideable {
 	color() {
 		return this.mode === "activated" ? LaserBlockData.ACTIVATED_COLOR : LaserBlockData.LASER_COLOR;
 	}
-	displayGlowEffect(canvasIO: CanvasIO) {
+	displayGlowEffect(frameCount: number, canvasIO: CanvasIO) {
 		const center = this.hitbox.center();
-		for(const [i, angle] of this.angles().entries()) {
+		for(const [i, angle] of this.angles(frameCount).entries()) {
 			const distance = this.lengths[i];
 			const endpoint = center.add(new Vector(distance, 0).rotate(MathUtils.toDegrees(angle)));
 			const color = this.color();
@@ -90,11 +89,11 @@ export class LaserBlock extends RectangularCollideable {
 			);
 		}
 	}
-	displayBarrels(canvasIO: CanvasIO) {
+	displayBarrels(frameCount: number, canvasIO: CanvasIO) {
 		const center = this.hitbox.center();
 		canvasIO.ctx.strokeStyle = LaserBlockData.BARREL_COLOR;
 		canvasIO.ctx.lineWidth = LaserBlockData.BARREL_THICKNESS;
-		for(const direction of this.directions()) {
+		for(const direction of this.directions(frameCount)) {
 			canvasIO.strokeLine(
 				center.x, center.y,
 				center.x + direction.x * LaserBlockData.BARREL_LENGTH,
@@ -105,15 +104,15 @@ export class LaserBlock extends RectangularCollideable {
 
 	update(world: World, canvasIO: CanvasIO) {
 		this.updateLengths(world, canvasIO);
-		this.updateMode();
+		this.updateMode(world.frameCount);
 	}
 	updateLengths(world: World, canvasIO: CanvasIO) {
 		const player = world.player.hitbox;
-		for(const [i, direction] of this.directions().entries()) {
+		for(const [i, direction] of this.directions(world.frameCount).entries()) {
 			const length = this.endpointDistance(direction, world);
 			this.lengths[i] = GeomUtils.moveTowards(this.lengths[i], length, LaserBlockData.LASER_LINEAR_SPEED);
 			this.lengths[i] = Math.min(this.lengths[i], length);
-			if(this.lengths[i] === length && this.lengths[i] < LaserBlockData.MAX_LENGTH && GameUtils.frameCount % LaserBlockData.FRAMES_PER_PARTICLE == 0) {
+			if(this.lengths[i] === length && this.lengths[i] < LaserBlockData.MAX_LENGTH && world.frameCount % LaserBlockData.FRAMES_PER_PARTICLE == 0) {
 				const particlePosition = this.hitbox.center().add(direction.multiply(length));
 				world.particles.add(new Particle(
 					particlePosition,
@@ -126,9 +125,9 @@ export class LaserBlock extends RectangularCollideable {
 			}
 			if(this.intersectsBox(direction, player, length)) {
 				if(this.mode === "unactivated") {
-					this.modeStartTime = GameUtils.frameCount;
+					this.modeStartTime = world.frameCount;
 					this.mode = "waiting";
-					this.setSpeed(0);
+					this.setSpeed(0, world.frameCount);
 				}
 				if(this.mode === "activated") {
 					world.player.damage(world.player.hitbox, world);
@@ -136,33 +135,33 @@ export class LaserBlock extends RectangularCollideable {
 			}
 		}
 	}
-	setSpeed(speed: number) {
-		const angle = this.angle;
-		this.startAngle = angle - GameUtils.frameCount * speed;
+	setSpeed(speed: number, frameCount: number) {
+		const angle = this.angle(frameCount);
+		this.startAngle = angle - frameCount * speed;
 		this.speed = speed;
 	}
-	updateMode() {
-		if(this.mode === "waiting" && GameUtils.frameCount - this.modeStartTime > LaserBlockData.WAIT_TIMER) {
+	updateMode(frameCount: number) {
+		if(this.mode === "waiting" && frameCount - this.modeStartTime > LaserBlockData.WAIT_TIMER) {
 			this.mode = "activated";
-			this.modeStartTime = GameUtils.frameCount;
-			this.setSpeed(LaserBlockData.ACTIVATED_SPEED * this.direction);
+			this.modeStartTime = frameCount;
+			this.setSpeed(LaserBlockData.ACTIVATED_SPEED * this.direction, frameCount);
 		}
-		if(this.mode === "activated" && GameUtils.frameCount - this.modeStartTime > LaserBlockData.ACTIVATION_TIME) {
+		if(this.mode === "activated" && frameCount - this.modeStartTime > LaserBlockData.ACTIVATION_TIME) {
 			this.mode = "unactivated";
-			this.modeStartTime = GameUtils.frameCount;
-			this.setSpeed(LaserBlockData.SPEED * this.direction);
+			this.modeStartTime = frameCount;
+			this.setSpeed(LaserBlockData.SPEED * this.direction, frameCount);
 		}
 	}
 
-	angles() {
+	angles(frameCount: number) {
 		const angles = [];
 		for(let i = 0; i < this.lasers; i ++) {
-			angles.push(this.angle + i * 2 * Math.PI / this.lasers);
+			angles.push(this.angle(frameCount) + i * 2 * Math.PI / this.lasers);
 		}
 		return angles;
 	}
-	directions() {
-		return this.angles().map(a => new Vector(Math.cos(a), Math.sin(a)));
+	directions(frameCount: number) {
+		return this.angles(frameCount).map(a => new Vector(Math.cos(a), Math.sin(a)));
 	}
 	intersectsBox(direction: Vector, box: Rectangle, length: number) {
 		const onscreenPosition = this.hitbox.center();

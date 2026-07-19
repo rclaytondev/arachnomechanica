@@ -32,7 +32,7 @@ export class World {
 	player: Player = new Player();
 	staticEntities: StaticEntities = new StaticEntities();
 
-	frameCount: number;
+	frameCount: number = 0;
 
 	constructor(enableGeneration: boolean) {
 		if(enableGeneration) {

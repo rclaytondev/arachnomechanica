@@ -14,7 +14,7 @@ world.tiles.fillRect(Rectangle.fromDimensions(-2, 0, 10, 6), TowerTile.TOWER_TIL
 world.tiles.fillRect(Rectangle.fromDimensions(-1, 1, 8, 4), EmptyTile.EMPTY);
 const laserBlock = LaserBlock.generate(new Vector(3, -1));
 world.entities.add(laserBlock);
-laserBlock.lasers = 1;
+laserBlock.lasers = 2;
 laserBlock.startAngle = Math.PI;
 world.tiles.set(new Vector(2, -1), new TowerSlope("slope-ceiling-right"));
 world.tiles.set(new Vector(3, -2), new TowerSlope("slope-ceiling-left"));
