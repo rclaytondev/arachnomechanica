@@ -175,32 +175,47 @@ export class Gate extends RectangularCollideable {
 		}
 		return count;
 	}
+	playerInRowOrColumn(playerHitbox: Rectangle) {
+		const { x, y } = this.tilePosition();
+		if(Directions.isVertical(this.direction)) {
+			return (playerHitbox.bottom >= (y + 1 - GateData.HITBOX_SIZE) * WorldData.TILE_SIZE && playerHitbox.top <= (y + GateData.HITBOX_SIZE) * WorldData.TILE_SIZE);
+		}
+		else {
+			return (playerHitbox.right >= (x + 1 - GateData.HITBOX_SIZE) * WorldData.TILE_SIZE && playerHitbox.left <= (x + GateData.HITBOX_SIZE) * WorldData.TILE_SIZE);
+		}
+	}
 	getPlayerSide(world: World, x: number, y: number) {
+		const sameRowOrColumn = this.playerInRowOrColumn(world.player.hitbox);
 		const hitbox = world.player.hitbox;
 		if(Directions.isVertical(this.direction)) {
 			const gatesLeft = this.adjacentGates(world, x, y, "left");
 			const gatesRight = this.adjacentGates(world, x, y, "right");
 			const onLeft = (hitbox.right <= (x - gatesLeft) * WorldData.TILE_SIZE - GateData.TOGGLE_DISTANCE);
 			const onRight = (hitbox.x >= (x + gatesRight + 1) * WorldData.TILE_SIZE + GateData.TOGGLE_DISTANCE);
-			return onLeft ? "negative" : (onRight ? "positive" : this.playerSide);
+			if(sameRowOrColumn) {
+				return onLeft ? "negative" : (onRight ? "positive" : this.playerSide);
+			}
+			else {
+				return world.player.hitbox.center().x < this.hitbox.center().x ? "negative" : "positive";
+			}
 		}
 		else {
 			const gatesAbove = this.adjacentGates(world, x, y, "up");
 			const gatesBelow = this.adjacentGates(world, x, y, "down");
 			const above = hitbox.bottom <= (y - gatesAbove) * WorldData.TILE_SIZE - GateData.TOGGLE_DISTANCE;
 			const below = hitbox.y >= (y + gatesBelow + 1) * WorldData.TILE_SIZE + GateData.TOGGLE_DISTANCE;
-			return above ? "negative" : (below ? "positive" : this.playerSide);
+			if(sameRowOrColumn) {
+				return above ? "negative" : (below ? "positive" : this.playerSide);
+			}
+			else {
+				return world.player.hitbox.center().y < this.hitbox.center().y ? "negative" : "positive";
+			}
 		}
 	}
 	checkPlayer(world: World) {
-		const hitbox = world.player.hitbox;
 		const tilePosition = this.tilePosition();
+		const sameRowOrColumn = this.playerInRowOrColumn(world.player.hitbox);
 		const { x, y } = tilePosition;
-		const sameRowOrColumn = (Directions.isVertical(this.direction)
-			? (hitbox.bottom >= (y + 1 - GateData.HITBOX_SIZE) * WorldData.TILE_SIZE && hitbox.top <= (y + GateData.HITBOX_SIZE) * WorldData.TILE_SIZE)
-			: (hitbox.right >= (x + 1 - GateData.HITBOX_SIZE) * WorldData.TILE_SIZE && hitbox.left <= (x + GateData.HITBOX_SIZE) * WorldData.TILE_SIZE)
-		);
-
 
 		const newSide = this.getPlayerSide(world, x, y);
 		const adjacentTile = tilePosition.add(Vector.unit(
