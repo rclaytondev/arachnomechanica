@@ -3,9 +3,9 @@
 		"target": "es2022",
 		"outDir": "compiled",
 
-		"module": "es2022",
+		"module": "nodenext",
 		"sourceMap": true,
-		"moduleResolution": "node",
+		"moduleResolution": "nodenext",
 
 		"strict": true,
 		"noImplicitAny": true,
