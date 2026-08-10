@@ -174,17 +174,26 @@ export class Gate extends RectangularCollideable {
 		}
 		return count;
 	}
-	playerInRowOrColumn(playerHitbox: Rectangle) {
+	playerInRowOrColumn(playerHitbox: Rectangle, world: World) {
 		const { x, y } = this.tilePosition();
+		const tile = Tiles.getTileSquare(new Vector(x, y));
 		if(Directions.isVertical(this.direction)) {
-			return (playerHitbox.bottom >= (y + 1 - GateData.HITBOX_SIZE) * WorldData.TILE_SIZE && playerHitbox.top <= (y + GateData.HITBOX_SIZE) * WorldData.TILE_SIZE);
+			const gatesAbove = this.adjacentGates(world, x, y, "up");
+			const gatesBelow = this.adjacentGates(world, x, y, "down");
+			const groupTop = tile.top - gatesAbove * WorldData.TILE_SIZE;
+			const groupBottom = tile.bottom + gatesBelow * WorldData.TILE_SIZE;
+			return (playerHitbox.bottom >= groupTop && playerHitbox.top <= groupBottom);
 		}
 		else {
-			return (playerHitbox.right >= (x + 1 - GateData.HITBOX_SIZE) * WorldData.TILE_SIZE && playerHitbox.left <= (x + GateData.HITBOX_SIZE) * WorldData.TILE_SIZE);
+			const gatesLeft = this.adjacentGates(world, x, y, "left");
+			const gatesRight = this.adjacentGates(world, x, y, "right");
+			const groupLeft = tile.left - gatesLeft * WorldData.TILE_SIZE;
+			const groupRight = tile.right + gatesRight * WorldData.TILE_SIZE;
+			return (playerHitbox.right >= groupLeft && playerHitbox.left <= groupRight);
 		}
 	}
 	getPlayerSide(world: World, x: number, y: number) {
-		const sameRowOrColumn = this.playerInRowOrColumn(world.player.hitbox);
+		const sameRowOrColumn = this.playerInRowOrColumn(world.player.hitbox, world);
 		const hitbox = world.player.hitbox;
 		if(Directions.isVertical(this.direction)) {
 			const gatesLeft = this.adjacentGates(world, x, y, "left");
@@ -213,7 +222,7 @@ export class Gate extends RectangularCollideable {
 	}
 	checkPlayer(world: World) {
 		const tilePosition = this.tilePosition();
-		const sameRowOrColumn = this.playerInRowOrColumn(world.player.hitbox);
+		const sameRowOrColumn = this.playerInRowOrColumn(world.player.hitbox, world);
 		const { x, y } = tilePosition;
 
 		const newSide = this.getPlayerSide(world, x, y);
