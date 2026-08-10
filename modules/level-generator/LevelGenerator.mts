@@ -48,7 +48,7 @@ export class LevelGenerator {
 		let y = 0;
 		this.path.push(new Vector(x, y));
 		const portalRoom = new RoomSlot([], ROOMS.find(r => r.hasPortal())!);
-		portalRoom.generated = true;
+		portalRoom.setGenerated();
 		this.roomSlots.set(x, y, portalRoom);
 		while(y < LevelGeneratorData.HEIGHT - 1) {
 			const nextDirection = ArrayUtils.randomItem(this.possibleNextDirections(x, y));
@@ -59,8 +59,8 @@ export class LevelGenerator {
 			[x, y] = [nextPosition.x, nextPosition.y];
 		}
 		const startRoom = this.roomSlots.get(this.path[this.path.length - 1])!;
-		startRoom.room = ArrayUtils.randomItem(ROOMS.filter(r => [...r.worldPart.entities].some(e => e instanceof SpawnPoint)));
-		startRoom.generated = true;
+		startRoom.setRoom(ArrayUtils.randomItem(ROOMS.filter(r => [...r.worldPart.entities].some(e => e instanceof SpawnPoint))));
+		startRoom.setGenerated();
 	}
 	possibleNextDirections(x: number, y: number): Direction[] {
 		if(this.path.length <= 1) {
@@ -164,7 +164,7 @@ export class LevelGenerator {
 		const rooms = (this.levelRectangle().squares()
 			.map(p => this.roomSlots.get(p))
 			.filter(p => p != null)
-			.filter(p => !p.generated)
+			.filter(p => !p.getGenerated())
 			.sort((a, b) => a.exits.size - b.exits.size)
 		);
 		for(const room of rooms) {
@@ -196,13 +196,13 @@ export class LevelGenerator {
 		}
 	}
 	attemptRoomSpawn(roomSlot: RoomSlot, room: Room) {
-		const previousRoom = roomSlot.room;
-		roomSlot.room = room;
+		const previousRoom = roomSlot.getRoom();
+		roomSlot.setRoom(room);
 		if(this.isConnected()) {
-			roomSlot.generated = true;
+			roomSlot.setGenerated();
 			return true;
 		}
-		roomSlot.room = previousRoom;
+		roomSlot.setRoom(previousRoom);
 		return false;
 	}
 	getRoomCandidate(roomsWithConnectivities: Map<number, Room[]>) {
@@ -232,8 +232,7 @@ export class LevelGenerator {
 		for(const position of this.levelRectangle().squares()) {
 			const roomSlot = this.roomSlots.get(position)!;
 			if(roomSlot) {
-				roomSlot.generated = true;
-				roomSlot.room.add(this.position.add(position.multiply(RoomData.SIZE)), world, roomSlot.exits);
+				roomSlot.getRoom().add(this.position.add(position.multiply(RoomData.SIZE)), world, roomSlot.exits);
 			}
 			else {
 				const rectangle = Rectangle.square(
@@ -325,7 +324,7 @@ export class LevelGenerator {
 		for(const position of positions) {
 			const room = this.roomSlots.get(position);
 			if(!room) { continue; }
-			for(const { start, end } of room.room.traversability) {
+			for(const { start, end } of room.getRoom().traversability) {
 				if(!room.exits.has(start.exit) || !room.exits.has(end.exit)) { continue; }
 				if(!backwards && start.translate(position).equals(state)) {
 					result.push(end.translate(position));
@@ -339,7 +338,7 @@ export class LevelGenerator {
 	}
 	hasGenerated(room: Room) {
 		const rooms = [...this.roomSlots.values()];
-		return rooms.some(r => r?.room.originalName === room.originalName);
+		return rooms.some(r => r?.getRoom().originalName === room.originalName);
 	}
 
 	levelRectangle() {
@@ -400,8 +399,8 @@ export class LevelGenerator {
 	}
 	visualizeRoom(canvasIO: CanvasIO, roomSlot: RoomSlot, position: Vector) {
 		for(const tilePosition of Rectangle.square(0, 0, RoomData.SIZE).squares()) {
-			const tile = roomSlot.room.worldPart.tiles.get(tilePosition);
-			const exitTile = roomSlot.room.exitTiles.get(tilePosition);
+			const tile = roomSlot.getRoom().worldPart.tiles.get(tilePosition);
+			const exitTile = roomSlot.getRoom().exitTiles.get(tilePosition);
 			if(tile instanceof BasicTile || tile === Platform.PLATFORM || (exitTile !== "none" && !roomSlot.exits.has(exitTile as Direction))) {
 				canvasIO.ctx.fillStyle = "black";
 			}
@@ -421,7 +420,7 @@ export class LevelGenerator {
 			const generator = new LevelGenerator();
 			generator.generateLevel(world);
 			for(const room of [...generator.roomSlots.values()].filter(r => r !== null)) {
-				counts.set(room.room.originalName, (counts.get(room.room.originalName) ?? 0) + 1);
+				counts.set(room.getRoom().originalName, (counts.get(room.getRoom().originalName) ?? 0) + 1);
 			}
 		}
 		return counts;
