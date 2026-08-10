@@ -17,6 +17,8 @@ import { LoadingManager } from "../app-entry-points/LoadingManager.mjs";
 import { EntitySpawner } from "../level-generator/EntitySpawner.mjs";
 import { ArrayUtils } from "../../utils-ts/modules/core-extensions/ArrayUtils.mjs";
 import { Renderable } from "../world/Renderer.mjs";
+import { Player } from "../Player.mjs";
+import { ThrowableTileEntity } from "../items/ThrowableTileEntity.mjs";
 
 export class SpikeballBlock extends RectangularCollideable {
 	timeUntilSpawn: number = 0;
@@ -183,6 +185,7 @@ export class SpikeballBlock extends RectangularCollideable {
 		this.nextPatternStep(world);
 	}
 	nextPatternStep(world: World) {
+		const initialStep = this.patternStep;
 		let foundSpawnable = false;
 		while(!foundSpawnable) {
 			this.patternStep ++;
@@ -192,14 +195,33 @@ export class SpikeballBlock extends RectangularCollideable {
 					foundSpawnable = true;
 				}
 			}
+			if(this.patternStep === initialStep && !foundSpawnable) { return false; }
 		}
+		return true;
 	}
-	canSpawnSpikeball(xDirection: Direction, yDirection: Direction, world: World) {
+	isObstructedByTiles(xDirection: Direction, yDirection: Direction, world: World) {
 		const tilePosition = this.tilePosition();
 		const tileX = world.tiles.get(tilePosition.add(Vector.unit(xDirection)));
 		const tileY = world.tiles.get(tilePosition.add(Vector.unit(yDirection)));
 		const tileDiagonal = world.tiles.get(tilePosition.add(Vector.unit(xDirection)).add(Vector.unit(yDirection)));
-		return (tileX === EmptyTile.EMPTY || tileY === EmptyTile.EMPTY) && tileDiagonal === EmptyTile.EMPTY;
+		return !((tileX === EmptyTile.EMPTY || tileY === EmptyTile.EMPTY) && tileDiagonal === EmptyTile.EMPTY);
+	}
+	isObstructedByEntities(xDirection: Direction, yDirection: Direction, world: World) {
+		const tilePosition = this.tilePosition();
+		const opposite = tilePosition.add(Vector.unit(xDirection)).add(Vector.unit(yDirection));
+		const tileBox = Rectangle.boundingBox([tilePosition, opposite]).extend("right", 1).extend("down", 1);
+		const searchBox = tileBox.scale(WorldData.TILE_SIZE);
+		const entities = (
+			[...world.entities.collideablesIntersecting(searchBox)]
+			.filter(e => e instanceof Player || e instanceof ThrowableTileEntity)
+		);
+		return entities.length !== 0;
+	}
+	canSpawnSpikeball(xDirection: Direction, yDirection: Direction, world: World) {
+		return (
+			!this.isObstructedByTiles(xDirection, yDirection, world)
+			&& !this.isObstructedByEntities(xDirection, yDirection, world)
+		);
 	}
 	spawnSpikeball(xDirection: Direction, yDirection: Direction, world: World) {
 		const spikeball = new Spikeball(
