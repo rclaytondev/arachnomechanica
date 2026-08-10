@@ -5,7 +5,7 @@ Features to add to improve game feel:
 	- [ ] Lizards that breathe fire horizontally can (maybe?) destroy throwable tiles on top of their heads
 	- [x] Placing a block on a spikeball spawner does not stop the spawner; it just makes the spikeballs move in a janky way
 	- [x] Gates sometimes (rarely) do not toggle when the player goes through
-	- [ ] When multiple teleporting creatures are nearby, there is no way to know which will teleport.
+	- [x] When multiple teleporting creatures are nearby, there is no way to know which will teleport.
 	- [x] Health pickup rooms spawn much more rarely than intended.
 	- [ ] Creatures can move into an un-generated region and then get stuck in a solid once that region generates.
 	- [ ] Sometimes there is a single platform inside a wall.

@@ -16,7 +16,7 @@ import { World } from "../world/World.mjs";
 
 class ReadyMode {
 	update(self: TeleportingCreature, world: World) {
-		if(self.seesPlayer(world)) {
+		if(self.seesPlayer(world) && self.isClosestToPlayer(world)) {
 			const teleported = self.teleport(world);
 			if(teleported) {
 				self.mode = new PauseMode();
@@ -148,6 +148,16 @@ export class TeleportingCreature extends RectangularCollideable {
 	}
 	seesPlayer(world: World) {
 		return this.isInRangeOfPlayer(world.player.hitbox.center()) && this.hasLineOfSight(world);
+	}
+	isClosestToPlayer(world: World) {
+		const player = world.player.hitbox.center();
+		const distance = Vector.dist(this.hitbox.center(), player);
+		const region = Rectangle.fromCenter(player.x, player.y, TeleportingCreatureData.MAX_TELEPORT_RANGE, TeleportingCreatureData.MAX_TELEPORT_RANGE);
+		const others = [...world.entities.collideablesIntersecting(region)].filter(
+			c => c instanceof TeleportingCreature && c !== this && c.mode instanceof ReadyMode && c.seesPlayer(world),
+		) as TeleportingCreature[];
+		const distances = others.map(c => Vector.dist(c.hitbox.center(), player));
+		return distances.every(d => d >= distance);
 	}
 	getTeleportDestination(world: World) {
 		const playerTile = Tiles.getTileCoordinates(world.player.hitbox.center());

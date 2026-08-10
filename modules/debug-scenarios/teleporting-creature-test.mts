@@ -8,8 +8,10 @@ import { WorldScreen } from "../world/WorldScreen.mjs";
 
 const world = new World(false);
 
-const creature = TeleportingCreature.atTile(new Vector(5, -1));
-world.addEntityIfEmpty(creature);
+world.addEntityIfEmpty(TeleportingCreature.atTile(new Vector(4, -1)));
+world.addEntityIfEmpty(TeleportingCreature.atTile(new Vector(5, -1)));
+world.addEntityIfEmpty(TeleportingCreature.atTile(new Vector(6, -1)));
+world.addEntityIfEmpty(TeleportingCreature.atTile(new Vector(7, -1)));
 
 
 
