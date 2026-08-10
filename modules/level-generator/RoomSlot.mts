@@ -1,7 +1,7 @@
 import { Direction } from "../../utils-ts/modules/geometry/Direction.mjs";
 import { Room } from "./Room.mjs";
 
-export class RoomPlaceholder {
+export class RoomSlot {
 	exits: Set<Direction>;
 	room: Room;
 	generated: boolean = false;

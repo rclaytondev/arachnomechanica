@@ -13,7 +13,7 @@ import { TowerTile } from "../tiles/TowerTile.mjs";
 import { World } from "../world/World.mjs";
 import { GateState } from "./GateState.mjs";
 import { Room } from "./Room.mjs";
-import { RoomPlaceholder } from "./RoomPlaceholder.mjs";
+import { RoomSlot } from "./RoomSlot.mjs";
 import { ROOMS } from "../constants/Rooms.mjs";
 import { SpawnPoint } from "../entities/SpawnPoint.mjs";
 import { HealthPickup } from "../entities/HealthPickup.mjs";
@@ -24,7 +24,7 @@ import { Platform } from "../tiles/Platform.mjs";
 
 export class LevelGenerator {
 	path: Vector[] = [];
-	rooms: Grid<RoomPlaceholder | null> = new Grid(null);
+	roomSlots: Grid<RoomSlot | null> = new Grid(null);
 	position: Vector;
 
 	constructor(position: Vector = new Vector(0, 0)) {
@@ -47,18 +47,18 @@ export class LevelGenerator {
 		let x = RandomUtils.randomInt(0, LevelGeneratorData.WIDTH - 1);
 		let y = 0;
 		this.path.push(new Vector(x, y));
-		const portalRoom = new RoomPlaceholder([], ROOMS.find(r => r.hasPortal())!);
+		const portalRoom = new RoomSlot([], ROOMS.find(r => r.hasPortal())!);
 		portalRoom.generated = true;
-		this.rooms.set(x, y, portalRoom);
+		this.roomSlots.set(x, y, portalRoom);
 		while(y < LevelGeneratorData.HEIGHT - 1) {
 			const nextDirection = ArrayUtils.randomItem(this.possibleNextDirections(x, y));
 			const nextPosition = Vector.unit(nextDirection).add(x, y);
 			this.path.push(nextPosition);
-			this.rooms.set(nextPosition, new RoomPlaceholder([Directions.opposite[nextDirection]], defaultRoom));
-			this.rooms.get(x, y)!.exits.add(nextDirection);
+			this.roomSlots.set(nextPosition, new RoomSlot([Directions.opposite[nextDirection]], defaultRoom));
+			this.roomSlots.get(x, y)!.exits.add(nextDirection);
 			[x, y] = [nextPosition.x, nextPosition.y];
 		}
-		const startRoom = this.rooms.get(this.path[this.path.length - 1])!;
+		const startRoom = this.roomSlots.get(this.path[this.path.length - 1])!;
 		startRoom.room = ArrayUtils.randomItem(ROOMS.filter(r => [...r.worldPart.entities].some(e => e instanceof SpawnPoint)));
 		startRoom.generated = true;
 	}
@@ -82,9 +82,9 @@ export class LevelGenerator {
 	}
 	generateExitsOnPath() {
 		for(const position of this.path) {
-			const room = this.rooms.get(position)!;
+			const room = this.roomSlots.get(position)!;
 			const exits = Directions.DIRECTIONS.filter(dir => (
-				this.rooms.get(position.add(Vector.unit(dir))) === null &&
+				this.roomSlots.get(position.add(Vector.unit(dir))) === null &&
 				this.isInBounds(position.add(Vector.unit(dir)))
 			));
 			for(const exit of exits) {
@@ -99,7 +99,7 @@ export class LevelGenerator {
 		const positions = [];
 		for(let x = 0; x < LevelGeneratorData.WIDTH; x ++) {
 			for(let y = 0; y < LevelGeneratorData.HEIGHT; y ++) {
-				if(this.rooms.get(x, y) === null) {
+				if(this.roomSlots.get(x, y) === null) {
 					positions.push(new Vector(x, y));
 				}
 			}
@@ -119,7 +119,7 @@ export class LevelGenerator {
 	}
 	generateExits(position: Vector) {
 		const exits = Directions.DIRECTIONS.filter(dir => (
-			this.rooms.get(position.add(Vector.unit(dir)))?.exits.has(Directions.opposite[dir])
+			this.roomSlots.get(position.add(Vector.unit(dir)))?.exits.has(Directions.opposite[dir])
 		));
 		if(exits.length === 0) {
 			return false;
@@ -133,10 +133,10 @@ export class LevelGenerator {
 					|| (Directions.isVertical(exit) && Math.random() < LevelGeneratorData.OFF_PATH_BRANCH_PROBABILITY_Y)
 				)
 				&& this.isInBounds(adjacentPosition)
-				&& this.rooms.get(adjacentPosition) === null
+				&& this.roomSlots.get(adjacentPosition) === null
 			) { exits.push(exit); }
 		}
-		this.rooms.set(position, new RoomPlaceholder(exits, ROOMS.find(r => r.name === "control-room-junction")!));
+		this.roomSlots.set(position, new RoomSlot(exits, ROOMS.find(r => r.name === "control-room-junction")!));
 		return true;
 	}
 
@@ -150,9 +150,9 @@ export class LevelGenerator {
 		const healthPickupRooms = ROOMS.filter(r => [...r.worldPart.entities].some(e => e instanceof HealthPickup));
 		for(const room of RandomUtils.randomPermutation(healthPickupRooms)) {
 			for(const position of positions) {
-				const roomPlaceholder = this.rooms.get(position);
-				if(roomPlaceholder != null && room.canSpawnWithExits(roomPlaceholder.exits)) {
-					const spawned = this.attemptRoomSpawn(roomPlaceholder, room);
+				const roomSlot = this.roomSlots.get(position);
+				if(roomSlot != null && room.canSpawnWithExits(roomSlot.exits)) {
+					const spawned = this.attemptRoomSpawn(roomSlot, room);
 					if(spawned) { return; }
 				}
 			}
@@ -162,7 +162,7 @@ export class LevelGenerator {
 
 	generateRooms() {
 		const rooms = (this.levelRectangle().squares()
-			.map(p => this.rooms.get(p))
+			.map(p => this.roomSlots.get(p))
 			.filter(p => p != null)
 			.filter(p => !p.generated)
 			.sort((a, b) => a.exits.size - b.exits.size)
@@ -171,23 +171,23 @@ export class LevelGenerator {
 			this.generateRoom(room);
 		}
 	}
-	generateRoom(roomPlaceholder: RoomPlaceholder) {
+	generateRoom(roomSlot: RoomSlot) {
 		const possibleRooms = MapUtils.groupBy(
 			ROOMS.filter(r => (
-				r.canSpawnWithExits(roomPlaceholder.exits)
+				r.canSpawnWithExits(roomSlot.exits)
 				&& r.isOrdinaryRoom()
 			)),
-			r => Room.connectivity(r.traversability, roomPlaceholder.exits),
+			r => Room.connectivity(r.traversability, roomSlot.exits),
 		);
 		while(possibleRooms.size > 0) {
 			const room = this.getRoomCandidate(possibleRooms);
-			const spawned = this.attemptRoomSpawn(roomPlaceholder, room);
+			const spawned = this.attemptRoomSpawn(roomSlot, room);
 			if(spawned) { return; }
 			for(const connectedness of [...possibleRooms.keys()]) {
 				const group = possibleRooms.get(connectedness)!;
 				possibleRooms.set(connectedness, group.filter(r => !SetUtils.isSubset(
-					Room.filterTraversability(r.traversability, roomPlaceholder.exits).map(s => `${s.end}, ${s.start}`),
-					Room.filterTraversability(room.traversability, roomPlaceholder.exits).map(s => `${s.end}, ${s.start}`),
+					Room.filterTraversability(r.traversability, roomSlot.exits).map(s => `${s.end}, ${s.start}`),
+					Room.filterTraversability(room.traversability, roomSlot.exits).map(s => `${s.end}, ${s.start}`),
 				)));
 				if(possibleRooms.get(connectedness)!.length === 0) {
 					possibleRooms.delete(connectedness);
@@ -195,14 +195,14 @@ export class LevelGenerator {
 			}
 		}
 	}
-	attemptRoomSpawn(roomPlaceholder: RoomPlaceholder, room: Room) {
-		const previousRoom = roomPlaceholder.room;
-		roomPlaceholder.room = room;
+	attemptRoomSpawn(roomSlot: RoomSlot, room: Room) {
+		const previousRoom = roomSlot.room;
+		roomSlot.room = room;
 		if(this.isConnected()) {
-			roomPlaceholder.generated = true;
+			roomSlot.generated = true;
 			return true;
 		}
-		roomPlaceholder.room = previousRoom;
+		roomSlot.room = previousRoom;
 		return false;
 	}
 	getRoomCandidate(roomsWithConnectivities: Map<number, Room[]>) {
@@ -230,10 +230,10 @@ export class LevelGenerator {
 	}
 	addRooms(world: World) {
 		for(const position of this.levelRectangle().squares()) {
-			const roomPlaceholder = this.rooms.get(position)!;
-			if(roomPlaceholder) {
-				roomPlaceholder.generated = true;
-				roomPlaceholder.room.add(this.position.add(position.multiply(RoomData.SIZE)), world, roomPlaceholder.exits);
+			const roomSlot = this.roomSlots.get(position)!;
+			if(roomSlot) {
+				roomSlot.generated = true;
+				roomSlot.room.add(this.position.add(position.multiply(RoomData.SIZE)), world, roomSlot.exits);
 			}
 			else {
 				const rectangle = Rectangle.square(
@@ -285,9 +285,9 @@ export class LevelGenerator {
 		return this.isInBounds(position) && this.isInBounds(position.add(Vector.unit(direction)));
 	}
 	setConnected(roomPosition: Vector, direction: Direction, connected: boolean) {
-		const adjacentRoom = this.rooms.get(roomPosition.add(Vector.unit(direction)));
+		const adjacentRoom = this.roomSlots.get(roomPosition.add(Vector.unit(direction)));
 		const opposite = Directions.opposite[direction];
-		const room = this.rooms.get(roomPosition);
+		const room = this.roomSlots.get(roomPosition);
 		if(connected) {
 			room?.exits.add(direction);
 			adjacentRoom?.exits.add(opposite);
@@ -299,7 +299,7 @@ export class LevelGenerator {
 	}
 	isConnected() {
 		const edges = this.connectedEdges();
-		const startRoom = this.rooms.get(this.path[this.path.length - 1])!;
+		const startRoom = this.roomSlots.get(this.path[this.path.length - 1])!;
 		const startState = new GateState(this.path[this.path.length - 1], [...startRoom.exits][0], false);
 		for(const backwards of [true, false]) {
 			const reachable = GameUtils.reachableNodes(
@@ -323,7 +323,7 @@ export class LevelGenerator {
 			state.position.add(Vector.unit(state.exit)),
 		];
 		for(const position of positions) {
-			const room = this.rooms.get(position);
+			const room = this.roomSlots.get(position);
 			if(!room) { continue; }
 			for(const { start, end } of room.room.traversability) {
 				if(!room.exits.has(start.exit) || !room.exits.has(end.exit)) { continue; }
@@ -338,7 +338,7 @@ export class LevelGenerator {
 		return result;
 	}
 	hasGenerated(room: Room) {
-		const rooms = [...this.rooms.values()];
+		const rooms = [...this.roomSlots.values()];
 		return rooms.some(r => r?.room.originalName === room.originalName);
 	}
 
@@ -346,13 +346,13 @@ export class LevelGenerator {
 		return Rectangle.fromDimensions(0, 0, LevelGeneratorData.WIDTH, LevelGeneratorData.HEIGHT);
 	}
 	connectedEdges() {
-		return MathUtils.sum(this.levelRectangle().squares().map(s => this.rooms.get(s)?.exits.size ?? 0));
+		return MathUtils.sum(this.levelRectangle().squares().map(s => this.roomSlots.get(s)?.exits.size ?? 0));
 	}
 
 
 	visualize(canvasIO: CanvasIO, pauseDebugger: boolean = true) {
 		canvasIO.fillCanvas("white");
-		for(const [room, position] of this.rooms.entries()) {
+		for(const [room, position] of this.roomSlots.entries()) {
 			if(room) {
 				this.visualizeRoom(canvasIO, room, position);
 			}
@@ -368,7 +368,7 @@ export class LevelGenerator {
 			debugger;
 		}
 	}
-	visualizeExits(canvasIO: CanvasIO, room: RoomPlaceholder, position: Vector) {
+	visualizeExits(canvasIO: CanvasIO, room: RoomSlot, position: Vector) {
 		position = position.multiply(DEBUG_SETTINGS.GENERATOR_VISUALIZATION.GRID_SIZE);
 		canvasIO.ctx.fillStyle = "black";
 		canvasIO.ctx.fillRect(
@@ -398,11 +398,11 @@ export class LevelGenerator {
 			DEBUG_SETTINGS.GENERATOR_VISUALIZATION.BORDER_SIZE,
 		);
 	}
-	visualizeRoom(canvasIO: CanvasIO, roomPlaceholder: RoomPlaceholder, position: Vector) {
+	visualizeRoom(canvasIO: CanvasIO, roomSlot: RoomSlot, position: Vector) {
 		for(const tilePosition of Rectangle.square(0, 0, RoomData.SIZE).squares()) {
-			const tile = roomPlaceholder.room.worldPart.tiles.get(tilePosition);
-			const exitTile = roomPlaceholder.room.exitTiles.get(tilePosition);
-			if(tile instanceof BasicTile || tile === Platform.PLATFORM || (exitTile !== "none" && !roomPlaceholder.exits.has(exitTile as Direction))) {
+			const tile = roomSlot.room.worldPart.tiles.get(tilePosition);
+			const exitTile = roomSlot.room.exitTiles.get(tilePosition);
+			if(tile instanceof BasicTile || tile === Platform.PLATFORM || (exitTile !== "none" && !roomSlot.exits.has(exitTile as Direction))) {
 				canvasIO.ctx.fillStyle = "black";
 			}
 			else { continue; }
@@ -420,7 +420,7 @@ export class LevelGenerator {
 			const world = new World(false);
 			const generator = new LevelGenerator();
 			generator.generateLevel(world);
-			for(const room of [...generator.rooms.values()].filter(r => r !== null)) {
+			for(const room of [...generator.roomSlots.values()].filter(r => r !== null)) {
 				counts.set(room.room.originalName, (counts.get(room.room.originalName) ?? 0) + 1);
 			}
 		}
