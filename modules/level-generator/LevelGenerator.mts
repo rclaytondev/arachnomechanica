@@ -199,10 +199,10 @@ export class LevelGenerator {
 		const previousRoom = roomPlaceholder.room;
 		roomPlaceholder.room = room;
 		if(this.isConnected()) {
+			roomPlaceholder.generated = true;
 			return true;
 		}
 		roomPlaceholder.room = previousRoom;
-		roomPlaceholder.generated = true;
 		return false;
 	}
 	getRoomCandidate(roomsWithConnectivities: Map<number, Room[]>) {

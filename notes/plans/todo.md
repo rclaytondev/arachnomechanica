@@ -6,7 +6,7 @@ Features to add to improve game feel:
 	- [x] Placing a block on a spikeball spawner does not stop the spawner; it just makes the spikeballs move in a janky way
 	- [x] Gates sometimes (rarely) do not toggle when the player goes through
 	- [ ] When multiple teleporting creatures are nearby, there is no way to know which will teleport.
-	- [ ] Health pickup rooms spawn much more rarely than intended.
+	- [x] Health pickup rooms spawn much more rarely than intended.
 	- [ ] Some enemies have undesirable behavior in certain specific rooms. To fix this, designate some rooms as being unable to spawn in the presence of certain enemy types.
 		- Spiders often get stuck in the room `gate-arch`.
 		- Teleporting creatures almost always destroy the gate in `slope-gate`.
