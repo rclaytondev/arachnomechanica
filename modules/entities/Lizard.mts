@@ -323,7 +323,7 @@ export class Lizard extends Collideable {
 	}
 	checkForPlayerFire(world: World) {
 		const hurtbox = this.fireSpawner.hurtbox(this.fireSpawner.maxHurtboxSize);
-		if(!world.player.dead && world.player.hitbox.interiorIntersects(hurtbox)) {
+		if(!world.player.dead && world.player.hitbox.interiorIntersects(hurtbox) && this.seesPlayerAhead(world)) {
 			this.fireSpawner.startFire(LizardData.FIRE_DURATION);
 		}
 	}
@@ -332,24 +332,14 @@ export class Lizard extends Collideable {
 		const player = world.player.hitbox;
 		const xDirection = player.center().x < this.position.x ? "left" : "right";
 		const yDirection = player.center().y < this.position.y ? "up" : "down";
-		const lookaheadPoint = this.lookaheadPoint();
+
 		let nextTurn: Direction | null = null;
-		if(
-			player.bottom > this.position.y - LizardData.PLAYER_DETECTION_WIDTH / 2 &&
-			player.top < this.position.y + LizardData.PLAYER_DETECTION_WIDTH / 2 &&
-			!this.isObstructed(
-				world, xDirection, LizardData.LOOKAHEAD_DISTANCE,
-				Math.min(MathUtils.dist(lookaheadPoint.x, player.left), MathUtils.dist(lookaheadPoint.x, player.right)) - LizardData.LOOKAHEAD_DISTANCE,
-			)
-		) { nextTurn = xDirection; }
-		else if(
-			player.right > this.position.x - LizardData.PLAYER_DETECTION_WIDTH / 2 &&
-			player.left < this.position.x + LizardData.PLAYER_DETECTION_WIDTH / 2 &&
-			!this.isObstructed(
-				world, yDirection, LizardData.LOOKAHEAD_DISTANCE,
-				Math.min(MathUtils.dist(lookaheadPoint.y, player.top), MathUtils.dist(lookaheadPoint.y, player.bottom)) - LizardData.LOOKAHEAD_DISTANCE,
-			)
-		) { nextTurn = yDirection; }
+		if(this.seesPlayerHorizontal(xDirection, world)) {
+			nextTurn = xDirection;
+		}
+		else if(this.seesPlayerVertical(yDirection, world)) {
+			nextTurn = yDirection;
+		}
 		if(nextTurn !== null && nextTurn !== Directions.opposite[this.direction]) {
 			this.nextTurn = nextTurn;
 		}
@@ -364,6 +354,38 @@ export class Lizard extends Collideable {
 		if(this.waitingTimer === 0 && this.nextTurn) {
 			this.attemptTurn(this.nextTurn, world);
 			this.nextTurn = null;
+		}
+	}
+	seesPlayerHorizontal(xDirection: "left" | "right", world: World) {
+		const player = world.player.hitbox;
+		const lookaheadPoint = this.lookaheadPoint();
+		return (
+			player.bottom > this.position.y - LizardData.PLAYER_DETECTION_WIDTH / 2 &&
+			player.top < this.position.y + LizardData.PLAYER_DETECTION_WIDTH / 2 &&
+			!this.isObstructed(
+				world, xDirection, LizardData.LOOKAHEAD_DISTANCE,
+				Math.min(MathUtils.dist(lookaheadPoint.x, player.left), MathUtils.dist(lookaheadPoint.x, player.right)) - LizardData.LOOKAHEAD_DISTANCE,
+			)
+		);
+	}
+	seesPlayerVertical(yDirection: "up" | "down", world: World) {
+		const player = world.player.hitbox;
+		const lookaheadPoint = this.lookaheadPoint();
+		return (
+			player.right > this.position.x - LizardData.PLAYER_DETECTION_WIDTH / 2 &&
+			player.left < this.position.x + LizardData.PLAYER_DETECTION_WIDTH / 2 &&
+			!this.isObstructed(
+				world, yDirection, LizardData.LOOKAHEAD_DISTANCE,
+				Math.min(MathUtils.dist(lookaheadPoint.y, player.top), MathUtils.dist(lookaheadPoint.y, player.bottom)) - LizardData.LOOKAHEAD_DISTANCE,
+			)
+		);
+	}
+	seesPlayerAhead(world: World) {
+		if(Directions.isHorizontal(this.direction)) {
+			return this.seesPlayerHorizontal(this.direction, world);
+		}
+		else {
+			return this.seesPlayerVertical(this.direction, world);
 		}
 	}
 
