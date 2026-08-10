@@ -1,5 +1,5 @@
 Features to add to improve game feel:
-- [ ] **Bugfixes** - fix all the small bugs and inconsistencies that affect gameplay
+- [ ] **Bugfixes and inconsistencies** - fix all the small bugs and inconsistencies that affect gameplay
 	- [ ] Lizards can breathe fire at the player even when the player is on the other side of a wall
 	- [ ] Lizards that meet each other head-on can have unpredictable behavior afterwards (one can destroy the other at the next turn; which one it is depends on their exact pixel positioning)
 	- [ ] Lizards that breathe fire horizontally can (maybe?) destroy throwable tiles on top of their heads
@@ -7,6 +7,11 @@ Features to add to improve game feel:
 	- [x] Gates sometimes (rarely) do not toggle when the player goes through
 	- [ ] When multiple teleporting creatures are nearby, there is no way to know which will teleport.
 	- [x] Health pickup rooms spawn much more rarely than intended.
+	- [ ] Creatures can move into an un-generated region and then get stuck in a solid once that region generates.
+	- [ ] Sometimes there is a single platform inside a wall.
+	- [ ] Fire spawners can destroy fireballs (very surprising behavior).
+	- [ ] Lizards should always turn in the direction of the slope when encountering a slope.
+	- [ ] Fire particles display a glow effect at (0, 0) instead of where the particle is.
 	- [ ] Some enemies have undesirable behavior in certain specific rooms. To fix this, designate some rooms as being unable to spawn in the presence of certain enemy types.
 		- Spiders often get stuck in the room `gate-arch`.
 		- Teleporting creatures almost always destroy the gate in `slope-gate`.
@@ -26,8 +31,9 @@ Features to add to improve game feel:
 	- [ ] Improved tile destruction animations
 	- [ ] Improved telegraph and increased delay on teleporting creature's attack
 	- [ ] Chains
-	- [ ] Teeth on the lizards
+	- [ ] Teeth on the lizards (low priority - lizards already look great)
 	- [ ] Improved background (idea: blurred and parallaxed rectangles, with multiple background layers)
+	- [ ] Improve health pickup graphics (make them into a throwable tile with a "+1 HP" effect when you stand on it)
 - [ ] **Better rooms** - a lot of the older rooms are very boring.
 - [ ] **Movement and input tweaks**
 	- [ ] Jumping gives a small amount of horizontal speed
@@ -44,6 +50,8 @@ Features to add to improve game feel:
 	- [ ] **Stun enemies**: make the downward smash attack stuns any enemies hit
 		- [ ] Enemies flash white for a brief moment when stunned
 		- [ ] Enemies "pop" (become larger and rotate slightly for a brief moment) when stunned
+		- [ ] Enemies become stunned when a block is dropped on them
+		- [ ] Spiders become stunned when they fall and hit the ground
 	- [ ] **Roll** out of a downward smash attack
 	- [ ] **Slide jump?** - after rolling down a slope, press jump for a long, low jump
 	- [ ] **Reverse slide jump?** - after rolling down a slope, press the opposite direction and jump for a very high jump
@@ -65,14 +73,14 @@ More drastic measures to improve game feel (to be implemented if the above are i
 		- Parrying could possibly mess up the laser gameplay which is already perfect. A single laser can be bypassed easily with a parry, but I imagine that dodging and parrying several lasers simultaneously could be very fun.
 		- Parrying would improve the teleporting creatures (especially when they are in a narrow vertical shaft), but I imagine this will also be improved when I add a downward smash attack that stuns enemies.
 		- Parrying spider projectiles sounds fun but could also trivialize the spider's attack. But it also might not, especially if I make it not work on explosions (or require a quick additional parry for the explosion itself!)
-		- Parrying spikeballs would massively improve them, but I have other fixes planned for the spikeballs that will make parrying no longer necessary.
 	- [ ] **Wall jumping** - at least it's more interesting than double jumping, while still allowing the player to traverse most of the existing room layouts. But a double jump increases player agency while midair, allowing for more movement options; so perhaps I should keep the double jump.
 	- [ ] **Horizontal dash** - this could let the player evade enemies, which is good. But most of the game is traversed vertically, and this doesn't really affect vertical movement.
 		- I could make the horizontal dash use the down arrow key instead of requiring its own key.
 - [ ] **Object-dependent movement** - I could add objects that can be used by the player for mobility. I imagine these would be in fixed positions and would be manually placed in each room template they appear in. (Note: I want these to increase the options for traversing the rooms, so if I add these, I should not design rooms in a way to require usage of these objects).
 	- [ ] **Springs** - when encountering a spring, the player gets bounced up vertically by a large amount.
 	- [ ] **"Trampolines"** - when the player does a downward smash attack on them, the player gets bounced up a large amount.
-	- [ ] **Double jump devices** - I could remove the double jump and add objects that bounce the player upwards when the player presses a button on them, like the green orbs in Nine Sols. But what button would it be? Just having it be "jump" is boring; perhaps "jump+down" would be better, but this is kind of strange.
+	- [ ] **Double jump devices** - I could remove the double jump and add objects that bounce the player up when the player does a downward smash attack into them.
+		- I could make it so if the player holds a horizontal direction when activating one of these (after a downward smash attack), the player gets bounced in that direction.
 
 Other features (old, lower priority):
 - [ ] Fancier overlay text (add lines above and below where it says "Floor 01")
