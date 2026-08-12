@@ -9,7 +9,7 @@ Features to add to improve game feel:
 	- [x] Health pickup rooms spawn much more rarely than intended.
 	- [x] Creatures can move into an un-generated region and then get stuck in a solid once that region generates.
 	- [ ] Sometimes there is a single platform inside a wall.
-	- [ ] Fire spawners can destroy fireballs (very surprising behavior).
+	- [x] Fire spawners can destroy fireballs (very surprising behavior).
 	- [ ] Lizards should always turn in the direction of the slope when encountering a slope.
 	- [ ] Fire particles display a glow effect at (0, 0) instead of where the particle is.
 	- [ ] Some enemies have undesirable behavior in certain specific rooms. To fix this, designate some rooms as being unable to spawn in the presence of certain enemy types.

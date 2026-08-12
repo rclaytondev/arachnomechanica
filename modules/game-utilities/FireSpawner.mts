@@ -8,6 +8,7 @@ import { Tile } from "../tiles/Tile.mjs";
 import { World } from "../world/World.mjs";
 import { RandomUtils } from "./RandomUtils.mjs";
 import { Particle, ParticleSettings } from "./Particle.mjs";
+import { Fireball } from "../entities/Fireball.mjs";
 
 export type FireSpawnerSettings = {
 	maxHurtboxSize: number;
@@ -137,7 +138,7 @@ export class FireSpawner {
 				world.destroyTile(position);
 			}
 		}
-		world.damage(hurtbox, canvasIO);
+		world.damage(hurtbox, canvasIO, e => !(e instanceof Fireball));
 	}
 	displayHurtbox(canvasIO: CanvasIO) {
 		canvasIO.ctx.strokeStyle = DEBUG_SETTINGS.LIZARDS.HURTBOX_COLOR;
