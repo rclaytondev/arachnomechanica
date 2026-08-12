@@ -7,7 +7,7 @@ Features to add to improve game feel:
 	- [x] Gates sometimes (rarely) do not toggle when the player goes through
 	- [x] When multiple teleporting creatures are nearby, there is no way to know which will teleport.
 	- [x] Health pickup rooms spawn much more rarely than intended.
-	- [ ] Creatures can move into an un-generated region and then get stuck in a solid once that region generates.
+	- [x] Creatures can move into an un-generated region and then get stuck in a solid once that region generates.
 	- [ ] Sometimes there is a single platform inside a wall.
 	- [ ] Fire spawners can destroy fireballs (very surprising behavior).
 	- [ ] Lizards should always turn in the direction of the slope when encountering a slope.

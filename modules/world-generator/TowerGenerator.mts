@@ -54,8 +54,16 @@ export class TowerGenerator extends WorldGenerationSegment {
 	nextLevelTileRectangle(includeBorder: boolean = false) {
 		return TowerGenerator.nextLevelTileRectangle(this.levelsVisited, includeBorder);
 	}
+	clearNextLevel(world: World) {
+		const level = this.nextLevelTileRectangle(true);
+		const entities = [...world.entities.collideablesIntersecting(level)];
+		for(const entity of entities) {
+			world.entities.delete(entity);
+		}
+	}
 	generate(world: World) {
 		this.levelsGenerated ++;
+		this.clearNextLevel(world);
 		const levelHeight = RoomData.SIZE * LevelGeneratorData.HEIGHT + LevelGeneratorData.BORDER_Y;
 		const generator = new LevelGenerator(new Vector(0, -levelHeight * this.levelsGenerated));
 		generator.generateLevel(world);
