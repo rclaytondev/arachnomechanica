@@ -1,10 +1,8 @@
-import { Diagonal, Direction, Directions } from "../../utils-ts/modules/geometry/Direction.mjs";
+import { Direction, Directions } from "../../utils-ts/modules/geometry/Direction.mjs";
 import { Vector } from "../../utils-ts/modules/geometry/Vector.mjs";
 import { WorldData } from "../constants/GameData.mjs";
 import { RoomEntity } from "../level-generator/Room.mjs";
-import { Platform } from "../tiles/Platform.mjs";
-import { TowerSlope } from "../tiles/TowerSlope.mjs";
-import { TowerTile } from "../tiles/TowerTile.mjs";
+import { TILE_TYPES } from "../tiles/TileIDs.mjs";
 import { Entities } from "../world/Entities.mjs";
 import { Tiles } from "../world/Tiles.mjs";
 import { World } from "../world/World.mjs";
@@ -13,22 +11,24 @@ export class WorldPart<EntityType extends RoomEntity> {
 	tiles: Tiles;
 	entities: Entities<EntityType>;
 
-	static parseTiles(tilesData: { x: number, y: number, type: | "solid" | "platform" | Diagonal }[]) {
-		const tiles = new Tiles();
-		for(const { x, y, type } of tilesData) {
-			const tile = (
-				type === "solid" ? TowerTile.TOWER_TILE
-				: Directions.isDiagonal(type) ? TowerSlope.fromNormal(type)
-				: Platform.PLATFORM
-			);
-			tiles.set(x, y, tile);
-		}
-		return tiles;
-	}
-	static parse(tilesData: { x: number, y: number, type: | "solid" | "platform" | Diagonal }[], entitiesData: RoomEntity[]) {
+	static parse(tilesData: number[][], entitiesData: RoomEntity[]) {
 		const tiles = WorldPart.parseTiles(tilesData);
 		const entities = new Entities(entitiesData);
 		return new WorldPart(tiles, entities);
+	}
+	static parseTiles(tilesData: number[][]) {
+		const tiles = new Tiles();
+		for(let y = 0; y < tilesData.length; y ++) {
+			for(let x = 0; x < tilesData[y].length; x ++) {
+				const tileID = tilesData[y][x];
+				if(tileID < 0 || tileID >= TILE_TYPES.length || tileID % 1 !== 0) {
+					throw new Error(`Encountered invalid tile ID of${tileID} while parsing tileset.`);
+				}
+				const tile = TILE_TYPES[tileID];
+				tiles.set(x, y, tile);
+			}
+		}
+		return tiles;
 	}
 
 	constructor(tiles: Tiles = new Tiles(), entities: Entities<EntityType> = new Entities()) {

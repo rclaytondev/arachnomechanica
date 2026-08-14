@@ -1,4 +1,4 @@
-import { Diagonal, Direction, Directions } from "../../utils-ts/modules/geometry/Direction.mjs";
+import { Direction, Directions } from "../../utils-ts/modules/geometry/Direction.mjs";
 import { Vector } from "../../utils-ts/modules/geometry/Vector.mjs";
 import { Grid } from "../../utils-ts/modules/Grid.mjs";
 import { RoomData } from "../constants/GameData.mjs";
@@ -43,7 +43,7 @@ export class Room {
 		}
 		return exitTiles;
 	}
-	static parse(name: string, tilesData: { x: number, y: number, type: | "solid" | "platform" | Diagonal }[], exitTilesData: { x: number, y: number, direction: Direction }[], entitiesData: RoomEntity[] = [], canSpawnWithExits: (exits: Set<Direction>) => boolean, traversabilityData?: Traversability) {
+	static parse(name: string, tilesData: number[][], exitTilesData: { x: number, y: number, direction: Direction }[], entitiesData: RoomEntity[] = [], canSpawnWithExits: (exits: Set<Direction>) => boolean, traversabilityData?: Traversability) {
 		const worldPart = WorldPart.parse(tilesData, entitiesData);
 		for(const { x, y } of worldPart.tiles.positions()) {
 			if(x < 0 || y < 0 || x >= RoomData.SIZE || y >= RoomData.SIZE) {

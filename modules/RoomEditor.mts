@@ -5,7 +5,7 @@ import { Room, RoomTile } from "./level-generator/Room.mjs";
 import { DEBUG_SETTINGS } from "./constants/DebugSettings.mjs";
 import { Gate } from "./entities/Gate.mjs";
 import { World } from "./world/World.mjs";
-import { BackgroundData, PortalData, WorldData } from "./constants/GameData.mjs";
+import { BackgroundData, PortalData, RoomData, WorldData } from "./constants/GameData.mjs";
 import { ROOMS } from "./constants/Rooms.mjs";
 import { InputUtils } from "./game-utilities/InputUtils.mjs";
 import { Portal } from "./entities/Portal.mjs";
@@ -22,6 +22,7 @@ import { SlopeTile } from "./tiles/SlopeTile.mjs";
 import { Renderable, Renderer } from "./world/Renderer.mjs";
 import { Entities } from "./world/Entities.mjs";
 import { TowerSlope } from "./tiles/TowerSlope.mjs";
+import { TILE_TYPES } from "./tiles/TileIDs.mjs";
 
 export class RoomEditor {
 	room: Room;
@@ -30,7 +31,7 @@ export class RoomEditor {
 	direction: Direction | Diagonal = "right";
 	static readonly MODES = ["solid", "platform", "exit", "gate-open", "gate-closed", "portal", "slope"] as const;
 
-	constructor(room: Room = Room.parse("editor room", [], [], [], () => false, [])) {
+	constructor(room: Room) {
 		this.room = room;
 		this.world = new World(false);
 		for(const [tile, position] of this.room.worldPart.tiles.entries()) {
@@ -226,12 +227,21 @@ export class RoomEditor {
 			throw new Error("Found unexpected tile in level editor.");
 		}
 	}
-	logBlocks() {
-		let result = "[\n";
-		for(const [tile, position] of this.room.worldPart.tiles.entries()) {
-			result += `\t{ x: ${position.x}, y: ${position.y}, type: ${this.getTileString(tile)} },\n`;
+	getTileIDs() {
+		const ids: number[][] = [];
+		for(let y = 0; y < RoomData.SIZE; y ++) {
+			ids.push([]);
+			for(let x = 0; x < 24; x ++) { // TEMPORARY
+				const id = (TILE_TYPES as Tile[]).indexOf(this.room.worldPart.tiles.get(x, y));
+				ids[ids.length - 1].push(id);
+			}
 		}
-		result += "],\n[\n";
+		return ids;
+	}
+	getLogString() {
+		let result = "[\n";
+		result += this.getTileIDs().map(row => `\t[${row.join(", ")}]`).join(",\n");
+		result += "\n],\n[\n";
 		for(const [direction, position] of this.room.exitTiles.entries()) {
 			result += `\t{ x: ${position.x}, y: ${position.y}, direction: "${direction}" },\n`;
 		}
@@ -246,7 +256,10 @@ export class RoomEditor {
 			}
 		}
 		result += "],";
+		return result;
+	}
+	logBlocks() {
 		// eslint-disable-next-line no-console
-		console.log(result);
+		console.log(this.getLogString());
 	}
 }
