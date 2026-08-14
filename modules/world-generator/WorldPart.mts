@@ -1,9 +1,8 @@
-import { Direction, Directions } from "../../utils-ts/modules/geometry/Direction.mjs";
+import { Diagonal, Direction, Directions } from "../../utils-ts/modules/geometry/Direction.mjs";
 import { Vector } from "../../utils-ts/modules/geometry/Vector.mjs";
 import { WorldData } from "../constants/GameData.mjs";
 import { RoomEntity } from "../level-generator/Room.mjs";
 import { Platform } from "../tiles/Platform.mjs";
-import { Slope, SlopeTile } from "../tiles/SlopeTile.mjs";
 import { TowerSlope } from "../tiles/TowerSlope.mjs";
 import { TowerTile } from "../tiles/TowerTile.mjs";
 import { Entities } from "../world/Entities.mjs";
@@ -14,19 +13,19 @@ export class WorldPart<EntityType extends RoomEntity> {
 	tiles: Tiles;
 	entities: Entities<EntityType>;
 
-	static parseTiles(tilesData: { x: number, y: number, type: | "solid" | "platform" | Slope }[]) {
+	static parseTiles(tilesData: { x: number, y: number, type: | "solid" | "platform" | Diagonal }[]) {
 		const tiles = new Tiles();
 		for(const { x, y, type } of tilesData) {
 			const tile = (
 				type === "solid" ? TowerTile.TOWER_TILE
-				: SlopeTile.isSlope(type as string) ? new TowerSlope(type as Slope)
+				: Directions.isDiagonal(type) ? new TowerSlope(type)
 				: Platform.PLATFORM
 			);
 			tiles.set(x, y, tile);
 		}
 		return tiles;
 	}
-	static parse(tilesData: { x: number, y: number, type: | "solid" | "platform" | Slope }[], entitiesData: RoomEntity[]) {
+	static parse(tilesData: { x: number, y: number, type: | "solid" | "platform" | Diagonal }[], entitiesData: RoomEntity[]) {
 		const tiles = WorldPart.parseTiles(tilesData);
 		const entities = new Entities(entitiesData);
 		return new WorldPart(tiles, entities);

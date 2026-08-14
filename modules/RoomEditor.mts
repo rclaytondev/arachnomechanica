@@ -83,13 +83,8 @@ export class RoomEditor {
 				}
 			}
 			else if(this.mode === "slope" && Directions.isDiagonal(this.direction)) {
-				const tile = ({
-					"up-left": "slope-ceiling-left",
-					"up-right": "slope-ceiling-right",
-					"down-left": "slope-floor-left",
-					"down-right": "slope-floor-right",
-				} as const)[this.direction];
-				this.setTile(position, new TowerSlope(tile));
+				const normal = Directions.opposite[this.direction];
+				this.setTile(position, new TowerSlope(normal));
 			}
 		}
 		else {
@@ -225,7 +220,7 @@ export class RoomEditor {
 			return "\"solid\"";
 		}
 		else if(tile instanceof SlopeTile) {
-			return `"${tile.shape}"`;
+			return `"${tile.normal}"`;
 		}
 		else {
 			throw new Error("Found unexpected tile in level editor.");

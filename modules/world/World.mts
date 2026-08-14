@@ -1,5 +1,5 @@
 import { CanvasIO } from "../../utils-ts/modules/CanvasIO.mjs";
-import { Direction, Directions } from "../../utils-ts/modules/geometry/Direction.mjs";
+import { Diagonal, Direction, Directions } from "../../utils-ts/modules/geometry/Direction.mjs";
 import { Rectangle } from "../../utils-ts/modules/geometry/Rectangle.mjs";
 import { Vector } from "../../utils-ts/modules/geometry/Vector.mjs";
 import { WorldData } from "../constants/GameData.mjs";
@@ -17,7 +17,7 @@ import { WorldGenerator } from "../world-generator/WorldGenerator.mjs";
 import { Renderable, Renderer } from "./Renderer.mjs";
 import { Particles } from "../game-utilities/Particles.mjs";
 import { Debug } from "../game-utilities/Debug.mjs";
-import { Slope, SlopeTile } from "../tiles/SlopeTile.mjs";
+import { SlopeTile } from "../tiles/SlopeTile.mjs";
 import { StaticEntities } from "../game-utilities/StaticEntity.mjs";
 
 export type TileWithPosition = { position: Vector, tile: Tile };
@@ -73,22 +73,22 @@ export class World {
 		this.frameCount ++;
 	}
 
-	onSlope(rectangle: Rectangle, slope: Slope, mode: "up" | "down") {
+	onSlope(rectangle: Rectangle, normal: Diagonal, mode: "up" | "down") {
 		const corner = rectangle.getCorner(({
-			"slope-floor-right": "bottom-right",
-			"slope-floor-left": "bottom-left",
-			"slope-ceiling-right": "bottom-right",
-			"slope-ceiling-left": "bottom-left",
-		} as const)[slope]);
+			"up-left": "bottom-right",
+			"up-right": "bottom-left",
+			"down-left": "bottom-right",
+			"down-right": "bottom-left",
+		} as const)[normal]);
 		const position = (mode === "up") ? new Vector(
-			(slope === "slope-floor-left" || slope === "slope-ceiling-left") ? Math.ceil(corner.x / WorldData.TILE_SIZE) - 1 : Math.floor(corner.x / WorldData.TILE_SIZE),
+			(normal === "up-right" || normal === "down-right") ? Math.ceil(corner.x / WorldData.TILE_SIZE) - 1 : Math.floor(corner.x / WorldData.TILE_SIZE),
 			Math.ceil(corner.y / WorldData.TILE_SIZE) - 1,
 		) : new Vector(
-			(slope === "slope-floor-left" || slope === "slope-ceiling-left") ? Math.floor(corner.x / WorldData.TILE_SIZE) : Math.ceil(corner.x / WorldData.TILE_SIZE) - 1,
+			(normal === "up-right" || normal === "down-right") ? Math.floor(corner.x / WorldData.TILE_SIZE) : Math.ceil(corner.x / WorldData.TILE_SIZE) - 1,
 			Math.floor(corner.y / WorldData.TILE_SIZE),
 		);
 		const tile = this.tiles.get(position);
-		return tile instanceof SlopeTile && tile.shape === slope && tile.slopeIntersectionDistance(rectangle, position, false) === 0;
+		return tile instanceof SlopeTile && tile.normal === normal && tile.slopeIntersectionDistance(rectangle, position, false) === 0;
 	}
 	isInSolid(rectangle: Rectangle, collides: (object: TileWithPosition | Entity) => boolean = () => true) {
 		return this.tiles.colliding(rectangle, collides).length !== 0 || this.entities.collideablesIntersecting(rectangle, collides).size !== 0;

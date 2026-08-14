@@ -196,45 +196,45 @@ describe("Collideable.moveUnit", () => {
 		assert.equal(pushable.collisions, 0);
 	});
 
-	it("correctly moves Collideables down slopes of type slope-floor-left", () => {
+	it("correctly moves Collideables down slopes of type up-right", () => {
 		let collideable;
 		const world = createWorld([
 			collideable = new CollideableSpy(Rectangle.fromDimensions(0, -10, 10, 10), "collideable", true),
 		], [
-			{ position: new Vector(0, 0), tile: new TowerSlope("slope-floor-left") },
+			{ position: new Vector(0, 0), tile: new TowerSlope("up-right") },
 		]);
 		collideable.moveUnit("right", world, canvasIO!, { movedObjects: new Set() });
 
 		assert.deepEqual(collideable.amountTranslated, new Vector(1, 1));
 	});
-	it("correctly moves Collideables down slopes of type slope-floor-right", () => {
+	it("correctly moves Collideables down slopes of type up-left", () => {
 		let collideable;
 		const world = createWorld([
 			collideable = new CollideableSpy(Rectangle.fromDimensions(WorldData.TILE_SIZE - 10, -10, 10, 10), "collideable", true),
 		], [
-			{ position: new Vector(0, 0), tile: new TowerSlope("slope-floor-right") },
+			{ position: new Vector(0, 0), tile: new TowerSlope("up-left") },
 		]);
 		collideable.moveUnit("left", world, canvasIO!, { movedObjects: new Set() });
 
 		assert.deepEqual(collideable.amountTranslated, new Vector(-1, 1));
 	});
-	it("correctly moves Collideables up slopes of type slope-floor-left", () => {
+	it("correctly moves Collideables up slopes of type up-right", () => {
 		let collideable;
 		const world = createWorld([
 			collideable = new CollideableSpy(Rectangle.fromDimensions(WorldData.TILE_SIZE, WorldData.TILE_SIZE - 10, 10, 10), "collideable", true),
 		], [
-			{ position: new Vector(0, 0), tile: new TowerSlope("slope-floor-left") },
+			{ position: new Vector(0, 0), tile: new TowerSlope("up-right") },
 		]);
 		collideable.moveUnit("left", world, canvasIO!, { movedObjects: new Set() });
 
 		assert.deepEqual(collideable.amountTranslated, new Vector(-1, -1));
 	});
-	it("correctly moves Collideables up slopes of type slope-floor-right", () => {
+	it("correctly moves Collideables up slopes of type up-left", () => {
 		let collideable;
 		const world = createWorld([
 			collideable = new CollideableSpy(Rectangle.fromDimensions(-10, WorldData.TILE_SIZE - 10, 10, 10), "collideable", true),
 		], [
-			{ position: new Vector(0, 0), tile: new TowerSlope("slope-floor-right") },
+			{ position: new Vector(0, 0), tile: new TowerSlope("up-left") },
 		]);
 		collideable.moveUnit("right", world, canvasIO!, { movedObjects: new Set() });
 
@@ -247,7 +247,7 @@ describe("Collideable.moveUnit", () => {
 			pusher = new CollideableSpy(Rectangle.fromDimensions(-10, WorldData.TILE_SIZE - 20, 10, 20), "pusher", true),
 			pushed = new CollideableSpy(Rectangle.fromDimensions(0, WorldData.TILE_SIZE - 20, 10, 10), "pushed", true),
 		], [
-			{ position: new Vector(0, 0), tile: new TowerSlope("slope-floor-right") },
+			{ position: new Vector(0, 0), tile: new TowerSlope("up-left") },
 		]);
 		pusher.moveUnit("right", world, canvasIO!, { movedObjects: new Set() });
 
@@ -264,7 +264,7 @@ describe("Collideable.moveUnit", () => {
 			pusher = new CollideableSpy(Rectangle.fromDimensions(-10, WorldData.TILE_SIZE - 10, 10, 10), "pusher", true),
 			pushable = new CollideableSpy(Rectangle.fromDimensions(-10, WorldData.TILE_SIZE - 20, 10, 10), "pushable", true),
 		], [
-			{ position: new Vector(0, 0), tile: new TowerSlope("slope-floor-right") },
+			{ position: new Vector(0, 0), tile: new TowerSlope("up-left") },
 		]);
 		pusher.moveUnit("right", world, canvasIO!, { movedObjects: new Set() });
 
@@ -279,7 +279,7 @@ describe("Collideable.moveUnit", () => {
 			pusher = new CollideableSpy(Rectangle.fromDimensions(0, -10, 10, 10), "pusher", true),
 			pushed = new CollideableSpy(Rectangle.fromDimensions(10, -10, 10, 20), "pushed", true),
 		], [
-			{ position: new Vector(0, 0), tile: new TowerSlope("slope-floor-left") },
+			{ position: new Vector(0, 0), tile: new TowerSlope("up-right") },
 		]);
 		pusher.moveUnit("right", world, canvasIO!, { movedObjects: new Set() });
 
@@ -292,7 +292,7 @@ describe("Collideable.moveUnit", () => {
 			pusher = new CollideableSpy(Rectangle.fromDimensions(0, -10, 20, 10), "pusher", true),
 			pushable = new CollideableSpy(Rectangle.fromDimensions(10, 0, 10, 10), "pushable", true),
 		], [
-			{ position: new Vector(0, 0), tile: new TowerSlope("slope-floor-left") },
+			{ position: new Vector(0, 0), tile: new TowerSlope("up-right") },
 		]);
 		pusher.moveUnit("right", world, canvasIO!, { movedObjects: new Set() });
 

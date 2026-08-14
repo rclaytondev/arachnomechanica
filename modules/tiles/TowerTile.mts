@@ -1,12 +1,12 @@
 import { CanvasIO } from "../../utils-ts/modules/CanvasIO.mjs";
-import { Direction, Directions } from "../../utils-ts/modules/geometry/Direction.mjs";
+import { Diagonal, Direction, Directions } from "../../utils-ts/modules/geometry/Direction.mjs";
 import { Vector } from "../../utils-ts/modules/geometry/Vector.mjs";
 import { WorldData } from "../constants/GameData.mjs";
 import { Renderable } from "../world/Renderer.mjs";
 import { Tiles } from "../world/Tiles.mjs";
 import { World } from "../world/World.mjs";
 import { BasicTile } from "./BasicTile.mjs";
-import { Slope, SlopeTile } from "./SlopeTile.mjs";
+import { SlopeTile } from "./SlopeTile.mjs";
 import { Tile } from "./Tile.mjs";
 
 export class TowerTile extends BasicTile {
@@ -32,30 +32,25 @@ export class TowerTile extends BasicTile {
 		canvasIO.ctx.fill();
 	}
 
-	static displaySlopedAccent(position: Vector, canvasIO: CanvasIO, tile: Slope, world: World) {
-		const inwardNormal = {
-			"slope-floor-left": new Vector(-1, 1),
-			"slope-floor-right": new Vector(1, 1),
-			"slope-ceiling-left": new Vector(-1, -1),
-			"slope-ceiling-right": new Vector(1, -1),
-		}[tile];
+	static displaySlopedAccent(position: Vector, canvasIO: CanvasIO, normal: Diagonal, world: World) {
+		const inwardNormal = Vector.gridUnit(Directions.opposite[normal]);
 		const tangent = inwardNormal.rotate(90);
 		const center = position.add(1/2, 1/2).multiply(WorldData.TILE_SIZE);
 
 		const [adjacentDirection1, perpendicularDirection1] = ({
-			"slope-floor-left": ["left", "up"],
-			"slope-floor-right": ["down", "left"],
-			"slope-ceiling-left": ["up", "right"],
-			"slope-ceiling-right": ["right", "down"],
-		} as const)[tile];
+			"up-right": ["left", "up"],
+			"up-left": ["down", "left"],
+			"down-right": ["up", "right"],
+			"down-left": ["right", "down"],
+		} as const)[normal];
 		const distance1 = this.getSlopeAccentLength(position, adjacentDirection1, perpendicularDirection1, world);
 
 		const [adjacentDirection2, perpendicularDirection2] = ({
-			"slope-floor-left": ["down", "right"],
-			"slope-floor-right": ["right", "up"],
-			"slope-ceiling-left": ["left", "down"],
-			"slope-ceiling-right": ["up", "left"],
-		} as const)[tile];
+			"up-right": ["down", "right"],
+			"up-left": ["right", "up"],
+			"down-right": ["left", "down"],
+			"down-left": ["up", "left"],
+		} as const)[normal];
 		const distance2 = this.getSlopeAccentLength(position, adjacentDirection2, perpendicularDirection2, world);
 
 
@@ -67,7 +62,7 @@ export class TowerTile extends BasicTile {
 		canvasIO.ctx.lineCap = "round";
 		canvasIO.strokeLine(endpoint1.x, endpoint1.y, endpoint2.x, endpoint2.y);
 
-		const directions = TowerTile.slopeEdges(tile);
+		const directions = TowerTile.slopeEdges(normal);
 		for(const [edge, direction] of [directions, [...directions].reverse()]) {
 			const edgeCenter = center.add(Vector.unit(edge).multiply(WorldData.TILE_ACCENT_RADIUS));
 			if(!TowerTile.isEdgeBasicSolid(world.originalTiles.get(position.add(Vector.unit(edge))), Directions.opposite[edge])) {
@@ -122,17 +117,17 @@ export class TowerTile extends BasicTile {
 		}
 	}
 
-	static slopeEdges(tile: Slope) {
+	static slopeEdges(normal: Diagonal) {
 		return ({
-			"slope-floor-left": ["left", "down"],
-			"slope-floor-right": ["right", "down"],
-			"slope-ceiling-left": ["left", "up"],
-			"slope-ceiling-right": ["right", "up"],
-		} as const)[tile];
+			"up-right": ["left", "down"],
+			"up-left": ["right", "down"],
+			"down-right": ["left", "up"],
+			"down-left": ["right", "up"],
+		} as const)[normal];
 	}
 	static isEdgeBasicSolid(tile: Tile, direction: Direction) {
 		if(tile instanceof SlopeTile) {
-			const edges = TowerTile.slopeEdges(tile.shape);
+			const edges = TowerTile.slopeEdges(tile.normal);
 			return (edges as readonly Direction[]).includes(direction);
 		}
 		return tile instanceof BasicTile;

@@ -1,9 +1,10 @@
 import { CanvasIO } from "../../utils-ts/modules/CanvasIO.mjs";
+import { Directions } from "../../utils-ts/modules/geometry/Direction.mjs";
 import { Vector } from "../../utils-ts/modules/geometry/Vector.mjs";
 import { WorldData } from "../constants/GameData.mjs";
 import { Renderable } from "../world/Renderer.mjs";
 import { World } from "../world/World.mjs";
-import { Slope, SlopeTile } from "./SlopeTile.mjs";
+import { SlopeTile } from "./SlopeTile.mjs";
 import { TowerTile } from "./TowerTile.mjs";
 
 export class TowerSlope extends SlopeTile {
@@ -20,22 +21,17 @@ export class TowerSlope extends SlopeTile {
 		canvasIO.ctx.fill();
 	}
 	displayAccent(position: Vector, canvasIO: CanvasIO, world: World) {
-		TowerTile.displaySlopedAccent(position, canvasIO, this.shape as Slope, world);
+		TowerTile.displaySlopedAccent(position, canvasIO, this.normal, world);
 	}
 
 	copy() {
-		return new TowerSlope(this.shape);
+		return new TowerSlope(this.normal);
 	}
 	reflect() {
-		const reflections: { [key: string]: Slope } = {
-			"slope-floor-left": "slope-floor-right",
-			"slope-floor-right": "slope-floor-left",
-			"slope-ceiling-left": "slope-ceiling-right",
-			"slope-ceiling-right": "slope-ceiling-left",
-		};
-		return new TowerSlope(reflections[this.shape]);
+		const reflected = Directions.reflectX[this.normal];
+		return new TowerSlope(reflected);
 	}
 	equals(tile: unknown) {
-		return tile instanceof TowerSlope && tile.shape === this.shape;
+		return tile instanceof TowerSlope && tile.normal === this.normal;
 	}
 }

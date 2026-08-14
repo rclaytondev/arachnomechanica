@@ -10,28 +10,26 @@ import { Collideable } from "../game-utilities/physics-engine/Collideable.mjs";
 import { Tiles } from "../world/Tiles.mjs";
 import { Tile } from "./Tile.mjs";
 
-export type Slope = (typeof WorldData.SLOPES)[number];
-
 export abstract class SlopeTile extends Tile {
-	readonly shape: Slope;
+	readonly normal: Diagonal;
 
-	constructor(shape: Slope) {
+	constructor(normal: Diagonal) {
 		super();
-		this.shape = shape;
+		this.normal = normal;
 	}
 
 
 	addToPath(position: Vector, canvasIO: CanvasIO) {
 		const center = position.add(1/2, 1/2).multiply(WorldData.TILE_SIZE);
 		const angles = {
-			"slope-floor-right": 0,
-			"slope-floor-left": MathUtils.toRadians(90),
-			"slope-ceiling-right": MathUtils.toRadians(-90),
-			"slope-ceiling-left": MathUtils.toRadians(-180),
+			"up-left": 0,
+			"up-right": MathUtils.toRadians(90),
+			"down-left": MathUtils.toRadians(-90),
+			"down-right": MathUtils.toRadians(-180),
 		};
 		canvasIO.ctx.save();
 		canvasIO.ctx.translate(center.x, center.y);
-		canvasIO.ctx.rotate(angles[this.shape]);
+		canvasIO.ctx.rotate(angles[this.normal]);
 		canvasIO.polygon(
 			WorldData.TILE_SIZE / 2, -WorldData.TILE_SIZE / 2,
 			WorldData.TILE_SIZE / 2, WorldData.TILE_SIZE / 2,
@@ -47,16 +45,16 @@ export abstract class SlopeTile extends Tile {
 		}
 
 		const pointInSquare = point.subtract(square.getCorner("top-left"));
-		if(this.shape === "slope-floor-left") {
+		if(this.normal === "up-right") {
 			return pointInSquare.y >= pointInSquare.x;
 		}
-		else if(this.shape === "slope-floor-right") {
+		else if(this.normal === "up-left") {
 			return pointInSquare.y >= WorldData.TILE_SIZE - pointInSquare.x;
 		}
-		else if(this.shape === "slope-ceiling-left") {
+		else if(this.normal === "down-right") {
 			return pointInSquare.y <= WorldData.TILE_SIZE - pointInSquare.x;
 		}
-		else if(this.shape === "slope-ceiling-right") {
+		else if(this.normal === "down-left") {
 			return pointInSquare.y <= pointInSquare.x;
 		}
 		else {
@@ -80,15 +78,15 @@ export abstract class SlopeTile extends Tile {
 		const tileSquare = Tiles.getTileSquare(tilePosition);
 		if(!rect.intersects(tileSquare) || (strict && !rect.interiorIntersects(tileSquare))) { return -Infinity; }
 		const center = tileSquare.center();
-		if(this.shape === "slope-floor-left") {
+		if(this.normal === "up-right") {
 			const corner = rect.getCorner("bottom-left");
 			return center.x + corner.y - center.y - corner.x;
 		}
-		else if(this.shape === "slope-floor-right") {
+		else if(this.normal === "up-left") {
 			const corner = rect.getCorner("bottom-right");
 			return corner.x - (center.x + center.y - corner.y);
 		}
-		else if(this.shape === "slope-ceiling-left") {
+		else if(this.normal === "down-right") {
 			const corner = rect.getCorner("top-left");
 			return center.x + center.y - corner.y - corner.x;
 		}
@@ -100,12 +98,7 @@ export abstract class SlopeTile extends Tile {
 
 	rayIntersectionDistance(tilePosition: Vector, rayStart: Vector, rayDirection: Vector): number {
 		const tileSquare = Tiles.getTileSquare(tilePosition);
-		const endpoints = ({
-			"slope-floor-left": ["top-left", "bottom-left", "bottom-right"],
-			"slope-floor-right": ["top-right", "bottom-right", "bottom-left"],
-			"slope-ceiling-left": ["top-right", "top-left", "bottom-left"],
-			"slope-ceiling-right": ["top-left", "top-right", "bottom-right"],
-		} as const)[this.shape];
+		const endpoints = Directions.DIAGONALS.filter(d => d !== this.normal);
 		return Math.min(
 			GeomUtils.rayIntersectsSegment(rayStart, rayDirection, tileSquare.getCorner(endpoints[0]), tileSquare.getCorner(endpoints[1])),
 			GeomUtils.rayIntersectsSegment(rayStart, rayDirection, tileSquare.getCorner(endpoints[1]), tileSquare.getCorner(endpoints[2])),
@@ -141,21 +134,9 @@ export abstract class SlopeTile extends Tile {
 		}
 	}
 
-	static isSlope(value: unknown): value is (typeof WorldData.SLOPES)[number] {
-		return (WorldData.SLOPES as readonly unknown[]).includes(value);
-	}
-
 	corners(tilePosition: Vector) {
 		const tileSquare = Tiles.getTileSquare(tilePosition);
-		const topLeft = new Vector(tileSquare.left, tileSquare.top);
-		const topRight = new Vector(tileSquare.right, tileSquare.top);
-		const bottomLeft = new Vector(tileSquare.left, tileSquare.bottom);
-		const bottomRight = new Vector(tileSquare.right, tileSquare.bottom);
-		return ({
-			"slope-floor-left": [topLeft, bottomLeft, bottomRight],
-			"slope-floor-right": [topRight, bottomLeft, bottomRight],
-			"slope-ceiling-left": [topLeft, topRight, bottomLeft],
-			"slope-ceiling-right": [topLeft, topRight, bottomRight],
-		})[this.shape];
+		const directions = Directions.DIAGONALS.filter(d => d !== this.normal);
+		return directions.map(d => tileSquare.getCorner(d));
 	}
 }

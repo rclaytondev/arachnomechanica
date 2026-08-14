@@ -1,4 +1,4 @@
-import { Direction, Directions } from "../../utils-ts/modules/geometry/Direction.mjs";
+import { Diagonal, Direction, Directions } from "../../utils-ts/modules/geometry/Direction.mjs";
 import { Vector } from "../../utils-ts/modules/geometry/Vector.mjs";
 import { Grid } from "../../utils-ts/modules/Grid.mjs";
 import { RoomData } from "../constants/GameData.mjs";
@@ -15,7 +15,7 @@ import { GenUtils } from "../../utils-ts/modules/core-extensions/GenUtils.mjs";
 import { EmptyTile } from "../tiles/EmptyTile.mjs";
 import { Platform } from "../tiles/Platform.mjs";
 import { LoadingManager } from "../app-entry-points/LoadingManager.mjs";
-import { Slope, SlopeTile } from "../tiles/SlopeTile.mjs";
+import { SlopeTile } from "../tiles/SlopeTile.mjs";
 import { WorldPart } from "../world-generator/WorldPart.mjs";
 import { Tiles } from "../world/Tiles.mjs";
 import { Entities } from "../world/Entities.mjs";
@@ -43,7 +43,7 @@ export class Room {
 		}
 		return exitTiles;
 	}
-	static parse(name: string, tilesData: { x: number, y: number, type: | "solid" | "platform" | Slope }[], exitTilesData: { x: number, y: number, direction: Direction }[], entitiesData: RoomEntity[] = [], canSpawnWithExits: (exits: Set<Direction>) => boolean, traversabilityData?: Traversability) {
+	static parse(name: string, tilesData: { x: number, y: number, type: | "solid" | "platform" | Diagonal }[], exitTilesData: { x: number, y: number, direction: Direction }[], entitiesData: RoomEntity[] = [], canSpawnWithExits: (exits: Set<Direction>) => boolean, traversabilityData?: Traversability) {
 		const worldPart = WorldPart.parse(tilesData, entitiesData);
 		for(const { x, y } of worldPart.tiles.positions()) {
 			if(x < 0 || y < 0 || x >= RoomData.SIZE || y >= RoomData.SIZE) {
