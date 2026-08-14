@@ -28,7 +28,7 @@ world.addEntityIfEmpty(lizard);
 // world.addEntityIfEmpty(laserBlock);
 
 world.addOriginalTile(new Vector(4, 0), TowerTile.TOWER_TILE);
-world.addOriginalTile(new Vector(4, -1), new TowerSlope("up-right"));
+world.addOriginalTile(new Vector(4, -1), TowerSlope.SLOPE_UP_RIGHT);
 
 world.addOriginalTile(new Vector(7, -2), TowerTile.TOWER_TILE);
 world.addOriginalTile(new Vector(7, -1), TowerTile.TOWER_TILE);

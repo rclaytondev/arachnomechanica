@@ -84,7 +84,7 @@ export class RoomEditor {
 			}
 			else if(this.mode === "slope" && Directions.isDiagonal(this.direction)) {
 				const normal = Directions.opposite[this.direction];
-				this.setTile(position, new TowerSlope(normal));
+				this.setTile(position, TowerSlope.fromNormal(normal));
 			}
 		}
 		else {

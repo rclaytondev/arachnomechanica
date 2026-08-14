@@ -12,6 +12,6 @@ const world = new World(false);
 
 world.tiles.fillRect(Rectangle.fromDimensions(-2, 0, 10, 10), TowerTile.TOWER_TILE);
 world.entities.add(new Lizard(new Vector(3.5 * WorldData.TILE_SIZE, -5 * WorldData.TILE_SIZE), "down", 300, 3));
-world.tiles.set(3, -1, new TowerSlope("up-right"));
+world.tiles.set(3, -1, TowerSlope.SLOPE_UP_RIGHT);
 
 Main.screen = new WorldScreen(world);

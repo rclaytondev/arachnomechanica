@@ -18,7 +18,7 @@ export class WorldPart<EntityType extends RoomEntity> {
 		for(const { x, y, type } of tilesData) {
 			const tile = (
 				type === "solid" ? TowerTile.TOWER_TILE
-				: Directions.isDiagonal(type) ? new TowerSlope(type)
+				: Directions.isDiagonal(type) ? TowerSlope.fromNormal(type)
 				: Platform.PLATFORM
 			);
 			tiles.set(x, y, tile);
