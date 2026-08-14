@@ -1101,7 +1101,6 @@ export class Rooms {
 					{ x: 6, y: 4, type: "solid" },
 					{ x: 5, y: 7, type: "platform" },
 					{ x: 6, y: 7, type: "platform" },
-					{ x: 14, y: 10, type: "platform" },
 					{ x: 10, y: 2, type: "slope-ceiling-right" },
 					{ x: 10, y: 9, type: "slope-floor-right" },
 					{ x: 1, y: 2, type: "slope-ceiling-left" },

@@ -35,12 +35,22 @@ export class Room {
 	static parseExitTiles(exitTilesData: { x: number, y: number, direction: Direction }[]) {
 		const exitTiles = new Grid<Direction | "none">("none");
 		for(const { x, y, direction } of exitTilesData) {
+			if(x < 0 || y < 0 || x >= RoomData.SIZE || y >= RoomData.SIZE) {
+				// eslint-disable-next-line no-console
+				console.warn("Found out-of-bounds exit tile while parsing room");
+			}
 			exitTiles.set(x, y, direction);
 		}
 		return exitTiles;
 	}
 	static parse(name: string, tilesData: { x: number, y: number, type: | "solid" | "platform" | Slope }[], exitTilesData: { x: number, y: number, direction: Direction }[], entitiesData: RoomEntity[] = [], canSpawnWithExits: (exits: Set<Direction>) => boolean, traversabilityData?: Traversability) {
 		const worldPart = WorldPart.parse(tilesData, entitiesData);
+		for(const { x, y } of worldPart.tiles.positions()) {
+			if(x < 0 || y < 0 || x >= RoomData.SIZE || y >= RoomData.SIZE) {
+				// eslint-disable-next-line no-console
+				console.warn("Found out-of-bounds tile while parsing room");
+			}
+		}
 		const exitTiles = Room.parseExitTiles(exitTilesData);
 		const traversability = GateState.deduplicateTraversability(traversabilityData ?? RoomData.NO_GATE_TRAVERSABILITY);
 		return new Room(name, name, worldPart, exitTiles, canSpawnWithExits, traversability);
@@ -96,7 +106,7 @@ export class Room {
 			end: new GateState(null, Directions.reflectX[end.exit], end.toggled),
 		}));
 
-		return new Room(this.name, reflectedName, worldPart, exitTiles, canSpawnWithExits, traversability);
+		return new Room(reflectedName, this.name, worldPart, exitTiles, canSpawnWithExits, traversability);
 	}
 	copy() {
 		return new Room(
