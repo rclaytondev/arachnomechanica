@@ -211,8 +211,8 @@ export class LaserBlockData {
 		size: 7,
 		opacityDecay: 1/120,
 		sizeDecay: 1/20,
-		glowIntensity: 1/8,
-		glowSize: 30,
+		glowIntensity: 0,
+		glowSize: 0,
 	};
 	static PARTICLE_SPEED = 0.1;
 

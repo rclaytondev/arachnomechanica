@@ -6,7 +6,7 @@ import { LevelGenerator } from "../level-generator/LevelGenerator.mjs";
 import { Main } from "../Main.mjs";
 import { WorldScreen } from "../world/WorldScreen.mjs";
 
-import "../debug-scenarios/teleporting-creature-test.mjs";
+import "../debug-scenarios/lizard-fire-test.mjs";
 
 
 if(DEBUG_SETTINGS.GENERATOR_VISUALIZATION.ENABLED && Main.screen instanceof WorldScreen) {

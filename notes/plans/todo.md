@@ -11,7 +11,7 @@ Features to add to improve game feel:
 	- [ ] Sometimes there is a single platform inside a wall.
 	- [x] Fire spawners can destroy fireballs (very surprising behavior).
 	- [ ] Lizards should always turn in the direction of the slope when encountering a slope.
-	- [ ] Fire particles display a glow effect at (0, 0) instead of where the particle is.
+	- [x] Fire particles display a glow effect at (0, 0) instead of where the particle is.
 	- [ ] Some enemies have undesirable behavior in certain specific rooms. To fix this, designate some rooms as being unable to spawn in the presence of certain enemy types.
 		- Spiders often get stuck in the room `gate-arch`.
 		- Teleporting creatures almost always destroy the gate in `slope-gate`.

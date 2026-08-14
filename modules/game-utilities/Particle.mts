@@ -41,7 +41,6 @@ export class Particle {
 	solid: boolean;
 	glowSize: number;
 	glowIntensity: number;
-	glowGradient: CanvasGradient | null;
 	thickness: number;
 
 	static randomize(info: number | Range) {
@@ -81,7 +80,6 @@ export class Particle {
 		this.solid = settings.solid ?? true;
 		this.glowSize = Particle.randomize(settings.glowSize ?? 0);
 		this.glowIntensity = Particle.randomize(settings.glowIntensity ?? 1);
-		this.glowGradient = GraphicsUtils.glowCircleGradient(0, this.glowSize, this.glowIntensity);
 		this.thickness = Particle.randomize(settings.thickness ?? 1);
 	}
 
@@ -120,10 +118,12 @@ export class Particle {
 		canvasIO.ctx.restore();
 	}
 	displayGlow(canvasIO: CanvasIO) {
-		if(this.glowSize !== 0 && this.glowIntensity !== 0 && this.glowGradient !== null) {
-			canvasIO.ctx.fillStyle = this.glowGradient;
-			canvasIO.fillCircle(this.position.x, this.position.y, this.glowSize);
-		}
+		GraphicsUtils.glowCircle(
+			this.position.x, this.position.y,
+			this.glowSize, this.glowIntensity * this.opacity,
+			canvasIO,
+			255, 255, 255,
+		);
 	}
 
 	update() {
