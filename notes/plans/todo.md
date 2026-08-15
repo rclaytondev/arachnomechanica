@@ -14,7 +14,7 @@ Features to add to improve game feel:
 	- [x] Fire particles display a glow effect at (0, 0) instead of where the particle is.
 	- [ ] Spikeballs bounce at unexpected angles when colliding with a slope.
 	- [ ] Throwable tiles fall through a platform when thrown while standing on a platform.
-	- [ ] Fireballs slide up slopes instead of exploding on collision.
+	- [x] Fireballs slide up slopes instead of exploding on collision.
 	- [x] Some enemies have undesirable behavior in certain specific rooms. To fix this, designate some rooms as being unable to spawn in the presence of certain enemy types.
 - [ ] **Graphical improvements**
 	- [ ] Activated lasers should have a crackly lightning appearance

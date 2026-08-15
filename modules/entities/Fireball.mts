@@ -13,6 +13,8 @@ export class Fireball extends RectangularCollideable {
 	velocity: Vector;
 	acceleration: Vector;
 	ignoredEntities: Collideable[];
+	slideUpSlopes: boolean = false;
+	slideDownSlopes: boolean = false;
 
 	constructor(position: Vector, velocity: Vector, acceleration: Vector, ignoredEntities: Collideable[]) {
 		super(Rectangle.square(position.x, position.y, 1));
