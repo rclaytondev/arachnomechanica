@@ -9,6 +9,7 @@ import { GraphicsUtils } from "../game-utilities/GraphicsUtils.mjs";
 import { CollisionEvent } from "../game-utilities/physics-engine/CollisionEvent.mjs";
 import { RectangularCollideable } from "../game-utilities/physics-engine/RectangularCollideable.mjs";
 import { EntitySpawner } from "../level-generator/EntitySpawner.mjs";
+import { Spawnable } from "../level-generator/Spawnable.mjs";
 import { Renderable } from "../world/Renderer.mjs";
 import { Tiles } from "../world/Tiles.mjs";
 import { World } from "../world/World.mjs";
@@ -231,19 +232,22 @@ class TeleportParticle extends Entity {
 }
 
 LoadingManager.onload(() => {
-	EntitySpawner.registerEntityType((tileRegion: Rectangle, safeRegion: Rectangle, world: World) => {
-	// EntitySpawner.registerMandatoryEntityType((tileRegion: Rectangle, safeRegion: Rectangle, world: World) => {
-		EntitySpawner.spawnEntities(
-			tileRegion.area() / (RoomData.SIZE ** 2) * TeleportingCreatureData.CREATURES_PER_ROOM,
-			TeleportingCreatureData.SPAWN_EVENNESS,
-			tileRegion,
-			[
-				EntitySpawner.spawnRequirements.replaceEmpty,
-				EntitySpawner.spawnRequirements.solidBelow,
-			],
-			TeleportingCreature.spawn,
-			safeRegion,
-			world,
-		);
-	});
+	EntitySpawner.register(new Spawnable(
+		"teleporting-creatures",
+		true,
+		(tileRegion: Rectangle, safeRegion: Rectangle, world: World) => {
+			EntitySpawner.spawnEntities(
+				tileRegion.area() / (RoomData.SIZE ** 2) * TeleportingCreatureData.CREATURES_PER_ROOM,
+				TeleportingCreatureData.SPAWN_EVENNESS,
+				tileRegion,
+				[
+					EntitySpawner.spawnRequirements.replaceEmpty,
+					EntitySpawner.spawnRequirements.solidBelow,
+				],
+				TeleportingCreature.spawn,
+				safeRegion,
+				world,
+			);
+		},
+	));
 });

@@ -14,6 +14,7 @@ import { Collideable } from "../game-utilities/physics-engine/Collideable.mjs";
 import { CollisionEvent } from "../game-utilities/physics-engine/CollisionEvent.mjs";
 import { RectangularCollideable } from "../game-utilities/physics-engine/RectangularCollideable.mjs";
 import { EntitySpawner } from "../level-generator/EntitySpawner.mjs";
+import { Spawnable } from "../level-generator/Spawnable.mjs";
 import { BasicTile } from "../tiles/BasicTile.mjs";
 import { Renderable } from "../world/Renderer.mjs";
 import { Tiles } from "../world/Tiles.mjs";
@@ -649,18 +650,22 @@ export class Spider extends RectangularCollideable {
 
 
 LoadingManager.onload(() => {
-	EntitySpawner.registerEntityType((tileRegion: Rectangle, safeRegion: Rectangle, world: World) => {
-		EntitySpawner.spawnEntities(
-			tileRegion.area() / (RoomData.SIZE ** 2) * SpiderData.SPIDERS_PER_ROOM,
-			SpiderData.SPAWN_EVENNESS,
-			tileRegion,
-			[
-				EntitySpawner.spawnRequirements.replaceEmpty,
-				EntitySpawner.spawnRequirements.solidAdjacent,
-			],
-			Spider.spawn,
-			safeRegion,
-			world,
-		);
-	});
+	EntitySpawner.register(new Spawnable(
+		"spiders",
+		true,
+		(tileRegion: Rectangle, safeRegion: Rectangle, world: World) => {
+			EntitySpawner.spawnEntities(
+				tileRegion.area() / (RoomData.SIZE ** 2) * SpiderData.SPIDERS_PER_ROOM,
+				SpiderData.SPAWN_EVENNESS,
+				tileRegion,
+				[
+					EntitySpawner.spawnRequirements.replaceEmpty,
+					EntitySpawner.spawnRequirements.solidAdjacent,
+				],
+				Spider.spawn,
+				safeRegion,
+				world,
+			);
+		},
+	));
 });

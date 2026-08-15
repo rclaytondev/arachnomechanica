@@ -4,7 +4,6 @@ import { LevelGeneratorData, RoomData, WorldData } from "../constants/GameData.m
 import { SpawnPoint } from "../entities/SpawnPoint.mjs";
 import { OverlayText } from "../game-utilities/visual-effects/OverlayText.mjs";
 import { World } from "../world/World.mjs";
-import { EntitySpawner } from "../level-generator/EntitySpawner.mjs";
 import { LevelGenerator } from "../level-generator/LevelGenerator.mjs";
 import { WorldGenerationSegment } from "./WorldGenerationSegment.mjs";
 
@@ -19,13 +18,6 @@ export class TowerGenerator extends WorldGenerationSegment {
 		const levelGenerator = new LevelGenerator(new Vector(0, 0));
 		levelGenerator.generateLevel(world);
 		this.spawnPlayer(levelGenerator, world);
-		const rectangle = levelGenerator.levelRectangle().scale(RoomData.SIZE);
-		const startRoom = levelGenerator.path[levelGenerator.path.length - 1];
-		EntitySpawner.spawnAllEntities(
-			Rectangle.fromBounds(rectangle.left + 1, rectangle.right - 1, rectangle.top + 1, rectangle.bottom - 1),
-			Rectangle.fromDimensions(startRoom.x, startRoom.y, 1, 1).scale(RoomData.SIZE),
-			world,
-		);
 		return this;
 	}
 	spawnPlayer(levelGenerator: LevelGenerator, world: World) {
@@ -67,13 +59,6 @@ export class TowerGenerator extends WorldGenerationSegment {
 		const levelHeight = RoomData.SIZE * LevelGeneratorData.HEIGHT + LevelGeneratorData.BORDER_Y;
 		const generator = new LevelGenerator(new Vector(0, -levelHeight * this.levelsGenerated));
 		generator.generateLevel(world);
-		const rectangle = generator.levelRectangle().scale(RoomData.SIZE).translate(new Vector(0, -levelHeight * this.levelsGenerated));
-		const startRoom = generator.path[generator.path.length - 1];
-		EntitySpawner.spawnAllEntities(
-			Rectangle.fromBounds(rectangle.left + 1, rectangle.right - 1, rectangle.top + 1, rectangle.bottom - 1),
-			Rectangle.fromDimensions(startRoom.x, startRoom.y, 1, 1).scale(RoomData.SIZE).translate(new Vector(0, -levelHeight * this.levelsGenerated)),
-			world,
-		);
 		this.nextPlayerSpawnRoom = generator.path[generator.path.length - 1];
 	}
 

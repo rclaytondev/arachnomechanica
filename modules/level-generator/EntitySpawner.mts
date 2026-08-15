@@ -9,22 +9,18 @@ import { ArrayUtils } from "../../utils-ts/modules/core-extensions/ArrayUtils.mj
 import { EmptyTile } from "../tiles/EmptyTile.mjs";
 import { Tiles } from "../world/Tiles.mjs";
 import { Portal } from "../entities/Portal.mjs";
+import { Spawnable } from "./Spawnable.mjs";
 
 export class EntitySpawner {
-	static entityTypes: ((tileRegion: Rectangle, safeRegion: Rectangle, world: World) => void)[] = [];
-	static mandatoryEntityTypes: ((tileRegion: Rectangle, safeRegion: Rectangle, world: World) => void)[] = [];
-	static registerEntityType(spawnAll: (tileRegion: Rectangle, safeRegion: Rectangle, world: World) => void) {
-		EntitySpawner.entityTypes.push(spawnAll);
-	}
-	static registerMandatoryEntityType(spawnAll: (tileRegion: Rectangle, safeRegion: Rectangle, world: World) => void) {
-		EntitySpawner.mandatoryEntityTypes.push(spawnAll);
+	private static spawnables: Spawnable[] = [];
+	static register(spawnable: Spawnable) {
+		EntitySpawner.spawnables.push(spawnable);
 	}
 
-	static spawnAllEntities(tileRegion: Rectangle, safeRegion: Rectangle, world: World) {
-		const optionalEntities = RandomUtils.randomPermutation([...EntitySpawner.entityTypes]).slice(0, 2);
-		for(const spawnAll of [...optionalEntities, ...EntitySpawner.mandatoryEntityTypes]) {
-			spawnAll(tileRegion, safeRegion, world);
-		}
+	static randomizeEntities(numOptional: number = 2) {
+		const optional = EntitySpawner.spawnables.filter(s => s.optional);
+		const mandatory = EntitySpawner.spawnables.filter(s => !s.optional);
+		return [...mandatory, ...RandomUtils.randomPermutation(optional).slice(0, numOptional)];
 	}
 
 

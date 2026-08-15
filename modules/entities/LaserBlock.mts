@@ -13,6 +13,7 @@ import { EntitySpawner } from "../level-generator/EntitySpawner.mjs";
 import { Renderable } from "../world/Renderer.mjs";
 import { Tiles } from "../world/Tiles.mjs";
 import { World } from "../world/World.mjs";
+import { Spawnable } from "../level-generator/Spawnable.mjs";
 
 export class LaserBlock extends RectangularCollideable {
 	lasers: number;
@@ -185,22 +186,26 @@ export class LaserBlock extends RectangularCollideable {
 }
 
 LoadingManager.onload(() => {
-	EntitySpawner.registerEntityType((tileRegion: Rectangle, safeRegion: Rectangle, world: World) => EntitySpawner.spawnEntities(
-		tileRegion.area() / (RoomData.SIZE ** 2) * LaserBlockData.LASERS_PER_ROOM,
-		LaserBlockData.SPAWN_EVENNESS,
-		tileRegion,
-		[
-			EntitySpawner.spawnRequirements.replaceSolid,
-			EntitySpawner.spawnRequirements.atLeast2Empty,
-			EntitySpawner.spawnRequirements.noAdjacentGates,
-			EntitySpawner.spawnRequirements.notOnFloor,
-		],
-		(position, world) => {
-			world.removeTile(position);
-			world.entities.add(LaserBlock.generate(position));
-			return true;
-		},
-		safeRegion,
-		world,
+	EntitySpawner.register(new Spawnable(
+		"lasers",
+		true,
+		(tileRegion: Rectangle, safeRegion: Rectangle, world: World) => EntitySpawner.spawnEntities(
+			tileRegion.area() / (RoomData.SIZE ** 2) * LaserBlockData.LASERS_PER_ROOM,
+			LaserBlockData.SPAWN_EVENNESS,
+			tileRegion,
+			[
+				EntitySpawner.spawnRequirements.replaceSolid,
+				EntitySpawner.spawnRequirements.atLeast2Empty,
+				EntitySpawner.spawnRequirements.noAdjacentGates,
+				EntitySpawner.spawnRequirements.notOnFloor,
+			],
+			(position, world) => {
+				world.removeTile(position);
+				world.entities.add(LaserBlock.generate(position));
+				return true;
+			},
+			safeRegion,
+			world,
+		),
 	));
 });

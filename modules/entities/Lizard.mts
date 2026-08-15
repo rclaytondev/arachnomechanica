@@ -20,6 +20,7 @@ import { Tiles } from "../world/Tiles.mjs";
 import { EntitySpawner } from "../level-generator/EntitySpawner.mjs";
 import { LoadingManager } from "../app-entry-points/LoadingManager.mjs";
 import { Renderable } from "../world/Renderer.mjs";
+import { Spawnable } from "../level-generator/Spawnable.mjs";
 
 type Joint = { position: Vector, direction: Direction };
 
@@ -609,15 +610,19 @@ export class Lizard extends Collideable {
 }
 
 LoadingManager.onload(() => {
-	EntitySpawner.registerEntityType((tileRegion: Rectangle, safeRegion: Rectangle, world: World) => {
-		EntitySpawner.spawnEntities(
-			tileRegion.area() / (RoomData.SIZE ** 2) * LizardData.LIZARDS_PER_ROOM,
-			LizardData.SPAWN_EVENNESS,
-			tileRegion,
-			[EntitySpawner.spawnRequirements.replaceEmpty],
-			Lizard.spawn,
-			safeRegion,
-			world,
-		);
-	});
+	EntitySpawner.register(new Spawnable(
+		"lizards",
+		true,
+		(tileRegion: Rectangle, safeRegion: Rectangle, world: World) => {
+			EntitySpawner.spawnEntities(
+				tileRegion.area() / (RoomData.SIZE ** 2) * LizardData.LIZARDS_PER_ROOM,
+				LizardData.SPAWN_EVENNESS,
+				tileRegion,
+				[EntitySpawner.spawnRequirements.replaceEmpty],
+				Lizard.spawn,
+				safeRegion,
+				world,
+			);
+		},
+	));
 });

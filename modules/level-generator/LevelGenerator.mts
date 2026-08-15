@@ -21,6 +21,8 @@ import { ArrayUtils } from "../../utils-ts/modules/core-extensions/ArrayUtils.mj
 import { MapUtils } from "../../utils-ts/modules/core-extensions/MapUtils.mjs";
 import { SetUtils } from "../../utils-ts/modules/core-extensions/SetUtils.mjs";
 import { Platform } from "../tiles/Platform.mjs";
+import { EntitySpawner } from "./EntitySpawner.mjs";
+import { Spawnable } from "./Spawnable.mjs";
 
 export class LevelGenerator {
 	path: Vector[] = [];
@@ -32,6 +34,7 @@ export class LevelGenerator {
 	}
 
 	generateLevel(world: World) {
+		const entities = EntitySpawner.randomizeEntities();
 		this.generatePath();
 		this.generateExitsOnPath();
 		this.generateExitsOffPath();
@@ -39,6 +42,7 @@ export class LevelGenerator {
 		this.generateRooms();
 		this.addRooms(world);
 		this.addBorders(world);
+		this.spawnEntities(entities, world);
 	}
 
 	generatePath() {
@@ -346,6 +350,16 @@ export class LevelGenerator {
 	}
 	connectedEdges() {
 		return MathUtils.sum(this.levelRectangle().squares().map(s => this.roomSlots.get(s)?.exits.size ?? 0));
+	}
+
+	spawnEntities(spawnables: Spawnable[], world: World) {
+		const level = this.levelRectangle().scale(RoomData.SIZE).translate(this.position);
+		const startRoom = this.path[this.path.length - 1];
+		const tileRegion = Rectangle.fromBounds(level.left + 1, level.right - 1, level.top + 1, level.bottom - 1);
+		const safeRegion = Rectangle.fromDimensions(startRoom.x, startRoom.y, 1, 1).scale(RoomData.SIZE).translate(this.position);
+		for(const spawnable of spawnables) {
+			spawnable.spawn(tileRegion, safeRegion, world);
+		}
 	}
 
 

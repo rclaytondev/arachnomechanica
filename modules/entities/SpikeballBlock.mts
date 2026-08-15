@@ -19,6 +19,7 @@ import { ArrayUtils } from "../../utils-ts/modules/core-extensions/ArrayUtils.mj
 import { Renderable } from "../world/Renderer.mjs";
 import { Player } from "../Player.mjs";
 import { ThrowableTileEntity } from "../items/ThrowableTileEntity.mjs";
+import { Spawnable } from "../level-generator/Spawnable.mjs";
 
 export class SpikeballBlock extends RectangularCollideable {
 	timeUntilSpawn: number = 0;
@@ -263,22 +264,26 @@ export class SpikeballBlock extends RectangularCollideable {
 }
 
 LoadingManager.onload(() => {
-	EntitySpawner.registerEntityType((tileRegion: Rectangle, safeRegion: Rectangle, world: World) => EntitySpawner.spawnEntities(
-		tileRegion.area() / (RoomData.SIZE ** 2) * SpikeballBlockData.SPIKEBALLS_PER_ROOM,
-		SpikeballBlockData.SPAWN_EVENNESS,
-		tileRegion,
-		[
-			EntitySpawner.spawnRequirements.replaceSolid,
-			EntitySpawner.spawnRequirements.noAdjacentGates,
-			EntitySpawner.spawnRequirements.atLeast3RectEmpty,
-			SpikeballBlock.canSpawn,
-		],
-		(position: Vector, world: World) => {
-			world.tiles.set(position, EmptyTile.EMPTY);
-			world.entities.add(SpikeballBlock.atTile(position, ArrayUtils.randomItem(SpikeballBlockData.PATTERNS)));
-			return true;
-		},
-		safeRegion,
-		world,
+	EntitySpawner.register(new Spawnable(
+		"spikeballs",
+		true,
+		(tileRegion: Rectangle, safeRegion: Rectangle, world: World) => EntitySpawner.spawnEntities(
+			tileRegion.area() / (RoomData.SIZE ** 2) * SpikeballBlockData.SPIKEBALLS_PER_ROOM,
+			SpikeballBlockData.SPAWN_EVENNESS,
+			tileRegion,
+			[
+				EntitySpawner.spawnRequirements.replaceSolid,
+				EntitySpawner.spawnRequirements.noAdjacentGates,
+				EntitySpawner.spawnRequirements.atLeast3RectEmpty,
+				SpikeballBlock.canSpawn,
+			],
+			(position: Vector, world: World) => {
+				world.tiles.set(position, EmptyTile.EMPTY);
+				world.entities.add(SpikeballBlock.atTile(position, ArrayUtils.randomItem(SpikeballBlockData.PATTERNS)));
+				return true;
+			},
+			safeRegion,
+			world,
+		),
 	));
 });
