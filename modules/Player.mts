@@ -214,12 +214,33 @@ export class Player extends RectangularCollideable {
 	throw(item: ThrowableTileEntity, world: World, canvasIO: CanvasIO) {
 		const direction = this.throwDirection(canvasIO);
 		const size = (direction === "down" ? item.hitbox.height : item.hitbox.width);
-		const throwStartCenter = this.hitbox.edgeCenter(direction).add(Vector.unit(direction).multiply(ItemData.THROW_OFFSET + size / 2));
+		const throwStartCenter = (
+			this.hitbox.edgeCenter(direction).add(Vector.unit(direction)
+			.multiply(ItemData.THROW_OFFSET + size / 2)
+			.add(0, Directions.isHorizontal(direction) ? ItemData.THROW_OFFSET_Y : 0),
+		));
+		const hitbox = Rectangle.fromCenter(throwStartCenter.x, throwStartCenter.y, item.hitbox.width, item.hitbox.height);
+
+		const maxDists = (
+			Directions.isHorizontal(direction)
+			? {
+				"clockwise": world.rectIntersectionDistance(hitbox, Directions.rotateClockwise[direction], ItemData.THROW_CORRECTION, () => true),
+				"counterclockwise": world.rectIntersectionDistance(hitbox, Directions.rotateClockwise[direction], ItemData.THROW_CORRECTION, () => true),
+			}
+			: {
+				"clockwise": ItemData.THROW_CORRECTION,
+				"counterclockwise": ItemData.THROW_CORRECTION,
+			}
+		);
+
 		for(let correctionAmount = 0; correctionAmount < ItemData.THROW_CORRECTION; correctionAmount ++) {
-			for(const correctionDirection of [Directions.rotateClockwise[direction], Directions.rotateCounterclockwise[direction]]) {
-				const threw = this.attemptThrow(item, throwStartCenter.add(Vector.unit(correctionDirection).multiply(correctionAmount)), world, canvasIO);
-				if(threw) {
-					return true;
+			for(const angularDirection of ["clockwise", "counterclockwise"] as const) {
+				if(correctionAmount < maxDists[angularDirection]) {
+					const correctionDirection = Directions.rotate[angularDirection][direction];
+					const threw = this.attemptThrow(item, throwStartCenter.add(Vector.unit(correctionDirection).multiply(correctionAmount)), world, canvasIO);
+					if(threw) {
+						return true;
+					}
 				}
 			}
 		}

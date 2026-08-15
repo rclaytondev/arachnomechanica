@@ -13,7 +13,7 @@ Features to add to improve game feel:
 	- [ ] Lizards should always turn in the direction of the slope when encountering a slope.
 	- [x] Fire particles display a glow effect at (0, 0) instead of where the particle is.
 	- [ ] Spikeballs bounce at unexpected angles when colliding with a slope.
-	- [ ] Throwable tiles fall through a platform when thrown while standing on a platform.
+	- [x] Throwable tiles fall through a platform when thrown while standing on a platform.
 	- [x] Fireballs slide up slopes instead of exploding on collision.
 	- [x] Some enemies have undesirable behavior in certain specific rooms. To fix this, designate some rooms as being unable to spawn in the presence of certain enemy types.
 - [ ] **Graphical improvements**
