@@ -15,5 +15,6 @@ Main.screen = new RoomEditor(new Room(
 	new Grid("none"),
 	() => true,
 	[],
+	[],
 ));
 Debug.initializeEditor();

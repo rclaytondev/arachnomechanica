@@ -406,6 +406,8 @@ export class Rooms {
 				[
 				],
 				(exits) => exits.has("up") && exits.has("right") && !exits.has("left"),
+				RoomData.NO_GATE_TRAVERSABILITY,
+				["lasers", "teleporting-creatures"],
 			),
 			Room.parse(
 				"gate-contraption",
@@ -1598,7 +1600,7 @@ export class Rooms {
 				"two-platforms-asymmetrical",
 				[
 					[1, 1, 1, 1, 0, 0, 0, 0, 1, 1, 1, 1],
-					[1, 5, 0, 0, 0, 0, 0, 0, 0, 0, 4, 1],
+					[1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 4, 1],
 					[1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1],
 					[1, 1, 6, 6, 1, 1, 0, 0, 0, 0, 0, 1],
 					[1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1],
@@ -1873,7 +1875,7 @@ export class Rooms {
 				"hallway-and-empty",
 				[
 					[1, 1, 1, 1, 0, 0, 0, 0, 1, 1, 1, 1],
-					[1, 5, 0, 0, 0, 0, 0, 0, 0, 0, 4, 1],
+					[1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 4, 1],
 					[1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1],
 					[1, 6, 6, 6, 6, 6, 1, 0, 0, 0, 0, 1],
 					[1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1],
@@ -2210,12 +2212,13 @@ export class Rooms {
 				],
 				(exits) => exits.has("left") && exits.has("down") && !exits.has("up") && !exits.has("right"),
 				Room.gatePath("left", "down", false),
+				["teleporting-creatures"],
 			),
 			Room.parse(
 				"low-half-junction",
 				[
 					[1, 1, 1, 1, 0, 0, 0, 0, 1, 1, 1, 1],
-					[1, 5, 0, 0, 0, 0, 0, 0, 0, 0, 4, 1],
+					[1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 4, 1],
 					[1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1],
 					[1, 1, 6, 1, 0, 0, 0, 0, 0, 0, 0, 1],
 					[1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1],
@@ -2423,6 +2426,7 @@ export class Rooms {
 					...Room.gatelessPath("up", "right"),
 					...Room.gatePath("down", "right", false),
 				]),
+				["spiders", "lizards"],
 			),
 			Room.parse(
 				"small-diagonal",

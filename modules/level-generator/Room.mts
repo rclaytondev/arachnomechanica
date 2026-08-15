@@ -19,6 +19,7 @@ import { SlopeTile } from "../tiles/SlopeTile.mjs";
 import { WorldPart } from "../world-generator/WorldPart.mjs";
 import { Tiles } from "../world/Tiles.mjs";
 import { Entities } from "../world/Entities.mjs";
+import { SpawnableID } from "./Spawnable.mjs";
 
 export type Traversability = { start: GateState, end: GateState }[];
 export type RoomTile = EmptyTile | Platform | BasicTile | SlopeTile;
@@ -31,6 +32,7 @@ export class Room {
 	exitTiles: Grid<Direction | "none">;
 	traversability: Traversability;
 	worldPart: WorldPart<RoomEntity>;
+	disallowedEntities: SpawnableID[];
 
 	static parseExitTiles(exitTilesData: { x: number, y: number, direction: Direction }[]) {
 		const exitTiles = new Grid<Direction | "none">("none");
@@ -43,7 +45,7 @@ export class Room {
 		}
 		return exitTiles;
 	}
-	static parse(name: string, tilesData: number[][], exitTilesData: { x: number, y: number, direction: Direction }[], entitiesData: RoomEntity[] = [], canSpawnWithExits: (exits: Set<Direction>) => boolean, traversabilityData?: Traversability) {
+	static parse(name: string, tilesData: number[][], exitTilesData: { x: number, y: number, direction: Direction }[], entitiesData: RoomEntity[] = [], canSpawnWithExits: (exits: Set<Direction>) => boolean, traversabilityData?: Traversability, disallowedEntities: SpawnableID[] = []) {
 		const worldPart = WorldPart.parse(tilesData, entitiesData);
 		for(const { x, y } of worldPart.tiles.positions()) {
 			if(x < 0 || y < 0 || x >= RoomData.SIZE || y >= RoomData.SIZE) {
@@ -53,16 +55,17 @@ export class Room {
 		}
 		const exitTiles = Room.parseExitTiles(exitTilesData);
 		const traversability = GateState.deduplicateTraversability(traversabilityData ?? RoomData.NO_GATE_TRAVERSABILITY);
-		return new Room(name, name, worldPart, exitTiles, canSpawnWithExits, traversability);
+		return new Room(name, name, worldPart, exitTiles, canSpawnWithExits, traversability, disallowedEntities);
 	}
 
-	constructor(name: string, originalName: string, worldPart: WorldPart<RoomEntity>, exitTiles: Grid<Direction | "none">, canSpawnWithExits: (exits: Set<Direction>) => boolean, traversability: Traversability) {
+	constructor(name: string, originalName: string, worldPart: WorldPart<RoomEntity>, exitTiles: Grid<Direction | "none">, canSpawnWithExits: (exits: Set<Direction>) => boolean, traversability: Traversability, disallowedEntities: SpawnableID[]) {
 		this.name = name;
 		this.originalName = originalName;
 		this.worldPart = worldPart;
 		this.exitTiles = exitTiles;
 		this.canSpawnWithExits = canSpawnWithExits;
 		this.traversability = traversability;
+		this.disallowedEntities = disallowedEntities;
 	}
 
 	hasPortal() {
@@ -106,7 +109,7 @@ export class Room {
 			end: new GateState(null, Directions.reflectX[end.exit], end.toggled),
 		}));
 
-		return new Room(reflectedName, this.name, worldPart, exitTiles, canSpawnWithExits, traversability);
+		return new Room(reflectedName, this.name, worldPart, exitTiles, canSpawnWithExits, traversability, this.disallowedEntities);
 	}
 	copy() {
 		return new Room(
@@ -116,6 +119,7 @@ export class Room {
 			this.exitTiles.map(v => v),
 			this.canSpawnWithExits,
 			this.traversability.map(({ start, end }) => ({ start: start.copy(), end: end.copy() })),
+			this.disallowedEntities,
 		);
 	}
 	equals(room: Room) {

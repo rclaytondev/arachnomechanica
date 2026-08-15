@@ -22,7 +22,7 @@ import { MapUtils } from "../../utils-ts/modules/core-extensions/MapUtils.mjs";
 import { SetUtils } from "../../utils-ts/modules/core-extensions/SetUtils.mjs";
 import { Platform } from "../tiles/Platform.mjs";
 import { EntitySpawner } from "./EntitySpawner.mjs";
-import { Spawnable } from "./Spawnable.mjs";
+import { Spawnable, SpawnableID } from "./Spawnable.mjs";
 
 export class LevelGenerator {
 	path: Vector[] = [];
@@ -39,7 +39,7 @@ export class LevelGenerator {
 		this.generateExitsOnPath();
 		this.generateExitsOffPath();
 		this.generateHealthPickupRooms();
-		this.generateRooms();
+		this.generateRooms(entities.map(s => s.id));
 		this.addRooms(world);
 		this.addBorders(world);
 		this.spawnEntities(entities, world);
@@ -164,7 +164,7 @@ export class LevelGenerator {
 	}
 
 
-	generateRooms() {
+	generateRooms(entities: SpawnableID[]) {
 		const rooms = (this.levelRectangle().squares()
 			.map(p => this.roomSlots.get(p))
 			.filter(p => p != null)
@@ -172,14 +172,15 @@ export class LevelGenerator {
 			.sort((a, b) => a.exits.size - b.exits.size)
 		);
 		for(const room of rooms) {
-			this.generateRoom(room);
+			this.generateRoom(room, entities);
 		}
 	}
-	generateRoom(roomSlot: RoomSlot) {
+	generateRoom(roomSlot: RoomSlot, entities: SpawnableID[]) {
 		const possibleRooms = MapUtils.groupBy(
 			ROOMS.filter(r => (
 				r.canSpawnWithExits(roomSlot.exits)
 				&& r.isOrdinaryRoom()
+				&& SetUtils.areDisjoint(entities, r.disallowedEntities)
 			)),
 			r => Room.connectivity(r.traversability, roomSlot.exits),
 		);

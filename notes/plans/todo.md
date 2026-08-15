@@ -15,11 +15,7 @@ Features to add to improve game feel:
 	- [ ] Spikeballs bounce at unexpected angles when colliding with a slope.
 	- [ ] Throwable tiles fall through a platform when thrown while standing on a platform.
 	- [ ] Fireballs slide up slopes instead of exploding on collision.
-	- [ ] Some enemies have undesirable behavior in certain specific rooms. To fix this, designate some rooms as being unable to spawn in the presence of certain enemy types.
-		- Spiders often get stuck in the room `gate-arch`.
-		- Teleporting creatures almost always destroy the gate in `slope-gate`.
-		- Teleporting creatures and lasers can make `the-maze` nearly impossible to traverse.
-		- Lizards can too-easily dig tunnels out of the tower in rooms like `gate-arch`, `low-half-junction`, `hallway-and-empty`, `two-platforms-asymmetrical`
+	- [x] Some enemies have undesirable behavior in certain specific rooms. To fix this, designate some rooms as being unable to spawn in the presence of certain enemy types.
 - [ ] **Graphical improvements**
 	- [ ] Activated lasers should have a crackly lightning appearance
 	- [ ] Remove grey particles from unactivated lasers
