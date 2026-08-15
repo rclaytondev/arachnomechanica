@@ -12,16 +12,21 @@ Features to add to improve game feel:
 	- [x] Fire spawners can destroy fireballs (very surprising behavior).
 	- [ ] Lizards should always turn in the direction of the slope when encountering a slope.
 	- [x] Fire particles display a glow effect at (0, 0) instead of where the particle is.
+	- [ ] Spikeballs bounce at unexpected angles when colliding with a slope.
+	- [ ] Throwable tiles fall through a platform when thrown while standing on a platform.
+	- [ ] Fireballs slide up slopes instead of exploding on collision.
 	- [ ] Some enemies have undesirable behavior in certain specific rooms. To fix this, designate some rooms as being unable to spawn in the presence of certain enemy types.
 		- Spiders often get stuck in the room `gate-arch`.
 		- Teleporting creatures almost always destroy the gate in `slope-gate`.
 		- Teleporting creatures and lasers can make `the-maze` nearly impossible to traverse.
+		- Lizards can too-easily dig tunnels out of the tower in rooms like `gate-arch`, `low-half-junction`, `hallway-and-empty`, `two-platforms-asymmetrical`
 - [ ] **Graphical improvements**
 	- [ ] Activated lasers should have a crackly lightning appearance
 	- [ ] Remove grey particles from unactivated lasers
 	- [ ] Tile graphics - maybe add a faint crisscrossing lattice?
 	- [ ] Squish effect when jumping
 	- [ ] Particles when jumping and double jumping
+	- [ ] Fire particles should be "attached" to the entity that created them (the particles move when the entity moves).
 	- [ ] Fire particles should be circular, have hue variation, and decrease in size over time
 	- [ ] Fire should have a glow effect (one large glow effect, not one for each particle)
 	- [ ] Explosions should have a single large glow effect that fades quickly
@@ -42,6 +47,7 @@ Features to add to improve game feel:
 	- [ ] Slip past corners and preserve velocity
 	- [ ] Improve controllable jump height (make it more controllable)
 	- [ ] Throwing tiles push the player in the opposite direction when thrown
+	- [ ] When pressing left and right simultaneously, prioritize whichever was pressed most recently
 - [ ] **Movement tech**
 	- [ ] **Downward smash attack**
 		- [ ] Add a brief pause before doing it (maybe)
