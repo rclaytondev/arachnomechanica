@@ -4,15 +4,11 @@ import { Rectangle } from "../../../utils-ts/modules/geometry/Rectangle.mjs";
 import { Vector } from "../../../utils-ts/modules/geometry/Vector.mjs";
 import { HashSet } from "../../../utils-ts/modules/HashSet.mjs";
 import { DEBUG_SETTINGS } from "../../constants/DebugSettings.mjs";
-import { WorldData } from "../../constants/GameData.mjs";
-import { Platform } from "../../tiles/Platform.mjs";
-import { Tiles } from "../../world/Tiles.mjs";
 import { World, TileWithPosition } from "../../world/World.mjs";
 import { Entity } from "../Entity.mjs";
 
 import { CollisionEvent } from "./CollisionEvent.mjs";
 
-/* eslint @typescript-eslint/no-unused-vars: 0 */
 
 export type MoveOptions = {
 	collides?: (object: Collideable | TileWithPosition) => boolean,
@@ -26,6 +22,7 @@ export type MoveUnitOptions = MoveOptions & {
 };
 
 export abstract class Collideable extends Entity {
+	// eslint-disable-next-line @typescript-eslint/no-unused-vars
 	damage(hurtbox: Rectangle, world: World, canvasIO: CanvasIO) {
 		world.entities.delete(this);
 	}
@@ -33,6 +30,7 @@ export abstract class Collideable extends Entity {
 	subpixel: Vector = new Vector(0, 0);
 	abstract hitboxes(): Rectangle[];
 	abstract translate(amount: Vector, world: World): void;
+	// eslint-disable-next-line @typescript-eslint/no-unused-vars
 	onCollision(collision: CollisionEvent, world: World, canvasIO: CanvasIO) { }
 	slideUpSlopes: boolean = true;
 	slideDownSlopes: boolean = true;

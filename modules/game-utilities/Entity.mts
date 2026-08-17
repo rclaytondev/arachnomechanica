@@ -1,15 +1,11 @@
 import { CanvasIO } from "../../utils-ts/modules/CanvasIO.mjs";
-import { Direction, Directions } from "../../utils-ts/modules/geometry/Direction.mjs";
 import { Rectangle } from "../../utils-ts/modules/geometry/Rectangle.mjs";
-import { Vector } from "../../utils-ts/modules/geometry/Vector.mjs";
-import { WorldData } from "../constants/GameData.mjs";
 import { Renderable } from "../world/Renderer.mjs";
-import { TileWithPosition, World } from "../world/World.mjs";
-
-/* eslint @typescript-eslint/no-unused-vars: 0 */
+import { World } from "../world/World.mjs";
 
 export abstract class Entity {
 	abstract render(world: World): Renderable[];
+	// eslint-disable-next-line @typescript-eslint/no-unused-vars
 	displayDebug(canvasIO: CanvasIO, world: World) { }
 
 	abstract update(world: World, canvasIO: CanvasIO): void;
