@@ -10,7 +10,7 @@ Features to add to improve game feel:
 	- [x] Creatures can move into an un-generated region and then get stuck in a solid once that region generates.
 	- [x] Sometimes there is a single platform inside a wall.
 	- [x] Fire spawners can destroy fireballs (very surprising behavior).
-	- [ ] Lizards should always turn in the direction of the slope when encountering a slope.
+	- [x] Lizards should always turn in the direction of the slope when encountering a slope.
 	- [x] Fire particles display a glow effect at (0, 0) instead of where the particle is.
 	- [x] Spikeballs bounce at unexpected angles when colliding with a slope.
 	- [x] Throwable tiles fall through a platform when thrown while standing on a platform.

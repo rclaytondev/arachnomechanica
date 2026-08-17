@@ -21,6 +21,7 @@ import { EntitySpawner } from "../level-generator/EntitySpawner.mjs";
 import { LoadingManager } from "../app-entry-points/LoadingManager.mjs";
 import { Renderable } from "../world/Renderer.mjs";
 import { Spawnable } from "../level-generator/Spawnable.mjs";
+import { SlopeTile } from "../tiles/SlopeTile.mjs";
 
 type Joint = { position: Vector, direction: Direction };
 
@@ -270,9 +271,49 @@ export class Lizard extends Collideable {
 			}
 			else {
 				const tileCoordinates = Tiles.getTileCoordinates(lookaheadPoint);
-				this.turn((tileCoordinates.x + tileCoordinates.y) % 2 === 0 ? clockwise : counterclockwise);
+				const tile = world.tiles.get(tileCoordinates);
+				if(tile instanceof SlopeTile) {
+					this.turnFromSlope(tile);
+				}
+				else {
+					this.turnArbitrarily();
+				}
 			}
 		}
+	}
+	turnFromSlope(tileAhead: SlopeTile) {
+		const opposite = Directions.opposite[this.direction];
+		if(Directions.isHorizontal(this.direction)) {
+			if(tileAhead.normal === `up-${opposite}`) {
+				this.turn("up");
+			}
+			else if(tileAhead.normal === `down-${opposite}`) {
+				this.turn("down");
+			}
+			else {
+				this.turnArbitrarily();
+			}
+		}
+		else {
+			if(tileAhead.normal === `${opposite}-left`) {
+				this.turn("left");
+			}
+			else if(tileAhead.normal === `${opposite}-right`) {
+				this.turn("right");
+			}
+			else {
+				this.turnArbitrarily();
+			}
+		}
+	}
+	turnArbitrarily() {
+		const position = Tiles.getTileCoordinates(this.position);
+		const direction = (
+			(position.x + position.y) % 2 === 0
+			? Directions.rotateClockwise
+			: Directions.rotateCounterclockwise
+		)[this.direction];
+		this.turn(direction);
 	}
 	turn(direction: Direction) {
 		if(direction !== this.direction) {
