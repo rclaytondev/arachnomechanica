@@ -6,13 +6,14 @@ import { GeomUtils } from "../game-utilities/GeomUtils.mjs";
 import { GraphicsUtils } from "../game-utilities/GraphicsUtils.mjs";
 import { RandomUtils } from "../game-utilities/RandomUtils.mjs";
 import { TileWithPosition, World } from "../world/World.mjs";
-import { Diagonal, Directions } from "../../utils-ts/modules/geometry/Direction.mjs";
+import { Diagonal, Direction, Directions } from "../../utils-ts/modules/geometry/Direction.mjs";
 import { RectangularCollideable } from "../game-utilities/physics-engine/RectangularCollideable.mjs";
 import { CollisionEvent } from "../game-utilities/physics-engine/CollisionEvent.mjs";
 import { SpikeballBlock } from "./SpikeballBlock.mjs";
 import { Renderable } from "../world/Renderer.mjs";
 import { Player } from "../Player.mjs";
 import { Collideable } from "../game-utilities/physics-engine/Collideable.mjs";
+import { MathUtils } from "../../utils-ts/modules/math/MathUtils.mjs";
 
 abstract class SpikeballState {
 	abstract update(self: Spikeball, world: World, canvasIO: CanvasIO): void;
@@ -22,9 +23,7 @@ abstract class SpikeballState {
 
 class MovingState extends SpikeballState {
 	update(self: Spikeball, world: World, canvasIO: CanvasIO): void {
-		self.move(Vector.gridUnit(self.direction).multiply(SpikeballData.SPEED), world, canvasIO, {
-			collides: (obj) => self.collides(obj),
-		});
+		self.moveForward(world, canvasIO);
 	}
 
 	render() {
@@ -97,9 +96,18 @@ export class Spikeball extends RectangularCollideable {
 	overlappingObjects: (Spikeball | SpikeballBlock | Vector)[] = [];
 	lastCollisionFrame: number = -1;
 
+	slideUpSlopes: boolean = false;
+	slideDownSlopes: boolean = false;
+
 	constructor(position: Vector, direction: Diagonal) {
 		super(Rectangle.fromDimensions(position.x, position.y, 2 * SpikeballData.RADIUS, 2 * SpikeballData.RADIUS));
 		this.direction = direction;
+	}
+	static fromCenter(position: Vector, direction: Diagonal) {
+		return new Spikeball(
+			position.subtract(SpikeballData.RADIUS, SpikeballData.RADIUS),
+			direction,
+		);
 	}
 
 	collides(object: Collideable | TileWithPosition) {
@@ -162,15 +170,41 @@ export class Spikeball extends RectangularCollideable {
 		const collidingObject = collision.collidingObject(this);
 		if(collision.movingObject === this && !(collidingObject instanceof Player)) {
 			this.bounces --;
-			if(Directions.isHorizontal(collision.direction)) {
-				this.direction = Directions.reflectX[this.direction];
+			if(collidingObject instanceof Spikeball) {
+				this.bounceOffSpikeball(collidingObject, collision.direction);
 			}
 			else {
-				this.direction = Directions.reflectY[this.direction];
+				this.bounce(collision.direction);
 			}
 		}
 		if(collidingObject instanceof Player && this.state instanceof MovingState) {
 			this.state = new AttackState();
+		}
+	}
+	bounceOffSpikeball(spikeball: Spikeball, movementDir: Direction) {
+		const cornerDist = (
+			(this.direction === "down-left" || this.direction === "up-right")
+			? MathUtils.dist(this.hitbox.left + this.hitbox.top, spikeball.hitbox.left + spikeball.hitbox.top)
+			: MathUtils.dist(this.hitbox.left - this.hitbox.top, spikeball.hitbox.left - spikeball.hitbox.top)
+		);
+		const isPerfectHit = (
+			spikeball.direction === Directions.opposite[this.direction]
+			&& cornerDist < SpikeballData.CORNER_BOUNCE_DIST
+		);
+		if(isPerfectHit) {
+			this.direction = Directions.opposite[this.direction];
+			spikeball.direction = Directions.opposite[spikeball.direction];
+		}
+		else {
+			this.bounce(movementDir);
+		}
+	}
+	bounce(movementDir: Direction) {
+		if(Directions.isHorizontal(movementDir)) {
+			this.direction = Directions.reflectX[this.direction];
+		}
+		else {
+			this.direction = Directions.reflectY[this.direction];
 		}
 	}
 	update(world: World, canvasIO: CanvasIO) {
@@ -185,6 +219,26 @@ export class Spikeball extends RectangularCollideable {
 				((s instanceof Spikeball || s instanceof SpikeballBlock) && s.intersects(this))
 				|| (s instanceof Vector && this.hitbox.intersects(Rectangle.square(s.x, s.y, 1).scale(WorldData.TILE_SIZE)))
 			));
+		}
+	}
+	moveForward(world: World, canvasIO: CanvasIO) {
+		const options = {
+			collides: this.collides.bind(this),
+			movedObjects: new Set<Collideable>(),
+		};
+		for(let i = 0; i < SpikeballData.SPEED; i ++) {
+			const direction = this.direction;
+			const hitbox = Rectangle.fromBounds(this.hitbox.left, this.hitbox.right, this.hitbox.top, this.hitbox.bottom);
+			const xDirection = (this.direction === "up-left" || this.direction === "down-left") ? "left" : "right";
+			const yDirection = (this.direction === "up-left" || this.direction === "up-right") ? "up" : "down";
+			const canMoveX = this.canMove(xDirection, world, canvasIO);
+			const canMoveY = this.canMove(yDirection, world, canvasIO);
+			this.move(Vector.gridUnit(this.direction), world, canvasIO, options);
+			if(canMoveX === canMoveY && this.direction !== direction) {
+				/* Hit a corner perfectly or hit a slope */
+				this.direction = Directions.opposite[direction];
+				this.hitbox = hitbox;
+			}
 		}
 	}
 

@@ -383,6 +383,7 @@ export class SpikeballData {
 	static HURTBOX_SIZE = WorldData.TILE_SIZE * 1.8;
 	static TELEGRAPH_DELAY = 33;
 	static ATTACK_DURATION = 20;
+	static CORNER_BOUNCE_DIST = 3;
 
 	static TELEGRAPH_RADIUS = SpikeballData.HURTBOX_SIZE / 2;
 	static TELEGRAPH_THICKNESS = 20;
