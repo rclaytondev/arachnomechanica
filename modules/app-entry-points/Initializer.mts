@@ -1,4 +1,3 @@
-import { canvasIO } from "../../utils-ts/modules/CanvasIO.mjs";
 import { GameUtils } from "../game-utilities/GameUtils.mjs";
 import { Main } from "../Main.mjs";
 import { LoadingManager } from "./LoadingManager.mjs";
@@ -9,10 +8,14 @@ import "../entities/LaserBlock.mjs";
 import "../entities/SpikeballBlock.mjs";
 import "../entities/TeleportingCreature.mjs";
 import { StartScreen } from "../user-interface/StartScreen.mjs";
+import { canvasIO } from "./CanvasIOInitializer.mjs";
 
 LoadingManager.loaded();
 
 Main.screen = new StartScreen();
+
+canvasIO.attach();
+canvasIO.addEventListeners();
 
 const FRAMERATE = 60;
 window.setInterval(() => {

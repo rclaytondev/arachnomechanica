@@ -4,7 +4,7 @@ import { Gate, GateController } from "../entities/Gate.mjs";
 import { Rectangle } from "../../utils-ts/modules/geometry/Rectangle.mjs";
 import { TowerTile } from "../tiles/TowerTile.mjs";
 import { Vector } from "../../utils-ts/modules/geometry/Vector.mjs";
-import { canvasIO } from "../../utils-ts/modules/CanvasIO.mjs";
+import { canvasIO } from "../app-entry-points/CanvasIOInitializer.mjs";
 import { Tiles } from "../world/Tiles.mjs";
 
 const areGatesToggled = (world: World) => {

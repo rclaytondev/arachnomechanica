@@ -1,4 +1,5 @@
-import { canvasIO, CanvasIO } from "../../utils-ts/modules/CanvasIO.mjs";
+import { CanvasIO } from "../../utils-ts/modules/CanvasIO.mjs";
+import { canvasIO } from "../app-entry-points/CanvasIOInitializer.mjs";
 import { DEBUG_SETTINGS } from "../constants/DebugSettings.mjs";
 import { ROOMS } from "../constants/Rooms.mjs";
 import { Main } from "../Main.mjs";

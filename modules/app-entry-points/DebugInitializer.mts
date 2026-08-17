@@ -1,5 +1,5 @@
 import "./Initializer.mjs";
-import { canvasIO } from "../../utils-ts/modules/CanvasIO.mjs";
+import { canvasIO } from "./CanvasIOInitializer.mjs";
 import { Vector } from "../../utils-ts/modules/geometry/Vector.mjs";
 import { DEBUG_SETTINGS } from "../constants/DebugSettings.mjs";
 import { LevelGenerator } from "../level-generator/LevelGenerator.mjs";

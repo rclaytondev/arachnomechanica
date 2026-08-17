@@ -1,7 +1,7 @@
 import { assert } from "chai";
 import { Rectangle } from "../../utils-ts/modules/geometry/Rectangle.mjs";
 import { TileWithPosition, World } from "../world/World.mjs";
-import { canvasIO } from "../../utils-ts/modules/CanvasIO.mjs";
+import { canvasIO } from "../app-entry-points/CanvasIOInitializer.mjs";
 import { RectangularCollideable } from "../game-utilities/physics-engine/RectangularCollideable.mjs";
 import { Collideable } from "../game-utilities/physics-engine/Collideable.mjs";
 import { Vector } from "../../utils-ts/modules/geometry/Vector.mjs";
