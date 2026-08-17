@@ -16,6 +16,8 @@ Features to add to improve game feel:
 	- [x] Throwable tiles fall through a platform when thrown while standing on a platform.
 	- [x] Fireballs slide up slopes instead of exploding on collision.
 	- [x] Some enemies have undesirable behavior in certain specific rooms. To fix this, designate some rooms as being unable to spawn in the presence of certain enemy types.
+	- [ ] Spikeball spawners only shoot one spikeball at a time, despite the particles indicating they should shoot two.
+	- [ ] Spiders that fall while telegraphing an attack continue to telegraph while falling.
 - [ ] **Graphical improvements**
 	- [ ] Activated lasers should have a crackly lightning appearance
 	- [ ] Remove grey particles from unactivated lasers
