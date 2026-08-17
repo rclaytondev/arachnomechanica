@@ -2,7 +2,6 @@ import { Vector } from "../../utils-ts/modules/geometry/Vector.mjs";
 import { ParticleSettings } from "../game-utilities/Particle.mjs";
 import { Traversability } from "../level-generator/Room.mjs";
 import { GateState } from "../level-generator/GateState.mjs";
-import { Direction } from "../../utils-ts/modules/geometry/Direction.mjs";
 import { FireSpawnerSettings } from "../game-utilities/FireSpawner.mjs";
 import { GraphicsUtils } from "../game-utilities/GraphicsUtils.mjs";
 import { Rectangle } from "../../utils-ts/modules/geometry/Rectangle.mjs";
@@ -406,7 +405,7 @@ export class SpikeballData {
 	};
 }
 
-export type SpikeballPattern = [Direction, Direction][][];
+export type SpikeballPattern = ["left" | "right", "up" | "down"][][];
 
 export class SpikeballBlockData {
 	static SPAWN_FREQUENCY = 40;

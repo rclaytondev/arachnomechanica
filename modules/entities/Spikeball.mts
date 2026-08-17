@@ -6,7 +6,7 @@ import { GeomUtils } from "../game-utilities/GeomUtils.mjs";
 import { GraphicsUtils } from "../game-utilities/GraphicsUtils.mjs";
 import { RandomUtils } from "../game-utilities/RandomUtils.mjs";
 import { TileWithPosition, World } from "../world/World.mjs";
-import { Directions } from "../../utils-ts/modules/geometry/Direction.mjs";
+import { Diagonal, Directions } from "../../utils-ts/modules/geometry/Direction.mjs";
 import { RectangularCollideable } from "../game-utilities/physics-engine/RectangularCollideable.mjs";
 import { CollisionEvent } from "../game-utilities/physics-engine/CollisionEvent.mjs";
 import { SpikeballBlock } from "./SpikeballBlock.mjs";
@@ -22,7 +22,7 @@ abstract class SpikeballState {
 
 class MovingState extends SpikeballState {
 	update(self: Spikeball, world: World, canvasIO: CanvasIO): void {
-		self.move(self.velocity, world, canvasIO, {
+		self.move(Vector.gridUnit(self.direction).multiply(SpikeballData.SPEED), world, canvasIO, {
 			collides: (obj) => self.collides(obj),
 		});
 	}
@@ -91,15 +91,15 @@ class AttackState extends SpikeballState {
 
 export class Spikeball extends RectangularCollideable {
 	state: SpikeballState = new MovingState();
-	velocity: Vector;
+	direction: Diagonal;
 	age: number = 0;
 	bounces: number = SpikeballData.BOUNCES;
 	overlappingObjects: (Spikeball | SpikeballBlock | Vector)[] = [];
 	lastCollisionFrame: number = -1;
 
-	constructor(position: Vector, velocity: Vector) {
+	constructor(position: Vector, direction: Diagonal) {
 		super(Rectangle.fromDimensions(position.x, position.y, 2 * SpikeballData.RADIUS, 2 * SpikeballData.RADIUS));
-		this.velocity = velocity;
+		this.direction = direction;
 	}
 
 	collides(object: Collideable | TileWithPosition) {
@@ -123,7 +123,7 @@ export class Spikeball extends RectangularCollideable {
 		const center = this.hitbox.center();
 		canvasIO.ctx.save();
 		canvasIO.ctx.translate(center.x, center.y);
-		canvasIO.ctx.rotate(this.velocity.angle());
+		canvasIO.ctx.rotate(-Directions.angle[this.direction]);
 		canvasIO.ctx.fillStyle = SpikeballData.COLOR;
 		canvasIO.fillPoly(
 			-SpikeballData.WING_WIDTH, SpikeballData.WING_WIDTH,
@@ -163,10 +163,10 @@ export class Spikeball extends RectangularCollideable {
 		if(collision.movingObject === this && !(collidingObject instanceof Player)) {
 			this.bounces --;
 			if(Directions.isHorizontal(collision.direction)) {
-				this.velocity.x *= -1;
+				this.direction = Directions.reflectX[this.direction];
 			}
 			else {
-				this.velocity.y *= -1;
+				this.direction = Directions.reflectY[this.direction];
 			}
 		}
 		if(collidingObject instanceof Player && this.state instanceof MovingState) {

@@ -224,10 +224,11 @@ export class SpikeballBlock extends RectangularCollideable {
 			&& !this.isObstructedByEntities(xDirection, yDirection, world)
 		);
 	}
-	spawnSpikeball(xDirection: Direction, yDirection: Direction, world: World) {
+	spawnSpikeball(xDirection: "left" | "right", yDirection: "up" | "down", world: World) {
+		const direction = Directions.createDiagonal[xDirection][yDirection];
 		const spikeball = new Spikeball(
 			this.hitbox.center().subtract(SpikeballData.RADIUS, SpikeballData.RADIUS),
-			Vector.unit(xDirection).add(Vector.unit(yDirection)).multiply(SpikeballData.SPEED),
+			direction,
 		);
 		const tilePosition = this.tilePosition();
 		spikeball.overlappingObjects.push(
