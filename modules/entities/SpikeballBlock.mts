@@ -171,9 +171,7 @@ export class SpikeballBlock extends RectangularCollideable {
 		for(const [xDirection, yDirection] of this.pattern[this.patternStep]) {
 			if(this.canSpawnSpikeball(xDirection, yDirection, world)) {
 				const spikeball = this.spawnSpikeball(xDirection, yDirection, world);
-				if(spikeball != null) {
-					spikeballs.push(spikeball);
-				}
+				spikeballs.push(spikeball);
 			}
 		}
 
@@ -237,13 +235,9 @@ export class SpikeballBlock extends RectangularCollideable {
 			tilePosition.add(Vector.unit(yDirection)),
 			tilePosition.add(Vector.unit(xDirection)).add(Vector.unit(yDirection)),
 		);
-		const intersecting = world.entities.collideablesIntersecting(spikeball.hitbox, (o) => o !== this);
-		if(intersecting.size === 0) {
-			this.spikeballs.push(spikeball);
-			world.entities.add(spikeball);
-			return spikeball;
-		}
-		return null;
+		this.spikeballs.push(spikeball);
+		world.entities.add(spikeball);
+		return spikeball;
 	}
 
 	static canSpawn(position: Vector, world: World) {
