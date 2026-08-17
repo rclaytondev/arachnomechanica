@@ -282,28 +282,16 @@ export class Lizard extends Collideable {
 		}
 	}
 	turnFromSlope(tileAhead: SlopeTile) {
-		const opposite = Directions.opposite[this.direction];
-		if(Directions.isHorizontal(this.direction)) {
-			if(tileAhead.normal === `up-${opposite}`) {
-				this.turn("up");
-			}
-			else if(tileAhead.normal === `down-${opposite}`) {
-				this.turn("down");
-			}
-			else {
-				this.turnArbitrarily();
-			}
+		const normalCW = Directions.rotateClockwise[Directions.rotateClockwise45[this.direction]];
+		const normalCCW = Directions.rotateCounterclockwise[Directions.rotateCounterclockwise45[this.direction]];
+		if(tileAhead.normal === normalCW) {
+			this.turn(Directions.rotateClockwise[this.direction]);
+		}
+		else if(tileAhead.normal === normalCCW) {
+			this.turn(Directions.rotateCounterclockwise[this.direction]);
 		}
 		else {
-			if(tileAhead.normal === `${opposite}-left`) {
-				this.turn("left");
-			}
-			else if(tileAhead.normal === `${opposite}-right`) {
-				this.turn("right");
-			}
-			else {
-				this.turnArbitrarily();
-			}
+			this.turnArbitrarily();
 		}
 	}
 	turnArbitrarily() {
