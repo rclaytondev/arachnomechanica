@@ -5,9 +5,9 @@ import { DEBUG_SETTINGS } from "../constants/DebugSettings.mjs";
 import { LevelGenerator } from "../level-generator/LevelGenerator.mjs";
 import { Main } from "../Main.mjs";
 import { WorldScreen } from "../world/WorldScreen.mjs";
-import { spikeballScenario } from "../debug-scenarios/spikeball-test.mjs";
+import { lizardHeadOnCollisionScenario } from "../debug-scenarios/lizard-head-on-collision-test.mjs";
 
-const [world] = spikeballScenario.setupWorld();
+const [world] = lizardHeadOnCollisionScenario.setupWorld();
 Main.screen = new WorldScreen(world);
 
 
