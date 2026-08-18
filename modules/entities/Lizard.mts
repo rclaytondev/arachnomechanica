@@ -256,10 +256,12 @@ export class Lizard extends Collideable {
 	checkForCollisions(world: World) {
 		const lookaheadPoint = this.position.add(Vector.unit(this.direction).multiply(LizardData.LOOKAHEAD_DISTANCE));
 		if(this.isObstructed(world, this.direction) && this.waitingTimer < 0) {
+			const distance = LizardData.HITBOX_WIDTH / 2;
+			const length = WorldData.TILE_SIZE - distance;
 			const clockwise = Directions.rotateClockwise[this.direction];
 			const counterclockwise = Directions.rotateCounterclockwise[this.direction];
-			const obstructedCounterclockwise = this.isObstructed(world, counterclockwise, WorldData.TILE_SIZE);
-			const obstructedClockwise = this.isObstructed(world, clockwise, WorldData.TILE_SIZE);
+			const obstructedCounterclockwise = this.isObstructed(world, counterclockwise, distance, length);
+			const obstructedClockwise = this.isObstructed(world, clockwise, distance, length);
 			if(obstructedClockwise && obstructedCounterclockwise) {
 				this.fireSpawner.startFire(LizardData.FIRE_DURATION);
 			}
