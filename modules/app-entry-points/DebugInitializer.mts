@@ -5,8 +5,10 @@ import { DEBUG_SETTINGS } from "../constants/DebugSettings.mjs";
 import { LevelGenerator } from "../level-generator/LevelGenerator.mjs";
 import { Main } from "../Main.mjs";
 import { WorldScreen } from "../world/WorldScreen.mjs";
+import { spikeballScenario } from "../debug-scenarios/spikeball-test.mjs";
 
-import "../debug-scenarios/basic-lizard-test.mjs";
+const [world] = spikeballScenario.setupWorld();
+Main.screen = new WorldScreen(world);
 
 
 if(DEBUG_SETTINGS.GENERATOR_VISUALIZATION.ENABLED && Main.screen instanceof WorldScreen) {
