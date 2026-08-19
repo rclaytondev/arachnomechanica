@@ -229,9 +229,9 @@ export class LaserBlockData {
 
 export class LizardData {
 	static SPEED = 3;
-	static LOOKAHEAD_WIDTH = WorldData.TILE_SIZE * 0.8;
 	static LOOKAHEAD_DISTANCE = WorldData.TILE_SIZE * 1/2;
 	static HITBOX_WIDTH = WorldData.TILE_SIZE * 1/2;
+	static LOOKAHEAD_WIDTH = LizardData.HITBOX_WIDTH - 2;
 	static FIRE_DURATION = 30;
 	static PLAYER_DETECTION_WIDTH = WorldData.TILE_SIZE * 0.5;
 	static TURN_DELAY = 7;

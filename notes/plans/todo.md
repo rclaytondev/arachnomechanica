@@ -2,7 +2,7 @@ Features to add to improve game feel:
 - [ ] **Bugfixes and inconsistencies** - fix all the small bugs and inconsistencies that affect gameplay
 	- [x] Lizards can breathe fire at the player even when the player is on the other side of a wall
 	- [x] Lizards that meet each other head-on can have unpredictable behavior afterwards (one can destroy the other at the next turn; which one it is depends on their exact pixel positioning)
-	- [ ] Lizards that breathe fire horizontally can (maybe?) destroy throwable tiles on top of their heads
+	- [x] Lizards that breathe fire horizontally can (maybe?) destroy throwable tiles on top of their heads
 	- [x] Placing a block on a spikeball spawner does not stop the spawner; it just makes the spikeballs move in a janky way
 	- [x] Gates sometimes (rarely) do not toggle when the player goes through
 	- [x] When multiple teleporting creatures are nearby, there is no way to know which will teleport.
