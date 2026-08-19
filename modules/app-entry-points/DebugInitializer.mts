@@ -5,9 +5,9 @@ import { DEBUG_SETTINGS } from "../constants/DebugSettings.mjs";
 import { LevelGenerator } from "../level-generator/LevelGenerator.mjs";
 import { Main } from "../Main.mjs";
 import { WorldScreen } from "../world/WorldScreen.mjs";
-import { lizardHeadOnCollisionScenario } from "../debug-scenarios/lizard-head-on-collision-test.mjs";
+import { lizardAdjacentTileScenario } from "../debug-scenarios/lizard-adjacent-tile-test.mjs";
 
-const [world] = lizardHeadOnCollisionScenario.setupWorld();
+const [world] = lizardAdjacentTileScenario.setupWorld();
 Main.screen = new WorldScreen(world);
 
 
