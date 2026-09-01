@@ -298,7 +298,7 @@ export class SpiderLeg {
 		this.maxDistance = maxDistance;
 	}
 
-	update(spider: Spider) {
+	update(spider: Spider, isFarOffscreen: boolean) {
 		if(Math.abs(this.distance) <= this.minDistance || Math.sign(this.distance) !== Math.sign(this.attachmentOffset.x)) {
 			this.destinationDistance = this.maxDistance * Math.sign(this.attachmentOffset.x);
 		}
@@ -310,13 +310,16 @@ export class SpiderLeg {
 			this.distance = GeomUtils.moveTowards(this.distance, this.destinationDistance, SpiderData.LEG_SPEED);
 		}
 
-		const destination = this.destination(spider);
+		const destination = this.destination(spider, isFarOffscreen);
 		const updateSpeed = spider.projectileState.speed + SpiderData.LEG_UPDATE_SPEED;
 		this.position = GeomUtils.moveVectorTowards(this.position, destination, updateSpeed);
 	}
-	destination(spider: Spider) {
+	destination(spider: Spider, isFarOffscreen: boolean) {
 		if(spider.movement instanceof FallingState || spider.movement.isFloating(spider)) {
 			return this.position;
+		}
+		if(isFarOffscreen) {
+			return spider.hitbox.center();
 		}
 		const direction = this.distance > 0 ? "clockwise" : "counterclockwise";
 		const [distance, point] = spider.movement.pointOnSurface.move(spider, spider.world, direction, Math.abs(this.distance), false);
@@ -514,7 +517,7 @@ export class Spider extends RectangularCollideable {
 		this.movement = movement;
 		this.world = world;
 		for(const leg of [this.legLeft1, this.legLeft2, this.legRight1, this.legRight2]) {
-			leg.position = leg.destination(this);
+			leg.position = leg.destination(this, false);
 		}
 	}
 
@@ -590,10 +593,14 @@ export class Spider extends RectangularCollideable {
 
 	update() {
 		this.movement.update(this);
-		this.legLeft1.update(this);
-		this.legLeft2.update(this);
-		this.legRight1.update(this);
-		this.legRight2.update(this);
+		this.updateLegs();
+	}
+	updateLegs() {
+		const isFarOffscreen = !(this.world.worldScreen?.camera.isVisible(this, SpiderData.LEG_OFFSCREEN_DISTANCE) ?? false);
+		this.legLeft1.update(this, isFarOffscreen);
+		this.legLeft2.update(this, isFarOffscreen);
+		this.legRight1.update(this, isFarOffscreen);
+		this.legRight2.update(this, isFarOffscreen);
 	}
 	seesPlayer() {
 		const center = this.hitbox.center();

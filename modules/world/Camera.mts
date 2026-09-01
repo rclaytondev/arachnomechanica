@@ -5,6 +5,7 @@ import { WorldData } from "../constants/GameData.mjs";
 import { WorldBorder } from "../entities/WorldBorder.mjs";
 import { Debug } from "../game-utilities/Debug.mjs";
 import { GeomUtils } from "../game-utilities/GeomUtils.mjs";
+import { Collideable } from "../game-utilities/physics-engine/Collideable.mjs";
 import { Entities } from "./Entities.mjs";
 
 export class Camera {
@@ -43,6 +44,10 @@ export class Camera {
 			Math.floor(center.y - (this.#canvasIO.canvas.height / 2 / WorldData.TILE_SIZE)) - offscreenTiles,
 			Math.ceil(center.y + (this.#canvasIO.canvas.height / 2 / WorldData.TILE_SIZE)) + offscreenTiles,
 		);
+	}
+	isVisible(collideable: Collideable, offscreenAmount: number = 0) {
+		const region = this.visibleRegion(offscreenAmount);
+		return collideable.hitboxes().some(h => h.intersects(region));
 	}
 
 	static isCameraPositionValid(position: Vector, entities: Entities, canvasIO: CanvasIO) {

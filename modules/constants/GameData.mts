@@ -500,6 +500,7 @@ export class SpiderData {
 		MIN_DISTANCE: 40,
 		MAX_DISTANCE: 70,
 	};
+	static LEG_OFFSCREEN_DISTANCE = 100;
 
 	static NUM_EYES = 3;
 	static EYE_DISTANCE = 8;
