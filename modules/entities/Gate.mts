@@ -4,7 +4,6 @@ import { Rectangle } from "../../utils-ts/modules/geometry/Rectangle.mjs";
 import { Vector } from "../../utils-ts/modules/geometry/Vector.mjs";
 import { GateData, WorldData } from "../constants/GameData.mjs";
 import { GeomUtils } from "../game-utilities/GeomUtils.mjs";
-import { Player } from "../Player.mjs";
 import { World } from "../world/World.mjs";
 import { RectangularCollideable } from "../game-utilities/physics-engine/RectangularCollideable.mjs";
 import { Tiles } from "../world/Tiles.mjs";
@@ -137,7 +136,7 @@ export class Gate extends RectangularCollideable {
 	}
 	update() {
 		if(this.lastFrameUpdated !== this.world.frameCount - 1) {
-			this.initialize(this.world.player);
+			this.initialize();
 		}
 		this.lastFrameUpdated = this.world.frameCount;
 		this.checkPlayer();
@@ -166,8 +165,8 @@ export class Gate extends RectangularCollideable {
 			this.destroy(this.hitbox);
 		}
 	}
-	adjacentGates(x: number, y: number, direction: Direction) {
-		let position = Vector.unit(direction).add(x, y);
+	adjacentGates(direction: Direction) {
+		let position = this.tilePosition().add(Vector.unit(direction));
 		let count = 0;
 		while(Gate.isGateAt(position, this.world.entities)) {
 			count ++;
@@ -175,30 +174,32 @@ export class Gate extends RectangularCollideable {
 		}
 		return count;
 	}
-	playerInRowOrColumn(playerHitbox: Rectangle) {
+	playerInRowOrColumn() {
+		const playerHitbox = this.world.player.hitbox;
 		const { x, y } = this.tilePosition();
 		const tile = Tiles.getTileSquare(new Vector(x, y));
 		if(Directions.isVertical(this.direction)) {
-			const gatesAbove = this.adjacentGates(x, y, "up");
-			const gatesBelow = this.adjacentGates(x, y, "down");
+			const gatesAbove = this.adjacentGates("up");
+			const gatesBelow = this.adjacentGates("down");
 			const groupTop = tile.top - gatesAbove * WorldData.TILE_SIZE;
 			const groupBottom = tile.bottom + gatesBelow * WorldData.TILE_SIZE;
 			return (playerHitbox.bottom >= groupTop && playerHitbox.top <= groupBottom);
 		}
 		else {
-			const gatesLeft = this.adjacentGates(x, y, "left");
-			const gatesRight = this.adjacentGates(x, y, "right");
+			const gatesLeft = this.adjacentGates("left");
+			const gatesRight = this.adjacentGates("right");
 			const groupLeft = tile.left - gatesLeft * WorldData.TILE_SIZE;
 			const groupRight = tile.right + gatesRight * WorldData.TILE_SIZE;
 			return (playerHitbox.right >= groupLeft && playerHitbox.left <= groupRight);
 		}
 	}
-	getPlayerSide(x: number, y: number) {
-		const sameRowOrColumn = this.playerInRowOrColumn(this.world.player.hitbox);
+	getPlayerSide() {
+		const { x, y } = this.tilePosition();
+		const sameRowOrColumn = this.playerInRowOrColumn();
 		const hitbox = this.world.player.hitbox;
 		if(Directions.isVertical(this.direction)) {
-			const gatesLeft = this.adjacentGates(x, y, "left");
-			const gatesRight = this.adjacentGates(x, y, "right");
+			const gatesLeft = this.adjacentGates("left");
+			const gatesRight = this.adjacentGates("right");
 			const onLeft = (hitbox.right <= (x - gatesLeft) * WorldData.TILE_SIZE - GateData.TOGGLE_DISTANCE);
 			const onRight = (hitbox.x >= (x + gatesRight + 1) * WorldData.TILE_SIZE + GateData.TOGGLE_DISTANCE);
 			if(sameRowOrColumn) {
@@ -209,8 +210,8 @@ export class Gate extends RectangularCollideable {
 			}
 		}
 		else {
-			const gatesAbove = this.adjacentGates(x, y, "up");
-			const gatesBelow = this.adjacentGates(x, y, "down");
+			const gatesAbove = this.adjacentGates("up");
+			const gatesBelow = this.adjacentGates("down");
 			const above = hitbox.bottom <= (y - gatesAbove) * WorldData.TILE_SIZE - GateData.TOGGLE_DISTANCE;
 			const below = hitbox.y >= (y + gatesBelow + 1) * WorldData.TILE_SIZE + GateData.TOGGLE_DISTANCE;
 			if(sameRowOrColumn) {
@@ -223,10 +224,9 @@ export class Gate extends RectangularCollideable {
 	}
 	checkPlayer() {
 		const tilePosition = this.tilePosition();
-		const sameRowOrColumn = this.playerInRowOrColumn(this.world.player.hitbox);
-		const { x, y } = tilePosition;
+		const sameRowOrColumn = this.playerInRowOrColumn();
 
-		const newSide = this.getPlayerSide(x, y);
+		const newSide = this.getPlayerSide();
 		const adjacentTile = tilePosition.add(Vector.unit(
 			(Directions.isVertical(this.direction))
 			? (newSide === "negative" ? "left" : "right")
@@ -241,13 +241,13 @@ export class Gate extends RectangularCollideable {
 		this.playerSide = newSide;
 	}
 
-	initialize(player: Player) {
+	initialize() {
 		const gate = this.hitbox.center();
 		if(Directions.isVertical(this.direction)) {
-			this.playerSide = player.hitbox.center().x < gate.x ? "negative" : "positive";
+			this.playerSide = this.world.player.hitbox.center().x < gate.x ? "negative" : "positive";
 		}
 		else {
-			this.playerSide = player.hitbox.center().y < gate.y ? "negative" : "positive";
+			this.playerSide = this.world.player.hitbox.center().y < gate.y ? "negative" : "positive";
 		}
 	}
 
