@@ -16,24 +16,24 @@ export class Platform extends Tile {
 	static readonly PLATFORM = new Platform();
 
 	render(position: Vector, tiles: Tiles): Renderable[] {
-		return [new Renderable(c => this.display(c, position.x, position.y, tiles), "tile")];
+		return [new Renderable(c => this.display(c, position, tiles), "tile")];
 	}
-	display(canvasIO: CanvasIO, x: number, y: number, tiles: Tiles): void {
+	display(canvasIO: CanvasIO, position: Vector, tiles: Tiles): void {
 		canvasIO.ctx.fillStyle = WorldData.TILE_COLORS.tower;
 		canvasIO.ctx.fillRect(
-			x * WorldData.TILE_SIZE, y * WorldData.TILE_SIZE,
+			position.x * WorldData.TILE_SIZE, position.y * WorldData.TILE_SIZE,
 			WorldData.TILE_SIZE + 1, 2 * WorldData.TILE_ACCENT_INSET,
 		);
-		const platformLeft = (tiles.get(x - 1, y) === Platform.PLATFORM);
-		const platformRight = (tiles.get(x + 1, y) === Platform.PLATFORM);
+		const platformLeft = (tiles.get(position.x - 1, position.y) === Platform.PLATFORM);
+		const platformRight = (tiles.get(position.x + 1, position.y) === Platform.PLATFORM);
 		const accentStart = platformLeft ? -1 : WorldData.TILE_ACCENT_INSET;
 		const accentEnd = WorldData.TILE_SIZE- (platformRight ? -1 : WorldData.TILE_ACCENT_INSET);
-		const accentY = y * WorldData.TILE_SIZE + WorldData.TILE_ACCENT_INSET;
+		const accentY = position.y * WorldData.TILE_SIZE + WorldData.TILE_ACCENT_INSET;
 		canvasIO.ctx.strokeStyle = WorldData.TILE_ACCENT_COLOR;
 		canvasIO.ctx.lineWidth = WorldData.TILE_ACCENT_THICKNESS;
 		canvasIO.strokeLine(
-			x * WorldData.TILE_SIZE + accentStart, accentY,
-			x * WorldData.TILE_SIZE + accentEnd, accentY,
+			position.x * WorldData.TILE_SIZE + accentStart, accentY,
+			position.x * WorldData.TILE_SIZE + accentEnd, accentY,
 		);
 	}
 

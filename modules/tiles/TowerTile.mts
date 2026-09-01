@@ -17,17 +17,17 @@ export class TowerTile extends BasicTile {
 
 	render(position: Vector, tiles: Tiles) {
 		return [
-			new Renderable(c => this.display(c, position.x, position.y), "tile"),
+			new Renderable(c => this.display(c, position), "tile"),
 			new Renderable(c => this.displayAccent(position, c, tiles), "tile-accent"),
 		];
 	}
 	displayAccent(position: Vector, canvasIO: CanvasIO, tiles: Tiles) {
 		TowerTile.displayTileAccent(position, canvasIO, tiles);
 	}
-	display(canvasIO: CanvasIO, x: number, y: number): void {
+	display(canvasIO: CanvasIO, position: Vector): void {
 		canvasIO.ctx.fillStyle = WorldData.TILE_COLORS["tower"];
 		canvasIO.ctx.beginPath();
-		this.addToPath(new Vector(x, y), canvasIO);
+		this.addToPath(position, canvasIO);
 		canvasIO.ctx.fill();
 	}
 

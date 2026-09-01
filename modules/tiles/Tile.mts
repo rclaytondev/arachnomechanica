@@ -10,7 +10,7 @@ import { Tiles } from "../world/Tiles.mjs";
 
 export abstract class Tile {
 	abstract render(position: Vector, tiles: Tiles): Renderable[];
-	abstract display(canvasIO: CanvasIO, x: number, y: number, tiles: Tiles): void;
+	abstract display(canvasIO: CanvasIO, position: Vector, tiles: Tiles): void;
 	abstract reflect(): Tile;
 
 	abstract angularMotionBlockers(tilePosition: Vector, point: Vector, direction: "clockwise" | "counterclockwise"): (Direction | Diagonal)[];
