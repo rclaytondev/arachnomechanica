@@ -22,8 +22,6 @@ import { TileWithPosition, World } from "../world/World.mjs";
 import { Fireball } from "./Fireball.mjs";
 
 export class PointOnSurface {
-	static calls = 0;
-
 	readonly normal: Direction | Diagonal;
 	readonly position: Vector;
 	constructor(point: Vector, normal: Direction | Diagonal) {
@@ -68,7 +66,6 @@ export class PointOnSurface {
 		return Math.max(0, Math.min(maxDistance, ...cornerDistances, ...entityDistances));
 	}
 	move(self: Collideable | null, world: World, direction: "clockwise" | "counterclockwise", max: number, stopAfterTurn: boolean = true): [number, PointOnSurface] {
-		PointOnSurface.calls ++;
 		let totalDistance = 0;
 		const currentDirection = direction;
 		// eslint-disable-next-line @typescript-eslint/no-this-alias
@@ -697,7 +694,7 @@ export class Spider extends RectangularCollideable {
 LoadingManager.onload(() => {
 	EntitySpawner.register(new Spawnable(
 		"spiders",
-		false,
+		true,
 		(tileRegion: Rectangle, safeRegion: Rectangle, world: World) => {
 			EntitySpawner.spawnEntities(
 				tileRegion.area() / (RoomData.SIZE ** 2) * SpiderData.SPIDERS_PER_ROOM,
