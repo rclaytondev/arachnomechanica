@@ -17,7 +17,7 @@ export class EntitySpawner {
 		EntitySpawner.spawnables.push(spawnable);
 	}
 
-	static randomizeEntities(numOptional: number = 2) {
+	static randomizeEntities(numOptional: number = 1) {
 		const optional = EntitySpawner.spawnables.filter(s => s.optional);
 		const mandatory = EntitySpawner.spawnables.filter(s => !s.optional);
 		return [...mandatory, ...RandomUtils.randomPermutation(optional).slice(0, numOptional)];

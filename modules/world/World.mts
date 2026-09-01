@@ -20,6 +20,7 @@ import { Debug } from "../game-utilities/Debug.mjs";
 import { SlopeTile } from "../tiles/SlopeTile.mjs";
 import { StaticEntities } from "../game-utilities/StaticEntity.mjs";
 import { DeathParticle } from "../game-utilities/DeathParticle.mjs";
+import { PointOnSurface } from "../entities/Spider.mjs";
 
 export type TileWithPosition = { position: Vector, tile: Tile };
 
@@ -68,11 +69,14 @@ export class World {
 	}
 
 	update(canvasIO: CanvasIO, camera?: Camera) {
+		PointOnSurface.calls = 0;
 		this.entities.update(camera);
 		this.staticEntities.update(this, canvasIO);
 		this.particles.update();
 		this.worldGenerator?.update(this);
 		this.frameCount ++;
+		// eslint-disable-next-line no-console
+		console.log(PointOnSurface.calls);
 	}
 
 	onSlope(rectangle: Rectangle, normal: Diagonal, mode: "up" | "down") {
