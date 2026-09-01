@@ -267,13 +267,13 @@ export class Lizard extends Collideable {
 	}
 	checkForCollisions() {
 		const lookaheadPoint = this.position.add(Vector.unit(this.direction).multiply(LizardData.LOOKAHEAD_DISTANCE));
-		if(this.isObstructed(this.world, this.direction) && this.waitingTimer < 0) {
+		if(this.isObstructed(this.direction) && this.waitingTimer < 0) {
 			const distance = LizardData.HITBOX_WIDTH / 2;
 			const length = WorldData.TILE_SIZE - distance;
 			const clockwise = Directions.rotateClockwise[this.direction];
 			const counterclockwise = Directions.rotateCounterclockwise[this.direction];
-			const obstructedCounterclockwise = this.isObstructed(this.world, counterclockwise, distance, length);
-			const obstructedClockwise = this.isObstructed(this.world, clockwise, distance, length);
+			const obstructedCounterclockwise = this.isObstructed(counterclockwise, distance, length);
+			const obstructedClockwise = this.isObstructed(clockwise, distance, length);
 			if(obstructedClockwise && obstructedCounterclockwise) {
 				this.fireSpawner.startFire(LizardData.FIRE_DURATION);
 			}
@@ -327,8 +327,8 @@ export class Lizard extends Collideable {
 			this.fireSpawner.stopFire();
 		}
 	}
-	attemptTurn(direction: Direction, world: World) {
-		if(!this.isObstructed(world, direction)) {
+	attemptTurn(direction: Direction) {
+		if(!this.isObstructed(direction)) {
 			this.turn(direction);
 		}
 	}
@@ -396,7 +396,7 @@ export class Lizard extends Collideable {
 			this.waitingTimer = LizardData.TURN_DELAY;
 		}
 		if(this.waitingTimer === 0 && this.nextTurn) {
-			this.attemptTurn(this.nextTurn, this.world);
+			this.attemptTurn(this.nextTurn);
 			this.nextTurn = null;
 		}
 	}
@@ -407,7 +407,7 @@ export class Lizard extends Collideable {
 			player.bottom > this.position.y - LizardData.PLAYER_DETECTION_WIDTH / 2 &&
 			player.top < this.position.y + LizardData.PLAYER_DETECTION_WIDTH / 2 &&
 			!this.isObstructed(
-				this.world, xDirection, LizardData.LOOKAHEAD_DISTANCE,
+				xDirection, LizardData.LOOKAHEAD_DISTANCE,
 				Math.min(MathUtils.dist(lookaheadPoint.x, player.left), MathUtils.dist(lookaheadPoint.x, player.right)) - LizardData.LOOKAHEAD_DISTANCE,
 			)
 		);
@@ -419,7 +419,7 @@ export class Lizard extends Collideable {
 			player.right > this.position.x - LizardData.PLAYER_DETECTION_WIDTH / 2 &&
 			player.left < this.position.x + LizardData.PLAYER_DETECTION_WIDTH / 2 &&
 			!this.isObstructed(
-				this.world, yDirection, LizardData.LOOKAHEAD_DISTANCE,
+				yDirection, LizardData.LOOKAHEAD_DISTANCE,
 				Math.min(MathUtils.dist(lookaheadPoint.y, player.top), MathUtils.dist(lookaheadPoint.y, player.bottom)) - LizardData.LOOKAHEAD_DISTANCE,
 			)
 		);
@@ -516,9 +516,9 @@ export class Lizard extends Collideable {
 			);
 		}
 	}
-	isObstructed(world: World, direction: Direction = this.direction, distance: number = LizardData.LOOKAHEAD_DISTANCE, length: number = 1) {
+	isObstructed(direction: Direction = this.direction, distance: number = LizardData.LOOKAHEAD_DISTANCE, length: number = 1) {
 		const lookaheadRectangle = this.lookaheadRectangle(direction, distance, 1);
-		const obstructedDistance = world.rectIntersectionDistance(lookaheadRectangle, direction, length, e => !(e instanceof Player));
+		const obstructedDistance = this.world.rectIntersectionDistance(lookaheadRectangle, direction, length, e => !(e instanceof Player));
 		return obstructedDistance < length;
 	}
 	getPointOnBody(distance: number): [Vector, Direction, Joint | "head", Joint | "tail", number, number] {
