@@ -7,6 +7,7 @@ import { GraphicsUtils } from "../game-utilities/GraphicsUtils.mjs";
 import { Particle } from "../game-utilities/Particle.mjs";
 import { Collideable } from "../game-utilities/physics-engine/Collideable.mjs";
 import { RectangularCollideable } from "../game-utilities/physics-engine/RectangularCollideable.mjs";
+import { RandomUtils } from "../game-utilities/RandomUtils.mjs";
 import { Renderable } from "../world/Renderer.mjs";
 import { World } from "../world/World.mjs";
 
@@ -31,11 +32,16 @@ export class Fireball extends RectangularCollideable {
 			collides: (obj) => !(this.ignoredEntities as unknown[]).includes(obj),
 		});
 
+		this.addParticle();
+	}
+	addParticle() {
+		const center = this.hitbox.center();
 		this.world.particles.add(new Particle(
-			this.hitbox.center(),
+			RandomUtils.randomInCircle(center.x, center.y, FireballData.PARTICLE_AREA),
 			new Vector(0, 0),
 			SpiderData.PROJECTILE_PARTICLE_SETTINGS,
 		), this.world);
+
 	}
 
 	displayGlowEffect(canvasIO: CanvasIO) {

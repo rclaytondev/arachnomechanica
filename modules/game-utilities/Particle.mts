@@ -88,10 +88,11 @@ export class Particle {
 	}
 
 	render() {
-		return [
-			new Renderable(this.display.bind(this), this.renderingID),
-			new Renderable(this.displayGlow.bind(this), "glow"),
-		];
+		const renderables = [new Renderable(this.display.bind(this), this.renderingID)];
+		if(this.glowIntensity !== 0 && this.glowSize !== 0) {
+			renderables.push(new Renderable(this.displayGlow.bind(this), "glow"));
+		}
+		return renderables;
 	}
 	display(canvasIO: CanvasIO) {
 		canvasIO.ctx.save();

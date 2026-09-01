@@ -554,6 +554,7 @@ export class FireballData {
 		green: 150,
 		blue: 50,
 	};
+	static PARTICLE_AREA = 5;
 }
 
 export class ItemData {
