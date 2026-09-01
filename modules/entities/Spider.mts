@@ -480,46 +480,39 @@ export class Spider extends RectangularCollideable {
 	movement: CrawlingState | FallingState;
 	projectileState: TelegraphState | DefaultState | RechargingState = new DefaultState();
 	angle: number = 0;
-	legs: SpiderLeg[] = [];
+	legLeft1: SpiderLeg = new SpiderLeg(
+		SpiderData.LEG_1.LENGTH,
+		SpiderData.LEG_1.ATTACHMENT.reflectX(),
+		SpiderData.LEG_1.MIN_DISTANCE,
+		SpiderData.LEG_1.MAX_DISTANCE,
+	);
+	legRight1: SpiderLeg = new SpiderLeg(
+		SpiderData.LEG_1.LENGTH,
+		SpiderData.LEG_1.ATTACHMENT,
+		SpiderData.LEG_1.MIN_DISTANCE,
+		SpiderData.LEG_1.MAX_DISTANCE,
+	);
+	legLeft2: SpiderLeg = new SpiderLeg(
+		SpiderData.LEG_2.LENGTH,
+		SpiderData.LEG_2.ATTACHMENT.reflectX(),
+		SpiderData.LEG_2.MIN_DISTANCE,
+		SpiderData.LEG_2.MAX_DISTANCE,
+	);
+	legRight2: SpiderLeg = new SpiderLeg(
+		SpiderData.LEG_2.LENGTH,
+		SpiderData.LEG_2.ATTACHMENT,
+		SpiderData.LEG_2.MIN_DISTANCE,
+		SpiderData.LEG_2.MAX_DISTANCE,
+	);
+
 
 	constructor(position: Vector, movement: CrawlingState | FallingState, world: World) {
 		super(Rectangle.square(position.x, position.y, SpiderData.HITBOX_SIZE), world);
 		this.movement = movement;
 		this.world = world;
-		this.legs = this.initializeLegs();
-	}
-	initializeLegs() {
-		const legs = [
-			new SpiderLeg(
-				SpiderData.LEG_1.LENGTH,
-				SpiderData.LEG_1.ATTACHMENT.reflectX(),
-				SpiderData.LEG_1.MIN_DISTANCE,
-				SpiderData.LEG_1.MAX_DISTANCE,
-			),
-			new SpiderLeg(
-				SpiderData.LEG_1.LENGTH,
-				SpiderData.LEG_1.ATTACHMENT,
-				SpiderData.LEG_1.MIN_DISTANCE,
-				SpiderData.LEG_1.MAX_DISTANCE,
-			),
-
-			new SpiderLeg(
-				SpiderData.LEG_2.LENGTH,
-				SpiderData.LEG_2.ATTACHMENT.reflectX(),
-				SpiderData.LEG_2.MIN_DISTANCE,
-				SpiderData.LEG_2.MAX_DISTANCE,
-			),
-			new SpiderLeg(
-				SpiderData.LEG_2.LENGTH,
-				SpiderData.LEG_2.ATTACHMENT,
-				SpiderData.LEG_2.MIN_DISTANCE,
-				SpiderData.LEG_2.MAX_DISTANCE,
-			),
-		];
-		for(const leg of legs) {
+		for(const leg of [this.legLeft1, this.legLeft2, this.legRight1, this.legRight2]) {
 			leg.position = leg.destination(this);
 		}
-		return legs;
 	}
 
 	render() {
@@ -572,9 +565,10 @@ export class Spider extends RectangularCollideable {
 		);
 	}
 	displayLegs(canvasIO: CanvasIO) {
-		for(const leg of this.legs) {
-			leg.display(this, canvasIO);
-		}
+		this.legLeft1.display(this, canvasIO);
+		this.legLeft2.display(this, canvasIO);
+		this.legRight1.display(this, canvasIO);
+		this.legRight2.display(this, canvasIO);
 	}
 	displayDebug(canvasIO: CanvasIO): void {
 		if(this.movement instanceof FallingState || this.movement.isFloating(this) || !DEBUG_SETTINGS.SPIDERS.VISUALIZE) { return; }
@@ -593,9 +587,10 @@ export class Spider extends RectangularCollideable {
 
 	update() {
 		this.movement.update(this);
-		for(const leg of this.legs) {
-			leg.update(this);
-		}
+		this.legLeft1.update(this);
+		this.legLeft2.update(this);
+		this.legRight1.update(this);
+		this.legRight2.update(this);
 	}
 	seesPlayer() {
 		const center = this.hitbox.center();
@@ -673,7 +668,7 @@ export class Spider extends RectangularCollideable {
 	translate(amount: Vector): void {
 		super.translate(amount);
 		if(this.movement instanceof FallingState) {
-			for(const leg of this.legs) {
+			for(const leg of [this.legLeft1, this.legLeft2, this.legRight1, this.legRight2]) {
 				leg.position = leg.position.add(amount);
 			}
 		}
