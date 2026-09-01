@@ -1,7 +1,7 @@
 import { CanvasIO } from "../utils-ts/modules/CanvasIO.mjs";
 import { Diagonal, Direction, Directions } from "../utils-ts/modules/geometry/Direction.mjs";
 import { Vector } from "../utils-ts/modules/geometry/Vector.mjs";
-import { Room, RoomTile } from "./level-generator/Room.mjs";
+import { Room } from "./level-generator/Room.mjs";
 import { DEBUG_SETTINGS } from "./constants/DebugSettings.mjs";
 import { Gate } from "./entities/Gate.mjs";
 import { World } from "./world/World.mjs";
@@ -239,7 +239,7 @@ export class RoomEditor {
 			}
 		}
 	}
-	setTile(position: Vector, tile: RoomTile) {
+	setTile(position: Vector, tile: Tile) {
 		this.room.worldPart.tiles.set(position, tile);
 	}
 	checkForKeyPresses(canvasIO: CanvasIO) {

@@ -5,29 +5,20 @@ import { RoomData } from "../constants/GameData.mjs";
 import { GateState } from "./GateState.mjs";
 import { Gate } from "../entities/Gate.mjs";
 import { World } from "../world/World.mjs";
-import { Portal } from "../entities/Portal.mjs";
-import { BasicTile } from "../tiles/BasicTile.mjs";
 import { TowerTile } from "../tiles/TowerTile.mjs";
 import { Rooms, ROOMS } from "../constants/Rooms.mjs";
-import { SpawnPoint } from "../entities/SpawnPoint.mjs";
-import { HealthPickup } from "../entities/HealthPickup.mjs";
 import { GenUtils } from "../../utils-ts/modules/core-extensions/GenUtils.mjs";
-import { EmptyTile } from "../tiles/EmptyTile.mjs";
-import { Platform } from "../tiles/Platform.mjs";
 import { LoadingManager } from "../app-entry-points/LoadingManager.mjs";
-import { SlopeTile } from "../tiles/SlopeTile.mjs";
 import { WorldPart } from "../world-generator/WorldPart.mjs";
 import { Tiles } from "../world/Tiles.mjs";
 import { SpawnableID } from "./Spawnable.mjs";
-import { Chain } from "../entities/Chain.mjs";
 import { FixedEntitySpawner } from "./FixedEntitySpawner.mjs";
 import { PortalSpawner } from "./room-entities/PortalSpawner.mjs";
 import { HealthPickupSpawner } from "./room-entities/HealthPickupSpawner.mjs";
 import { SpawnPointSpawner } from "./room-entities/SpawnPointSpawner.mjs";
 
 export type Traversability = { start: GateState, end: GateState }[];
-export type RoomTile = EmptyTile | Platform | BasicTile | SlopeTile;
-export type RoomEntity = Portal | SpawnPoint | HealthPickup | Gate | Chain;
+// export type RoomTile = EmptyTile | Platform | BasicTile | SlopeTile;
 
 export class Room {
 	originalName: string;
