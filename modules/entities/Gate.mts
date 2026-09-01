@@ -270,23 +270,6 @@ export class Gate extends RectangularCollideable {
 	static isGateAt(tilePosition: Vector, entities: Entities) {
 		return Gate.getGateAt(tilePosition, entities) != undefined;
 	}
-	static attachedGates(tilePosition: Vector, world: World) {
-		const attached: Gate[] = [];
-		for(const direction of Directions.DIRECTIONS) {
-			const adjacentPosition = tilePosition.add(Vector.unit(direction));
-			const gate = Gate.getGateAt(adjacentPosition, world.entities);
-			if(gate instanceof Gate && gate.direction === direction) {
-				attached.push(gate);
-			}
-		}
-		return attached;
-	}
-	static destroyNonGateTile(position: Vector, world: World) {
-		const attached = Gate.attachedGates(position, world);
-		if(attached.length === 0) {
-			world.destroyTile(position);
-		}
-	}
 
 	canPush() {
 		return true;
