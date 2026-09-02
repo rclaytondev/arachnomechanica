@@ -225,6 +225,7 @@ class RollState {
 		if(this.timeInState >= PlayerData.ROLL_DURATION) {
 			self.angleRad = 0;
 			self.state = new DefaultState();
+			self.velocity.x = MathUtils.constrain(self.velocity.x, -PlayerData.MAX_X_VELOCITY, PlayerData.MAX_X_VELOCITY);
 		}
 	}
 
@@ -537,7 +538,7 @@ export class Player extends RectangularCollideable {
 			(this.keyDirection === "left" && (this.velocity.x > 0 || this.velocity.x < -PlayerData.MAX_X_VELOCITY)) ||
 			(this.keyDirection === "right" && (this.velocity.x < 0 || this.velocity.x > PlayerData.MAX_X_VELOCITY))
 		) {
-			this.velocity.x *= PlayerData.OVERLIMIT_FRICTION_X;
+			this.velocity.x = GeomUtils.moveTowards(this.velocity.x, 0, PlayerData.OVERLIMIT_FRICTION_X);
 		}
 
 		if(this.onGround() && this.isCrouched()) {
