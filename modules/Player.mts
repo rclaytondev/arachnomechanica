@@ -228,8 +228,12 @@ class RollState {
 		}
 	}
 
-	checkInputs() {
-
+	checkInputs(self: Player) {
+		const jumped = self.checkJumpInputs();
+		if(jumped) {
+			self.state = new DefaultState();
+			self.angleRad = 0;
+		}
 	}
 	onCollision() {
 
