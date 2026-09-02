@@ -44,6 +44,8 @@ class DefaultState {
 	}
 
 	onCollision() { }
+
+	render() { return []; }
 }
 
 class ClimbingState {
@@ -111,6 +113,8 @@ class ClimbingState {
 	}
 
 	onCollision() { }
+
+	render() { return []; }
 }
 
 class SmashPauseState {
@@ -120,21 +124,43 @@ class SmashPauseState {
 		self.velocity = new Vector(0, 0);
 		this.timeInState ++;
 		if(this.timeInState > PlayerData.SMASH_DELAY) {
-			self.state = new SmashAttackState();
+			self.state = new SmashAttackState(self.hitbox.center().y);
 		}
 	}
 
 	checkInputs() { }
 
 	onCollision() { }
+
+	render() { return []; }
 }
 
 class SmashAttackState {
 	pressedRight: boolean = false;
 	pressedLeft: boolean = false;
+	startY: number;
+
+	constructor(playerY: number) {
+		this.startY = playerY;
+	}
 
 	update(self: Player) {
 		self.velocity = new Vector(0, PlayerData.SMASH_SPEED);
+	}
+
+	render(self: Player) {
+		return [new Renderable(c => this.display(c, self), "particle")];
+	}
+
+	static displayLine(canvasIO: CanvasIO, position: Vector, height: number) {
+		canvasIO.ctx.strokeStyle = PlayerData.SMASH_PARTICLE_COLOR;
+		canvasIO.ctx.lineWidth = PlayerData.SMASH_PARTICLE_WIDTH;
+		canvasIO.strokeLine(position.x, position.y, position.x, position.y - height);
+
+	}
+	display(canvasIO: CanvasIO, self: Player) {
+		const center = self.hitbox.center();
+		SmashAttackState.displayLine(canvasIO, center, center.y - this.startY);
 	}
 
 	checkInputs(self: Player) {
@@ -167,6 +193,26 @@ class SmashAttackState {
 		else {
 			self.state = new DefaultState();
 		}
+		this.addParticle(self);
+	}
+	addParticle(self: Player) {
+		const position = self.hitbox.center();
+		const height = self.hitbox.center().y;
+		const particle = new Particle(
+			position,
+			new Vector(0, 0),
+			{
+				color: { red: 0, blue: 0, green: 0 }, // REFACTOR: this is unused so it shouldn't be required
+				size: 1000,
+				sizeDecay: 0,
+				opacity: 1,
+				opacityDecay: PlayerData.SMASH_PARTICLE_OPACITY_DECAY,
+				rotation: 0,
+				shape: (canvasIO: CanvasIO) => SmashAttackState.displayLine(canvasIO, new Vector(0, 0), height),
+
+			},
+		);
+		self.world.particles.add(particle, self.world);
 	}
 }
 
@@ -197,6 +243,8 @@ class RollState {
 	onCollision() {
 
 	}
+
+	render() { return []; }
 }
 
 class Buffer {
@@ -304,6 +352,7 @@ export class Player extends RectangularCollideable {
 		return [
 			new Renderable(this.display.bind(this), "player"),
 			new Renderable(this.displayGlowEffect.bind(this), "glow"),
+			...this.state.render(this),
 		];
 	}
 	display(canvasIO: CanvasIO) {

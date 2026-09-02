@@ -151,6 +151,9 @@ export class PlayerData {
 
 	static SMASH_DELAY = 2;
 	static SMASH_SPEED = 50;
+	static SMASH_PARTICLE_COLOR = "rgb(200, 200, 200)";
+	static SMASH_PARTICLE_WIDTH = 3;
+	static SMASH_PARTICLE_OPACITY_DECAY = 1/10;
 	static ROLL_SPEED = 12;
 	static ROLL_DURATION = 15;
 }
