@@ -171,9 +171,9 @@ class SmashAttackState {
 		const slopeRight = (!(collider instanceof Collideable) && collider.tile instanceof SlopeTile && collider.tile.normal === "up-right");
 		if(collision.directionOf(self) === "down" && (left || right || slopeLeft || slopeRight)) {
 			const direction = (
-				slopeLeft ? "left"
-				: slopeRight ? "right"
-				: left ? "left"
+				left ? "left"
+				: right ? "right"
+				: slopeLeft ? "left"
 				: "right"
 			);
 			const sign = (direction === "right" ? 1 : -1);

@@ -65,7 +65,7 @@ Features to add to improve game feel:
 		- [ ] Enemies "pop" (become larger and rotate slightly for a brief moment) when stunned
 		- [ ] Enemies become stunned when a block is dropped on them
 		- [ ] Spiders become stunned when they fall and hit the ground
-	- [ ] **Roll** out of a downward smash attack
+	- [x] **Roll** out of a downward smash attack
 	- [ ] **Slide jump?** - after rolling down a slope, press jump for a long, low jump
 	- [ ] **Reverse slide jump?** - after rolling down a slope, press the opposite direction and jump for a very high jump
 - [ ] Large gameplay changes
