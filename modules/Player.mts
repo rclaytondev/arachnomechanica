@@ -29,13 +29,11 @@ type Input = { [key: string]: boolean };
 
 class DefaultState {
 	update(self: Player) {
-		const input = self.keyInputs();
-		self.velocity.y += input.KeyZ && self.velocity.y <= 0 ? PlayerData.GRAVITY_WHILE_JUMPING : PlayerData.GRAVITY;
+		self.applyGravity();
 		self.checkFriction();
 	}
 
 	checkInputs(self: Player) {
-		self.checkDirectionInputs();
 		self.checkMoveInputs();
 		self.checkJumpInputs();
 		self.checkThrowInputs();
@@ -138,8 +136,48 @@ class SmashAttackState {
 
 	checkInputs() {}
 
-	onCollision(self: Player) {
-		self.state = new DefaultState();
+	onCollision(self: Player, collision: CollisionEvent) {
+		const left = self.leftBuffer.isActive();
+		const right = self.rightBuffer.isActive();
+		if(collision.directionOf(self) === "down" && (left || right)) {
+			const direction = left ? "left" : "right";
+			const sign = (direction === "right") ? 1 : -1;
+			self.velocity = new Vector(sign * PlayerData.ROLL_SPEED, 0);
+			self.crouch();
+			self.state = new RollState();
+		}
+		else {
+			self.state = new DefaultState();
+		}
+	}
+}
+
+class RollState {
+	timeInState: number = 0;
+
+	update(self: Player) {
+		self.applyGravity();
+		this.updateAngle(self);
+		this.checkRollEnd(self);
+		this.timeInState ++;
+	}
+	updateAngle(self: Player) {
+		const sign = Math.sign(self.velocity.x);
+		self.angleRad = sign * (this.timeInState / PlayerData.ROLL_DURATION) * (2 * Math.PI);
+
+	}
+	checkRollEnd(self: Player) {
+		if(this.timeInState >= PlayerData.ROLL_DURATION) {
+			self.angleRad = 0;
+			self.state = new DefaultState();
+		}
+	}
+
+	checkInputs() {
+
+	}
+	onCollision() {
+
 	}
 }
 
@@ -225,10 +263,13 @@ export class Player extends RectangularCollideable {
 	health: number = PlayerData.INITIAL_HEALTH;
 	invulnerabilityTime: number = 0;
 	squishFactor: number = 1;
-	state: DefaultState | ClimbingState | SmashPauseState | SmashAttackState = new DefaultState();
+	angleRad: number = 0;
+	state: DefaultState | ClimbingState | SmashPauseState | SmashAttackState | RollState = new DefaultState();
 	storedVelocityX: StoredVelocity = new StoredVelocity("x");
 	storedVelocityY: StoredVelocity = new StoredVelocity("y");
 
+	readonly leftBuffer: Buffer = new Buffer("ArrowLeft");
+	readonly rightBuffer: Buffer = new Buffer("ArrowRight");
 	readonly jumpBuffer: Buffer = new Buffer("KeyZ");
 	readonly pickupBuffer: Buffer = new Buffer("Space");
 	readonly throwBuffer1: Buffer = new Buffer("KeyX");
@@ -250,7 +291,7 @@ export class Player extends RectangularCollideable {
 	display(canvasIO: CanvasIO) {
 		canvasIO.ctx.save();
 		const center = this.hitbox.center();
-		this.applySquish(canvasIO, center);
+		this.applyTransform(canvasIO, center);
 		this.displayBody(canvasIO);
 		this.displayFace(canvasIO);
 		canvasIO.ctx.restore();
@@ -260,9 +301,10 @@ export class Player extends RectangularCollideable {
 		GraphicsUtils.glowCircle(center.x, center.y, PlayerData.GLOW_SIZE, PlayerData.GLOW_INTENSITY, canvasIO);
 	}
 
-	applySquish(canvasIO: CanvasIO, center: Vector = this.hitbox.center()) {
+	applyTransform(canvasIO: CanvasIO, center: Vector = this.hitbox.center()) {
 		canvasIO.ctx.translate(center.x, center.y);
 		canvasIO.ctx.scale(this.squishFactor, 1 / this.squishFactor);
+		canvasIO.ctx.rotate(this.angleRad);
 		canvasIO.ctx.translate(-center.x, -center.y);
 	}
 
@@ -305,6 +347,7 @@ export class Player extends RectangularCollideable {
 	update() {
 		if(Main.screen instanceof RoomEditor) { return; }
 		this.updateBuffers();
+		this.checkDirectionInputs();
 
 		this.state.checkInputs(this);
 		this.updateCrouching();
@@ -315,14 +358,15 @@ export class Player extends RectangularCollideable {
 		this.squishFactor = GeomUtils.moveTowards(this.squishFactor, 1, PlayerData.SQUISH_RETURN_SPEED);
 		if(this.onGround()) {
 			this.hasDoubleJump = true;
-			if(this.isCrouched()) {
-				this.velocity.x *= PlayerData.CROUCHED_FRICTION;
-			}
 		}
 		this.storedVelocityX.update(this);
 		this.storedVelocityY.update(this);
 		this.move(new Vector(this.velocity.x, 0), this.world, { });
 		this.move(new Vector(0, this.velocity.y), this.world, {});
+	}
+	applyGravity() {
+		const input = this.keyInputs();
+		this.velocity.y += input.KeyZ && this.velocity.y <= 0 ? PlayerData.GRAVITY_WHILE_JUMPING : PlayerData.GRAVITY;
 	}
 	updateCoyoteTime() {
 		const onGround = this.onGround();
@@ -345,13 +389,13 @@ export class Player extends RectangularCollideable {
 				if(!corrected) {
 					this.storedVelocityY.store(this);
 					this.velocity.y = 0;
-					this.state.onCollision(this);
+					this.state.onCollision(this, collision);
 				}
 			}
 			else if(!corrected) {
 				this.storedVelocityX.store(this);
 				this.velocity.x = 0;
-				this.state.onCollision(this);
+				this.state.onCollision(this, collision);
 			}
 		}
 	}
@@ -398,6 +442,8 @@ export class Player extends RectangularCollideable {
 		this.pickupBuffer.update(input);
 		this.throwBuffer1.update(input);
 		this.throwBuffer2.update(input);
+		this.leftBuffer.update(input);
+		this.rightBuffer.update(input);
 	}
 	checkDirectionInputs() {
 		const input = this.keyInputs();
@@ -430,6 +476,10 @@ export class Player extends RectangularCollideable {
 			(this.keyDirection === "right" && (this.velocity.x < 0 || this.velocity.x > PlayerData.MAX_X_VELOCITY))
 		) {
 			this.velocity.x *= PlayerData.OVERLIMIT_FRICTION_X;
+		}
+
+		if(this.onGround() && this.isCrouched()) {
+			this.velocity.x *= PlayerData.CROUCHED_FRICTION;
 		}
 	}
 	checkJumpInputs() {

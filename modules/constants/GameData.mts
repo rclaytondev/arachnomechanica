@@ -151,6 +151,8 @@ export class PlayerData {
 
 	static SMASH_DELAY = 2;
 	static SMASH_SPEED = 50;
+	static ROLL_SPEED = 12;
+	static ROLL_DURATION = 15;
 }
 
 export class RoomData {
