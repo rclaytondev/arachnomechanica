@@ -150,10 +150,13 @@ class SmashAttackState {
 		return [new Renderable(c => this.display(c, self), "particle")];
 	}
 
-	static displayLine(canvasIO: CanvasIO, position: Vector, height: number) {
+	static displayLine(canvasIO: CanvasIO, position: Vector, height: number, opacity: number = PlayerData.SMASH_PARTICLE_OPACITY) {
+		canvasIO.ctx.save();
 		canvasIO.ctx.strokeStyle = PlayerData.SMASH_PARTICLE_COLOR;
 		canvasIO.ctx.lineWidth = PlayerData.SMASH_PARTICLE_WIDTH;
+		canvasIO.ctx.globalAlpha = opacity;
 		canvasIO.strokeLine(position.x, position.y, position.x, position.y - height);
+		canvasIO.ctx.restore();
 
 	}
 	display(canvasIO: CanvasIO, self: Player) {
@@ -196,10 +199,10 @@ class SmashAttackState {
 				color: { red: 0, blue: 0, green: 0 }, // REFACTOR: this is unused so it shouldn't be required
 				size: 1000,
 				sizeDecay: 0,
-				opacity: 1,
+				opacity: PlayerData.SMASH_PARTICLE_OPACITY,
 				opacityDecay: PlayerData.SMASH_PARTICLE_OPACITY_DECAY,
 				rotation: 0,
-				shape: (canvasIO: CanvasIO) => SmashAttackState.displayLine(canvasIO, new Vector(0, 0), height),
+				shape: (canvasIO: CanvasIO) => SmashAttackState.displayLine(canvasIO, new Vector(0, 0), height, particle.opacity),
 
 			},
 		);
