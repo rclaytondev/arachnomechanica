@@ -130,18 +130,36 @@ class SmashPauseState {
 }
 
 class SmashAttackState {
+	pressedRight: boolean = false;
+	pressedLeft: boolean = false;
+
 	update(self: Player) {
 		self.velocity = new Vector(0, PlayerData.SMASH_SPEED);
 	}
 
-	checkInputs() {}
+	checkInputs(self: Player) {
+		if(self.keyDirection === "left" && !InputUtils.pastKeys["ArrowLeft"]) {
+			this.pressedLeft = true;
+		}
+		if(self.keyDirection === "right" && !InputUtils.pastKeys["ArrowRight"]) {
+			this.pressedRight = true;
+		}
+	}
 
 	onCollision(self: Player, collision: CollisionEvent) {
-		const left = self.leftBuffer.isActive();
-		const right = self.rightBuffer.isActive();
+		const collider = collision.collidingObject(self);
+		const left = (
+			(self.keyDirection === "left" && this.pressedLeft)
+			|| self.leftBuffer.isActive()
+			|| (!(collider instanceof Collideable) && collider.tile instanceof SlopeTile && collider.tile.normal === "up-left")
+		);
+		const right = (
+			(self.keyDirection === "right" && this.pressedRight)
+			|| self.rightBuffer.isActive()
+			|| (!(collider instanceof Collideable) && collider.tile instanceof SlopeTile && collider.tile.normal === "up-right")
+		);
 		if(collision.directionOf(self) === "down" && (left || right)) {
-			const direction = left ? "left" : "right";
-			const sign = (direction === "right") ? 1 : -1;
+			const sign = right ? 1 : -1;
 			self.velocity = new Vector(sign * PlayerData.ROLL_SPEED, 0);
 			self.crouch();
 			self.state = new RollState();
