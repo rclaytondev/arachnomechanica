@@ -148,6 +148,9 @@ export class PlayerData {
 	static DEATH_RESET_DELAY = 5;
 	static FADE_DURATION = 30;
 	static FADE_DELAY = 30;
+
+	static SMASH_DELAY = 2;
+	static SMASH_SPEED = 50;
 }
 
 export class RoomData {

@@ -56,8 +56,8 @@ Features to add to improve game feel:
 	- [ ] Improve throw correction: try nudging the player backwards a bit if they're too close to a wall
 	- [x] When pressing left and right simultaneously, prioritize whichever was pressed most recently
 - [ ] **Movement tech**
-	- [ ] **Downward smash attack**
-		- [ ] Add a brief pause before doing it (maybe)
+	- [x] **Downward smash attack**
+		- [x] Add a brief pause before doing it (maybe)
 		- [ ] Add a line that shows the trajectory
 		- [ ] Add particles when landing
 	- [ ] **Stun enemies**: make the downward smash attack stuns any enemies hit

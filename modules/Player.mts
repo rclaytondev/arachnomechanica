@@ -42,7 +42,10 @@ class DefaultState {
 		self.checkCrouchInputs();
 		self.checkPickUpInputs();
 		self.checkClimbStartInputs();
+		self.checkSmashAttackInputs();
 	}
+
+	onCollision() { }
 }
 
 class ClimbingState {
@@ -107,6 +110,36 @@ class ClimbingState {
 		const centerX = (this.chain.tilePosition.x + 1/2) * WorldData.TILE_SIZE;
 		const targetX = GeomUtils.moveTowards(self.hitbox.center().x, centerX, ChainData.SNAP_SPEED);
 		self.move(new Vector(targetX - self.hitbox.center().x, 0), self.world, { });
+	}
+
+	onCollision() { }
+}
+
+class SmashPauseState {
+	timeInState: number = 0;
+
+	update(self: Player) {
+		self.velocity = new Vector(0, 0);
+		this.timeInState ++;
+		if(this.timeInState > PlayerData.SMASH_DELAY) {
+			self.state = new SmashAttackState();
+		}
+	}
+
+	checkInputs() { }
+
+	onCollision() { }
+}
+
+class SmashAttackState {
+	update(self: Player) {
+		self.velocity = new Vector(0, PlayerData.SMASH_SPEED);
+	}
+
+	checkInputs() {}
+
+	onCollision(self: Player) {
+		self.state = new DefaultState();
 	}
 }
 
@@ -192,7 +225,7 @@ export class Player extends RectangularCollideable {
 	health: number = PlayerData.INITIAL_HEALTH;
 	invulnerabilityTime: number = 0;
 	squishFactor: number = 1;
-	state: DefaultState | ClimbingState = new DefaultState();
+	state: DefaultState | ClimbingState | SmashPauseState | SmashAttackState = new DefaultState();
 	storedVelocityX: StoredVelocity = new StoredVelocity("x");
 	storedVelocityY: StoredVelocity = new StoredVelocity("y");
 
@@ -312,11 +345,13 @@ export class Player extends RectangularCollideable {
 				if(!corrected) {
 					this.storedVelocityY.store(this);
 					this.velocity.y = 0;
+					this.state.onCollision(this);
 				}
 			}
 			else if(!corrected) {
 				this.storedVelocityX.store(this);
 				this.velocity.x = 0;
+				this.state.onCollision(this);
 			}
 		}
 	}
@@ -398,7 +433,12 @@ export class Player extends RectangularCollideable {
 		}
 	}
 	checkJumpInputs() {
-		if(this.jumpBuffer.isActive() && (this.coyoteTime > 0 || this.hasDoubleJump)) {
+		const shouldJump = (
+			this.jumpBuffer.isActive()
+			&& (this.coyoteTime > 0 || this.hasDoubleJump)
+			&& (!this.keyInputs()["ArrowDown"] || this.onGround())
+		);
+		if(shouldJump) {
 			this.jumpBuffer.reset();
 			this.jump();
 			return true;
@@ -455,6 +495,11 @@ export class Player extends RectangularCollideable {
 				this.state = new ClimbingState(chain);
 				chain.isClimbed = true;
 			}
+		}
+	}
+	checkSmashAttackInputs() {
+		if(this.jumpBuffer.isActive() && this.keyInputs()["ArrowDown"] && !this.onGround()) {
+			this.state = new SmashPauseState();
 		}
 	}
 	onGround() {
