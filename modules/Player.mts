@@ -188,7 +188,7 @@ class SmashAttackState {
 	}
 	addParticle(self: Player) {
 		const position = self.hitbox.center();
-		const height = self.hitbox.center().y;
+		const height = self.hitbox.center().y - this.startY;
 		const particle = new Particle(
 			position,
 			new Vector(0, 0),
