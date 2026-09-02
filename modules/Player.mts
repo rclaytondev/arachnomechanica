@@ -174,18 +174,18 @@ class SmashAttackState {
 
 	onCollision(self: Player, collision: CollisionEvent) {
 		const collider = collision.collidingObject(self);
-		const left = (
-			(self.keyDirection === "left" && this.pressedLeft)
-			|| self.leftBuffer.isActive()
-			|| (!(collider instanceof Collideable) && collider.tile instanceof SlopeTile && collider.tile.normal === "up-left")
-		);
-		const right = (
-			(self.keyDirection === "right" && this.pressedRight)
-			|| self.rightBuffer.isActive()
-			|| (!(collider instanceof Collideable) && collider.tile instanceof SlopeTile && collider.tile.normal === "up-right")
-		);
-		if(collision.directionOf(self) === "down" && (left || right)) {
-			const sign = right ? 1 : -1;
+		const left = self.keyDirection === "left";
+		const slopeLeft = (!(collider instanceof Collideable) && collider.tile instanceof SlopeTile && collider.tile.normal === "up-left");
+		const right = self.keyDirection === "right";
+		const slopeRight = (!(collider instanceof Collideable) && collider.tile instanceof SlopeTile && collider.tile.normal === "up-right");
+		if(collision.directionOf(self) === "down" && (left || right || slopeLeft || slopeRight)) {
+			const direction = (
+				slopeLeft ? "left"
+				: slopeRight ? "right"
+				: left ? "left"
+				: "right"
+			);
+			const sign = (direction === "right" ? 1 : -1);
 			self.velocity = new Vector(sign * PlayerData.ROLL_SPEED, 0);
 			self.crouch();
 			self.state = new RollState();
