@@ -136,8 +136,6 @@ class SmashPauseState {
 }
 
 class SmashAttackState {
-	pressedRight: boolean = false;
-	pressedLeft: boolean = false;
 	startY: number;
 
 	constructor(playerY: number) {
@@ -163,14 +161,7 @@ class SmashAttackState {
 		SmashAttackState.displayLine(canvasIO, center, center.y - this.startY);
 	}
 
-	checkInputs(self: Player) {
-		if(self.keyDirection === "left" && !InputUtils.pastKeys["ArrowLeft"]) {
-			this.pressedLeft = true;
-		}
-		if(self.keyDirection === "right" && !InputUtils.pastKeys["ArrowRight"]) {
-			this.pressedRight = true;
-		}
-	}
+	checkInputs() { }
 
 	onCollision(self: Player, collision: CollisionEvent) {
 		const collider = collision.collidingObject(self);
