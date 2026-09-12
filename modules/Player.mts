@@ -199,6 +199,7 @@ class SmashAttackState {
 		this.checkRoll(self, collision);
 		this.stunEnemy(collision.collidingObject(self));
 		this.addParticle(self);
+		self.addDustParticles();
 	}
 	addParticle(self: Player) {
 		const position = self.hitbox.center();
@@ -663,7 +664,7 @@ export class Player extends RectangularCollideable {
 		if(this.keyDirection !== null) {
 			this.velocity = this.velocity.add(Vector.unit(this.keyDirection).multiply(PlayerData.JUMP_X_VELOCITY));
 		}
-		this.addJumpParticles();
+		this.addDustParticles();
 	}
 	resetVelocityToDirection() {
 		if(this.keyDirection === "left") {
@@ -673,7 +674,7 @@ export class Player extends RectangularCollideable {
 			this.velocity.x = Math.max(this.velocity.x, PlayerData.REVERSE_JUMP_X_VELOCITY);
 		}
 	}
-	addJumpParticles() {
+	addDustParticles() {
 		const hitboxBottom = this.hitbox.edgeCenter("down");
 		for(let i = 0; i < PlayerData.JUMP_PARTICLES.AMOUNT; i ++) {
 			const position = new Vector(

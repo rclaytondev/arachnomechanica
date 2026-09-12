@@ -59,7 +59,7 @@ Features to add to improve game feel:
 	- [x] **Downward smash attack**
 		- [x] Add a brief pause before doing it (maybe)
 		- [x] Add a line that shows the trajectory
-		- [ ] Add particles when landing
+		- [x] Add particles when landing
 	- [x] **Stun enemies**: make the downward smash attack stuns any enemies hit
 		- [x] Enemies flash white for a brief moment when stunned
 		- [x] Enemies "pop" (become larger and rotate slightly for a brief moment) when stunned
