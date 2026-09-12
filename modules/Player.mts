@@ -83,7 +83,7 @@ class ClimbingState {
 			}
 		}
 		else {
-			self.checkJumpInputs();
+			self.checkJumpInputs(true);
 		}
 	}
 	checkChainEnd(self: Player) {
@@ -558,17 +558,17 @@ export class Player extends RectangularCollideable {
 			this.velocity.x *= PlayerData.CROUCHED_FRICTION;
 		}
 	}
-	checkJumpInputs() {
+	checkJumpInputs(allowMidairJump: boolean = false) {
 		const wallLeft = !this.canMove("left");
 		const wallRight = !this.canMove("right");
 		const shouldJump = (
 			this.jumpBuffer.isActive()
-			&& (this.coyoteTime > 0 || wallLeft || wallRight)
+			&& (this.coyoteTime > 0 || allowMidairJump || wallLeft || wallRight)
 			&& (!this.keyInputs()["ArrowDown"] || this.onGround())
 		);
 		if(shouldJump) {
 			this.jumpBuffer.reset();
-			if(this.coyoteTime <= 0) {
+			if(this.coyoteTime <= 0 && !allowMidairJump) {
 				this.wallJump(wallLeft ? "left" : "right");
 			}
 			else {
