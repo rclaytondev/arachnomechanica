@@ -785,3 +785,10 @@ export class DeathParticleData {
 		COUNT: 1,
 	};
 }
+
+export class EnemyData {
+	static STUN_TIME = 45;
+	static FLASH_TIME = 12;
+	static FLASH_ROTATION_RAD = -Math.PI * 0.05;
+	static FLASH_SCALE = 1.1;
+}

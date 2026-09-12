@@ -6,7 +6,9 @@ import { Vector } from "../utils-ts/modules/geometry/Vector.mjs";
 import { MathUtils } from "../utils-ts/modules/math/MathUtils.mjs";
 import { ChainData, ItemData, PlayerData, WorldData } from "./constants/GameData.mjs";
 import { Chain } from "./entities/Chain.mjs";
+import { EnemyUtils } from "./entities/Enemy.mjs";
 import { Debug } from "./game-utilities/Debug.mjs";
+import { Entity } from "./game-utilities/Entity.mjs";
 import { GeomUtils } from "./game-utilities/GeomUtils.mjs";
 import { GraphicsUtils } from "./game-utilities/GraphicsUtils.mjs";
 import { InputUtils } from "./game-utilities/InputUtils.mjs";
@@ -23,7 +25,7 @@ import { RoomEditor } from "./RoomEditor.mjs";
 import { SlopeTile } from "./tiles/SlopeTile.mjs";
 import { DeathScreen } from "./user-interface/DeathScreen.mjs";
 import { Renderable } from "./world/Renderer.mjs";
-import { World } from "./world/World.mjs";
+import { TileWithPosition, World } from "./world/World.mjs";
 
 type Input = { [key: string]: boolean };
 
@@ -188,8 +190,14 @@ class SmashAttackState {
 			self.state = new DefaultState();
 		}
 	}
+	stunEnemy(collider: Entity | TileWithPosition) {
+		if(EnemyUtils.isEnemy(collider)) {
+			EnemyUtils.stun(collider);
+		}
+	}
 	onCollision(self: Player, collision: CollisionEvent) {
 		this.checkRoll(self, collision);
+		this.stunEnemy(collision.collidingObject(self));
 		this.addParticle(self);
 	}
 	addParticle(self: Player) {

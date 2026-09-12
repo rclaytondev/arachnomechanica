@@ -6,9 +6,9 @@ import { LevelGenerator } from "../level-generator/LevelGenerator.mjs";
 import { Main } from "../Main.mjs";
 import { WorldScreen } from "../world/WorldScreen.mjs";
 import { Debug } from "../game-utilities/Debug.mjs";
-import { spiderPerformanceScenario } from "../debug-scenarios/spider-performance-test.mjs";
+import { lizardAdjacentTileScenario } from "../debug-scenarios/lizard-adjacent-tile-test.mjs";
 
-const [world] = spiderPerformanceScenario.setupWorld();
+const [world] = lizardAdjacentTileScenario.setupWorld();
 Main.screen = new WorldScreen(world, canvasIO);
 world.player.keyInputs = (() => Debug.getInput(canvasIO));
 

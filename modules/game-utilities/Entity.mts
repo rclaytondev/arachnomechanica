@@ -18,6 +18,8 @@ export abstract class Entity {
 	abstract update(): void;
 	abstract boundingBox(): Rectangle;
 
+	readonly isEnemy: boolean = false;
+
 	deathParticleCenter() {
 		return this.boundingBox().center();
 	}

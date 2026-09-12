@@ -22,10 +22,11 @@ import { Renderable } from "../world/Renderer.mjs";
 import { Spawnable } from "../level-generator/Spawnable.mjs";
 import { SlopeTile } from "../tiles/SlopeTile.mjs";
 import { DeathParticle } from "../game-utilities/DeathParticle.mjs";
+import { Enemy, EnemyUtils } from "./Enemy.mjs";
 
 type Joint = { position: Vector, direction: Direction };
 
-export class Lizard extends Collideable {
+export class Lizard extends Collideable implements Enemy {
 	direction: Direction;
 	position: Vector;
 	joints: Joint[] = [];
@@ -41,6 +42,9 @@ export class Lizard extends Collideable {
 	mouthDestination: number = LizardData.MAX_MOUTH_ANGLE;
 	waitingTimer: number = -1;
 	fireSpawner: FireSpawner;
+
+	isEnemy: true = true as const;
+	stunTimeStart: number = -Infinity;
 
 	constructor(position: Vector, direction: Direction, length: number, speed: number, world: World) {
 		super(world);
@@ -60,14 +64,19 @@ export class Lizard extends Collideable {
 		];
 	}
 	display(canvasIO: CanvasIO) {
-		this.displayJoints(canvasIO);
+		canvasIO.ctx.save();
+		const color = EnemyUtils.isFlashing(this) ? "white" : this.color;
+		canvasIO.ctx.strokeStyle = color;
+		canvasIO.ctx.fillStyle = color;
+		EnemyUtils.applyFlashTransform(canvasIO, this);
 		this.displayBody(canvasIO);
 		this.displayLegs(canvasIO);
 		this.displayHead(canvasIO);
 		this.displayLookaheadRectangle(canvasIO);
+		this.displayJoints(canvasIO);
+		canvasIO.ctx.restore();
 	}
 	displayBody(canvasIO: CanvasIO, startLength: number = 0) {
-		canvasIO.ctx.strokeStyle = this.color;
 		canvasIO.ctx.lineWidth = LizardData.BODY_WIDTH;
 		canvasIO.linePointedness = LizardData.BODY_POINTEDNESS;
 		canvasIO.ctx.lineCap = "round";
@@ -181,7 +190,6 @@ export class Lizard extends Collideable {
 		const mouthEnd = new Vector(0, LizardData.HEAD_HEIGHT + LizardData.MOUTH_LENGTH + LizardData.HEAD_OFFSET).rotate(-this.mouthAngle);
 		canvasIO.ctx.save();
 		this.transformToHead(canvasIO);
-		canvasIO.ctx.fillStyle = this.color;
 		canvasIO.fillPoly(
 			0, LizardData.HEAD_OFFSET,
 			-LizardData.HEAD_WIDTH, LizardData.HEAD_HEIGHT + LizardData.HEAD_OFFSET,
@@ -192,8 +200,10 @@ export class Lizard extends Collideable {
 		);
 
 
-		canvasIO.ctx.fillStyle = LizardData.EYE_COLOR;
-		canvasIO.fillDiamond(0, LizardData.EYE_Y + LizardData.HEAD_OFFSET, LizardData.EYE_SIZE);
+		if(!EnemyUtils.isFlashing(this)) {
+			canvasIO.ctx.fillStyle = LizardData.EYE_COLOR;
+			canvasIO.fillDiamond(0, LizardData.EYE_Y + LizardData.HEAD_OFFSET, LizardData.EYE_SIZE);
+		}
 
 		canvasIO.ctx.restore();
 	}
@@ -209,19 +219,22 @@ export class Lizard extends Collideable {
 	}
 
 	update() {
-		if(this.waitingTimer < 0) {
-			this.updateMotion();
-		}
-		this.waitingTimer --;
+		if(!EnemyUtils.isStunned(this)) {
+			if(this.waitingTimer < 0) {
+				this.updateMotion();
+			}
+			this.waitingTimer --;
+			this.updateLegs();
+			this.updateMouth();
+			this.checkForPlayer();
+			this.checkForCollisions();
 
-		this.updateLegs();
-		this.updateMouth();
-		this.checkForPlayer();
-		this.checkForCollisions();
+			this.updateHeadAngle();
+			this.updateFire();
+			this.fireSpawner.updateHurtbox(this.world);
+		}
+
 		this.updateJoints();
-		this.updateHeadAngle();
-		this.updateFire();
-		this.fireSpawner.updateHurtbox(this.world);
 	}
 	updateMotion() {
 		for(let i = 0; i < this.speed; i ++) {
