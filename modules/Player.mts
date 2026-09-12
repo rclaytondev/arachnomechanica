@@ -83,10 +83,7 @@ class ClimbingState {
 			}
 		}
 		else {
-			const jumped = self.checkJumpInputs();
-			if(jumped) {
-				self.hasDoubleJump = true;
-			}
+			self.checkJumpInputs();
 		}
 	}
 	checkChainEnd(self: Player) {
@@ -96,7 +93,6 @@ class ClimbingState {
 	}
 
 	update(self: Player) {
-		self.hasDoubleJump = true;
 		self.uncrouch();
 		this.snapToCenter(self);
 		this.checkOnGround(self);
@@ -332,7 +328,6 @@ class StoredVelocity {
 export class Player extends RectangularCollideable {
 	keyInputs: (() => Input);
 	velocity: Vector = new Vector(0, 0);
-	hasDoubleJump: boolean = false;
 	dead: boolean = false;
 	facing: "left" | "right" = "left";
 	keyDirection: "left" | "right" | null = null;
@@ -434,9 +429,6 @@ export class Player extends RectangularCollideable {
 		this.coyoteTime --;
 		this.invulnerabilityTime --;
 		this.squishFactor = GeomUtils.moveTowards(this.squishFactor, 1, PlayerData.SQUISH_RETURN_SPEED);
-		if(this.onGround()) {
-			this.hasDoubleJump = true;
-		}
 		this.storedVelocityX.update(this);
 		this.storedVelocityY.update(this);
 		this.move(new Vector(this.velocity.x, 0), this.world, { });
@@ -563,7 +555,7 @@ export class Player extends RectangularCollideable {
 	checkJumpInputs() {
 		const shouldJump = (
 			this.jumpBuffer.isActive()
-			&& (this.coyoteTime > 0 || this.hasDoubleJump)
+			&& this.coyoteTime > 0
 			&& (!this.keyInputs()["ArrowDown"] || this.onGround())
 		);
 		if(shouldJump) {
@@ -656,7 +648,6 @@ export class Player extends RectangularCollideable {
 
 	jump() {
 		this.velocity.y = -PlayerData.JUMP_VELOCITY;
-		this.hasDoubleJump = (this.coyoteTime > 0);
 		this.coyoteTime = -1;
 		this.squishFactor = PlayerData.JUMP_SQUISH_AMOUNT;
 		this.state = new DefaultState();
