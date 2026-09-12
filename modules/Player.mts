@@ -166,7 +166,7 @@ class SmashAttackState {
 
 	checkInputs() { }
 
-	onCollision(self: Player, collision: CollisionEvent) {
+	checkRoll(self: Player, collision: CollisionEvent) {
 		const collider = collision.collidingObject(self);
 		const left = self.keyDirection === "left";
 		const slopeLeft = (!(collider instanceof Collideable) && collider.tile instanceof SlopeTile && collider.tile.normal === "up-left");
@@ -187,6 +187,9 @@ class SmashAttackState {
 		else {
 			self.state = new DefaultState();
 		}
+	}
+	onCollision(self: Player, collision: CollisionEvent) {
+		this.checkRoll(self, collision);
 		this.addParticle(self);
 	}
 	addParticle(self: Player) {
