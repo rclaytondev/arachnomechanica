@@ -553,14 +553,21 @@ export class Player extends RectangularCollideable {
 		}
 	}
 	checkJumpInputs() {
+		const wallLeft = !this.canMove("left");
+		const wallRight = !this.canMove("right");
 		const shouldJump = (
 			this.jumpBuffer.isActive()
-			&& this.coyoteTime > 0
+			&& (this.coyoteTime > 0 || wallLeft || wallRight)
 			&& (!this.keyInputs()["ArrowDown"] || this.onGround())
 		);
 		if(shouldJump) {
 			this.jumpBuffer.reset();
-			this.jump();
+			if(this.coyoteTime <= 0) {
+				this.wallJump(wallLeft ? "left" : "right");
+			}
+			else {
+				this.jump();
+			}
 			return true;
 		}
 		return false;
@@ -655,6 +662,15 @@ export class Player extends RectangularCollideable {
 		if(this.keyDirection !== null) {
 			this.velocity = this.velocity.add(Vector.unit(this.keyDirection).multiply(PlayerData.JUMP_X_VELOCITY));
 		}
+		this.addDustParticles();
+	}
+	wallJump(wallDirection: "left" | "right") {
+		this.velocity = new Vector(
+			PlayerData.WALL_JUMP_X_VELOCITY * (wallDirection === "left" ? 1 : -1),
+			-PlayerData.JUMP_VELOCITY,
+		);
+		this.squishFactor = PlayerData.JUMP_SQUISH_AMOUNT;
+		this.state = new DefaultState();
 		this.addDustParticles();
 	}
 	resetVelocityToDirection() {
