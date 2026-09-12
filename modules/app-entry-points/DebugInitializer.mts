@@ -6,9 +6,9 @@ import { LevelGenerator } from "../level-generator/LevelGenerator.mjs";
 import { Main } from "../Main.mjs";
 import { WorldScreen } from "../world/WorldScreen.mjs";
 import { Debug } from "../game-utilities/Debug.mjs";
-import { lizardAdjacentTileScenario } from "../debug-scenarios/lizard-adjacent-tile-test.mjs";
+import { teleportingCreatureScenario } from "../debug-scenarios/teleporting-creature-test.mjs";
 
-const [world] = lizardAdjacentTileScenario.setupWorld();
+const [world] = teleportingCreatureScenario.setupWorld();
 Main.screen = new WorldScreen(world, canvasIO);
 world.player.keyInputs = (() => Debug.getInput(canvasIO));
 

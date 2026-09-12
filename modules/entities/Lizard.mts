@@ -641,6 +641,8 @@ export class Lizard extends Collideable implements Enemy {
 			joint.position = joint.position.add(amount);
 		}
 	}
+
+	onStun() { }
 }
 
 LoadingManager.onload(() => {

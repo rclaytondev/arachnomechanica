@@ -13,6 +13,7 @@ import { Spawnable } from "../level-generator/Spawnable.mjs";
 import { Renderable } from "../world/Renderer.mjs";
 import { Tiles } from "../world/Tiles.mjs";
 import { World } from "../world/World.mjs";
+import { Enemy, EnemyUtils } from "./Enemy.mjs";
 
 
 class ReadyMode {
@@ -55,11 +56,14 @@ class CooldownMode {
 	}
 }
 
-export class TeleportingCreature extends RectangularCollideable {
+export class TeleportingCreature extends RectangularCollideable implements Enemy {
 	velocity: Vector = new Vector(0, 0);
 
 	mode: ReadyMode | PauseMode | CooldownMode = new ReadyMode();
 	fireSpawner: FireSpawner = new FireSpawner(new Vector(0, 0), "up", TeleportingCreatureData.FIRE);
+
+	isEnemy: true = true as const;
+	stunTimeStart: number = -Infinity;
 
 	private constructor(position: Vector, world: World) {
 		super(Rectangle.fromDimensions(position.x, position.y, TeleportingCreatureData.HITBOX_WIDTH, TeleportingCreatureData.HITBOX_HEIGHT), world);
@@ -95,15 +99,20 @@ export class TeleportingCreature extends RectangularCollideable {
 	}
 	display(canvasIO: CanvasIO, glow: boolean = true) {
 		canvasIO.ctx.save();
+		EnemyUtils.applyFlashTransform(canvasIO, this);
 		canvasIO.ctx.translate(0, TeleportingCreatureData.GRAPHICS.BODY_OFFSET_Y);
+		const color = EnemyUtils.isFlashing(this) ? "white" : TeleportingCreatureData.GRAPHICS.COLOR;
+		canvasIO.ctx.fillStyle = color;
+		canvasIO.ctx.strokeStyle = color;
 		this.displayBody(canvasIO);
-		this.displayEye(canvasIO, glow);
 		this.displayLegs(canvasIO);
+		if(!EnemyUtils.isFlashing(this)) {
+			this.displayEye(canvasIO, glow);
+		}
 		canvasIO.ctx.restore();
 	}
 	displayBody(canvasIO: CanvasIO) {
 		const center = this.hitbox.center();
-		canvasIO.ctx.fillStyle = TeleportingCreatureData.GRAPHICS.COLOR;
 		canvasIO.fillRegularPoly(center, TeleportingCreatureData.GRAPHICS.BODY_SIZE, 3, -Math.PI / 6);
 	}
 	displayEye(canvasIO: CanvasIO, glow: boolean) {
@@ -114,7 +123,6 @@ export class TeleportingCreature extends RectangularCollideable {
 	}
 	displayLegs(canvasIO: CanvasIO) {
 		const center = this.hitbox.center();
-		canvasIO.ctx.strokeStyle = TeleportingCreatureData.GRAPHICS.COLOR;
 		canvasIO.ctx.lineWidth = TeleportingCreatureData.GRAPHICS.LEG_WIDTH;
 		for(const sign of [1, -1]) {
 			canvasIO.strokeLine(
@@ -135,8 +143,15 @@ export class TeleportingCreature extends RectangularCollideable {
 		);
 	}
 
+	onStun() {
+		this.mode = new ReadyMode();
+	}
+
 	update() {
-		this.mode.update(this);
+		if(!EnemyUtils.isStunned(this)) {
+			this.mode.update(this);
+
+		}
 		this.fireSpawner.position = this.hitbox.center();
 		this.fireSpawner.update(this.world);
 		this.fireSpawner.updateHurtbox(this.world);

@@ -27,6 +27,7 @@ export class EnemyUtils {
 	}
 	static stun(enemy: Enemy) {
 		enemy.stunTimeStart = enemy.world.frameCount;
+		enemy.onStun();
 	}
 }
 
@@ -34,4 +35,6 @@ export type Enemy = Entity & {
 	readonly isEnemy: true,
 
 	stunTimeStart: number,
+
+	onStun: () => void,
 }
