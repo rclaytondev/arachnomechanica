@@ -87,6 +87,7 @@ export class PlayerData {
 	static JUMP_VELOCITY = 14;
 	static JUMP_X_VELOCITY = 1;
 	static WALL_JUMP_X_VELOCITY = 5;
+	static WALL_JUMP_FORCEMOVE_TIME = 9;
 	static REVERSE_JUMP_X_VELOCITY = 0;
 	static MAX_X_VELOCITY = 8;
 	static NOKEY_FRICTION_X = 0.7;

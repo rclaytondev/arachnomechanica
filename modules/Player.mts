@@ -340,6 +340,9 @@ export class Player extends RectangularCollideable {
 	storedVelocityX: StoredVelocity = new StoredVelocity("x");
 	storedVelocityY: StoredVelocity = new StoredVelocity("y");
 
+	forceMoveTime: number = -1;
+	forceMoveDir: "left" | "right" = "left";
+
 	readonly leftBuffer: Buffer = new Buffer("ArrowLeft");
 	readonly rightBuffer: Buffer = new Buffer("ArrowRight");
 	readonly jumpBuffer: Buffer = new Buffer("KeyZ");
@@ -427,6 +430,7 @@ export class Player extends RectangularCollideable {
 		this.state.update(this);
 		this.updateCoyoteTime();
 		this.coyoteTime --;
+		this.forceMoveTime --;
 		this.invulnerabilityTime --;
 		this.squishFactor = GeomUtils.moveTowards(this.squishFactor, 1, PlayerData.SQUISH_RETURN_SPEED);
 		this.storedVelocityX.update(this);
@@ -528,22 +532,24 @@ export class Player extends RectangularCollideable {
 		}
 	}
 	checkMoveInputs() {
-		if(this.keyDirection === "right" && !Debug.freeCameraMode && this.velocity.x < PlayerData.MAX_X_VELOCITY) {
+		const keyDirection = (this.forceMoveTime > 0) ? this.forceMoveDir : this.keyDirection;
+		if(keyDirection === "right" && !Debug.freeCameraMode && this.velocity.x < PlayerData.MAX_X_VELOCITY) {
 			this.velocity.x = GeomUtils.moveTowards(this.velocity.x, PlayerData.MAX_X_VELOCITY, PlayerData.HORIZONTAL_ACCELERATION);
 			this.facing = "right";
 		}
-		if(this.keyDirection === "left" && !Debug.freeCameraMode && this.velocity.x > -PlayerData.MAX_X_VELOCITY) {
+		if(keyDirection === "left" && !Debug.freeCameraMode && this.velocity.x > -PlayerData.MAX_X_VELOCITY) {
 			this.velocity.x = GeomUtils.moveTowards(this.velocity.x, -PlayerData.MAX_X_VELOCITY, PlayerData.HORIZONTAL_ACCELERATION);
 			this.facing = "left";
 		}
 	}
 	checkFriction() {
-		if(this.keyDirection === null) {
+		const keyDirection = (this.forceMoveTime > 0) ? this.forceMoveDir : this.keyDirection;
+		if(keyDirection === null) {
 			this.velocity.x *= PlayerData.NOKEY_FRICTION_X;
 		}
 		else if(
-			(this.keyDirection === "left" && (this.velocity.x > 0 || this.velocity.x < -PlayerData.MAX_X_VELOCITY)) ||
-			(this.keyDirection === "right" && (this.velocity.x < 0 || this.velocity.x > PlayerData.MAX_X_VELOCITY))
+			(keyDirection === "left" && (this.velocity.x > 0 || this.velocity.x < -PlayerData.MAX_X_VELOCITY)) ||
+			(keyDirection === "right" && (this.velocity.x < 0 || this.velocity.x > PlayerData.MAX_X_VELOCITY))
 		) {
 			this.velocity.x = GeomUtils.moveTowards(this.velocity.x, 0, PlayerData.OVERLIMIT_FRICTION_X);
 		}
@@ -672,6 +678,9 @@ export class Player extends RectangularCollideable {
 		this.squishFactor = PlayerData.JUMP_SQUISH_AMOUNT;
 		this.state = new DefaultState();
 		this.addDustParticles();
+
+		this.forceMoveDir = Directions.opposite[wallDirection];
+		this.forceMoveTime = PlayerData.WALL_JUMP_FORCEMOVE_TIME;
 	}
 	resetVelocityToDirection() {
 		if(this.keyDirection === "left") {
