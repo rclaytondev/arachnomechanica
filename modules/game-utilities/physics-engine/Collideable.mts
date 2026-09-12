@@ -74,7 +74,9 @@ export abstract class Collideable extends Entity {
 			if(offsetY === 1) {
 				const moved = this.moveWithoutSlopes(direction, options);
 				if(moved) {
-					this.translateIfUnobstructed("down", options.collides ?? (() => true));
+					if(!options.queryOnly) {
+						this.translateIfUnobstructed("down", options.collides ?? (() => true));
+					}
 					return true;
 				}
 			}
@@ -85,6 +87,9 @@ export abstract class Collideable extends Entity {
 				if(!moved) {
 					this.translateIfUnobstructed("down", options.collides ?? (() => true));
 					return false;
+				}
+				if(options.queryOnly) {
+					this.translateIfUnobstructed("down", options.collides ?? (() => true));
 				}
 				return true;
 			}
