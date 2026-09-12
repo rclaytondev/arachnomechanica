@@ -58,11 +58,11 @@ Features to add to improve game feel:
 - [ ] **Movement tech**
 	- [x] **Downward smash attack**
 		- [x] Add a brief pause before doing it (maybe)
-		- [ ] Add a line that shows the trajectory
+		- [x] Add a line that shows the trajectory
 		- [ ] Add particles when landing
-	- [ ] **Stun enemies**: make the downward smash attack stuns any enemies hit
-		- [ ] Enemies flash white for a brief moment when stunned
-		- [ ] Enemies "pop" (become larger and rotate slightly for a brief moment) when stunned
+	- [x] **Stun enemies**: make the downward smash attack stuns any enemies hit
+		- [x] Enemies flash white for a brief moment when stunned
+		- [x] Enemies "pop" (become larger and rotate slightly for a brief moment) when stunned
 		- [ ] Enemies become stunned when a block is dropped on them
 		- [ ] Spiders become stunned when they fall and hit the ground
 	- [x] **Roll** out of a downward smash attack

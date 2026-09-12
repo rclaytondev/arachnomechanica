@@ -19,6 +19,7 @@ import { BasicTile } from "../tiles/BasicTile.mjs";
 import { Renderable } from "../world/Renderer.mjs";
 import { Tiles } from "../world/Tiles.mjs";
 import { TileWithPosition, World } from "../world/World.mjs";
+import { Enemy, EnemyUtils } from "./Enemy.mjs";
 import { Fireball } from "./Fireball.mjs";
 
 export class PointOnSurface {
@@ -334,7 +335,6 @@ export class SpiderLeg {
 	display(spider: Spider, canvasIO: CanvasIO) {
 		const attachment = this.attachment(spider);
 		const joint = this.jointPosition(spider, this.position);
-		canvasIO.ctx.strokeStyle = "black";
 		canvasIO.ctx.lineWidth = 5;
 		canvasIO.linePointedness = 2;
 		canvasIO.pointedLine(attachment.x, attachment.y, joint.x, joint.y);
@@ -479,7 +479,7 @@ class RechargingState extends ProjectileState {
 }
 
 
-export class Spider extends RectangularCollideable {
+export class Spider extends RectangularCollideable implements Enemy {
 	movement: CrawlingState | FallingState;
 	projectileState: TelegraphState | DefaultState | RechargingState = new DefaultState();
 	angle: number = 0;
@@ -508,6 +508,8 @@ export class Spider extends RectangularCollideable {
 		SpiderData.LEG_2.MAX_DISTANCE,
 	);
 
+	stunTimeStart: number = -Infinity;
+	isEnemy: true = true as const;
 
 	constructor(position: Vector, movement: CrawlingState | FallingState, world: World) {
 		super(Rectangle.square(position.x, position.y, SpiderData.HITBOX_SIZE), world);
@@ -526,16 +528,21 @@ export class Spider extends RectangularCollideable {
 		];
 	}
 	display(canvasIO: CanvasIO) {
+		canvasIO.ctx.save();
+		EnemyUtils.applyFlashTransform(canvasIO, this);
+		const color = EnemyUtils.isFlashing(this) ? "white" : SpiderData.COLOR;
+		canvasIO.ctx.fillStyle = color;
+		canvasIO.ctx.strokeStyle = color;
 		this.displayBody(canvasIO);
-		this.displayEyes(canvasIO);
 		this.displayLegs(canvasIO);
+		this.displayEyes(canvasIO);
+		canvasIO.ctx.restore();
 	}
 	displayBody(canvasIO: CanvasIO) {
 		canvasIO.ctx.save();
 		const position = this.hitbox.center();
 		canvasIO.ctx.translate(position.x, position.y);
 		canvasIO.ctx.rotate(-this.angle);
-		canvasIO.ctx.fillStyle = SpiderData.COLOR;
 		if(this.seesPlayer() && DEBUG_SETTINGS.SPIDERS.VISUALIZE) {
 			canvasIO.ctx.fillStyle = "green";
 		}
@@ -589,8 +596,10 @@ export class Spider extends RectangularCollideable {
 	}
 
 	update() {
-		this.movement.update(this);
-		this.updateLegs();
+		if(!EnemyUtils.isStunned(this)) {
+			this.movement.update(this);
+			this.updateLegs();
+		}
 	}
 	updateLegs() {
 		const isFarOffscreen = !(this.world.worldScreen?.camera.isVisible(this, SpiderData.LEG_OFFSCREEN_DISTANCE) ?? false);
@@ -687,6 +696,12 @@ export class Spider extends RectangularCollideable {
 			center.x, center.y,
 			SpiderData.BOUNDING_BOX_SIZE, SpiderData.BOUNDING_BOX_SIZE,
 		);
+	}
+
+	onStun() {
+		if(this.projectileState instanceof TelegraphState) {
+			this.projectileState = new DefaultState();
+		}
 	}
 }
 
