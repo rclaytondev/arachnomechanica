@@ -6,9 +6,9 @@ import { LevelGenerator } from "../level-generator/LevelGenerator.mjs";
 import { Main } from "../Main.mjs";
 import { WorldScreen } from "../world/WorldScreen.mjs";
 import { Debug } from "../game-utilities/Debug.mjs";
-import { throwableTileScenario } from "../debug-scenarios/throwable-tile-test.mjs";
+import { basicCollisionScenario } from "../debug-scenarios/basic-collision-test.mjs";
 
-const [world] = throwableTileScenario.setupWorld();
+const [world] = basicCollisionScenario.setupWorld();
 Main.screen = new WorldScreen(world, canvasIO);
 world.player.keyInputs = (() => Debug.getInput(canvasIO));
 

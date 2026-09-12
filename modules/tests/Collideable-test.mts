@@ -51,23 +51,23 @@ class CollideableSpy extends RectangularCollideable {
 	}
 }
 
+const createWorld = (tiles: TileWithPosition[] = []) => {
+	const world = new World(false);
+	world.entities.clear();
+	for(const { tile, position } of tiles) {
+		world.tiles.set(position, tile);
+	}
+	return world;
+};
+const addEntities = (entities: Collideable[], world: World) => {
+	for(const entity of entities) {
+		const added = world.addEntityIfEmpty(entity);
+		if(!added) {
+			throw new Error("Error in test setup: entities overlapped.");
+		}
+	}
+};
 describe("Collideable.moveUnit", () => {
-	const createWorld = (tiles: TileWithPosition[] = []) => {
-		const world = new World(false);
-		world.entities.clear();
-		for(const { tile, position } of tiles) {
-			world.tiles.set(position, tile);
-		}
-		return world;
-	};
-	const addEntities = (entities: Collideable[], world: World) => {
-		for(const entity of entities) {
-			const added = world.addEntityIfEmpty(entity);
-			if(!added) {
-				throw new Error("Error in test setup: entities overlapped.");
-			}
-		}
-	};
 
 	it("moves the Collideable if there is no obstruction", () => {
 		const world = new World(false);
@@ -285,5 +285,34 @@ describe("Collideable.moveUnit", () => {
 		assert.deepEqual(pushable.amountTranslated, new Vector(0, 0));
 		assert.isFalse(pusher.destroyed);
 		assert.isFalse(pushable.destroyed);
+	});
+});
+
+describe("Collideable.canMove", () => {
+	it("works when moving a Collideable down a slope", () => {
+		const world = createWorld([
+			{ position: new Vector(0, 0), tile: TowerSlope.SLOPE_UP_RIGHT },
+		]);
+		const collideable = new CollideableSpy(Rectangle.fromDimensions(0, -10, 10, 10), "collideable", world, true);
+		collideable.slideDownSlopes = true;
+		collideable.slideUpSlopes = true;
+		addEntities([collideable], world);
+		const canMove = collideable.canMove("right");
+
+		assert.isTrue(canMove);
+		assert.deepEqual(collideable.amountTranslated, new Vector(0, 0));
+	});
+	it("works when moving a Collideable up a slope", () => {
+		const world = createWorld([
+			{ position: new Vector(0, 0), tile: TowerSlope.SLOPE_UP_RIGHT },
+		]);
+		const collideable = new CollideableSpy(Rectangle.fromDimensions(1, -9, 10, 10), "collideable", world, true);
+		collideable.slideUpSlopes = true;
+		collideable.slideDownSlopes = true;
+		addEntities([collideable], world);
+		const canMove = collideable.canMove("left");
+
+		assert.isTrue(canMove);
+		assert.deepEqual(collideable.amountTranslated, new Vector(0, 0));
 	});
 });
