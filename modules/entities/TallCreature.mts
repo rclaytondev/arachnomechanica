@@ -120,7 +120,7 @@ class TallCreatureStabber {
 		const rect = new InvisibleRectangle(this.hitbox(tallCreature), world);
 		if(amount <= this.extension) {
 			for(let i = 0; i < this.extension - amount; i ++) {
-				rect.moveRiders(Directions.opposite[this.direction], world, {
+				rect.moveRiders(Directions.opposite[this.direction], {
 					canMoveRider: (o) => o !== tallCreature,
 					movedObjects: new Set(),
 				});
@@ -128,7 +128,7 @@ class TallCreatureStabber {
 			this.extension = Math.max(0, amount);
 		}
 		else {
-			rect.extend(amount - rect.hitbox.width, this.direction, world, {
+			rect.extend(amount - rect.hitbox.width, this.direction, {
 				collides: (o) => o !== tallCreature,
 				canMoveRider: (o) => o !== tallCreature,
 				onCollision: (collisionEvent: CollisionEvent) => {
@@ -212,9 +212,9 @@ export class TallCreature extends Collideable {
 		this.stabberRight.update(this, this.world);
 	}
 	updateMovement() {
-		const onGroundBefore = !this.canMove("down", this.world);
-		this.move(Vector.unit(this.direction).multiply(TallCreatureData.SPEED), this.world, {});
-		const onGroundAfter = !this.canMove("down", this.world);
+		const onGroundBefore = !this.canMove("down");
+		this.move(Vector.unit(this.direction).multiply(TallCreatureData.SPEED), {});
+		const onGroundAfter = !this.canMove("down");
 		if(onGroundBefore && !onGroundAfter) {
 			const stepHeight = this.world.rectIntersectionDistance(this.legsHitbox(), "down", TallCreatureData.MAX_STEP_SIZE, (e) => e !== this);
 			if(stepHeight < TallCreatureData.MAX_STEP_SIZE) {

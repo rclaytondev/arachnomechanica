@@ -232,9 +232,9 @@ export class Spikeball extends RectangularCollideable {
 			const hitbox = Rectangle.fromBounds(this.hitbox.left, this.hitbox.right, this.hitbox.top, this.hitbox.bottom);
 			const xDirection = (this.direction === "up-left" || this.direction === "down-left") ? "left" : "right";
 			const yDirection = (this.direction === "up-left" || this.direction === "up-right") ? "up" : "down";
-			const canMoveX = this.canMove(xDirection, this.world);
-			const canMoveY = this.canMove(yDirection, this.world);
-			this.move(Vector.gridUnit(this.direction), this.world, options);
+			const canMoveX = this.canMove(xDirection);
+			const canMoveY = this.canMove(yDirection);
+			this.move(Vector.gridUnit(this.direction), options);
 			if(canMoveX === canMoveY && this.direction !== direction) {
 				/* Hit a corner perfectly or hit a slope */
 				this.direction = Directions.opposite[direction];

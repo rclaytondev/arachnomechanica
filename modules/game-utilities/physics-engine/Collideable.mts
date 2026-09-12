@@ -4,7 +4,7 @@ import { Rectangle } from "../../../utils-ts/modules/geometry/Rectangle.mjs";
 import { Vector } from "../../../utils-ts/modules/geometry/Vector.mjs";
 import { HashSet } from "../../../utils-ts/modules/HashSet.mjs";
 import { DEBUG_SETTINGS } from "../../constants/DebugSettings.mjs";
-import { World, TileWithPosition } from "../../world/World.mjs";
+import { TileWithPosition } from "../../world/World.mjs";
 import { DeathParticle } from "../DeathParticle.mjs";
 import { Entity } from "../Entity.mjs";
 
@@ -45,12 +45,12 @@ export abstract class Collideable extends Entity {
 
 
 
-	move(amount: Vector, world: World, options: MoveOptions) {
+	move(amount: Vector, options: MoveOptions) {
 		this.subpixel = this.subpixel.add(amount);
 		for(const axis of ["x", "y"] as const) {
 			while(this.subpixel[axis] < 0) {
 				const direction = (axis === "x") ? "left" : "up";
-				const moved = this.moveUnit(direction, world, { ...options, movedObjects: new Set() });
+				const moved = this.moveUnit(direction, { ...options, movedObjects: new Set() });
 				this.subpixel[axis] ++;
 				if(!moved) {
 					this.subpixel[axis] = 0;
@@ -59,7 +59,7 @@ export abstract class Collideable extends Entity {
 			}
 			while(this.subpixel[axis] >= 1) {
 				const direction = (axis === "x") ? "right" : "down";
-				const moved = this.moveUnit(direction, world, { ...options, movedObjects: new Set() });
+				const moved = this.moveUnit(direction, { ...options, movedObjects: new Set() });
 				this.subpixel[axis] --;
 				if(!moved) {
 					this.subpixel[axis] = 0;
@@ -68,11 +68,11 @@ export abstract class Collideable extends Entity {
 			}
 		}
 	}
-	moveUnit(direction: Direction, world: World, options: MoveUnitOptions): boolean {
+	moveUnit(direction: Direction, options: MoveUnitOptions): boolean {
 		if(Directions.isHorizontal(direction)) {
-			const offsetY = this.slopeOffsetY(direction, world, this.slideUpSlopes, this.slideDownSlopes);
+			const offsetY = this.slopeOffsetY(direction, this.slideUpSlopes, this.slideDownSlopes);
 			if(offsetY === 1) {
-				const moved = this.moveWithoutSlopes(direction, world, options);
+				const moved = this.moveWithoutSlopes(direction, options);
 				if(moved) {
 					this.translateIfUnobstructed("down", options.collides ?? (() => true));
 					return true;
@@ -81,7 +81,7 @@ export abstract class Collideable extends Entity {
 			else if(offsetY === -1) {
 				const translated = this.translateIfUnobstructed("up", options.collides ?? (() => true));
 				if(!translated) { return false; }
-				const moved = this.moveWithoutSlopes(direction, world, options);
+				const moved = this.moveWithoutSlopes(direction, options);
 				if(!moved) {
 					this.translateIfUnobstructed("down", options.collides ?? (() => true));
 					return false;
@@ -89,9 +89,9 @@ export abstract class Collideable extends Entity {
 				return true;
 			}
 		}
-		return this.moveWithoutSlopes(direction, world, options);
+		return this.moveWithoutSlopes(direction, options);
 	}
-	private moveWithoutSlopes(direction: Direction, world: World, options: MoveUnitOptions): boolean {
+	private moveWithoutSlopes(direction: Direction, options: MoveUnitOptions): boolean {
 		const collidingObjects = this.collidingObjects(direction, options.collides ?? (() => true));
 		const unpushables = collidingObjects.filter(o => !(o instanceof Collideable) || (!this.canPush(o) && o.tangible));
 		if(unpushables.length > 0) {
@@ -101,7 +101,7 @@ export abstract class Collideable extends Entity {
 			return false;
 		}
 
-		const immovableUncrushables = (collidingObjects as Collideable[]).filter(c => !this.canCrush(c) && c.tangible && !c.canMove(direction, world));
+		const immovableUncrushables = (collidingObjects as Collideable[]).filter(c => !this.canCrush(c) && c.tangible && !c.canMove(direction));
 		if(immovableUncrushables.length > 0) {
 			if(!options.queryOnly) {
 				this.callCollisionHandlers(direction, immovableUncrushables, false, options.onCollision ?? (() => {}));
@@ -112,7 +112,7 @@ export abstract class Collideable extends Entity {
 		if(this.tangible) {
 			for(const pushable of collidingObjects as Collideable[]) {
 				if(!options.movedObjects.has(pushable)) {
-					pushable.moveUnit(direction, world, {
+					pushable.moveUnit(direction, {
 						onCollision: (collision: CollisionEvent) => {
 							if(pushable.tangible && !collision.moveSuccessful) {
 								for(const collidingHitbox of this.collidingHitboxes(pushable, Vector.unit(direction))) {
@@ -131,7 +131,7 @@ export abstract class Collideable extends Entity {
 			this.callCollisionHandlers(direction, collidingObjects, true, options.onCollision ?? (() => {}));
 			this.translate(Vector.unit(direction));
 			if(options.moveRiders ?? true) {
-				this.moveRiders(direction, world, options);
+				this.moveRiders(direction, options);
 			}
 		}
 		return true;
@@ -148,13 +148,13 @@ export abstract class Collideable extends Entity {
 			}
 		}
 	}
-	slopeOffsetY(direction: "left" | "right", world: World, slideUpSlopes: boolean = false, slideDownSlopes: boolean = false) {
+	slopeOffsetY(direction: "left" | "right", slideUpSlopes: boolean = false, slideDownSlopes: boolean = false) {
 		const opposite = Directions.opposite[direction];
-		if(slideUpSlopes && this.hitboxes().some(h => world.onSlope(h, `up-${opposite}`, "up"))) {
+		if(slideUpSlopes && this.hitboxes().some(h => this.world.onSlope(h, `up-${opposite}`, "up"))) {
 			return -1;
 		}
 
-		if(slideDownSlopes && this.hitboxes().some(h => world.onSlope(h, `up-${direction}`, "down"))) {
+		if(slideDownSlopes && this.hitboxes().some(h => this.world.onSlope(h, `up-${direction}`, "down"))) {
 			return 1;
 		}
 		return 0;
@@ -175,8 +175,8 @@ export abstract class Collideable extends Entity {
 	canCrush(obj: Collideable) {
 		return this.canPush(obj);
 	}
-	canMove(direction: Direction, world: World) {
-		return this.moveUnit(direction, world, { queryOnly: true, movedObjects: new Set() });
+	canMove(direction: Direction) {
+		return this.moveUnit(direction, { queryOnly: true, movedObjects: new Set() });
 	}
 	intersects(entity: Collideable) {
 		return this.intersectsRects(entity.hitboxes());
@@ -198,14 +198,14 @@ export abstract class Collideable extends Entity {
 		const otherHitboxes = collideable.hitboxes();
 		return hitboxes.some(h1 => otherHitboxes.some(h2 => h1.intersects(h2)));
 	}
-	getRiders(world: World, canMoveRider: (object: Collideable) => boolean) {
+	getRiders(canMoveRider: (object: Collideable) => boolean) {
 		const searchRegion = Rectangle.boundingBox(this.hitboxes()).extend("up", 2);
-		const collideables = world.entities.collideablesIntersecting(searchRegion);
+		const collideables = this.world.entities.collideablesIntersecting(searchRegion);
 		return [...collideables].filter(c => c !== this && c.isRiderOf(this) && canMoveRider(c) && this.canPush(c));
 	}
-	moveRiders(direction: Direction, world: World, options: MoveUnitOptions) {
-		for(const rider of this.getRiders(world, options.canMoveRider ?? (() => true))) {
-			rider.moveUnit(direction, world, { movedObjects: options.movedObjects });
+	moveRiders(direction: Direction, options: MoveUnitOptions) {
+		for(const rider of this.getRiders(options.canMoveRider ?? (() => true))) {
+			rider.moveUnit(direction, { movedObjects: options.movedObjects });
 		}
 	}
 

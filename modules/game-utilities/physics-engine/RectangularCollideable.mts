@@ -33,12 +33,12 @@ export abstract class RectangularCollideable extends Collideable {
 		this.world.entities.updatePosition(this);
 	}
 
-	extend(amount: number, direction: Direction, world: World, options: MoveOptions & { queryOnly?: boolean }) {
+	extend(amount: number, direction: Direction, options: MoveOptions & { queryOnly?: boolean }) {
 		if(amount < 0) {
 			this.hitbox = this.hitbox.extend(direction, Math.floor(amount));
 		}
 		for(let i = 0; i < amount; i ++) {
-			const moved = this.moveUnit(direction, world, { ...options, movedObjects: new Set() });
+			const moved = this.moveUnit(direction, { ...options, movedObjects: new Set() });
 			if(moved) {
 				this.hitbox = this.hitbox.extend(Directions.opposite[direction], 1);
 			}

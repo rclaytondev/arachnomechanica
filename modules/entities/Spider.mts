@@ -255,7 +255,7 @@ export class CrawlingState {
 		const preferredCenter = this.pointOnSurface.position.add(normal);
 		const offset = preferredCenter.subtract(spider.hitbox.center().add(spider.subpixel));
 		const collides = (obj: Collideable | TileWithPosition) => !(obj instanceof Fireball && obj.ignoredEntities.includes(spider));
-		spider.move(offset, spider.world, { collides });
+		spider.move(offset, { collides });
 	}
 	isFloating(spider: Spider) {
 		const opposite = this.direction === "clockwise" ? "counterclockwise" : "clockwise";
@@ -351,7 +351,7 @@ export class FallingState {
 	velocity: Vector = new Vector(0, 0);
 
 	update(spider: Spider) {
-		spider.move(this.velocity, spider.world, { });
+		spider.move(this.velocity, { });
 		this.velocity = this.velocity.add(0, PlayerData.GRAVITY);
 	}
 }

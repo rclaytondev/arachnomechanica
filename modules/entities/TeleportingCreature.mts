@@ -155,7 +155,7 @@ export class TeleportingCreature extends RectangularCollideable implements Enemy
 		this.fireSpawner.position = this.hitbox.center();
 		this.fireSpawner.update(this.world);
 		this.fireSpawner.updateHurtbox(this.world);
-		this.move(this.velocity, this.world, {});
+		this.move(this.velocity, {});
 		this.velocity.y += PlayerData.GRAVITY;
 	}
 	hasLineOfSight() {

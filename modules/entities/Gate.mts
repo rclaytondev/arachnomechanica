@@ -147,7 +147,7 @@ export class Gate extends RectangularCollideable {
 		const target = this.opennessTarget(GateController.getOrInitialize(this.world));
 		const length = Directions.isHorizontal(this.direction) ? this.hitbox.width : this.hitbox.height;
 		const targetLength = (1 - target) * WorldData.TILE_SIZE;
-		this.extend(targetLength - length, this.direction, this.world, {});
+		this.extend(targetLength - length, this.direction, {});
 	}
 	fullHitbox() {
 		const length = Directions.isHorizontal(this.direction) ? this.hitbox.width : this.hitbox.height;

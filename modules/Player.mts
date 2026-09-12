@@ -98,7 +98,7 @@ class ClimbingState {
 		this.checkOnGround(self);
 	}
 	checkOnGround(self: Player) {
-		const onGround = !self.canMove("down", self.world);
+		const onGround = !self.canMove("down");
 		const input = self.keyInputs();
 		if(onGround && !input.ArrowUp) {
 			self.state = new DefaultState();
@@ -107,7 +107,7 @@ class ClimbingState {
 	snapToCenter(self: Player) {
 		const centerX = (this.chain.tilePosition.x + 1/2) * WorldData.TILE_SIZE;
 		const targetX = GeomUtils.moveTowards(self.hitbox.center().x, centerX, ChainData.SNAP_SPEED);
-		self.move(new Vector(targetX - self.hitbox.center().x, 0), self.world, { });
+		self.move(new Vector(targetX - self.hitbox.center().x, 0), { });
 	}
 
 	onCollision() { }
@@ -308,7 +308,7 @@ class StoredVelocity {
 		const direction = this.direction();
 		return (
 			Math.sign(player.hitbox[this.axis] - this.position) !== -Math.sign(this.amount)
-			&& player.canMove(direction, player.world)
+			&& player.canMove(direction)
 		);
 	}
 	apply(player: Player) {
@@ -431,8 +431,8 @@ export class Player extends RectangularCollideable {
 		this.squishFactor = GeomUtils.moveTowards(this.squishFactor, 1, PlayerData.SQUISH_RETURN_SPEED);
 		this.storedVelocityX.update(this);
 		this.storedVelocityY.update(this);
-		this.move(new Vector(this.velocity.x, 0), this.world, { });
-		this.move(new Vector(0, this.velocity.y), this.world, {});
+		this.move(new Vector(this.velocity.x, 0), { });
+		this.move(new Vector(0, this.velocity.y), {});
 	}
 	applyGravity() {
 		const input = this.keyInputs();
@@ -623,7 +623,7 @@ export class Player extends RectangularCollideable {
 		}
 	}
 	onGround() {
-		return !this.canMove("down", this.world);
+		return !this.canMove("down");
 	}
 	damage() {
 		if(this.invulnerabilityTime < 0) {
