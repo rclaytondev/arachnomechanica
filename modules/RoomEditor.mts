@@ -3,7 +3,6 @@ import { Diagonal, Direction, Directions } from "../utils-ts/modules/geometry/Di
 import { Vector } from "../utils-ts/modules/geometry/Vector.mjs";
 import { Room } from "./level-generator/Room.mjs";
 import { DEBUG_SETTINGS } from "./constants/DebugSettings.mjs";
-import { Gate } from "./entities/Gate.mjs";
 import { World } from "./world/World.mjs";
 import { BackgroundData, PortalData, RoomData, WorldData } from "./constants/GameData.mjs";
 import { ROOMS } from "./constants/Rooms.mjs";
@@ -18,7 +17,6 @@ import { Camera } from "./world/Camera.mjs";
 import { Renderable, Renderer } from "./world/Renderer.mjs";
 import { TowerSlope } from "./tiles/TowerSlope.mjs";
 import { TILE_TYPES } from "./tiles/TileIDs.mjs";
-import { Chain } from "./entities/Chain.mjs";
 import { GateSpawner } from "./level-generator/room-entities/GateSpawner.mjs";
 import { ChainSpawner } from "./level-generator/room-entities/ChainSpawner.mjs";
 import { Rectangle } from "../utils-ts/modules/geometry/Rectangle.mjs";
@@ -89,7 +87,7 @@ class GateMode extends EditorMode {
 		}
 	}
 	onRightClick(tilePos: Vector, editor: RoomEditor): void {
-		editor.filterEntities(e => !(e instanceof Gate && e.tilePosition().equals(tilePos)));
+		editor.filterEntities(e => !(e instanceof GateSpawner && e.tilePos.equals(tilePos)));
 	}
 }
 
@@ -357,15 +355,14 @@ export class RoomEditor {
 		}
 		result += "],\n[\n";
 		for(const entity of this.room.worldPart.entities) {
-			if(entity instanceof Portal) {
-				result += `\tnew Portal(new Vector${entity.position}),\n`;
+			if(entity instanceof PortalSpawner) {
+				result += `\tnew PortalSpawner(new Vector${entity.position}),\n`;
 			}
-			else if(entity instanceof Gate) {
-				const position = entity.tilePosition();
-				result += `\tGate.atTile(new Vector(${position.x}, ${position.y}), "${entity.direction}", ${entity.toggled}),\n`;
+			else if(entity instanceof GateSpawner) {
+				result += `\tnew GateSpawner(new Vector(${entity.tilePos.x}, ${entity.tilePos.y}), "${entity.direction}", ${entity.toggled}),\n`;
 			}
-			else if(entity instanceof Chain) {
-				result += `\tnew Chain(new Vector(${entity.tilePosition.x}, ${entity.tilePosition.y}), ${entity.height}),\n`;
+			else if(entity instanceof ChainSpawner) {
+				result += `\tnew ChainSpawner(new Vector(${entity.tilePos.x}, ${entity.tilePos.y}), ${entity.height}),\n`;
 			}
 		}
 		result += "],";
