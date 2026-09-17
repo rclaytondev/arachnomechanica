@@ -9,7 +9,7 @@ import { World } from "../world/World.mjs";
 This scenario is a regression test for a bug: if the player goes partially past a horizontal gate while in a different column, then goes into the column containing the gate and goes fully past, the gate will toggle when it shouldn't.
 */
 
-export const gateScenario = new TestScenario(() => {
+export const gateScenario = new TestScenario("gate-scenario", () => {
 	const world = new World(false);
 
 	world.tiles.fillRect(Rectangle.fromDimensions(0, 0, 4, 3), TowerTile.TOWER_TILE);

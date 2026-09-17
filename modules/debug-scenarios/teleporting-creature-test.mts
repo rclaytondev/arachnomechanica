@@ -5,7 +5,7 @@ import { TestScenario } from "../TestScenario.mjs";
 import { TowerTile } from "../tiles/TowerTile.mjs";
 import { World } from "../world/World.mjs";
 
-export const teleportingCreatureScenario = new TestScenario(() => {
+export const teleportingCreatureScenario = new TestScenario("teleporting-creature-scenario", () => {
 	const world = new World(false);
 
 	world.addEntityIfEmpty(TeleportingCreature.atTile(new Vector(4, -1), world));

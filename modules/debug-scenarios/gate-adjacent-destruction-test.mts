@@ -6,7 +6,7 @@ import { TestScenario } from "../TestScenario.mjs";
 import { TowerTile } from "../tiles/TowerTile.mjs";
 import { World } from "../world/World.mjs";
 
-export const gateAdjacentDestructionScenario = new TestScenario(() => {
+export const gateAdjacentDestructionScenario = new TestScenario("gate-adjacent-destruction-scenario", () => {
 	const world = new World(false);
 	world.tiles.set(5, -3, TowerTile.TOWER_TILE);
 	world.tiles.set(7, -3, TowerTile.TOWER_TILE);

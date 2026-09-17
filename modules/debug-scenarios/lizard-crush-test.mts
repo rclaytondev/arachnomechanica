@@ -7,7 +7,7 @@ import { World } from "../world/World.mjs";
 import { TowerTile } from "../tiles/TowerTile.mjs";
 import { TestScenario } from "../TestScenario.mjs";
 
-export const lizardCrushScenario = new TestScenario(() => {
+export const lizardCrushScenario = new TestScenario("lizard-crush-scenario", () => {
 	const world = new World(false);
 
 	world.tiles.fillRect(Rectangle.fromDimensions(-2, 0, 2, 6), TowerTile.TOWER_TILE);

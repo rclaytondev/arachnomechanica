@@ -7,7 +7,7 @@ import { TowerSlope } from "../tiles/TowerSlope.mjs";
 import { TowerTile } from "../tiles/TowerTile.mjs";
 import { World } from "../world/World.mjs";
 
-export const showcaseScenario = new TestScenario(() => {
+export const showcaseScenario = new TestScenario("showcase-scenario", () => {
 	const world = new World(false);
 	world.tiles.set(0, 1, TowerTile.TOWER_TILE);
 

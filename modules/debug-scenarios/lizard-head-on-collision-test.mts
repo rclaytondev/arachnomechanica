@@ -6,7 +6,7 @@ import { TestScenario } from "../TestScenario.mjs";
 import { TowerTile } from "../tiles/TowerTile.mjs";
 import { World } from "../world/World.mjs";
 
-export const lizardHeadOnCollisionScenario = new TestScenario(() => {
+export const lizardHeadOnCollisionScenario = new TestScenario("lizard-head-on-collision-scenario", () => {
 	const world = new World(false);
 	world.tiles.fillRect(Rectangle.fromBounds(0, 10, 0, 5), TowerTile.TOWER_TILE);
 	world.tiles.fillRect(Rectangle.fromBounds(0, 10, -10, -5), TowerTile.TOWER_TILE);

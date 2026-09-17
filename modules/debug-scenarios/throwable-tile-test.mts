@@ -6,7 +6,7 @@ import { World } from "../world/World.mjs";
 import { Platform } from "../tiles/Platform.mjs";
 import { TestScenario } from "../TestScenario.mjs";
 
-export const throwableTileScenario = new TestScenario(() => {
+export const throwableTileScenario = new TestScenario("throwable-tile-scenario", () => {
 	const world = new World(false);
 
 	world.tiles.fillRect(Rectangle.fromDimensions(1, 0, 10, 10), TowerTile.TOWER_TILE);

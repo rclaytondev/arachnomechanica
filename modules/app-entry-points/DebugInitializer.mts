@@ -1,4 +1,5 @@
 import "./Initializer.mjs";
+import "../debug-scenarios/all-scenarios.mjs";
 import { canvasIO } from "./CanvasIOInitializer.mjs";
 import { Vector } from "../../utils-ts/modules/geometry/Vector.mjs";
 import { DEBUG_SETTINGS } from "../constants/DebugSettings.mjs";
@@ -6,11 +7,24 @@ import { LevelGenerator } from "../level-generator/LevelGenerator.mjs";
 import { Main } from "../Main.mjs";
 import { WorldScreen } from "../world/WorldScreen.mjs";
 import { Debug } from "../game-utilities/Debug.mjs";
-import { basicCollisionScenario } from "../debug-scenarios/basic-collision-test.mjs";
+import { TestScenario } from "../TestScenario.mjs";
 
-const [world] = basicCollisionScenario.setupWorld();
-Main.screen = new WorldScreen(world, canvasIO);
-world.player.keyInputs = (() => Debug.getInput(canvasIO));
+const urlParams = new URLSearchParams(window.location.search);
+const scenarioName = urlParams.get("scenario");
+if(scenarioName !== null) {
+	const scenario = TestScenario.all.find(s => s.name === scenarioName);
+	if(scenario) {
+		const [world] = scenario.setupWorld();
+		Main.screen = new WorldScreen(world, canvasIO);
+		world.player.keyInputs = (() => Debug.getInput(canvasIO));
+
+		const title = document.querySelector("title")!;
+		title.innerHTML = scenarioName!;
+	}
+	else {
+		throw new Error(`No scenario found with name ${scenarioName}`);
+	}
+}
 
 
 if(DEBUG_SETTINGS.GENERATOR_VISUALIZATION.ENABLED && Main.screen instanceof WorldScreen) {

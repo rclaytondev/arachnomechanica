@@ -6,7 +6,7 @@ import { TestScenario } from "../TestScenario.mjs";
 import { TowerTile } from "../tiles/TowerTile.mjs";
 import { World } from "../world/World.mjs";
 
-export const lizardFireScenario = new TestScenario(() => {
+export const lizardFireScenario = new TestScenario("lizard-fire-scenario", () => {
 	const world = new World(false);
 
 	world.tiles.fillRect(Rectangle.fromDimensions(-2, 0, 10, 10), TowerTile.TOWER_TILE);

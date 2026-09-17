@@ -6,7 +6,7 @@ import { TowerSlope } from "../tiles/TowerSlope.mjs";
 import { TowerTile } from "../tiles/TowerTile.mjs";
 import { World } from "../world/World.mjs";
 
-export const spikeballDiagonalCollisionScenario = new TestScenario(() => {
+export const spikeballDiagonalCollisionScenario = new TestScenario("spikeball-diagonal-collision-scenario", () => {
 	const world = new World(false);
 
 	world.tiles.set(0, 0, TowerTile.TOWER_TILE);

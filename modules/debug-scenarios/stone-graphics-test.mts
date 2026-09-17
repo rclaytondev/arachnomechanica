@@ -5,7 +5,7 @@ import { StoneSlope } from "../tiles/StoneSlope.mjs";
 import { StoneTile } from "../tiles/StoneTile.mjs";
 import { World } from "../world/World.mjs";
 
-export const stoneGraphicsScenario = new TestScenario(() => {
+export const stoneGraphicsScenario = new TestScenario("stone-graphics-scenario", () => {
 	const world = new World(false);
 
 	world.tiles.fillRect(Rectangle.fromDimensions(-2, 0, 10, 1), StoneTile.STONE_TILE);

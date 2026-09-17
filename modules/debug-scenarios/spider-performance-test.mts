@@ -5,7 +5,7 @@ import { TestScenario } from "../TestScenario.mjs";
 import { TowerTile } from "../tiles/TowerTile.mjs";
 import { World } from "../world/World.mjs";
 
-export const spiderPerformanceScenario = new TestScenario(() => {
+export const spiderPerformanceScenario = new TestScenario("spider-performance-scenario", () => {
 	const GROUPS_PER_ROW = 5;
 	const NUM_ROWS = 3;
 	const ROW_HEIGHT = 3;

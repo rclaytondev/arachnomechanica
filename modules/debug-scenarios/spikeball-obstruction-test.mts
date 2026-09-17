@@ -8,7 +8,7 @@ import { ThrowableTileEntity } from "../items/ThrowableTileEntity.mjs";
 import { SpikeballBlockData, WorldData } from "../constants/GameData.mjs";
 import { TestScenario } from "../TestScenario.mjs";
 
-export const spikeballObstructionScenario = new TestScenario(() => {
+export const spikeballObstructionScenario = new TestScenario("spikeball-obstruction-scenario", () => {
 	const world = new World(false);
 
 	world.tiles.fillRect(Rectangle.fromDimensions(-2, -3, 10, 7), TowerTile.TOWER_TILE);

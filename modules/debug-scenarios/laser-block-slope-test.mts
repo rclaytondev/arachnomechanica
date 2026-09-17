@@ -7,7 +7,7 @@ import { TowerTile } from "../tiles/TowerTile.mjs";
 import { TowerSlope } from "../tiles/TowerSlope.mjs";
 import { TestScenario } from "../TestScenario.mjs";
 
-export const laserBlockSlopeScenario = new TestScenario(() => {
+export const laserBlockSlopeScenario = new TestScenario("laser-block-slope-scenario", () => {
 	const world = new World(false);
 
 	world.tiles.fillRect(Rectangle.fromDimensions(-2, 0, 10, 6), TowerTile.TOWER_TILE);

@@ -5,7 +5,7 @@ import { TowerSlope } from "../tiles/TowerSlope.mjs";
 import { TowerTile } from "../tiles/TowerTile.mjs";
 import { World } from "../world/World.mjs";
 
-export const basicCollisionScenario = new TestScenario(() => {
+export const basicCollisionScenario = new TestScenario("basic-collision-scenario", () => {
 	const world = new World(false);
 
 	world.tiles.fillRect(Rectangle.fromDimensions(-2, 0, 10, 1), TowerTile.TOWER_TILE);

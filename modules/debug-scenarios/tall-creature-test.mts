@@ -6,7 +6,7 @@ import { EmptyTile } from "../tiles/EmptyTile.mjs";
 import { World } from "../world/World.mjs";
 import { TestScenario } from "../TestScenario.mjs";
 
-export const tallCreatureScenario = new TestScenario(() => {
+export const tallCreatureScenario = new TestScenario("tall-creature-scenario", () => {
 	const world = new World(false);
 
 	const creature = new TallCreature(new Vector(225, -150), 140, world);

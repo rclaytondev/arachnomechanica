@@ -6,7 +6,7 @@ import { TowerTile } from "../tiles/TowerTile.mjs";
 import { Platform } from "../tiles/Platform.mjs";
 import { TestScenario } from "../TestScenario.mjs";
 
-export const spiderProjectileScenario = new TestScenario(() => {
+export const spiderProjectileScenario = new TestScenario("spider-projectile-scenario", () => {
 	const world = new World(false);
 
 	for(const tiles of [world.tiles, world.originalTiles]) {

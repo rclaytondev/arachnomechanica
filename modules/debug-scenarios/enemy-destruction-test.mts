@@ -4,7 +4,7 @@ import { World } from "../world/World.mjs";
 import { TowerTile } from "../tiles/TowerTile.mjs";
 import { TestScenario } from "../TestScenario.mjs";
 
-export const enemyDestructionScenario = new TestScenario(() => {
+export const enemyDestructionScenario = new TestScenario("enemy-destruction-scenario", () => {
 	const world = new World(false);
 
 	world.tiles.set(-1, -5, TowerTile.TOWER_TILE);

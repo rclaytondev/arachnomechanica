@@ -4,7 +4,7 @@ import { TestScenario } from "../TestScenario.mjs";
 import { TowerTile } from "../tiles/TowerTile.mjs";
 import { World } from "../world/World.mjs";
 
-export const chainScenario = new TestScenario(() => {
+export const chainScenario = new TestScenario("chain-scenario", () => {
 	const world = new World(false);
 	world.tiles.set(0, 0, TowerTile.TOWER_TILE);
 
