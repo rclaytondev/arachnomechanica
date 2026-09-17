@@ -795,3 +795,7 @@ export class EnemyData {
 	static FLASH_ROTATION_RAD = -Math.PI * 0.05;
 	static FLASH_SCALE = 1.1;
 }
+
+export class DoubleJumpOrbData {
+	static RADIUS = WorldData.TILE_SIZE * 0.4;
+}

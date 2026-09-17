@@ -6,6 +6,7 @@ import { Vector } from "../utils-ts/modules/geometry/Vector.mjs";
 import { MathUtils } from "../utils-ts/modules/math/MathUtils.mjs";
 import { ChainData, ItemData, PlayerData, WorldData } from "./constants/GameData.mjs";
 import { Chain } from "./entities/Chain.mjs";
+import { DoubleJumpOrb } from "./entities/DoubleJumpOrb.mjs";
 import { EnemyUtils } from "./entities/Enemy.mjs";
 import { Debug } from "./game-utilities/Debug.mjs";
 import { Entity } from "./game-utilities/Entity.mjs";
@@ -142,6 +143,7 @@ class SmashAttackState {
 
 	update(self: Player) {
 		self.velocity = new Vector(0, PlayerData.SMASH_SPEED);
+		this.checkDoubleJumpOrbs(self);
 	}
 
 	render(self: Player) {
@@ -215,6 +217,15 @@ class SmashAttackState {
 			},
 		);
 		self.world.particles.add(particle, self.world);
+	}
+
+	checkDoubleJumpOrbs(self: Player) {
+		const orbs = [...self.world.entities.possiblyIntersecting(self.hitbox)].filter(
+			e => e instanceof DoubleJumpOrb && e.boundingBox().intersects(self.hitbox),
+		);
+		if(orbs.length !== 0) {
+			self.jump();
+		}
 	}
 }
 

@@ -1,6 +1,7 @@
 import "../debug-scenarios/basic-collision-test.mjs";
 import "../debug-scenarios/basic-lizard-test.mjs";
 import "../debug-scenarios/chain-test.mjs";
+import "../debug-scenarios/double-jump-orb-test.mjs";
 import "../debug-scenarios/enemy-destruction-test.mjs";
 import "../debug-scenarios/gate-adjacent-destruction-test.mjs";
 import "../debug-scenarios/gate-test.mjs";
