@@ -81,10 +81,10 @@ export class PlayerData {
 	static HITBOX_WIDTH = WorldData.TILE_SIZE * 0.4;
 	static HITBOX_HEIGHT = WorldData.TILE_SIZE * 0.8;
 	static CROUCHED_HITBOX_HEIGHT = WorldData.TILE_SIZE * 0.4;
-	static GRAVITY = 1.4;
-	static GRAVITY_WHILE_JUMPING = 0.8;
+	static GRAVITY = 1.2;
+	static GRAVITY_WHILE_JUMPING = 0.7;
 	static HORIZONTAL_ACCELERATION = 0.7;
-	static JUMP_VELOCITY = 16;
+	static JUMP_VELOCITY = 15;
 	static JUMP_X_VELOCITY = 1;
 	static WALL_JUMP_X_VELOCITY = 5;
 	static WALL_JUMP_FORCEMOVE_TIME = 9;
