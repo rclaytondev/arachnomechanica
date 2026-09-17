@@ -22,6 +22,7 @@ import { ChainSpawner } from "./level-generator/room-entities/ChainSpawner.mjs";
 import { Rectangle } from "../utils-ts/modules/geometry/Rectangle.mjs";
 import { FixedEntitySpawner } from "./level-generator/FixedEntitySpawner.mjs";
 import { PortalSpawner } from "./level-generator/room-entities/PortalSpawner.mjs";
+import { DoubleJumpOrbSpawner } from "./level-generator/room-entities/DoubleJumpOrbSpawner.mjs";
 
 abstract class EditorMode {
 	abstract onLeftClick(tilePos: Vector, editor: RoomEditor): void;
@@ -181,6 +182,26 @@ class ChainMode extends EditorMode {
 	}
 }
 
+class DoubleJumpOrbMode extends EditorMode {
+	uiLabel: string = "double-jump-orb";
+
+	static getOrbAt(tilePosition: Vector, entities: FixedEntitySpawner[]) {
+		return entities.find(e => e instanceof DoubleJumpOrbSpawner && e.position.equals(tilePosition.multiply(WorldData.TILE_SIZE)));
+	}
+	static isOrbAt(tilePosition: Vector, entities: FixedEntitySpawner[]) {
+		return DoubleJumpOrbMode.getOrbAt(tilePosition, entities) != null;
+	}
+
+	onLeftClick(tilePos: Vector, editor: RoomEditor): void {
+		if(!DoubleJumpOrbMode.isOrbAt(tilePos, editor.room.worldPart.entities)) {
+			editor.addEntity(DoubleJumpOrbSpawner.atTile(tilePos));
+		}
+	}
+	onRightClick(tilePos: Vector, editor: RoomEditor): void {
+		editor.filterEntities(e => !(e instanceof DoubleJumpOrbSpawner && e.position.equals(tilePos.multiply(WorldData.TILE_SIZE))));
+	}
+}
+
 
 export class RoomEditor {
 	room: Room;
@@ -195,6 +216,7 @@ export class RoomEditor {
 		new PortalMode(),
 		new SlopeMode(),
 		new ChainMode(),
+		new DoubleJumpOrbMode(),
 	] as const;
 
 	constructor(room: Room) {
@@ -363,6 +385,9 @@ export class RoomEditor {
 			}
 			else if(entity instanceof ChainSpawner) {
 				result += `\tnew ChainSpawner(new Vector(${entity.tilePos.x}, ${entity.tilePos.y}), ${entity.height}),\n`;
+			}
+			else if(entity instanceof DoubleJumpOrbSpawner) {
+				result += `\tDoubleJumpOrbSpawner.atTile(new Vector(${entity.position.x / WorldData.TILE_SIZE}, ${entity.position.y / WorldData.TILE_SIZE})),\n`;
 			}
 		}
 		result += "],";
