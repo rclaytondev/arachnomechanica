@@ -41,6 +41,7 @@ export class LevelGenerator {
 		this.generateHealthPickupRooms();
 		this.generateRooms(entities.map(s => s.id));
 		this.addRooms(world);
+		this.addBoundarySlopes(world);
 		this.addBorders(world);
 		this.spawnEntities(entities, world);
 	}
@@ -247,6 +248,21 @@ export class LevelGenerator {
 				);
 				world.tiles.fillRect(rectangle, TowerTile.TOWER_TILE);
 				world.originalTiles.fillRect(rectangle, TowerTile.TOWER_TILE);
+			}
+		}
+	}
+	addBoundarySlopes(world: World) {
+		for(let x = 0; x < LevelGeneratorData.WIDTH; x ++) {
+			for(let y = 0; y < LevelGeneratorData.HEIGHT - 1; y ++) {
+				const roomSlot = this.roomSlots.get(x, y);
+				const slotBelow = this.roomSlots.get(x, y + 1);
+				if(roomSlot && slotBelow) {
+					roomSlot.getRoom().addSlopesBottom(
+						slotBelow.getRoom(),
+						this.position.add(x * RoomData.SIZE, y * RoomData.SIZE),
+						world,
+					);
+				}
 			}
 		}
 	}

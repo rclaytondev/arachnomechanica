@@ -16,6 +16,8 @@ import { FixedEntitySpawner } from "./FixedEntitySpawner.mjs";
 import { PortalSpawner } from "./room-entities/PortalSpawner.mjs";
 import { HealthPickupSpawner } from "./room-entities/HealthPickupSpawner.mjs";
 import { SpawnPointSpawner } from "./room-entities/SpawnPointSpawner.mjs";
+import { EmptyTile } from "../tiles/EmptyTile.mjs";
+import { TowerSlope } from "../tiles/TowerSlope.mjs";
 
 export type Traversability = { start: GateState, end: GateState }[];
 // export type RoomTile = EmptyTile | Platform | BasicTile | SlopeTile;
@@ -225,6 +227,39 @@ export class Room {
 					ROOMS.push(variant);
 				}
 			}
+		}
+	}
+
+	lastEmptyInRow(row: number) {
+		for(let x = RoomData.SIZE - 1; x >= 0; x --) {
+			if(this.worldPart.tiles.get(x, row) === EmptyTile.EMPTY) {
+				return x;
+			}
+		}
+		return null;
+	}
+	firstEmptyInRow(row: number) {
+		for(let x = 0; x < RoomData.SIZE; x ++) {
+			if(this.worldPart.tiles.get(x, row) === EmptyTile.EMPTY) {
+				return x;
+			}
+		}
+		return null;
+	}
+	addSlopesBottom(roomBelow: Room, position: Vector, world: World) {
+		const firstEmptyBottom = this.firstEmptyInRow(RoomData.SIZE - 1);
+		const lastEmptyBottom = this.lastEmptyInRow(RoomData.SIZE - 1);
+		const firstEmptyNext = roomBelow.firstEmptyInRow(0);
+		const lastEmptyNext = roomBelow.lastEmptyInRow(0);
+		if(firstEmptyBottom == null || lastEmptyBottom == null || firstEmptyNext == null || lastEmptyNext == null) {
+			return;
+		}
+
+		if(firstEmptyBottom < firstEmptyNext) {
+			world.addOriginalTile(position.add(firstEmptyBottom, RoomData.SIZE - 1), TowerSlope.SLOPE_UP_RIGHT);
+		}
+		if(lastEmptyBottom > lastEmptyNext) {
+			world.addOriginalTile(position.add(lastEmptyBottom, RoomData.SIZE - 1), TowerSlope.SLOPE_UP_LEFT);
 		}
 	}
 }
