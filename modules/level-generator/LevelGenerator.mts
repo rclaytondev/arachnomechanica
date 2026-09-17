@@ -256,7 +256,7 @@ export class LevelGenerator {
 			for(let y = 0; y < LevelGeneratorData.HEIGHT - 1; y ++) {
 				const roomSlot = this.roomSlots.get(x, y);
 				const slotBelow = this.roomSlots.get(x, y + 1);
-				if(roomSlot && slotBelow) {
+				if(roomSlot && slotBelow && roomSlot.exits.has("down")) {
 					roomSlot.getRoom().addSlopesBottom(
 						slotBelow.getRoom(),
 						this.position.add(x * RoomData.SIZE, y * RoomData.SIZE),
