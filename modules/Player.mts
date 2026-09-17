@@ -558,9 +558,21 @@ export class Player extends RectangularCollideable {
 			this.velocity.x *= PlayerData.CROUCHED_FRICTION;
 		}
 	}
+	isNearWall(direction: Direction) {
+		const originalHitbox = this.hitbox.copy();
+		for(let distance = 0; distance < PlayerData.WALL_JUMP_WALL_DIST; distance ++) {
+			this.translateIfUnobstructed(direction, e => e !== this);
+			if(!this.canMove(direction)) {
+				this.hitbox = originalHitbox;
+				return true;
+			}
+		}
+		this.hitbox = originalHitbox;
+		return false;
+	}
 	checkJumpInputs(allowMidairJump: boolean = false) {
-		const wallLeft = !this.canMove("left");
-		const wallRight = !this.canMove("right");
+		const wallLeft = this.isNearWall("left");
+		const wallRight = this.isNearWall("right");
 		const shouldJump = (
 			this.jumpBuffer.isActive()
 			&& (this.coyoteTime > 0 || allowMidairJump || wallLeft || wallRight)
