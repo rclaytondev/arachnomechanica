@@ -32,16 +32,17 @@ export class DoubleJumpOrb extends Entity {
 		}
 	}
 
+	static IMAGE = GraphicsUtils.loadImage("graphics/double-jump-orb.png", 2 * DoubleJumpOrbData.RADIUS, 2 * DoubleJumpOrbData.RADIUS);
 	display(canvasIO: CanvasIO) {
-		canvasIO.ctx.fillStyle = "rgb(0, 128, 255)";
-		canvasIO.fillCircle(this.position.x, this.position.y, DoubleJumpOrbData.RADIUS);
+		const corner = this.position.subtract(DoubleJumpOrbData.RADIUS, DoubleJumpOrbData.RADIUS);
+		canvasIO.ctx.drawImage(DoubleJumpOrb.IMAGE, corner.x, corner.y);
 	}
 	displayGlow(canvasIO: CanvasIO) {
 		GraphicsUtils.glowCircle(
 			this.position.x, this.position.y,
-			DoubleJumpOrbData.RADIUS + 50,
+			DoubleJumpOrbData.RADIUS + 80,
 			1, canvasIO,
-			0, 128, 255,
+			30, 150, 255,
 		);
 	}
 

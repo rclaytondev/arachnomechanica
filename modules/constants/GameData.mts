@@ -797,6 +797,6 @@ export class EnemyData {
 }
 
 export class DoubleJumpOrbData {
-	static RADIUS = WorldData.TILE_SIZE * 0.4;
+	static RADIUS = WorldData.TILE_SIZE * 0.55;
 	static VELOCITY = 16;
 }
