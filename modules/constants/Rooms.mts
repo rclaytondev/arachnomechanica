@@ -8,6 +8,7 @@ import { GateSpawner } from "../level-generator/room-entities/GateSpawner.mjs";
 import { PortalSpawner } from "../level-generator/room-entities/PortalSpawner.mjs";
 import { SpawnPointSpawner } from "../level-generator/room-entities/SpawnPointSpawner.mjs";
 import { HealthPickupSpawner } from "../level-generator/room-entities/HealthPickupSpawner.mjs";
+import { DoubleJumpOrbSpawner } from "../level-generator/room-entities/DoubleJumpOrbSpawner.mjs";
 
 export let ROOMS: Room[] = [];
 
@@ -53,6 +54,7 @@ export class Rooms {
 					new ChainSpawner(new Vector(8, 4), 4),
 					new ChainSpawner(new Vector(3, 1), 2),
 					new ChainSpawner(new Vector(3, 4), 4),
+					DoubleJumpOrbSpawner.atTile(new Vector(6, 6)),
 				],
 				() => true,
 			),
@@ -1375,6 +1377,7 @@ export class Rooms {
 					new ChainSpawner(new Vector(7, 1), 2),
 					new ChainSpawner(new Vector(7, 5), 6),
 					new ChainSpawner(new Vector(4, 1), 6),
+					DoubleJumpOrbSpawner.atTile(new Vector(6, 6)),
 				],
 				(exits) => !exits.has("left"),
 			),
@@ -1544,6 +1547,7 @@ export class Rooms {
 					new ChainSpawner(new Vector(4, 1), 4),
 					new ChainSpawner(new Vector(4, 8), 3),
 					new ChainSpawner(new Vector(9, 5), 5),
+					DoubleJumpOrbSpawner.atTile(new Vector(8, 8)),
 				],
 				(exits) => exits.has("up") && !exits.has("left"),
 				Room.getTraversability([
@@ -1678,6 +1682,7 @@ export class Rooms {
 					new GateSpawner(new Vector(6, 9), "up", false),
 					new ChainSpawner(new Vector(9, 1), 9),
 					new ChainSpawner(new Vector(2, 1), 9),
+					DoubleJumpOrbSpawner.atTile(new Vector(6, 6)),
 				],
 				(exits) => !exits.has("down"),
 				Room.getTraversability([
