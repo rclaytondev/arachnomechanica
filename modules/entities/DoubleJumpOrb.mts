@@ -9,6 +9,7 @@ import { World } from "../world/World.mjs";
 
 export class DoubleJumpOrb extends Entity {
 	position: Vector;
+	active: boolean = false;
 	constructor(position: Vector, world: World) {
 		super(world);
 		this.position = position;
@@ -21,7 +22,15 @@ export class DoubleJumpOrb extends Entity {
 		];
 	}
 
-	update() { }
+	update() {
+		const intersects = this.world.player.hitbox.intersects(this.boundingBox());
+		if(intersects && this.active) {
+			this.world.player.velocity.y = -DoubleJumpOrbData.VELOCITY;
+		}
+		if(!intersects) {
+			this.active = false;
+		}
+	}
 
 	display(canvasIO: CanvasIO) {
 		canvasIO.ctx.fillStyle = "rgb(0, 128, 255)";
