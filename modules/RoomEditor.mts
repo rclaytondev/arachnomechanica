@@ -132,7 +132,7 @@ class ChainMode extends EditorMode {
 	static getChainAt(tilePosition: Vector, entities: FixedEntitySpawner[]) {
 		const tileSquare = Rectangle.square(tilePosition.x, tilePosition.y, 1);
 		const chain = entities.find(e => (
-			e instanceof ChainSpawner && Rectangle.fromDimensions(e.tilePos.x, e.tilePos.y, 1, e.height).intersects(tileSquare)
+			e instanceof ChainSpawner && Rectangle.fromDimensions(e.tilePos.x, e.tilePos.y, 1, e.height).interiorIntersects(tileSquare)
 		));
 		return (chain ?? null) as ChainSpawner | null;
 	}
