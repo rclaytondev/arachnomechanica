@@ -98,7 +98,7 @@ More drastic measures to improve game feel (to be implemented if the above are i
 - [ ] **Object-dependent movement** - I could add objects that can be used by the player for mobility. I imagine these would be in fixed positions and would be manually placed in each room template they appear in. (Note: I want these to increase the options for traversing the rooms, so if I add these, I should not design rooms in a way to require usage of these objects).
 	- [ ] **Springs** - when encountering a spring, the player gets bounced up vertically by a large amount.
 	- [ ] **"Trampolines"** - when the player does a downward smash attack on them, the player gets bounced up a large amount.
-	- [ ] **Double jump devices** - I could remove the double jump and add objects that bounce the player up when the player does a downward smash attack into them.
+	- [x] **Double jump devices** - I could remove the double jump and add objects that bounce the player up when the player does a downward smash attack into them.
 		- I could make it so if the player holds a horizontal direction when activating one of these (after a downward smash attack), the player gets bounced in that direction.
 
 Other features (old, lower priority):

@@ -225,6 +225,7 @@ class SmashAttackState {
 		) as DoubleJumpOrb[];
 		if(orbs.length !== 0) {
 			orbs[0].active = true;
+			orbs[0].timeSinceActivated = 0;
 			self.velocity.y = -DoubleJumpOrbData.VELOCITY;
 			self.state = new DefaultState();
 		}

@@ -1,8 +1,10 @@
 import { CanvasIO } from "../../utils-ts/modules/CanvasIO.mjs";
 import { Rectangle } from "../../utils-ts/modules/geometry/Rectangle.mjs";
 import { Vector } from "../../utils-ts/modules/geometry/Vector.mjs";
+import { MathUtils } from "../../utils-ts/modules/math/MathUtils.mjs";
 import { DoubleJumpOrbData } from "../constants/GameData.mjs";
 import { Entity } from "../game-utilities/Entity.mjs";
+import { GeomUtils } from "../game-utilities/GeomUtils.mjs";
 import { GraphicsUtils } from "../game-utilities/GraphicsUtils.mjs";
 import { Renderable } from "../world/Renderer.mjs";
 import { World } from "../world/World.mjs";
@@ -10,6 +12,7 @@ import { World } from "../world/World.mjs";
 export class DoubleJumpOrb extends Entity {
 	position: Vector;
 	active: boolean = false;
+	timeSinceActivated: number = Infinity;
 	constructor(position: Vector, world: World) {
 		super(world);
 		this.position = position;
@@ -30,17 +33,33 @@ export class DoubleJumpOrb extends Entity {
 		if(!intersects) {
 			this.active = false;
 		}
+		this.timeSinceActivated ++;
 	}
 
 	static IMAGE = GraphicsUtils.loadImage("graphics/double-jump-orb.png", 2 * DoubleJumpOrbData.RADIUS, 2 * DoubleJumpOrbData.RADIUS);
 	display(canvasIO: CanvasIO) {
 		const corner = this.position.subtract(DoubleJumpOrbData.RADIUS, DoubleJumpOrbData.RADIUS);
 		canvasIO.ctx.drawImage(DoubleJumpOrb.IMAGE, corner.x, corner.y);
+
+		if(this.timeSinceActivated < DoubleJumpOrbData.FLASH_DURATION) {
+			const radius = GeomUtils.lerp(
+				this.timeSinceActivated,
+				0, DoubleJumpOrbData.FLASH_DURATION,
+				DoubleJumpOrbData.RADIUS * 0.8, 0,
+			);
+			canvasIO.ctx.fillStyle = "rgb(0, 128, 255)";
+			canvasIO.fillCircle(this.position.x, this.position.y, radius);
+		}
 	}
 	displayGlow(canvasIO: CanvasIO) {
+		const radius = GeomUtils.lerp(
+			MathUtils.constrain(this.timeSinceActivated, 0, DoubleJumpOrbData.FLASH_DURATION),
+			0, DoubleJumpOrbData.FLASH_DURATION,
+			DoubleJumpOrbData.RADIUS + 120, DoubleJumpOrbData.RADIUS + 80,
+		);
 		GraphicsUtils.glowCircle(
 			this.position.x, this.position.y,
-			DoubleJumpOrbData.RADIUS + 80,
+			radius,
 			1, canvasIO,
 			30, 150, 255,
 		);
