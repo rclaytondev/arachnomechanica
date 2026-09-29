@@ -117,7 +117,7 @@ export class TeleportingCreature extends RectangularCollideable implements Enemy
 	}
 	displayEye(canvasIO: CanvasIO, glow: boolean) {
 		const center = this.hitbox.center();
-		const eyeColor = `rgb(${TeleportingCreatureData.GRAPHICS.EYE_COLOR.red}, ${TeleportingCreatureData.GRAPHICS.EYE_COLOR.green}, ${TeleportingCreatureData.GRAPHICS.EYE_COLOR.blue})`; // TODO: refactor (extract Color class)
+		const eyeColor = TeleportingCreatureData.GRAPHICS.EYE_COLOR.toString();
 		canvasIO.ctx.fillStyle = glow ? eyeColor : TeleportingCreatureData.GRAPHICS.UNLIT_EYE_COLOR;
 		canvasIO.fillDiamond(center.x, center.y, TeleportingCreatureData.GRAPHICS.EYE_SIZE);
 	}
@@ -139,7 +139,7 @@ export class TeleportingCreature extends RectangularCollideable implements Enemy
 			center.x, center.y,
 			TeleportingCreatureData.GRAPHICS.GLOW_SIZE, TeleportingCreatureData.GRAPHICS.GLOW_INTENSITY,
 			canvasIO,
-			TeleportingCreatureData.GRAPHICS.EYE_COLOR.red, TeleportingCreatureData.GRAPHICS.EYE_COLOR.green, TeleportingCreatureData.GRAPHICS.EYE_COLOR.blue,
+			TeleportingCreatureData.GRAPHICS.EYE_COLOR,
 		);
 	}
 

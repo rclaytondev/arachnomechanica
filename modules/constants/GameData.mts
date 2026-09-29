@@ -5,6 +5,7 @@ import { GateState } from "../level-generator/GateState.mjs";
 import { FireSpawnerSettings } from "../entities/entity-components/FireSpawner.mjs";
 import { GraphicsUtils } from "../game-utilities/GraphicsUtils.mjs";
 import { Rectangle } from "../../utils-ts/modules/geometry/Rectangle.mjs";
+import { RGB } from "../game-utilities/RGB.mjs";
 
 export class WorldData {
 	static TILE_SIZE = 50;
@@ -19,11 +20,7 @@ export class WorldData {
 
 	static TILE_GLOW_SIZE = 0;
 	static TILE_GLOW_INTENSITY = 0.13;
-	static TILE_GLOW_COLOR = {
-		red: 255,
-		green: 255,
-		blue: 255,
-	};
+	static TILE_GLOW_COLOR = new RGB(255, 255, 255);
 
 	static PLATFORM_THICKNESS = WorldData.TILE_SIZE * 0.1;
 
@@ -128,11 +125,7 @@ export class PlayerData {
 		MAX_SPEED: 0.5,
 		SETTINGS: {
 			shape: "circle",
-			color: {
-				red: 200,
-				green: 200,
-				blue: 200,
-			},
+			color: new RGB(200, 200, 200),
 			size: 5,
 			sizeDecay: { min: 0.3, max: 0.5 },
 			opacity: 0.5,
@@ -214,11 +207,7 @@ export class GateData {
 export class LaserBlockData {
 	/* Visual settings */
 	static TILE_COLOR = "rgb(15, 15, 15)";
-	static LASER_COLOR = {
-		red: 0,
-		green: 200,
-		blue: 0,
-	};
+	static LASER_COLOR = new RGB(0, 200, 0);
 	static LASER_THICKNESS = 3;
 	static LASER_GLOW_SIZE = 60;
 	static LASER_GLOW_INTENSITY = 0.5;
@@ -226,11 +215,7 @@ export class LaserBlockData {
 	static ACTIVATED_THICKNESS = 6;
 	static ACTIVATED_GLOW_INTENSITY = 0.7;
 	static ACTIVATED_GLOW_SIZE = 100;
-	static ACTIVATED_COLOR = {
-		red: 255,
-		green: 255,
-		blue: 0,
-	};
+	static ACTIVATED_COLOR = new RGB(255, 255, 0);
 
 	static BARREL_COLOR = "rgb(50, 50, 50)";
 	static BARREL_THICKNESS = WorldData.TILE_SIZE * 0.2;
@@ -261,7 +246,7 @@ export class LizardData {
 	static TURN_DELAY = 7;
 
 	static FIRE_PARTICLES: ParticleSettings = {
-		color: { red: 255, green: 128, blue: 0 },
+		color: new RGB(255, 128, 0),
 		size: WorldData.TILE_SIZE * 0.2,
 		shape: "circle",
 		glowSize: 30,
@@ -309,11 +294,7 @@ export class LizardData {
 
 	static LIGHT_SIZE = 100;
 	static LIGHT_INTENSITY = 0.3;
-	static GLOW_COLOR = {
-		red: 255,
-		green: 128,
-		blue: 0,
-	};
+	static GLOW_COLOR = new RGB(255, 128, 0);
 
 	static LIZARDS_PER_ROOM = 0.6;
 	static MIN_LENGTH = 2;
@@ -378,11 +359,7 @@ export class SpikeballData {
 	static INNER_LENGTH = 5;
 
 	static COLOR = "rgb(0, 0, 0)";
-	static ACCENT_COLOR = {
-		red: 255,
-		green: 255,
-		blue: 0,
-	};
+	static ACCENT_COLOR = new RGB(255, 255, 0);
 	static GLOW_SIZE = 75;
 	static GLOW_INTENSITY = 0.4;
 	static GLOW_FADE_TIME = 20;
@@ -407,7 +384,7 @@ export class SpikeballData {
 	static SHATTER_PARTICLE_SPEED = 3;
 	static SHATTER_ANGLE_EVENNESS = 10;
 	static SHATTER_PARTICLE_SETTINGS: ParticleSettings = {
-		color: { red: 0, green: 0, blue: 0 },
+		color: new RGB(0, 0, 0),
 		size: 1,
 		opacityDecay: 1/15,
 		rotationalVelocity: { min: -0.1, max: 0.1 },
@@ -454,7 +431,7 @@ export class SpikeballBlockData {
 	static PARTICLE_MIN_VELOCITY = 4.5;
 	static PARTICLE_MAX_VELOCITY = 5;
 	static PARTICLE_SETTINGS: ParticleSettings = {
-		color: { red: 100, green: 100, blue: 100 },
+		color: new RGB(100, 100, 100),
 		size: { min: 5, max: 10 },
 		grayscaleColorVariance: 25,
 		sizeDecay: 0.3,
@@ -474,7 +451,7 @@ export class PortalData {
 	static FRAMES_PER_LINE = 2;
 
 	static PARTICLE_SETTINGS: ParticleSettings = {
-		color: { red: 50, green: 200, blue: 255 },
+		color: new RGB(50, 200, 255),
 		size: { min: 0.4 * WorldData.TILE_SIZE, max: 0.6 * WorldData.TILE_SIZE },
 		shape: 2,
 		solid: false,
@@ -534,14 +511,10 @@ export class SpiderData {
 	static GLOW_INTENSITY = 0.4;
 	static UNLIT_GLOW_INTENSITY = 0.1;
 	static SHOT_DELAY = 75;
-	static GLOW_COLOR = {
-		red: 255,
-		green: 128,
-		blue: 0,
-	};
+	static GLOW_COLOR = new RGB(255, 128, 0);
 
 	static PROJECTILE_PARTICLE_SETTINGS: ParticleSettings = {
-		color: { red: 255, green: 128, blue: 0 },
+		color: new RGB(255, 128, 0),
 		size: 10,
 		shape: "circle",
 		glowSize: 30,
@@ -562,11 +535,7 @@ export class SpiderData {
 export class FireballData {
 	static GLOW_SIZE = 150;
 	static GLOW_INTENSITY = 0.4;
-	static GLOW_COLOR = {
-		red: 255,
-		green: 150,
-		blue: 50,
-	};
+	static GLOW_COLOR = new RGB(255, 150, 50);
 	static PARTICLE_AREA = 5;
 }
 
@@ -634,11 +603,7 @@ export class TallCreatureData {
 	static MAX_LEG_OFFSET = 5;
 	static MAX_STEP_SIZE = 1.1 * WorldData.TILE_SIZE;
 
-	static EYE_COLOR = {
-		red: 255,
-		green: 0,
-		blue: 0,
-	};
+	static EYE_COLOR = new RGB(255, 0, 0);
 	static EYE_RADIUS = 5;
 	static EYE_SPACING = 20;
 	static GLOW_SIZE = 100;
@@ -667,7 +632,7 @@ export class TeleportingCreatureData {
 		hurtboxSpeed: 5,
 		particlesPerFrame: 2,
 		particleSettings: {
-			color: { red: 255, green: 128, blue: 0 },
+			color: new RGB(255, 128, 0),
 			size: WorldData.TILE_SIZE * 0.2,
 			shape: "circle",
 			glowSize: 30,
@@ -693,7 +658,7 @@ export class TeleportingCreatureData {
 		BODY_SIZE: 30,
 		BODY_OFFSET_Y: -5,
 
-		EYE_COLOR: { red: 255, green: 128, blue: 0 },
+		EYE_COLOR: new RGB(255, 128, 0),
 		UNLIT_EYE_COLOR: "rgb(100, 100, 100)",
 		EYE_SIZE: WorldData.TILE_SIZE * 0.1,
 

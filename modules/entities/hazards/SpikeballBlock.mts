@@ -50,7 +50,7 @@ export class SpikeballBlock extends RectangularCollideable {
 			center.x, center.y, SpikeballBlockData.GLOW_SIZE,
 			SpikeballBlockData.GLOW_INTENSITY,
 			canvasIO,
-			SpikeballData.ACCENT_COLOR.red, SpikeballData.ACCENT_COLOR.green, SpikeballData.ACCENT_COLOR.blue,
+			SpikeballData.ACCENT_COLOR,
 		);
 	}
 	display(canvasIO: CanvasIO) {
@@ -67,9 +67,9 @@ export class SpikeballBlock extends RectangularCollideable {
 
 
 			const openness = this.doors[direction];
-			canvasIO.ctx.strokeStyle = `rgb(${SpikeballData.ACCENT_COLOR.red}, ${SpikeballData.ACCENT_COLOR.green}, ${SpikeballData.ACCENT_COLOR.blue})`;
+			canvasIO.ctx.strokeStyle = SpikeballData.ACCENT_COLOR.toString();
 			canvasIO.ctx.lineWidth = SpikeballBlockData.ACCENT_WIDTH;
-			canvasIO.ctx.fillStyle = `rgb(${SpikeballData.ACCENT_COLOR.red}, ${SpikeballData.ACCENT_COLOR.green}, ${SpikeballData.ACCENT_COLOR.blue})`;
+			canvasIO.ctx.fillStyle = SpikeballData.ACCENT_COLOR.toString();
 			canvasIO.strokeLine(0, 0, 0, -WorldData.TILE_SIZE / 2 + SpikeballBlockData.DOOR_HEIGHT);
 			canvasIO.ctx.fillRect(-5, -5, 10, 10);
 
@@ -91,7 +91,7 @@ export class SpikeballBlock extends RectangularCollideable {
 			canvasIO.ctx.save();
 			canvasIO.ctx.translate(center.x, center.y);
 			canvasIO.rotateTo("up", direction);
-			canvasIO.ctx.strokeStyle = GraphicsUtils.formatColor(SpikeballData.ACCENT_COLOR);
+			canvasIO.ctx.strokeStyle = SpikeballData.ACCENT_COLOR.toString();
 			canvasIO.ctx.lineWidth = SpikeballBlockData.ACCENT_WIDTH;
 			canvasIO.ctx.lineCap = "round";
 			for(const sign of [1, -1]) {

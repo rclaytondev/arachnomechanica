@@ -14,6 +14,7 @@ import { Renderable } from "../../game-engine/world/Renderer.mjs";
 import { Player } from "../../Player.mjs";
 import { Collideable } from "../../game-engine/collisions/Collideable.mjs";
 import { MathUtils } from "../../../utils-ts/modules/math/MathUtils.mjs";
+import { RGB } from "../../game-utilities/RGB.mjs";
 
 abstract class SpikeballState {
 	abstract update(self: Spikeball): void;
@@ -84,7 +85,7 @@ class AttackState extends SpikeballState {
 	displayTelegraph(self: Spikeball, canvasIO: CanvasIO) {
 		const center = self.hitbox.center();
 		const thickness = GeomUtils.lerp(this.timeInState, 0, SpikeballData.TELEGRAPH_DELAY, SpikeballData.TELEGRAPH_THICKNESS, 1);
-		GraphicsUtils.glowCircleOutline(center.x, center.y, SpikeballData.TELEGRAPH_RADIUS, thickness, 1, canvasIO, 255, 255, 0);
+		GraphicsUtils.glowCircleOutline(center.x, center.y, SpikeballData.TELEGRAPH_RADIUS, thickness, 1, canvasIO, new RGB(255, 255, 0));
 	}
 }
 
@@ -159,7 +160,7 @@ export class Spikeball extends RectangularCollideable {
 			center.x, center.y,
 			SpikeballData.GLOW_SIZE, SpikeballData.GLOW_INTENSITY,
 			canvasIO,
-			SpikeballData.ACCENT_COLOR.red, SpikeballData.ACCENT_COLOR.green, SpikeballData.ACCENT_COLOR.blue,
+			SpikeballData.ACCENT_COLOR,
 		);
 		canvasIO.ctx.restore();
 	}

@@ -27,6 +27,7 @@ import { SlopeTile } from "./tiles/SlopeTile.mjs";
 import { DeathScreen } from "./user-interface/DeathScreen.mjs";
 import { Renderable } from "./game-engine/world/Renderer.mjs";
 import { TileWithPosition, World } from "./game-engine/world/World.mjs";
+import { RGB } from "./game-utilities/RGB.mjs";
 
 type Input = { [key: string]: boolean };
 
@@ -205,7 +206,7 @@ class SmashAttackState {
 			position,
 			new Vector(0, 0),
 			{
-				color: { red: 0, blue: 0, green: 0 }, // REFACTOR: this is unused so it shouldn't be required
+				color: new RGB(0, 0, 0), // REFACTOR: this is unused so it shouldn't be required
 				size: 1000,
 				sizeDecay: 0,
 				opacity: PlayerData.SMASH_PARTICLE_OPACITY,

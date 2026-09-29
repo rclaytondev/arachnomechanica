@@ -6,6 +6,7 @@ import { Tiles } from "../../game-engine/world/Tiles.mjs";
 import { Entity } from "../../game-engine/world/Entity.mjs";
 import { Particle } from "./Particle.mjs";
 import { RandomUtils } from "../../game-utilities/RandomUtils.mjs";
+import { RGB } from "../../game-utilities/RGB.mjs";
 
 
 export class DeathParticle extends Particle {
@@ -17,7 +18,7 @@ export class DeathParticle extends Particle {
 			position,
 			new Vector(DeathParticleData.VELOCITY, 0).rotate(-RandomUtils.random(45, 90 + 45)),
 			{
-				color: { red: 0, green: 0, blue: 0 }, // unused
+				color: new RGB(0, 0, 0), // unused
 				size: DeathParticleData.INITIAL_SCALE,
 				sizeDecay: DeathParticleData.SCALE_DECAY,
 				opacityDecay: 0,

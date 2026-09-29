@@ -5,6 +5,7 @@ import { World } from "../../game-engine/world/World.mjs";
 import { RandomUtils } from "../../game-utilities/RandomUtils.mjs";
 import { Particle, ParticleSettings } from "../particles/Particle.mjs";
 import { ShakeEffect } from "../../game-engine/visual-effects/ShakeEffect.mjs";
+import { RGB } from "../../game-utilities/RGB.mjs";
 
 type ExplosionOptions = {
 	visualRadius?: number,
@@ -40,7 +41,7 @@ export class Explosion {
 		this.screenShakeIntensity = options.screenShakeIntensity ?? 30;
 		this.screenShakeTime = options.screenShakeTime ?? 7;
 		this.particleSettings = options.particleSettings ?? {
-			color: { red: 255, green: 128, blue: 0 },
+			color: new RGB(255, 128, 0),
 			size: 7,
 			shape: "circle",
 			sizeDecay: 0.2,

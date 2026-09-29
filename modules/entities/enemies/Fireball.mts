@@ -50,7 +50,7 @@ export class Fireball extends RectangularCollideable {
 			center.x, center.y,
 			FireballData.GLOW_SIZE, FireballData.GLOW_INTENSITY,
 			canvasIO,
-			FireballData.GLOW_COLOR.red, FireballData.GLOW_COLOR.green, FireballData.GLOW_COLOR.blue,
+			FireballData.GLOW_COLOR,
 		);
 	}
 	display() { }

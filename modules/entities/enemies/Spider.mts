@@ -21,6 +21,7 @@ import { Tiles } from "../../game-engine/world/Tiles.mjs";
 import { TileWithPosition, World } from "../../game-engine/world/World.mjs";
 import { Enemy, EnemyUtils } from "./Enemy.mjs";
 import { Fireball } from "./Fireball.mjs";
+import { RGB } from "../../game-utilities/RGB.mjs";
 
 export class PointOnSurface {
 	readonly normal: Direction | Diagonal;
@@ -399,7 +400,7 @@ class TelegraphState extends ProjectileState {
 			center.x, center.y,
 			player.x, player.y,
 			width, opacity, canvasIO,
-			255, 255, 255,
+			new RGB(255, 255, 255),
 		);
 	}
 
@@ -571,7 +572,7 @@ export class Spider extends RectangularCollideable implements Enemy {
 			center.x, center.y,
 			SpiderData.GLOW_SIZE, glowIntensity,
 			canvasIO,
-			SpiderData.GLOW_COLOR.red, SpiderData.GLOW_COLOR.green, SpiderData.GLOW_COLOR.blue,
+			SpiderData.GLOW_COLOR,
 		);
 	}
 	displayLegs(canvasIO: CanvasIO) {

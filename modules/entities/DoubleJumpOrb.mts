@@ -8,6 +8,7 @@ import { GeomUtils } from "../game-utilities/GeomUtils.mjs";
 import { GraphicsUtils } from "../game-utilities/GraphicsUtils.mjs";
 import { Renderable } from "../game-engine/world/Renderer.mjs";
 import { World } from "../game-engine/world/World.mjs";
+import { RGB } from "../game-utilities/RGB.mjs";
 
 export class DoubleJumpOrb extends Entity {
 	position: Vector;
@@ -61,7 +62,7 @@ export class DoubleJumpOrb extends Entity {
 			this.position.x, this.position.y,
 			radius,
 			1, canvasIO,
-			30, 150, 255,
+			new RGB(30, 150, 255),
 		);
 	}
 

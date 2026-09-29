@@ -184,7 +184,7 @@ export class TallCreature extends Collideable {
 	}
 	displayEyes(canvasIO: CanvasIO) {
 		const center = this.head.center();
-		canvasIO.ctx.fillStyle = GraphicsUtils.formatColor(TallCreatureData.EYE_COLOR);
+		canvasIO.ctx.fillStyle = TallCreatureData.EYE_COLOR.toString();
 		canvasIO.fillDiamond(center.x, center.y, TallCreatureData.EYE_RADIUS);
 		canvasIO.fillDiamond(center.x + TallCreatureData.EYE_SPACING, center.y, TallCreatureData.EYE_RADIUS);
 		canvasIO.fillDiamond(center.x - TallCreatureData.EYE_SPACING, center.y, TallCreatureData.EYE_RADIUS);
@@ -199,7 +199,7 @@ export class TallCreature extends Collideable {
 		GraphicsUtils.glowCircle(
 			center.x, center.y,
 			TallCreatureData.GLOW_SIZE, TallCreatureData.GLOW_INTENSITY, canvasIO,
-			TallCreatureData.EYE_COLOR.red, TallCreatureData.EYE_COLOR.green, TallCreatureData.EYE_COLOR.blue,
+			TallCreatureData.EYE_COLOR,
 		);
 	}
 

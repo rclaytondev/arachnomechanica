@@ -4,10 +4,11 @@ import { RenderingID } from "../../constants/RenderingOrder.mjs";
 import { Renderable } from "../../game-engine/world/Renderer.mjs";
 import { GraphicsUtils } from "../../game-utilities/GraphicsUtils.mjs";
 import { RandomUtils } from "../../game-utilities/RandomUtils.mjs";
+import { RGB } from "../../game-utilities/RGB.mjs";
 
 type Range = { min: number, max: number };
 export type ParticleSettings = {
-	color: { red: number, green: number, blue: number };
+	color: RGB;
 	size: number | Range;
 
 	opacity?: number | Range;
@@ -127,7 +128,7 @@ export class Particle {
 			this.position.x, this.position.y,
 			this.glowSize, this.glowIntensity * this.opacity,
 			canvasIO,
-			255, 255, 255,
+			new RGB(255, 255, 255),
 		);
 	}
 

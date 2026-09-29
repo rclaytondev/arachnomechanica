@@ -65,7 +65,7 @@ export class LaserBlock extends RectangularCollideable {
 		const center = this.hitbox.center();
 		for(const [i, angle] of this.angles().entries()) {
 			const distance = this.lengths[i];
-			canvasIO.ctx.strokeStyle = GraphicsUtils.formatColor(this.color());
+			canvasIO.ctx.strokeStyle = this.color().toString();
 			canvasIO.ctx.save();
 			canvasIO.ctx.translate(center.x, center.y);
 			canvasIO.ctx.rotate(angle);
@@ -87,7 +87,7 @@ export class LaserBlock extends RectangularCollideable {
 				center.x, center.y, endpoint.x, endpoint.y,
 				LaserBlockData.LASER_GLOW_SIZE, LaserBlockData.LASER_GLOW_INTENSITY,
 				canvasIO,
-				color.red, color.green, color.blue,
+				color,
 			);
 		}
 	}

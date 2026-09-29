@@ -113,9 +113,7 @@ export class Lizard extends Collideable implements Enemy {
 			0, LizardData.EYE_Y + LizardData.HEAD_OFFSET,
 			LizardData.LIGHT_SIZE, LizardData.LIGHT_INTENSITY,
 			canvasIO,
-			LizardData.GLOW_COLOR.red,
-			LizardData.GLOW_COLOR.green,
-			LizardData.GLOW_COLOR.blue,
+			LizardData.GLOW_COLOR,
 		);
 		canvasIO.ctx.restore();
 	}
