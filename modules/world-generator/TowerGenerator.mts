@@ -2,7 +2,7 @@ import { Rectangle } from "../../utils-ts/modules/geometry/Rectangle.mjs";
 import { Vector } from "../../utils-ts/modules/geometry/Vector.mjs";
 import { LevelGeneratorData, RoomData, WorldData } from "../constants/GameData.mjs";
 import { SpawnPoint } from "../entities/special/SpawnPoint.mjs";
-import { OverlayText } from "../game-utilities/visual-effects/OverlayText.mjs";
+import { OverlayText } from "../game-engine/visual-effects/OverlayText.mjs";
 import { World } from "../game-engine/world/World.mjs";
 import { LevelGenerator } from "../level-generator/LevelGenerator.mjs";
 import { WorldGenerationSegment } from "./WorldGenerationSegment.mjs";

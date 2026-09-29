@@ -1,7 +1,7 @@
 import { CanvasIO } from "../../../utils-ts/modules/CanvasIO.mjs";
 import { MathUtils } from "../../../utils-ts/modules/math/MathUtils.mjs";
-import { Renderable } from "../../game-engine/world/Renderer.mjs";
-import { GeomUtils } from "../GeomUtils.mjs";
+import { Renderable } from "../world/Renderer.mjs";
+import { GeomUtils } from "../../game-utilities/GeomUtils.mjs";
 import { VisualEffect } from "./VisualEffect.mjs";
 import { VisualEffects } from "./VisualEffects.mjs";
 

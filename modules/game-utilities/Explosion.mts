@@ -4,7 +4,7 @@ import { WorldData } from "../constants/GameData.mjs";
 import { World } from "../game-engine/world/World.mjs";
 import { RandomUtils } from "./RandomUtils.mjs";
 import { Particle, ParticleSettings } from "../entities/particles/Particle.mjs";
-import { ShakeEffect } from "./visual-effects/ShakeEffect.mjs";
+import { ShakeEffect } from "../game-engine/visual-effects/ShakeEffect.mjs";
 
 type ExplosionOptions = {
 	visualRadius?: number,

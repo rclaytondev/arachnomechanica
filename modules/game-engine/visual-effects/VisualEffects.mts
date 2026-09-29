@@ -1,4 +1,4 @@
-import { Renderer } from "../../game-engine/world/Renderer.mjs";
+import { Renderer } from "../world/Renderer.mjs";
 import { VisualEffect } from "./VisualEffect.mjs";
 
 export class VisualEffects {

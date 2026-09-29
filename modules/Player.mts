@@ -18,7 +18,7 @@ import { Collideable } from "./game-engine/collisions/Collideable.mjs";
 import { CollisionEvent } from "./game-engine/collisions/CollisionEvent.mjs";
 import { RectangularCollideable } from "./game-engine/collisions/RectangularCollideable.mjs";
 import { RandomUtils } from "./game-utilities/RandomUtils.mjs";
-import { ScreenFade } from "./game-utilities/visual-effects/ScreenFade.mjs";
+import { ScreenFade } from "./game-engine/visual-effects/ScreenFade.mjs";
 import { ThrowableTile } from "./items/ThrowableTile.mjs";
 import { ThrowableTileEntity } from "./items/ThrowableTileEntity.mjs";
 import { Main } from "./Main.mjs";

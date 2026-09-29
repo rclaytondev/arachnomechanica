@@ -7,7 +7,7 @@ import { GeomUtils } from "../game-utilities/GeomUtils.mjs";
 import { World } from "../game-engine/world/World.mjs";
 import { RectangularCollideable } from "../game-engine/collisions/RectangularCollideable.mjs";
 import { Tiles } from "../game-engine/world/Tiles.mjs";
-import { ShakeEffect } from "../game-utilities/visual-effects/ShakeEffect.mjs";
+import { ShakeEffect } from "../game-engine/visual-effects/ShakeEffect.mjs";
 import { Renderable } from "../game-engine/world/Renderer.mjs";
 import { StaticEntity } from "../game-engine/world/StaticEntity.mjs";
 import { BasicTile } from "../tiles/BasicTile.mjs";

@@ -1,8 +1,8 @@
 import { CanvasIO } from "../../utils-ts/modules/CanvasIO.mjs";
 import { PlayerData, StartScreenData, WorldUIData } from "../constants/GameData.mjs";
 import { InputUtils } from "../game-utilities/InputUtils.mjs";
-import { OverlayText } from "../game-utilities/visual-effects/OverlayText.mjs";
-import { ScreenFade } from "../game-utilities/visual-effects/ScreenFade.mjs";
+import { OverlayText } from "../game-engine/visual-effects/OverlayText.mjs";
+import { ScreenFade } from "../game-engine/visual-effects/ScreenFade.mjs";
 import { Main } from "../Main.mjs";
 import { Renderable, Renderer } from "../game-engine/world/Renderer.mjs";
 import { World } from "../game-engine/world/World.mjs";

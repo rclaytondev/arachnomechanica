@@ -5,7 +5,7 @@ import { Debug } from "./game-utilities/Debug.mjs";
 import { WorldScreen } from "./user-interface/WorldScreen.mjs";
 import { StartScreen } from "./user-interface/StartScreen.mjs";
 import { Renderable, Renderer } from "./game-engine/world/Renderer.mjs";
-import { VisualEffects } from "./game-utilities/visual-effects/VisualEffects.mjs";
+import { VisualEffects } from "./game-engine/visual-effects/VisualEffects.mjs";
 
 
 export class Main {
