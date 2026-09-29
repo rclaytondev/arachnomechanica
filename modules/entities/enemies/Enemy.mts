@@ -1,7 +1,7 @@
-import { CanvasIO } from "../../utils-ts/modules/CanvasIO.mjs";
-import { EnemyData } from "../constants/GameData.mjs";
-import { Entity } from "../game-utilities/Entity.mjs";
-import { GeomUtils } from "../game-utilities/GeomUtils.mjs";
+import { CanvasIO } from "../../../utils-ts/modules/CanvasIO.mjs";
+import { EnemyData } from "../../constants/GameData.mjs";
+import { Entity } from "../../game-utilities/Entity.mjs";
+import { GeomUtils } from "../../game-utilities/GeomUtils.mjs";
 
 export class EnemyUtils {
 	static isEnemy(entity: unknown): entity is Enemy {

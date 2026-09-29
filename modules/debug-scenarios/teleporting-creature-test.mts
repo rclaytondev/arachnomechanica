@@ -1,6 +1,6 @@
 import { Rectangle } from "../../utils-ts/modules/geometry/Rectangle.mjs";
 import { Vector } from "../../utils-ts/modules/geometry/Vector.mjs";
-import { TeleportingCreature } from "../entities/TeleportingCreature.mjs";
+import { TeleportingCreature } from "../entities/enemies/TeleportingCreature.mjs";
 import { TestScenario } from "../TestScenario.mjs";
 import { TowerTile } from "../tiles/TowerTile.mjs";
 import { World } from "../world/World.mjs";

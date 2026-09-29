@@ -8,7 +8,7 @@ import { World } from "../world/World.mjs";
 import { ArrayUtils } from "../../utils-ts/modules/core-extensions/ArrayUtils.mjs";
 import { EmptyTile } from "../tiles/EmptyTile.mjs";
 import { Tiles } from "../world/Tiles.mjs";
-import { Portal } from "../entities/Portal.mjs";
+import { Portal } from "../entities/special/Portal.mjs";
 import { Spawnable } from "./Spawnable.mjs";
 
 export class EntitySpawner {

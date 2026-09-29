@@ -7,7 +7,7 @@ import { World } from "./world/World.mjs";
 import { BackgroundData, PortalData, RoomData, WorldData } from "./constants/GameData.mjs";
 import { ROOMS } from "./constants/Rooms.mjs";
 import { InputUtils } from "./game-utilities/InputUtils.mjs";
-import { Portal } from "./entities/Portal.mjs";
+import { Portal } from "./entities/special/Portal.mjs";
 import { EmptyTile } from "./tiles/EmptyTile.mjs";
 import { Platform } from "./tiles/Platform.mjs";
 import { Tile } from "./tiles/Tile.mjs";

@@ -1,7 +1,7 @@
 import { Rectangle } from "../../utils-ts/modules/geometry/Rectangle.mjs";
 import { Vector } from "../../utils-ts/modules/geometry/Vector.mjs";
-import { Lizard } from "../entities/Lizard.mjs";
-import { CrawlingState, Spider } from "../entities/Spider.mjs";
+import { Lizard } from "../entities/enemies/Lizard.mjs";
+import { CrawlingState, Spider } from "../entities/enemies/Spider.mjs";
 import { TestScenario } from "../TestScenario.mjs";
 import { TowerSlope } from "../tiles/TowerSlope.mjs";
 import { TowerTile } from "../tiles/TowerTile.mjs";

@@ -1,10 +1,10 @@
-import { CanvasIO } from "../../utils-ts/modules/CanvasIO.mjs";
-import { Rectangle } from "../../utils-ts/modules/geometry/Rectangle.mjs";
-import { Vector } from "../../utils-ts/modules/geometry/Vector.mjs";
-import { HealthPickupData, WorldData } from "../constants/GameData.mjs";
-import { RectangularCollideable } from "../game-utilities/physics-engine/RectangularCollideable.mjs";
-import { Renderable } from "../world/Renderer.mjs";
-import { World } from "../world/World.mjs";
+import { CanvasIO } from "../../../utils-ts/modules/CanvasIO.mjs";
+import { Rectangle } from "../../../utils-ts/modules/geometry/Rectangle.mjs";
+import { Vector } from "../../../utils-ts/modules/geometry/Vector.mjs";
+import { HealthPickupData, WorldData } from "../../constants/GameData.mjs";
+import { RectangularCollideable } from "../../game-utilities/physics-engine/RectangularCollideable.mjs";
+import { Renderable } from "../../world/Renderer.mjs";
+import { World } from "../../world/World.mjs";
 
 export class HealthPickup extends RectangularCollideable {
 	constructor(tilePosition: Vector, world: World) {

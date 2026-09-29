@@ -2,11 +2,11 @@ import { GameUtils } from "../game-utilities/GameUtils.mjs";
 import { Main } from "../Main.mjs";
 import { LoadingManager } from "./LoadingManager.mjs";
 
-import "../entities/Spider.mjs";
-import "../entities/Lizard.mjs";
-import "../entities/LaserBlock.mjs";
-import "../entities/SpikeballBlock.mjs";
-import "../entities/TeleportingCreature.mjs";
+import "../entities/enemies/Spider.mjs";
+import "../entities/enemies/Lizard.mjs";
+import "../entities/hazards/LaserBlock.mjs";
+import "../entities/hazards/SpikeballBlock.mjs";
+import "../entities/enemies/TeleportingCreature.mjs";
 import { StartScreen } from "../user-interface/StartScreen.mjs";
 import { canvasIO } from "./CanvasIOInitializer.mjs";
 

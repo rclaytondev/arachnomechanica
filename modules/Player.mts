@@ -7,7 +7,7 @@ import { MathUtils } from "../utils-ts/modules/math/MathUtils.mjs";
 import { ChainData, DoubleJumpOrbData, ItemData, PlayerData, WorldData } from "./constants/GameData.mjs";
 import { Chain } from "./entities/Chain.mjs";
 import { DoubleJumpOrb } from "./entities/DoubleJumpOrb.mjs";
-import { EnemyUtils } from "./entities/Enemy.mjs";
+import { EnemyUtils } from "./entities/enemies/Enemy.mjs";
 import { Debug } from "./game-utilities/Debug.mjs";
 import { Entity } from "./game-utilities/Entity.mjs";
 import { GeomUtils } from "./game-utilities/GeomUtils.mjs";

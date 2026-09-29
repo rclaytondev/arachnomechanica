@@ -1,7 +1,7 @@
 import { Rectangle } from "../../utils-ts/modules/geometry/Rectangle.mjs";
 import { Vector } from "../../utils-ts/modules/geometry/Vector.mjs";
 import { WorldData } from "../constants/GameData.mjs";
-import { Lizard } from "../entities/Lizard.mjs";
+import { Lizard } from "../entities/enemies/Lizard.mjs";
 import { Gate } from "../entities/Gate.mjs";
 import { World } from "../world/World.mjs";
 import { TowerTile } from "../tiles/TowerTile.mjs";

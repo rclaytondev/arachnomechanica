@@ -1,6 +1,6 @@
 import { Vector } from "../../utils-ts/modules/geometry/Vector.mjs";
 import { WorldData } from "../constants/GameData.mjs";
-import { Spikeball } from "../entities/Spikeball.mjs";
+import { Spikeball } from "../entities/hazards/Spikeball.mjs";
 import { TestScenario } from "../TestScenario.mjs";
 import { TowerSlope } from "../tiles/TowerSlope.mjs";
 import { TowerTile } from "../tiles/TowerTile.mjs";

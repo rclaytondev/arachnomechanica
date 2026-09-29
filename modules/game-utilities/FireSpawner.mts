@@ -8,7 +8,7 @@ import { Tile } from "../tiles/Tile.mjs";
 import { World } from "../world/World.mjs";
 import { RandomUtils } from "./RandomUtils.mjs";
 import { Particle, ParticleSettings } from "./Particle.mjs";
-import { Fireball } from "../entities/Fireball.mjs";
+import { Fireball } from "../entities/enemies/Fireball.mjs";
 import { FirespawnerData } from "../constants/GameData.mjs";
 
 export type FireSpawnerSettings = {

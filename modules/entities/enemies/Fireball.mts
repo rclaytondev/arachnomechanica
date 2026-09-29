@@ -1,15 +1,15 @@
-import { CanvasIO } from "../../utils-ts/modules/CanvasIO.mjs";
-import { Rectangle } from "../../utils-ts/modules/geometry/Rectangle.mjs";
-import { Vector } from "../../utils-ts/modules/geometry/Vector.mjs";
-import { FireballData, SpiderData } from "../constants/GameData.mjs";
-import { Explosion } from "../game-utilities/Explosion.mjs";
-import { GraphicsUtils } from "../game-utilities/GraphicsUtils.mjs";
-import { Particle } from "../game-utilities/Particle.mjs";
-import { Collideable } from "../game-utilities/physics-engine/Collideable.mjs";
-import { RectangularCollideable } from "../game-utilities/physics-engine/RectangularCollideable.mjs";
-import { RandomUtils } from "../game-utilities/RandomUtils.mjs";
-import { Renderable } from "../world/Renderer.mjs";
-import { World } from "../world/World.mjs";
+import { CanvasIO } from "../../../utils-ts/modules/CanvasIO.mjs";
+import { Rectangle } from "../../../utils-ts/modules/geometry/Rectangle.mjs";
+import { Vector } from "../../../utils-ts/modules/geometry/Vector.mjs";
+import { FireballData, SpiderData } from "../../constants/GameData.mjs";
+import { Explosion } from "../../game-utilities/Explosion.mjs";
+import { GraphicsUtils } from "../../game-utilities/GraphicsUtils.mjs";
+import { Particle } from "../../game-utilities/Particle.mjs";
+import { Collideable } from "../../game-utilities/physics-engine/Collideable.mjs";
+import { RectangularCollideable } from "../../game-utilities/physics-engine/RectangularCollideable.mjs";
+import { RandomUtils } from "../../game-utilities/RandomUtils.mjs";
+import { Renderable } from "../../world/Renderer.mjs";
+import { World } from "../../world/World.mjs";
 
 export class Fireball extends RectangularCollideable {
 	velocity: Vector;

@@ -1,6 +1,6 @@
 import { Vector } from "../../../utils-ts/modules/geometry/Vector.mjs";
 import { RoomData, WorldData } from "../../constants/GameData.mjs";
-import { SpawnPoint } from "../../entities/SpawnPoint.mjs";
+import { SpawnPoint } from "../../entities/special/SpawnPoint.mjs";
 import { World } from "../../world/World.mjs";
 import { FixedEntitySpawner } from "../FixedEntitySpawner.mjs";
 

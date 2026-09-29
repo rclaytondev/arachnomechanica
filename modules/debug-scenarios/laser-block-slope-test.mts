@@ -1,7 +1,7 @@
 import { Rectangle } from "../../utils-ts/modules/geometry/Rectangle.mjs";
 import { Vector } from "../../utils-ts/modules/geometry/Vector.mjs";
 import { EmptyTile } from "../tiles/EmptyTile.mjs";
-import { LaserBlock } from "../entities/LaserBlock.mjs";
+import { LaserBlock } from "../entities/hazards/LaserBlock.mjs";
 import { World } from "../world/World.mjs";
 import { TowerTile } from "../tiles/TowerTile.mjs";
 import { TowerSlope } from "../tiles/TowerSlope.mjs";

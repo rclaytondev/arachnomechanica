@@ -1,18 +1,18 @@
-import { CanvasIO } from "../../utils-ts/modules/CanvasIO.mjs";
-import { Rectangle } from "../../utils-ts/modules/geometry/Rectangle.mjs";
-import { Vector } from "../../utils-ts/modules/geometry/Vector.mjs";
-import { LoadingManager } from "../app-entry-points/LoadingManager.mjs";
-import { PlayerData, RoomData, TeleportingCreatureData, WorldData } from "../constants/GameData.mjs";
-import { Entity } from "../game-utilities/Entity.mjs";
-import { FireSpawner } from "../game-utilities/FireSpawner.mjs";
-import { GraphicsUtils } from "../game-utilities/GraphicsUtils.mjs";
-import { CollisionEvent } from "../game-utilities/physics-engine/CollisionEvent.mjs";
-import { RectangularCollideable } from "../game-utilities/physics-engine/RectangularCollideable.mjs";
-import { EntitySpawner } from "../level-generator/EntitySpawner.mjs";
-import { Spawnable } from "../level-generator/Spawnable.mjs";
-import { Renderable } from "../world/Renderer.mjs";
-import { Tiles } from "../world/Tiles.mjs";
-import { World } from "../world/World.mjs";
+import { CanvasIO } from "../../../utils-ts/modules/CanvasIO.mjs";
+import { Rectangle } from "../../../utils-ts/modules/geometry/Rectangle.mjs";
+import { Vector } from "../../../utils-ts/modules/geometry/Vector.mjs";
+import { LoadingManager } from "../../app-entry-points/LoadingManager.mjs";
+import { PlayerData, RoomData, TeleportingCreatureData, WorldData } from "../../constants/GameData.mjs";
+import { Entity } from "../../game-utilities/Entity.mjs";
+import { FireSpawner } from "../../game-utilities/FireSpawner.mjs";
+import { GraphicsUtils } from "../../game-utilities/GraphicsUtils.mjs";
+import { CollisionEvent } from "../../game-utilities/physics-engine/CollisionEvent.mjs";
+import { RectangularCollideable } from "../../game-utilities/physics-engine/RectangularCollideable.mjs";
+import { EntitySpawner } from "../../level-generator/EntitySpawner.mjs";
+import { Spawnable } from "../../level-generator/Spawnable.mjs";
+import { Renderable } from "../../world/Renderer.mjs";
+import { Tiles } from "../../world/Tiles.mjs";
+import { World } from "../../world/World.mjs";
 import { Enemy, EnemyUtils } from "./Enemy.mjs";
 
 

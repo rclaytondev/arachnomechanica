@@ -1,6 +1,6 @@
 import { Vector } from "../../../utils-ts/modules/geometry/Vector.mjs";
 import { RoomData } from "../../constants/GameData.mjs";
-import { HealthPickup } from "../../entities/HealthPickup.mjs";
+import { HealthPickup } from "../../entities/special/HealthPickup.mjs";
 import { World } from "../../world/World.mjs";
 import { FixedEntitySpawner } from "../FixedEntitySpawner.mjs";
 
