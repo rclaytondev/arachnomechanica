@@ -2,7 +2,7 @@ import { Vector } from "../../utils-ts/modules/geometry/Vector.mjs";
 import { ParticleSettings } from "../entities/particles/Particle.mjs";
 import { Traversability } from "../level-generator/Room.mjs";
 import { GateState } from "../level-generator/GateState.mjs";
-import { FireSpawnerSettings } from "../game-utilities/FireSpawner.mjs";
+import { FireSpawnerSettings } from "../entities/entity-components/FireSpawner.mjs";
 import { GraphicsUtils } from "../game-utilities/GraphicsUtils.mjs";
 import { Rectangle } from "../../utils-ts/modules/geometry/Rectangle.mjs";
 

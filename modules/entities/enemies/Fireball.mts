@@ -2,7 +2,7 @@ import { CanvasIO } from "../../../utils-ts/modules/CanvasIO.mjs";
 import { Rectangle } from "../../../utils-ts/modules/geometry/Rectangle.mjs";
 import { Vector } from "../../../utils-ts/modules/geometry/Vector.mjs";
 import { FireballData, SpiderData } from "../../constants/GameData.mjs";
-import { Explosion } from "../../game-utilities/Explosion.mjs";
+import { Explosion } from "../entity-components/Explosion.mjs";
 import { GraphicsUtils } from "../../game-utilities/GraphicsUtils.mjs";
 import { Particle } from "../particles/Particle.mjs";
 import { Collideable } from "../../game-engine/collisions/Collideable.mjs";

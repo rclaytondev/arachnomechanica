@@ -1,4 +1,4 @@
-import { Explosion } from "../../game-utilities/Explosion.mjs";
+import { Explosion } from "../../entities/entity-components/Explosion.mjs";
 import { ThrowableTileEntity } from "../ThrowableTileEntity.mjs";
 import { TileModifier } from "../TileModifier.mjs";
 

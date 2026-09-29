@@ -4,7 +4,7 @@ import { Vector } from "../../../utils-ts/modules/geometry/Vector.mjs";
 import { LoadingManager } from "../../app-entry-points/LoadingManager.mjs";
 import { PlayerData, RoomData, TeleportingCreatureData, WorldData } from "../../constants/GameData.mjs";
 import { Entity } from "../../game-engine/world/Entity.mjs";
-import { FireSpawner } from "../../game-utilities/FireSpawner.mjs";
+import { FireSpawner } from "../entity-components/FireSpawner.mjs";
 import { GraphicsUtils } from "../../game-utilities/GraphicsUtils.mjs";
 import { CollisionEvent } from "../../game-engine/collisions/CollisionEvent.mjs";
 import { RectangularCollideable } from "../../game-engine/collisions/RectangularCollideable.mjs";

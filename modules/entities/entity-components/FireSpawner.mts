@@ -1,15 +1,15 @@
-import { CanvasIO } from "../../utils-ts/modules/CanvasIO.mjs";
-import { Direction, Directions } from "../../utils-ts/modules/geometry/Direction.mjs";
-import { Rectangle } from "../../utils-ts/modules/geometry/Rectangle.mjs";
-import { Vector } from "../../utils-ts/modules/geometry/Vector.mjs";
-import { DEBUG_SETTINGS } from "../constants/DebugSettings.mjs";
-import { Platform } from "../tiles/Platform.mjs";
-import { Tile } from "../tiles/Tile.mjs";
-import { World } from "../game-engine/world/World.mjs";
-import { RandomUtils } from "./RandomUtils.mjs";
-import { Particle, ParticleSettings } from "../entities/particles/Particle.mjs";
-import { Fireball } from "../entities/enemies/Fireball.mjs";
-import { FirespawnerData } from "../constants/GameData.mjs";
+import { CanvasIO } from "../../../utils-ts/modules/CanvasIO.mjs";
+import { Direction, Directions } from "../../../utils-ts/modules/geometry/Direction.mjs";
+import { Rectangle } from "../../../utils-ts/modules/geometry/Rectangle.mjs";
+import { Vector } from "../../../utils-ts/modules/geometry/Vector.mjs";
+import { DEBUG_SETTINGS } from "../../constants/DebugSettings.mjs";
+import { Platform } from "../../tiles/Platform.mjs";
+import { Tile } from "../../tiles/Tile.mjs";
+import { World } from "../../game-engine/world/World.mjs";
+import { RandomUtils } from "../../game-utilities/RandomUtils.mjs";
+import { Particle, ParticleSettings } from "../particles/Particle.mjs";
+import { Fireball } from "../enemies/Fireball.mjs";
+import { FirespawnerData } from "../../constants/GameData.mjs";
 
 export type FireSpawnerSettings = {
 	maxHurtboxSize: number;

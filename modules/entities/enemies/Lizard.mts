@@ -9,7 +9,7 @@ import { DEBUG_SETTINGS } from "../../constants/DebugSettings.mjs";
 import { World } from "../../game-engine/world/World.mjs";
 import { Rectangle } from "../../../utils-ts/modules/geometry/Rectangle.mjs";
 import { LizardData, RoomData, WorldData } from "../../constants/GameData.mjs";
-import { FireSpawner } from "../../game-utilities/FireSpawner.mjs";
+import { FireSpawner } from "../entity-components/FireSpawner.mjs";
 import { Player } from "../../Player.mjs";
 import { Collideable } from "../../game-engine/collisions/Collideable.mjs";
 import { ArrayUtils } from "../../../utils-ts/modules/core-extensions/ArrayUtils.mjs";
