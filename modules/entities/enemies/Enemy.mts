@@ -1,6 +1,6 @@
 import { CanvasIO } from "../../../utils-ts/modules/CanvasIO.mjs";
 import { EnemyData } from "../../constants/GameData.mjs";
-import { Entity } from "../../game-utilities/Entity.mjs";
+import { Entity } from "../../game-engine/world/Entity.mjs";
 import { GeomUtils } from "../../game-utilities/GeomUtils.mjs";
 
 export class EnemyUtils {

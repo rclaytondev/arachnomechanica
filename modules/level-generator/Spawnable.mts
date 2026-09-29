@@ -1,5 +1,5 @@
 import { Rectangle } from "../../utils-ts/modules/geometry/Rectangle.mjs";
-import { World } from "../world/World.mjs";
+import { World } from "../game-engine/world/World.mjs";
 
 export type SpawnableID = "throwable-tiles" | "lizards" | "spiders" | "teleporting-creatures" | "spikeballs" | "lasers";
 export type SpawnFunction = ((tileRegion: Rectangle, safeRegion: Rectangle, world: World) => void);

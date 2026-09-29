@@ -1,7 +1,7 @@
-import { CanvasIO } from "../../utils-ts/modules/CanvasIO.mjs";
-import { Rectangle } from "../../utils-ts/modules/geometry/Rectangle.mjs";
-import { Renderable } from "../world/Renderer.mjs";
-import { World } from "../world/World.mjs";
+import { CanvasIO } from "../../../utils-ts/modules/CanvasIO.mjs";
+import { Rectangle } from "../../../utils-ts/modules/geometry/Rectangle.mjs";
+import { Renderable } from "./Renderer.mjs";
+import { World } from "./World.mjs";
 
 export abstract class Entity {
 	world: World;

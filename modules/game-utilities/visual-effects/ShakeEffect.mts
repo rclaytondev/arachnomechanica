@@ -1,5 +1,5 @@
 import { CanvasIO } from "../../../utils-ts/modules/CanvasIO.mjs";
-import { Renderable } from "../../world/Renderer.mjs";
+import { Renderable } from "../../game-engine/world/Renderer.mjs";
 import { RandomUtils } from "../RandomUtils.mjs";
 import { VisualEffect } from "./VisualEffect.mjs";
 import { VisualEffects } from "./VisualEffects.mjs";

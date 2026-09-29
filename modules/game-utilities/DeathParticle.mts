@@ -1,9 +1,9 @@
 import { CanvasIO } from "../../utils-ts/modules/CanvasIO.mjs";
 import { Vector } from "../../utils-ts/modules/geometry/Vector.mjs";
 import { DeathParticleData, WorldData } from "../constants/GameData.mjs";
-import { Renderer } from "../world/Renderer.mjs";
-import { Tiles } from "../world/Tiles.mjs";
-import { Entity } from "./Entity.mjs";
+import { Renderer } from "../game-engine/world/Renderer.mjs";
+import { Tiles } from "../game-engine/world/Tiles.mjs";
+import { Entity } from "../game-engine/world/Entity.mjs";
 import { Particle } from "./Particle.mjs";
 import { RandomUtils } from "./RandomUtils.mjs";
 

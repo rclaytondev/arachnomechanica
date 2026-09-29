@@ -5,7 +5,7 @@ import { Vector } from "../../utils-ts/modules/geometry/Vector.mjs";
 import { DEBUG_SETTINGS } from "../constants/DebugSettings.mjs";
 import { Platform } from "../tiles/Platform.mjs";
 import { Tile } from "../tiles/Tile.mjs";
-import { World } from "../world/World.mjs";
+import { World } from "../game-engine/world/World.mjs";
 import { RandomUtils } from "./RandomUtils.mjs";
 import { Particle, ParticleSettings } from "./Particle.mjs";
 import { Fireball } from "../entities/enemies/Fireball.mjs";

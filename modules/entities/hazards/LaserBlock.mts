@@ -7,11 +7,11 @@ import { LaserBlockData, RoomData, WorldData } from "../../constants/GameData.mj
 import { GeomUtils } from "../../game-utilities/GeomUtils.mjs";
 import { GraphicsUtils } from "../../game-utilities/GraphicsUtils.mjs";
 import { RandomUtils } from "../../game-utilities/RandomUtils.mjs";
-import { RectangularCollideable } from "../../game-utilities/physics-engine/RectangularCollideable.mjs";
+import { RectangularCollideable } from "../../game-engine/collisions/RectangularCollideable.mjs";
 import { EntitySpawner } from "../../level-generator/EntitySpawner.mjs";
-import { Renderable } from "../../world/Renderer.mjs";
-import { Tiles } from "../../world/Tiles.mjs";
-import { World } from "../../world/World.mjs";
+import { Renderable } from "../../game-engine/world/Renderer.mjs";
+import { Tiles } from "../../game-engine/world/Tiles.mjs";
+import { World } from "../../game-engine/world/World.mjs";
 import { Spawnable } from "../../level-generator/Spawnable.mjs";
 
 export class LaserBlock extends RectangularCollideable {

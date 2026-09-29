@@ -4,7 +4,7 @@ import { Main } from "../Main.mjs";
 import { RoomEditor } from "../RoomEditor.mjs";
 import { Room } from "../level-generator/Room.mjs";
 import { WorldPart } from "../world-generator/WorldPart.mjs";
-import { Tiles } from "../world/Tiles.mjs";
+import { Tiles } from "../game-engine/world/Tiles.mjs";
 import { Grid } from "../../utils-ts/modules/Grid.mjs";
 
 Main.screen = new RoomEditor(new Room(

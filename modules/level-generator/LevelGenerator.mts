@@ -10,7 +10,7 @@ import { GameUtils } from "../game-utilities/GameUtils.mjs";
 import { RandomUtils } from "../game-utilities/RandomUtils.mjs";
 import { BasicTile } from "../tiles/BasicTile.mjs";
 import { TowerTile } from "../tiles/TowerTile.mjs";
-import { World } from "../world/World.mjs";
+import { World } from "../game-engine/world/World.mjs";
 import { GateState } from "./GateState.mjs";
 import { Room } from "./Room.mjs";
 import { RoomSlot } from "./RoomSlot.mjs";

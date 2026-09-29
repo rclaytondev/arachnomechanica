@@ -2,7 +2,7 @@ import { Rectangle } from "../../utils-ts/modules/geometry/Rectangle.mjs";
 import { LoadingManager } from "../app-entry-points/LoadingManager.mjs";
 import { FLOOR_ZERO, FloorZeroData } from "../constants/FloorZeroData.mjs";
 import { WorldData, WorldGeneratorData } from "../constants/GameData.mjs";
-import { World } from "../world/World.mjs";
+import { World } from "../game-engine/world/World.mjs";
 import { TowerGenerator } from "./TowerGenerator.mjs";
 import { WorldGenerationSegment } from "./WorldGenerationSegment.mjs";
 

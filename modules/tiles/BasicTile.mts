@@ -5,9 +5,9 @@ import { Vector } from "../../utils-ts/modules/geometry/Vector.mjs";
 import { WorldData } from "../constants/GameData.mjs";
 import { GeomUtils } from "../game-utilities/GeomUtils.mjs";
 import { Octant, Octants } from "../game-utilities/Octant.mjs";
-import { Collideable } from "../game-utilities/physics-engine/Collideable.mjs";
-import { Renderable } from "../world/Renderer.mjs";
-import { Tiles } from "../world/Tiles.mjs";
+import { Collideable } from "../game-engine/collisions/Collideable.mjs";
+import { Renderable } from "../game-engine/world/Renderer.mjs";
+import { Tiles } from "../game-engine/world/Tiles.mjs";
 import { Tile } from "./Tile.mjs";
 
 export abstract class BasicTile extends Tile {

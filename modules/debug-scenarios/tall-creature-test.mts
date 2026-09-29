@@ -3,7 +3,7 @@ import { Vector } from "../../utils-ts/modules/geometry/Vector.mjs";
 import { TallCreature } from "../entities/enemies/TallCreature.mjs";
 import { TowerTile } from "../tiles/TowerTile.mjs";
 import { EmptyTile } from "../tiles/EmptyTile.mjs";
-import { World } from "../world/World.mjs";
+import { World } from "../game-engine/world/World.mjs";
 import { TestScenario } from "../TestScenario.mjs";
 
 export const tallCreatureScenario = new TestScenario("tall-creature-scenario", () => {

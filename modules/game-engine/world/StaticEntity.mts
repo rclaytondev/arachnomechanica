@@ -1,7 +1,7 @@
-import { CanvasIO } from "../../utils-ts/modules/CanvasIO.mjs";
-import { Camera } from "../world/Camera.mjs";
-import { Renderable, Renderer } from "../world/Renderer.mjs";
-import { World } from "../world/World.mjs";
+import { CanvasIO } from "../../../utils-ts/modules/CanvasIO.mjs";
+import { Camera } from "./Camera.mjs";
+import { Renderable, Renderer } from "./Renderer.mjs";
+import { World } from "./World.mjs";
 
 export abstract class StaticEntity {
 	abstract update(world: World, canvasIO: CanvasIO): void;

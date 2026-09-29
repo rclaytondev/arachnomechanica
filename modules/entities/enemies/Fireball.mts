@@ -5,11 +5,11 @@ import { FireballData, SpiderData } from "../../constants/GameData.mjs";
 import { Explosion } from "../../game-utilities/Explosion.mjs";
 import { GraphicsUtils } from "../../game-utilities/GraphicsUtils.mjs";
 import { Particle } from "../../game-utilities/Particle.mjs";
-import { Collideable } from "../../game-utilities/physics-engine/Collideable.mjs";
-import { RectangularCollideable } from "../../game-utilities/physics-engine/RectangularCollideable.mjs";
+import { Collideable } from "../../game-engine/collisions/Collideable.mjs";
+import { RectangularCollideable } from "../../game-engine/collisions/RectangularCollideable.mjs";
 import { RandomUtils } from "../../game-utilities/RandomUtils.mjs";
-import { Renderable } from "../../world/Renderer.mjs";
-import { World } from "../../world/World.mjs";
+import { Renderable } from "../../game-engine/world/Renderer.mjs";
+import { World } from "../../game-engine/world/World.mjs";
 
 export class Fireball extends RectangularCollideable {
 	velocity: Vector;

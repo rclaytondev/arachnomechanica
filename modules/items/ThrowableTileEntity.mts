@@ -3,12 +3,12 @@ import { Directions } from "../../utils-ts/modules/geometry/Direction.mjs";
 import { Rectangle } from "../../utils-ts/modules/geometry/Rectangle.mjs";
 import { Vector } from "../../utils-ts/modules/geometry/Vector.mjs";
 import { ItemData, PlayerData, WorldData } from "../constants/GameData.mjs";
-import { Collideable } from "../game-utilities/physics-engine/Collideable.mjs";
-import { CollisionEvent } from "../game-utilities/physics-engine/CollisionEvent.mjs";
-import { RectangularCollideable } from "../game-utilities/physics-engine/RectangularCollideable.mjs";
+import { Collideable } from "../game-engine/collisions/Collideable.mjs";
+import { CollisionEvent } from "../game-engine/collisions/CollisionEvent.mjs";
+import { RectangularCollideable } from "../game-engine/collisions/RectangularCollideable.mjs";
 import { Player } from "../Player.mjs";
-import { Renderable } from "../world/Renderer.mjs";
-import { World } from "../world/World.mjs";
+import { Renderable } from "../game-engine/world/Renderer.mjs";
+import { World } from "../game-engine/world/World.mjs";
 import { ThrowableTile } from "./ThrowableTile.mjs";
 import { TileModifier } from "./TileModifier.mjs";
 

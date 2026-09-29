@@ -4,9 +4,9 @@ import { Rectangle } from "../../../utils-ts/modules/geometry/Rectangle.mjs";
 import { Vector } from "../../../utils-ts/modules/geometry/Vector.mjs";
 import { HashSet } from "../../../utils-ts/modules/HashSet.mjs";
 import { DEBUG_SETTINGS } from "../../constants/DebugSettings.mjs";
-import { TileWithPosition } from "../../world/World.mjs";
-import { DeathParticle } from "../DeathParticle.mjs";
-import { Entity } from "../Entity.mjs";
+import { TileWithPosition } from "../world/World.mjs";
+import { DeathParticle } from "../../game-utilities/DeathParticle.mjs";
+import { Entity } from "../world/Entity.mjs";
 
 import { CollisionEvent } from "./CollisionEvent.mjs";
 

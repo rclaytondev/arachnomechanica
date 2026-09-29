@@ -1,4 +1,4 @@
-import { World } from "../world/World.mjs";
+import { World } from "../game-engine/world/World.mjs";
 import { FloorZero } from "./FloorZero.mjs";
 import { GroundGenerator } from "./GroundGenerator.mjs";
 import { TowerGenerator } from "./TowerGenerator.mjs";

@@ -5,7 +5,7 @@ import { LoadingManager } from "../app-entry-points/LoadingManager.mjs";
 import { ItemData, RoomData, WorldData } from "../constants/GameData.mjs";
 import { EntitySpawner } from "../level-generator/EntitySpawner.mjs";
 import { Spawnable } from "../level-generator/Spawnable.mjs";
-import { World } from "../world/World.mjs";
+import { World } from "../game-engine/world/World.mjs";
 import { ThrowableTileEntity } from "./ThrowableTileEntity.mjs";
 import { TileModifier } from "./TileModifier.mjs";
 

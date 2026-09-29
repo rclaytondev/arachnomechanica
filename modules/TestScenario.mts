@@ -1,4 +1,4 @@
-import { World } from "./world/World.mjs";
+import { World } from "./game-engine/world/World.mjs";
 
 export class TestScenario<T extends unknown[] = []> {
 	static all: TestScenario<unknown[]>[] = [];

@@ -3,7 +3,7 @@ import { Vector } from "../../utils-ts/modules/geometry/Vector.mjs";
 import { Gate } from "../entities/Gate.mjs";
 import { TestScenario } from "../TestScenario.mjs";
 import { TowerTile } from "../tiles/TowerTile.mjs";
-import { World } from "../world/World.mjs";
+import { World } from "../game-engine/world/World.mjs";
 
 /*
 This scenario is a regression test for a bug: if the player goes partially past a horizontal gate while in a different column, then goes into the column containing the gate and goes fully past, the gate will toggle when it shouldn't.

@@ -5,7 +5,7 @@ import { ROOMS } from "../constants/Rooms.mjs";
 import { Main } from "../Main.mjs";
 import { RoomEditor } from "../RoomEditor.mjs";
 import { LoadingManager } from "../app-entry-points/LoadingManager.mjs";
-import { Camera } from "../world/Camera.mjs";
+import { Camera } from "../game-engine/world/Camera.mjs";
 import { WorldData } from "../constants/GameData.mjs";
 import { InputUtils } from "./InputUtils.mjs";
 import { Vector } from "../../utils-ts/modules/geometry/Vector.mjs";

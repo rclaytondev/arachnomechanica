@@ -1,14 +1,14 @@
-import { Rectangle } from "../../utils-ts/modules/geometry/Rectangle.mjs";
-import { WorldData } from "../constants/GameData.mjs";
-import { Entity } from "../game-utilities/Entity.mjs";
-import { Collideable } from "../game-utilities/physics-engine/Collideable.mjs";
-import { BoundingBoxStructure } from "../game-utilities/BoundingBoxStructure.mjs";
-import { Vector } from "../../utils-ts/modules/geometry/Vector.mjs";
-import { Diagonal, Direction } from "../../utils-ts/modules/geometry/Direction.mjs";
-import { Octants } from "../game-utilities/Octant.mjs";
+import { Rectangle } from "../../../utils-ts/modules/geometry/Rectangle.mjs";
+import { WorldData } from "../../constants/GameData.mjs";
+import { Entity } from "./Entity.mjs";
+import { Collideable } from "../collisions/Collideable.mjs";
+import { BoundingBoxStructure } from "./BoundingBoxStructure.mjs";
+import { Vector } from "../../../utils-ts/modules/geometry/Vector.mjs";
+import { Diagonal, Direction } from "../../../utils-ts/modules/geometry/Direction.mjs";
+import { Octants } from "../../game-utilities/Octant.mjs";
 import { Camera } from "./Camera.mjs";
 import { Renderable, Renderer } from "./Renderer.mjs";
-import { GeomUtils } from "../game-utilities/GeomUtils.mjs";
+import { GeomUtils } from "../../game-utilities/GeomUtils.mjs";
 
 export class Entities<EntityType extends Entity = Entity> extends BoundingBoxStructure<Entity, EntityType> {
 	constructor(entities: Iterable<EntityType> = []) {

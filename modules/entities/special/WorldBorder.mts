@@ -1,6 +1,6 @@
 import { Rectangle } from "../../../utils-ts/modules/geometry/Rectangle.mjs";
-import { RectangularCollideable } from "../../game-utilities/physics-engine/RectangularCollideable.mjs";
-import { World } from "../../world/World.mjs";
+import { RectangularCollideable } from "../../game-engine/collisions/RectangularCollideable.mjs";
+import { World } from "../../game-engine/world/World.mjs";
 
 export class WorldBorder extends RectangularCollideable {
 	damageable: boolean = false;

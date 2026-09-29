@@ -3,7 +3,7 @@ import { TestScenario } from "../TestScenario.mjs";
 import { Platform } from "../tiles/Platform.mjs";
 import { StoneSlope } from "../tiles/StoneSlope.mjs";
 import { StoneTile } from "../tiles/StoneTile.mjs";
-import { World } from "../world/World.mjs";
+import { World } from "../game-engine/world/World.mjs";
 
 export const stoneGraphicsScenario = new TestScenario("stone-graphics-scenario", () => {
 	const world = new World(false);

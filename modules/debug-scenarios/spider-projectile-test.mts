@@ -1,7 +1,7 @@
 import { Rectangle } from "../../utils-ts/modules/geometry/Rectangle.mjs";
 import { Vector } from "../../utils-ts/modules/geometry/Vector.mjs";
 import { Spider } from "../entities/enemies/Spider.mjs";
-import { World } from "../world/World.mjs";
+import { World } from "../game-engine/world/World.mjs";
 import { TowerTile } from "../tiles/TowerTile.mjs";
 import { Platform } from "../tiles/Platform.mjs";
 import { TestScenario } from "../TestScenario.mjs";

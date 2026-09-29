@@ -1,10 +1,10 @@
 import { CanvasIO } from "../../utils-ts/modules/CanvasIO.mjs";
 import { DeathScreenData } from "../constants/GameData.mjs";
 import { InputUtils } from "../game-utilities/InputUtils.mjs";
-import { StaticEntity } from "../game-utilities/StaticEntity.mjs";
-import { Renderable } from "../world/Renderer.mjs";
-import { World } from "../world/World.mjs";
-import { WorldScreen } from "../world/WorldScreen.mjs";
+import { StaticEntity } from "../game-engine/world/StaticEntity.mjs";
+import { Renderable } from "../game-engine/world/Renderer.mjs";
+import { World } from "../game-engine/world/World.mjs";
+import { WorldScreen } from "./WorldScreen.mjs";
 
 export class DeathScreen extends StaticEntity {
 	timeOnScreen: number = 0;

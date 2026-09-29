@@ -1,7 +1,7 @@
 import { MathUtils } from "../../utils-ts/modules/math/MathUtils.mjs";
 import { PlayerData, WorldData } from "../constants/GameData.mjs";
-import { Renderer } from "../world/Renderer.mjs";
-import { World } from "../world/World.mjs";
+import { Renderer } from "../game-engine/world/Renderer.mjs";
+import { World } from "../game-engine/world/World.mjs";
 import { Particle } from "./Particle.mjs";
 
 export class Particles {

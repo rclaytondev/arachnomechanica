@@ -1,5 +1,5 @@
 import { Direction, Directions } from "../../../utils-ts/modules/geometry/Direction.mjs";
-import { TileWithPosition } from "../../world/World.mjs";
+import { TileWithPosition } from "../world/World.mjs";
 import { Collideable } from "./Collideable.mjs";
 
 export class CollisionEvent {

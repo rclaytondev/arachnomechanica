@@ -1,7 +1,7 @@
 import { Direction, Directions } from "../../../utils-ts/modules/geometry/Direction.mjs";
 import { Rectangle } from "../../../utils-ts/modules/geometry/Rectangle.mjs";
 import { Vector } from "../../../utils-ts/modules/geometry/Vector.mjs";
-import { World } from "../../world/World.mjs";
+import { World } from "../world/World.mjs";
 import { Collideable, MoveOptions } from "./Collideable.mjs";
 
 export abstract class RectangularCollideable extends Collideable {

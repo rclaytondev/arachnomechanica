@@ -1,8 +1,8 @@
 import { assert } from "chai";
 import { Rectangle } from "../../utils-ts/modules/geometry/Rectangle.mjs";
-import { TileWithPosition, World } from "../world/World.mjs";
-import { RectangularCollideable } from "../game-utilities/physics-engine/RectangularCollideable.mjs";
-import { Collideable } from "../game-utilities/physics-engine/Collideable.mjs";
+import { TileWithPosition, World } from "../game-engine/world/World.mjs";
+import { RectangularCollideable } from "../game-engine/collisions/RectangularCollideable.mjs";
+import { Collideable } from "../game-engine/collisions/Collideable.mjs";
 import { Vector } from "../../utils-ts/modules/geometry/Vector.mjs";
 import { WorldData } from "../constants/GameData.mjs";
 import { TowerSlope } from "../tiles/TowerSlope.mjs";

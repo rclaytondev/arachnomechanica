@@ -1,4 +1,4 @@
-import { World } from "../world/World.mjs";
+import { World } from "../game-engine/world/World.mjs";
 
 export abstract class WorldGenerationSegment {
 	abstract shouldGenerate(world: World): boolean;

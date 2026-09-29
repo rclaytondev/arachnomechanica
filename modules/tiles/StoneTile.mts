@@ -6,10 +6,10 @@ import { MathUtils } from "../../utils-ts/modules/math/MathUtils.mjs";
 import { WorldData } from "../constants/GameData.mjs";
 import { GeomUtils } from "../game-utilities/GeomUtils.mjs";
 import { RandomUtils } from "../game-utilities/RandomUtils.mjs";
-import { StaticEntity } from "../game-utilities/StaticEntity.mjs";
-import { Camera } from "../world/Camera.mjs";
-import { Renderable } from "../world/Renderer.mjs";
-import { World } from "../world/World.mjs";
+import { StaticEntity } from "../game-engine/world/StaticEntity.mjs";
+import { Camera } from "../game-engine/world/Camera.mjs";
+import { Renderable } from "../game-engine/world/Renderer.mjs";
+import { World } from "../game-engine/world/World.mjs";
 import { BasicTile } from "./BasicTile.mjs";
 import { StoneSlope } from "./StoneSlope.mjs";
 

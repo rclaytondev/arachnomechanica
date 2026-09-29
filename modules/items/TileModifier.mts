@@ -1,6 +1,6 @@
 import { CanvasIO } from "../../utils-ts/modules/CanvasIO.mjs";
-import { CollisionEvent } from "../game-utilities/physics-engine/CollisionEvent.mjs";
-import { World } from "../world/World.mjs";
+import { CollisionEvent } from "../game-engine/collisions/CollisionEvent.mjs";
+import { World } from "../game-engine/world/World.mjs";
 import { ThrowableTileEntity } from "./ThrowableTileEntity.mjs";
 
 export abstract class TileModifier {

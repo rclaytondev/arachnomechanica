@@ -2,8 +2,8 @@ import { CanvasIO } from "../../utils-ts/modules/CanvasIO.mjs";
 import { Diagonal, Directions } from "../../utils-ts/modules/geometry/Direction.mjs";
 import { Vector } from "../../utils-ts/modules/geometry/Vector.mjs";
 import { WorldData } from "../constants/GameData.mjs";
-import { Renderable } from "../world/Renderer.mjs";
-import { Tiles } from "../world/Tiles.mjs";
+import { Renderable } from "../game-engine/world/Renderer.mjs";
+import { Tiles } from "../game-engine/world/Tiles.mjs";
 import { SlopeTile } from "./SlopeTile.mjs";
 import { TowerTile } from "./TowerTile.mjs";
 

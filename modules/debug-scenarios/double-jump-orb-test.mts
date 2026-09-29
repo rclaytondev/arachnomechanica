@@ -3,7 +3,7 @@ import { WorldData } from "../constants/GameData.mjs";
 import { DoubleJumpOrb } from "../entities/DoubleJumpOrb.mjs";
 import { TestScenario } from "../TestScenario.mjs";
 import { TowerTile } from "../tiles/TowerTile.mjs";
-import { World } from "../world/World.mjs";
+import { World } from "../game-engine/world/World.mjs";
 
 export const doubleJumpOrbScenario = new TestScenario("double-jump-orb-scenario", () => {
 	const world = new World(false);

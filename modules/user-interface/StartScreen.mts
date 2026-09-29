@@ -4,9 +4,9 @@ import { InputUtils } from "../game-utilities/InputUtils.mjs";
 import { OverlayText } from "../game-utilities/visual-effects/OverlayText.mjs";
 import { ScreenFade } from "../game-utilities/visual-effects/ScreenFade.mjs";
 import { Main } from "../Main.mjs";
-import { Renderable, Renderer } from "../world/Renderer.mjs";
-import { World } from "../world/World.mjs";
-import { WorldScreen } from "../world/WorldScreen.mjs";
+import { Renderable, Renderer } from "../game-engine/world/Renderer.mjs";
+import { World } from "../game-engine/world/World.mjs";
+import { WorldScreen } from "./WorldScreen.mjs";
 
 export class StartScreen {
 	timeInScreen: number = 0;

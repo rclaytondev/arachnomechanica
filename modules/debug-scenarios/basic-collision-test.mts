@@ -3,7 +3,7 @@ import { TestScenario } from "../TestScenario.mjs";
 import { Platform } from "../tiles/Platform.mjs";
 import { TowerSlope } from "../tiles/TowerSlope.mjs";
 import { TowerTile } from "../tiles/TowerTile.mjs";
-import { World } from "../world/World.mjs";
+import { World } from "../game-engine/world/World.mjs";
 
 export const basicCollisionScenario = new TestScenario("basic-collision-scenario", () => {
 	const world = new World(false);

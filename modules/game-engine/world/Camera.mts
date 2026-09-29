@@ -1,11 +1,11 @@
-import { CanvasIO } from "../../utils-ts/modules/CanvasIO.mjs";
-import { Rectangle } from "../../utils-ts/modules/geometry/Rectangle.mjs";
-import { Vector } from "../../utils-ts/modules/geometry/Vector.mjs";
-import { WorldData } from "../constants/GameData.mjs";
-import { WorldBorder } from "../entities/special/WorldBorder.mjs";
-import { Debug } from "../game-utilities/Debug.mjs";
-import { GeomUtils } from "../game-utilities/GeomUtils.mjs";
-import { Collideable } from "../game-utilities/physics-engine/Collideable.mjs";
+import { CanvasIO } from "../../../utils-ts/modules/CanvasIO.mjs";
+import { Rectangle } from "../../../utils-ts/modules/geometry/Rectangle.mjs";
+import { Vector } from "../../../utils-ts/modules/geometry/Vector.mjs";
+import { WorldData } from "../../constants/GameData.mjs";
+import { WorldBorder } from "../../entities/special/WorldBorder.mjs";
+import { Debug } from "../../game-utilities/Debug.mjs";
+import { GeomUtils } from "../../game-utilities/GeomUtils.mjs";
+import { Collideable } from "../collisions/Collideable.mjs";
 import { Entities } from "./Entities.mjs";
 
 export class Camera {

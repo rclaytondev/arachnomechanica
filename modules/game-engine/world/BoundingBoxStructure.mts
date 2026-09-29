@@ -1,8 +1,8 @@
-import { SetUtils } from "../../utils-ts/modules/core-extensions/SetUtils.mjs";
-import { Rectangle } from "../../utils-ts/modules/geometry/Rectangle.mjs";
-import { Vector } from "../../utils-ts/modules/geometry/Vector.mjs";
-import { Grid } from "../../utils-ts/modules/Grid.mjs";
-import { HashSet } from "../../utils-ts/modules/HashSet.mjs";
+import { SetUtils } from "../../../utils-ts/modules/core-extensions/SetUtils.mjs";
+import { Rectangle } from "../../../utils-ts/modules/geometry/Rectangle.mjs";
+import { Vector } from "../../../utils-ts/modules/geometry/Vector.mjs";
+import { Grid } from "../../../utils-ts/modules/Grid.mjs";
+import { HashSet } from "../../../utils-ts/modules/HashSet.mjs";
 
 export class BoundingBoxStructure<BoundingBoxType, ValueType extends BoundingBoxType = BoundingBoxType> {
 	boundingBox: (entity: BoundingBoxType) => Rectangle;

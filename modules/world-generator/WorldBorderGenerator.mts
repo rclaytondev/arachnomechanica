@@ -1,7 +1,7 @@
 import { Rectangle } from "../../utils-ts/modules/geometry/Rectangle.mjs";
 import { WorldData, WorldGeneratorData } from "../constants/GameData.mjs";
 import { WorldBorder } from "../entities/special/WorldBorder.mjs";
-import { World } from "../world/World.mjs";
+import { World } from "../game-engine/world/World.mjs";
 import { FloorZero } from "./FloorZero.mjs";
 import { WorldGenerationSegment } from "./WorldGenerationSegment.mjs";
 

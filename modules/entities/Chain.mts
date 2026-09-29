@@ -2,11 +2,11 @@ import { CanvasIO } from "../../utils-ts/modules/CanvasIO.mjs";
 import { Rectangle } from "../../utils-ts/modules/geometry/Rectangle.mjs";
 import { Vector } from "../../utils-ts/modules/geometry/Vector.mjs";
 import { ChainData, WorldData } from "../constants/GameData.mjs";
-import { Entity } from "../game-utilities/Entity.mjs";
+import { Entity } from "../game-engine/world/Entity.mjs";
 import { EmptyTile } from "../tiles/EmptyTile.mjs";
-import { Renderable } from "../world/Renderer.mjs";
-import { Tiles } from "../world/Tiles.mjs";
-import { World } from "../world/World.mjs";
+import { Renderable } from "../game-engine/world/Renderer.mjs";
+import { Tiles } from "../game-engine/world/Tiles.mjs";
+import { World } from "../game-engine/world/World.mjs";
 
 export class Chain extends Entity {
 	tilePosition: Vector;

@@ -4,16 +4,16 @@ import { Rectangle } from "../../utils-ts/modules/geometry/Rectangle.mjs";
 import { Vector } from "../../utils-ts/modules/geometry/Vector.mjs";
 import { GateData, WorldData } from "../constants/GameData.mjs";
 import { GeomUtils } from "../game-utilities/GeomUtils.mjs";
-import { World } from "../world/World.mjs";
-import { RectangularCollideable } from "../game-utilities/physics-engine/RectangularCollideable.mjs";
-import { Tiles } from "../world/Tiles.mjs";
+import { World } from "../game-engine/world/World.mjs";
+import { RectangularCollideable } from "../game-engine/collisions/RectangularCollideable.mjs";
+import { Tiles } from "../game-engine/world/Tiles.mjs";
 import { ShakeEffect } from "../game-utilities/visual-effects/ShakeEffect.mjs";
-import { Renderable } from "../world/Renderer.mjs";
-import { StaticEntity } from "../game-utilities/StaticEntity.mjs";
+import { Renderable } from "../game-engine/world/Renderer.mjs";
+import { StaticEntity } from "../game-engine/world/StaticEntity.mjs";
 import { BasicTile } from "../tiles/BasicTile.mjs";
 import { RoomEditor } from "../RoomEditor.mjs";
 import { Main } from "../Main.mjs";
-import { Entities } from "../world/Entities.mjs";
+import { Entities } from "../game-engine/world/Entities.mjs";
 
 export class GateController extends StaticEntity {
 	cooldown: number = 0;

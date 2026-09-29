@@ -1,7 +1,7 @@
 import { Vector } from "../../../utils-ts/modules/geometry/Vector.mjs";
 import { RoomData } from "../../constants/GameData.mjs";
 import { Chain } from "../../entities/Chain.mjs";
-import { World } from "../../world/World.mjs";
+import { World } from "../../game-engine/world/World.mjs";
 import { FixedEntitySpawner } from "../FixedEntitySpawner.mjs";
 
 export class ChainSpawner extends FixedEntitySpawner {

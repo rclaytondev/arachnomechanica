@@ -5,7 +5,7 @@ import { Vector } from "../../utils-ts/modules/geometry/Vector.mjs";
 import { DEBUG_SETTINGS } from "../constants/DebugSettings.mjs";
 import { LevelGenerator } from "../level-generator/LevelGenerator.mjs";
 import { Main } from "../Main.mjs";
-import { WorldScreen } from "../world/WorldScreen.mjs";
+import { WorldScreen } from "../user-interface/WorldScreen.mjs";
 import { Debug } from "../game-utilities/Debug.mjs";
 import { TestScenario } from "../TestScenario.mjs";
 

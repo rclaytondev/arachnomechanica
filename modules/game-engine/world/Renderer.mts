@@ -1,5 +1,5 @@
-import { CanvasIO } from "../../utils-ts/modules/CanvasIO.mjs";
-import { RENDERING_ORDER, RenderingID } from "../constants/RenderingOrder.mjs";
+import { CanvasIO } from "../../../utils-ts/modules/CanvasIO.mjs";
+import { RENDERING_ORDER, RenderingID } from "../../constants/RenderingOrder.mjs";
 
 export class Renderable {
 	readonly display: (canvasIO: CanvasIO) => void;

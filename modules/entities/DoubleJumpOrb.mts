@@ -3,11 +3,11 @@ import { Rectangle } from "../../utils-ts/modules/geometry/Rectangle.mjs";
 import { Vector } from "../../utils-ts/modules/geometry/Vector.mjs";
 import { MathUtils } from "../../utils-ts/modules/math/MathUtils.mjs";
 import { DoubleJumpOrbData } from "../constants/GameData.mjs";
-import { Entity } from "../game-utilities/Entity.mjs";
+import { Entity } from "../game-engine/world/Entity.mjs";
 import { GeomUtils } from "../game-utilities/GeomUtils.mjs";
 import { GraphicsUtils } from "../game-utilities/GraphicsUtils.mjs";
-import { Renderable } from "../world/Renderer.mjs";
-import { World } from "../world/World.mjs";
+import { Renderable } from "../game-engine/world/Renderer.mjs";
+import { World } from "../game-engine/world/World.mjs";
 
 export class DoubleJumpOrb extends Entity {
 	position: Vector;

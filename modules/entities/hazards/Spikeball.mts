@@ -5,14 +5,14 @@ import { SpikeballData, WorldData } from "../../constants/GameData.mjs";
 import { GeomUtils } from "../../game-utilities/GeomUtils.mjs";
 import { GraphicsUtils } from "../../game-utilities/GraphicsUtils.mjs";
 import { RandomUtils } from "../../game-utilities/RandomUtils.mjs";
-import { TileWithPosition, World } from "../../world/World.mjs";
+import { TileWithPosition, World } from "../../game-engine/world/World.mjs";
 import { Diagonal, Direction, Directions } from "../../../utils-ts/modules/geometry/Direction.mjs";
-import { RectangularCollideable } from "../../game-utilities/physics-engine/RectangularCollideable.mjs";
-import { CollisionEvent } from "../../game-utilities/physics-engine/CollisionEvent.mjs";
+import { RectangularCollideable } from "../../game-engine/collisions/RectangularCollideable.mjs";
+import { CollisionEvent } from "../../game-engine/collisions/CollisionEvent.mjs";
 import { SpikeballBlock } from "./SpikeballBlock.mjs";
-import { Renderable } from "../../world/Renderer.mjs";
+import { Renderable } from "../../game-engine/world/Renderer.mjs";
 import { Player } from "../../Player.mjs";
-import { Collideable } from "../../game-utilities/physics-engine/Collideable.mjs";
+import { Collideable } from "../../game-engine/collisions/Collideable.mjs";
 import { MathUtils } from "../../../utils-ts/modules/math/MathUtils.mjs";
 
 abstract class SpikeballState {

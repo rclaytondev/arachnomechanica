@@ -3,7 +3,7 @@ import { Rectangle } from "../../utils-ts/modules/geometry/Rectangle.mjs";
 import { Vector } from "../../utils-ts/modules/geometry/Vector.mjs";
 import { WorldUIData } from "../constants/GameData.mjs";
 import { ThrowableTile } from "../items/ThrowableTile.mjs";
-import { World } from "../world/World.mjs";
+import { World } from "../game-engine/world/World.mjs";
 
 export class WorldUI {
 	display(world: World, canvasIO: CanvasIO) {

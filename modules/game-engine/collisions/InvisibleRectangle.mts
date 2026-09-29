@@ -1,5 +1,5 @@
 import { Rectangle } from "../../../utils-ts/modules/geometry/Rectangle.mjs";
-import { World } from "../../world/World.mjs";
+import { World } from "../world/World.mjs";
 import { RectangularCollideable } from "./RectangularCollideable.mjs";
 
 export class InvisibleRectangle extends RectangularCollideable {

@@ -2,7 +2,7 @@ import { CanvasIO } from "../../../utils-ts/modules/CanvasIO.mjs";
 import { Vector } from "../../../utils-ts/modules/geometry/Vector.mjs";
 import { MathUtils } from "../../../utils-ts/modules/math/MathUtils.mjs";
 import { WorldData } from "../../constants/GameData.mjs";
-import { Renderable } from "../../world/Renderer.mjs";
+import { Renderable } from "../../game-engine/world/Renderer.mjs";
 import { VisualEffect } from "./VisualEffect.mjs";
 import { VisualEffects } from "./VisualEffects.mjs";
 

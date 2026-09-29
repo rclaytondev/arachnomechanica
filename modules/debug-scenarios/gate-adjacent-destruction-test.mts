@@ -4,7 +4,7 @@ import { Gate } from "../entities/Gate.mjs";
 import { TeleportingCreature } from "../entities/enemies/TeleportingCreature.mjs";
 import { TestScenario } from "../TestScenario.mjs";
 import { TowerTile } from "../tiles/TowerTile.mjs";
-import { World } from "../world/World.mjs";
+import { World } from "../game-engine/world/World.mjs";
 
 export const gateAdjacentDestructionScenario = new TestScenario("gate-adjacent-destruction-scenario", () => {
 	const world = new World(false);

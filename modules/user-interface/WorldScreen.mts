@@ -7,10 +7,10 @@ import { PlayerData } from "../constants/GameData.mjs";
 import { Debug } from "../game-utilities/Debug.mjs";
 import { FadeType, ScreenFade } from "../game-utilities/visual-effects/ScreenFade.mjs";
 import { VisualEffects } from "../game-utilities/visual-effects/VisualEffects.mjs";
-import { WorldUI } from "../user-interface/WorldUI.mjs";
-import { Camera } from "./Camera.mjs";
-import { Renderable, Renderer } from "./Renderer.mjs";
-import { World } from "./World.mjs";
+import { WorldUI } from "./WorldUI.mjs";
+import { Camera } from "../game-engine/world/Camera.mjs";
+import { Renderable, Renderer } from "../game-engine/world/Renderer.mjs";
+import { World } from "../game-engine/world/World.mjs";
 
 export class WorldScreen {
 	world: World;

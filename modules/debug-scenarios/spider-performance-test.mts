@@ -3,7 +3,7 @@ import { Vector } from "../../utils-ts/modules/geometry/Vector.mjs";
 import { Spider } from "../entities/enemies/Spider.mjs";
 import { TestScenario } from "../TestScenario.mjs";
 import { TowerTile } from "../tiles/TowerTile.mjs";
-import { World } from "../world/World.mjs";
+import { World } from "../game-engine/world/World.mjs";
 
 export const spiderPerformanceScenario = new TestScenario("spider-performance-scenario", () => {
 	const GROUPS_PER_ROW = 5;

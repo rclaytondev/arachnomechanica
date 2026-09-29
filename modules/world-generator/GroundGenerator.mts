@@ -1,7 +1,7 @@
 import { Rectangle } from "../../utils-ts/modules/geometry/Rectangle.mjs";
 import { WorldGeneratorData } from "../constants/GameData.mjs";
 import { StoneTile, StoneTileRenderer } from "../tiles/StoneTile.mjs";
-import { World } from "../world/World.mjs";
+import { World } from "../game-engine/world/World.mjs";
 import { FloorZero } from "./FloorZero.mjs";
 import { WorldGenerationSegment } from "./WorldGenerationSegment.mjs";
 

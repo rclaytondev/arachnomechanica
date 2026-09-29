@@ -2,7 +2,7 @@ import { Direction, Directions } from "../../../utils-ts/modules/geometry/Direct
 import { Vector } from "../../../utils-ts/modules/geometry/Vector.mjs";
 import { RoomData } from "../../constants/GameData.mjs";
 import { Gate } from "../../entities/Gate.mjs";
-import { World } from "../../world/World.mjs";
+import { World } from "../../game-engine/world/World.mjs";
 import { FixedEntitySpawner } from "../FixedEntitySpawner.mjs";
 
 export class GateSpawner extends FixedEntitySpawner {

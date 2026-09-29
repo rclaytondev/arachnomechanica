@@ -5,7 +5,7 @@ import { MathUtils } from "../../utils-ts/modules/math/MathUtils.mjs";
 import { BackgroundData, BackgroundGearLayerData, LevelGeneratorData, RoomData, WorldData } from "../constants/GameData.mjs";
 import { GeomUtils } from "../game-utilities/GeomUtils.mjs";
 import { RandomUtils } from "../game-utilities/RandomUtils.mjs";
-import { Camera } from "../world/Camera.mjs";
+import { Camera } from "../game-engine/world/Camera.mjs";
 import { Background } from "./Background.mjs";
 
 class BackgroundGear {

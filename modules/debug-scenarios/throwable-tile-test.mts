@@ -2,7 +2,7 @@ import { Rectangle } from "../../utils-ts/modules/geometry/Rectangle.mjs";
 import { ThrowableTile } from "../items/ThrowableTile.mjs";
 import { TowerTile } from "../tiles/TowerTile.mjs";
 import { EmptyTile } from "../tiles/EmptyTile.mjs";
-import { World } from "../world/World.mjs";
+import { World } from "../game-engine/world/World.mjs";
 import { Platform } from "../tiles/Platform.mjs";
 import { TestScenario } from "../TestScenario.mjs";
 

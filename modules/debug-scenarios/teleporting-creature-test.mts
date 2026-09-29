@@ -3,7 +3,7 @@ import { Vector } from "../../utils-ts/modules/geometry/Vector.mjs";
 import { TeleportingCreature } from "../entities/enemies/TeleportingCreature.mjs";
 import { TestScenario } from "../TestScenario.mjs";
 import { TowerTile } from "../tiles/TowerTile.mjs";
-import { World } from "../world/World.mjs";
+import { World } from "../game-engine/world/World.mjs";
 
 export const teleportingCreatureScenario = new TestScenario("teleporting-creature-scenario", () => {
 	const world = new World(false);

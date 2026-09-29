@@ -1,5 +1,5 @@
 import { CanvasIO } from "../../utils-ts/modules/CanvasIO.mjs";
-import { Camera } from "../world/Camera.mjs";
+import { Camera } from "../game-engine/world/Camera.mjs";
 import { Background } from "./Background.mjs";
 
 export class Backgrounds {

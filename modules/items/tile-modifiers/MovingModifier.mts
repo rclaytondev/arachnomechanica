@@ -3,7 +3,7 @@ import { ItemData } from "../../constants/GameData.mjs";
 import { GeomUtils } from "../../game-utilities/GeomUtils.mjs";
 import { ThrowableTileEntity } from "../ThrowableTileEntity.mjs";
 import { TileModifier } from "../TileModifier.mjs";
-import { CollisionEvent } from "../../game-utilities/physics-engine/CollisionEvent.mjs";
+import { CollisionEvent } from "../../game-engine/collisions/CollisionEvent.mjs";
 
 export class MovingModifier extends TileModifier {
 	displayIcon(): void {

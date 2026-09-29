@@ -2,8 +2,8 @@ import { Direction, Directions } from "../../utils-ts/modules/geometry/Direction
 import { Vector } from "../../utils-ts/modules/geometry/Vector.mjs";
 import { FixedEntitySpawner } from "../level-generator/FixedEntitySpawner.mjs";
 import { TILE_TYPES } from "../tiles/TileIDs.mjs";
-import { Tiles } from "../world/Tiles.mjs";
-import { World } from "../world/World.mjs";
+import { Tiles } from "../game-engine/world/Tiles.mjs";
+import { World } from "../game-engine/world/World.mjs";
 
 export class WorldPart {
 	tiles: Tiles;
