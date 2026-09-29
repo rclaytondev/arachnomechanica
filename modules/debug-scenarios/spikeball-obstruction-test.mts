@@ -6,7 +6,7 @@ import { SpikeballBlock } from "../entities/hazards/SpikeballBlock.mjs";
 import { World } from "../game-engine/world/World.mjs";
 import { ThrowableTileEntity } from "../items/ThrowableTileEntity.mjs";
 import { SpikeballBlockData, WorldData } from "../constants/GameData.mjs";
-import { TestScenario } from "../TestScenario.mjs";
+import { TestScenario } from "../dev/TestScenario.mjs";
 
 export const spikeballObstructionScenario = new TestScenario("spikeball-obstruction-scenario", () => {
 	const world = new World(false);

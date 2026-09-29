@@ -16,7 +16,7 @@ import { Camera } from "./Camera.mjs";
 import { WorldGenerator } from "../../world-generator/WorldGenerator.mjs";
 import { Renderable, Renderer } from "./Renderer.mjs";
 import { Particles } from "../../entities/particles/Particles.mjs";
-import { Debug } from "../../game-utilities/Debug.mjs";
+import { Debug } from "../../dev/DevMode.mjs";
 import { SlopeTile } from "../../tiles/SlopeTile.mjs";
 import { StaticEntities } from "./StaticEntity.mjs";
 import { DeathParticle } from "../../entities/particles/DeathParticle.mjs";

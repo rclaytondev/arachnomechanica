@@ -5,7 +5,7 @@ import { LaserBlock } from "../entities/hazards/LaserBlock.mjs";
 import { World } from "../game-engine/world/World.mjs";
 import { TowerTile } from "../tiles/TowerTile.mjs";
 import { TowerSlope } from "../tiles/TowerSlope.mjs";
-import { TestScenario } from "../TestScenario.mjs";
+import { TestScenario } from "../dev/TestScenario.mjs";
 
 export const laserBlockSlopeScenario = new TestScenario("laser-block-slope-scenario", () => {
 	const world = new World(false);

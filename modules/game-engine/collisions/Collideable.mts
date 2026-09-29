@@ -3,7 +3,7 @@ import { Direction, Directions } from "../../../utils-ts/modules/geometry/Direct
 import { Rectangle } from "../../../utils-ts/modules/geometry/Rectangle.mjs";
 import { Vector } from "../../../utils-ts/modules/geometry/Vector.mjs";
 import { HashSet } from "../../../utils-ts/modules/HashSet.mjs";
-import { DEBUG_SETTINGS } from "../../constants/DebugSettings.mjs";
+import { DEBUG_SETTINGS } from "../../dev/DevModeSettings.mjs";
 import { TileWithPosition } from "../world/World.mjs";
 import { DeathParticle } from "../../entities/particles/DeathParticle.mjs";
 import { Entity } from "../world/Entity.mjs";

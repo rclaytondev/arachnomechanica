@@ -1,7 +1,7 @@
 import { Vector } from "../../utils-ts/modules/geometry/Vector.mjs";
 import { WorldData } from "../constants/GameData.mjs";
 import { DoubleJumpOrb } from "../entities/DoubleJumpOrb.mjs";
-import { TestScenario } from "../TestScenario.mjs";
+import { TestScenario } from "../dev/TestScenario.mjs";
 import { TowerTile } from "../tiles/TowerTile.mjs";
 import { World } from "../game-engine/world/World.mjs";
 

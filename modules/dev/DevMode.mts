@@ -1,15 +1,15 @@
 import { CanvasIO } from "../../utils-ts/modules/CanvasIO.mjs";
 import { canvasIO } from "../app-entry-points/CanvasIOInitializer.mjs";
-import { DEBUG_SETTINGS } from "../constants/DebugSettings.mjs";
+import { DEBUG_SETTINGS } from "./DevModeSettings.mjs";
 import { ROOMS } from "../constants/Rooms.mjs";
 import { Main } from "../Main.mjs";
-import { RoomEditor } from "../RoomEditor.mjs";
+import { RoomEditor } from "./RoomEditor.mjs";
 import { LoadingManager } from "../app-entry-points/LoadingManager.mjs";
 import { Camera } from "../game-engine/world/Camera.mjs";
 import { WorldData } from "../constants/GameData.mjs";
-import { InputUtils } from "./InputUtils.mjs";
+import { InputUtils } from "../game-utilities/InputUtils.mjs";
 import { Vector } from "../../utils-ts/modules/geometry/Vector.mjs";
-import { GameUtils } from "./GameUtils.mjs";
+import { GameUtils } from "../game-utilities/GameUtils.mjs";
 
 export class Debug {
 	static recordedRNG: number[] = [];

@@ -1,11 +1,11 @@
 import { assert } from "chai";
-import { World } from "../game-engine/world/World.mjs";
-import { Gate, GateController } from "../entities/Gate.mjs";
-import { Rectangle } from "../../utils-ts/modules/geometry/Rectangle.mjs";
-import { TowerTile } from "../tiles/TowerTile.mjs";
-import { Vector } from "../../utils-ts/modules/geometry/Vector.mjs";
-import { canvasIO } from "../app-entry-points/CanvasIOInitializer.mjs";
-import { Tiles } from "../game-engine/world/Tiles.mjs";
+import { World } from "../../game-engine/world/World.mjs";
+import { Gate, GateController } from "../../entities/Gate.mjs";
+import { Rectangle } from "../../../utils-ts/modules/geometry/Rectangle.mjs";
+import { TowerTile } from "../../tiles/TowerTile.mjs";
+import { Vector } from "../../../utils-ts/modules/geometry/Vector.mjs";
+import { canvasIO } from "../../app-entry-points/CanvasIOInitializer.mjs";
+import { Tiles } from "../../game-engine/world/Tiles.mjs";
 
 const areGatesToggled = (world: World) => {
 	const controller = world.staticEntities.entitiesList.find(e => e instanceof GateController);

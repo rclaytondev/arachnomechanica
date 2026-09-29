@@ -5,7 +5,7 @@ import { Vector } from "../../../utils-ts/modules/geometry/Vector.mjs";
 import { HashSet } from "../../../utils-ts/modules/HashSet.mjs";
 import { MathUtils } from "../../../utils-ts/modules/math/MathUtils.mjs";
 import { LoadingManager } from "../../app-entry-points/LoadingManager.mjs";
-import { DEBUG_SETTINGS } from "../../constants/DebugSettings.mjs";
+import { DEBUG_SETTINGS } from "../../dev/DevModeSettings.mjs";
 import { PlayerData, RoomData, SpiderData } from "../../constants/GameData.mjs";
 import { Entity } from "../../game-engine/world/Entity.mjs";
 import { GeomUtils } from "../../game-utilities/GeomUtils.mjs";

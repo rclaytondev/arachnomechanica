@@ -1,5 +1,5 @@
 import { CanvasIO } from "../../utils-ts/modules/CanvasIO.mjs";
-import { Debug } from "./Debug.mjs";
+import { Debug } from "../dev/DevMode.mjs";
 
 export class InputUtils {
 	static pastKeys: { [ key: string ]: boolean } = {};

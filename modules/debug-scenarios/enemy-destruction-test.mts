@@ -2,7 +2,7 @@ import { Vector } from "../../utils-ts/modules/geometry/Vector.mjs";
 import { Spider } from "../entities/enemies/Spider.mjs";
 import { World } from "../game-engine/world/World.mjs";
 import { TowerTile } from "../tiles/TowerTile.mjs";
-import { TestScenario } from "../TestScenario.mjs";
+import { TestScenario } from "../dev/TestScenario.mjs";
 
 export const enemyDestructionScenario = new TestScenario("enemy-destruction-scenario", () => {
 	const world = new World(false);

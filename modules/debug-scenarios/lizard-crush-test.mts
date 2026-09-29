@@ -5,7 +5,7 @@ import { Lizard } from "../entities/enemies/Lizard.mjs";
 import { Gate } from "../entities/Gate.mjs";
 import { World } from "../game-engine/world/World.mjs";
 import { TowerTile } from "../tiles/TowerTile.mjs";
-import { TestScenario } from "../TestScenario.mjs";
+import { TestScenario } from "../dev/TestScenario.mjs";
 
 export const lizardCrushScenario = new TestScenario("lizard-crush-scenario", () => {
 	const world = new World(false);

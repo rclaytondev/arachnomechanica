@@ -4,7 +4,7 @@ import { Rectangle } from "../../utils-ts/modules/geometry/Rectangle.mjs";
 import { Vector } from "../../utils-ts/modules/geometry/Vector.mjs";
 import { Grid } from "../../utils-ts/modules/Grid.mjs";
 import { MathUtils } from "../../utils-ts/modules/math/MathUtils.mjs";
-import { DEBUG_SETTINGS } from "../constants/DebugSettings.mjs";
+import { DEBUG_SETTINGS } from "../dev/DevModeSettings.mjs";
 import { LevelGeneratorData, RoomData } from "../constants/GameData.mjs";
 import { GameUtils } from "../game-utilities/GameUtils.mjs";
 import { RandomUtils } from "../game-utilities/RandomUtils.mjs";

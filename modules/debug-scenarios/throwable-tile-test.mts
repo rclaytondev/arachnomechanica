@@ -4,7 +4,7 @@ import { TowerTile } from "../tiles/TowerTile.mjs";
 import { EmptyTile } from "../tiles/EmptyTile.mjs";
 import { World } from "../game-engine/world/World.mjs";
 import { Platform } from "../tiles/Platform.mjs";
-import { TestScenario } from "../TestScenario.mjs";
+import { TestScenario } from "../dev/TestScenario.mjs";
 
 export const throwableTileScenario = new TestScenario("throwable-tile-scenario", () => {
 	const world = new World(false);

@@ -1,6 +1,6 @@
 import { Vector } from "../../utils-ts/modules/geometry/Vector.mjs";
 import { Chain } from "../entities/Chain.mjs";
-import { TestScenario } from "../TestScenario.mjs";
+import { TestScenario } from "../dev/TestScenario.mjs";
 import { TowerTile } from "../tiles/TowerTile.mjs";
 import { World } from "../game-engine/world/World.mjs";
 

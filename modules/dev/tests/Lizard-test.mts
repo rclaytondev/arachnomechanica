@@ -1,6 +1,6 @@
 import { assert } from "chai";
-import { CanvasIO } from "../../utils-ts/modules/CanvasIO.mjs";
-import { lizardAdjacentTileScenario } from "../debug-scenarios/lizard-adjacent-tile-test.mjs";
+import { CanvasIO } from "../../../utils-ts/modules/CanvasIO.mjs";
+import { lizardAdjacentTileScenario } from "../../debug-scenarios/lizard-adjacent-tile-test.mjs";
 
 describe("Lizard enemy", () => {
 	const canvasIO = new CanvasIO();

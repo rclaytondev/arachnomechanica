@@ -1,9 +1,9 @@
-import "../tests/Collideable-test.mjs";
-import "../tests/Spider-test.mjs";
-import "../tests/GameUtils-test.mjs";
-import "../tests/BoundingBoxStructure-test.mjs";
-import "../tests/Gate-test.mjs";
-import "../tests/Lizard-test.mjs";
+import "../dev/tests/Collideable-test.mjs";
+import "../dev/tests/Spider-test.mjs";
+import "../dev/tests/GameUtils-test.mjs";
+import "../dev/tests/BoundingBoxStructure-test.mjs";
+import "../dev/tests/Gate-test.mjs";
+import "../dev/tests/Lizard-test.mjs";
 
 mocha.run();
 

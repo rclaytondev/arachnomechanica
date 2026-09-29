@@ -1,7 +1,7 @@
 import { CanvasIO } from "../utils-ts/modules/CanvasIO.mjs";
 import { InputUtils } from "./game-utilities/InputUtils.mjs";
-import { RoomEditor } from "./RoomEditor.mjs";
-import { Debug } from "./game-utilities/Debug.mjs";
+import { RoomEditor } from "./dev/RoomEditor.mjs";
+import { Debug } from "./dev/DevMode.mjs";
 import { WorldScreen } from "./user-interface/WorldScreen.mjs";
 import { StartScreen } from "./user-interface/StartScreen.mjs";
 import { Renderable, Renderer } from "./game-engine/world/Renderer.mjs";

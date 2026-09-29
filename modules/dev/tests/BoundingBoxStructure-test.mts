@@ -1,6 +1,6 @@
 import { assert } from "chai";
-import { Rectangle } from "../../utils-ts/modules/geometry/Rectangle.mjs";
-import { BoundingBoxStructure } from "../game-engine/world/BoundingBoxStructure.mjs";
+import { Rectangle } from "../../../utils-ts/modules/geometry/Rectangle.mjs";
+import { BoundingBoxStructure } from "../../game-engine/world/BoundingBoxStructure.mjs";
 
 describe("BoundingBoxStructure", () => {
 	it("can add and delete entities and iterate through all entities", () => {

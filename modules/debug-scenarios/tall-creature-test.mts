@@ -4,7 +4,7 @@ import { TallCreature } from "../entities/enemies/TallCreature.mjs";
 import { TowerTile } from "../tiles/TowerTile.mjs";
 import { EmptyTile } from "../tiles/EmptyTile.mjs";
 import { World } from "../game-engine/world/World.mjs";
-import { TestScenario } from "../TestScenario.mjs";
+import { TestScenario } from "../dev/TestScenario.mjs";
 
 export const tallCreatureScenario = new TestScenario("tall-creature-scenario", () => {
 	const world = new World(false);

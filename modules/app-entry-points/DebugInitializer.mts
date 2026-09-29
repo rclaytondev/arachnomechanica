@@ -2,12 +2,12 @@ import "./Initializer.mjs";
 import "../debug-scenarios/all-scenarios.mjs";
 import { canvasIO } from "./CanvasIOInitializer.mjs";
 import { Vector } from "../../utils-ts/modules/geometry/Vector.mjs";
-import { DEBUG_SETTINGS } from "../constants/DebugSettings.mjs";
+import { DEBUG_SETTINGS } from "../dev/DevModeSettings.mjs";
 import { LevelGenerator } from "../level-generator/LevelGenerator.mjs";
 import { Main } from "../Main.mjs";
 import { WorldScreen } from "../user-interface/WorldScreen.mjs";
-import { Debug } from "../game-utilities/Debug.mjs";
-import { TestScenario } from "../TestScenario.mjs";
+import { Debug } from "../dev/DevMode.mjs";
+import { TestScenario } from "../dev/TestScenario.mjs";
 
 const urlParams = new URLSearchParams(window.location.search);
 const scenarioName = urlParams.get("scenario");

@@ -11,7 +11,7 @@ import { ShakeEffect } from "../game-engine/visual-effects/ShakeEffect.mjs";
 import { Renderable } from "../game-engine/world/Renderer.mjs";
 import { StaticEntity } from "../game-engine/world/StaticEntity.mjs";
 import { BasicTile } from "../tiles/BasicTile.mjs";
-import { RoomEditor } from "../RoomEditor.mjs";
+import { RoomEditor } from "../dev/RoomEditor.mjs";
 import { Main } from "../Main.mjs";
 import { Entities } from "../game-engine/world/Entities.mjs";
 

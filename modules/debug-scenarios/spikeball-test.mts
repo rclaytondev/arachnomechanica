@@ -4,7 +4,7 @@ import { EmptyTile } from "../tiles/EmptyTile.mjs";
 import { TowerTile } from "../tiles/TowerTile.mjs";
 import { SpikeballBlock } from "../entities/hazards/SpikeballBlock.mjs";
 import { World } from "../game-engine/world/World.mjs";
-import { TestScenario } from "../TestScenario.mjs";
+import { TestScenario } from "../dev/TestScenario.mjs";
 import { SpikeballBlockData } from "../constants/GameData.mjs";
 
 

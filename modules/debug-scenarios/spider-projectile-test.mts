@@ -4,7 +4,7 @@ import { Spider } from "../entities/enemies/Spider.mjs";
 import { World } from "../game-engine/world/World.mjs";
 import { TowerTile } from "../tiles/TowerTile.mjs";
 import { Platform } from "../tiles/Platform.mjs";
-import { TestScenario } from "../TestScenario.mjs";
+import { TestScenario } from "../dev/TestScenario.mjs";
 
 export const spiderProjectileScenario = new TestScenario("spider-projectile-scenario", () => {
 	const world = new World(false);

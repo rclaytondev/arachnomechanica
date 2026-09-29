@@ -8,7 +8,7 @@ import { ChainData, DoubleJumpOrbData, ItemData, PlayerData, WorldData } from ".
 import { Chain } from "./entities/Chain.mjs";
 import { DoubleJumpOrb } from "./entities/DoubleJumpOrb.mjs";
 import { EnemyUtils } from "./entities/enemies/Enemy.mjs";
-import { Debug } from "./game-utilities/Debug.mjs";
+import { Debug } from "./dev/DevMode.mjs";
 import { Entity } from "./game-engine/world/Entity.mjs";
 import { GeomUtils } from "./game-utilities/GeomUtils.mjs";
 import { GraphicsUtils } from "./game-utilities/GraphicsUtils.mjs";
@@ -22,7 +22,7 @@ import { ScreenFade } from "./game-engine/visual-effects/ScreenFade.mjs";
 import { ThrowableTile } from "./items/ThrowableTile.mjs";
 import { ThrowableTileEntity } from "./items/ThrowableTileEntity.mjs";
 import { Main } from "./Main.mjs";
-import { RoomEditor } from "./RoomEditor.mjs";
+import { RoomEditor } from "./dev/RoomEditor.mjs";
 import { SlopeTile } from "./tiles/SlopeTile.mjs";
 import { DeathScreen } from "./user-interface/DeathScreen.mjs";
 import { Renderable } from "./game-engine/world/Renderer.mjs";

@@ -4,7 +4,7 @@ import { Backgrounds } from "../backgrounds/Backgrounds.mjs";
 import { GearsBackground } from "../backgrounds/GearsBackground.mjs";
 import { SkyBackground } from "../backgrounds/SkyBackground.mjs";
 import { PlayerData } from "../constants/GameData.mjs";
-import { Debug } from "../game-utilities/Debug.mjs";
+import { Debug } from "../dev/DevMode.mjs";
 import { FadeType, ScreenFade } from "../game-engine/visual-effects/ScreenFade.mjs";
 import { VisualEffects } from "../game-engine/visual-effects/VisualEffects.mjs";
 import { WorldUI } from "./WorldUI.mjs";

@@ -5,7 +5,7 @@ import { MathUtils } from "../../../utils-ts/modules/math/MathUtils.mjs";
 import { GeomUtils } from "../../game-utilities/GeomUtils.mjs";
 import { GraphicsUtils } from "../../game-utilities/GraphicsUtils.mjs";
 import { RandomUtils } from "../../game-utilities/RandomUtils.mjs";
-import { DEBUG_SETTINGS } from "../../constants/DebugSettings.mjs";
+import { DEBUG_SETTINGS } from "../../dev/DevModeSettings.mjs";
 import { World } from "../../game-engine/world/World.mjs";
 import { Rectangle } from "../../../utils-ts/modules/geometry/Rectangle.mjs";
 import { LizardData, RoomData, WorldData } from "../../constants/GameData.mjs";

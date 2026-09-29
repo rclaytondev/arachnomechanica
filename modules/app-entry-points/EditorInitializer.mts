@@ -1,7 +1,7 @@
 import "./Initializer.mjs";
-import { Debug } from "../game-utilities/Debug.mjs";
+import { Debug } from "../dev/DevMode.mjs";
 import { Main } from "../Main.mjs";
-import { RoomEditor } from "../RoomEditor.mjs";
+import { RoomEditor } from "../dev/RoomEditor.mjs";
 import { Room } from "../level-generator/Room.mjs";
 import { WorldPart } from "../world-generator/WorldPart.mjs";
 import { Tiles } from "../game-engine/world/Tiles.mjs";

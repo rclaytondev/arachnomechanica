@@ -1,5 +1,5 @@
 import { Rectangle } from "../../utils-ts/modules/geometry/Rectangle.mjs";
-import { TestScenario } from "../TestScenario.mjs";
+import { TestScenario } from "../dev/TestScenario.mjs";
 import { Platform } from "../tiles/Platform.mjs";
 import { StoneSlope } from "../tiles/StoneSlope.mjs";
 import { StoneTile } from "../tiles/StoneTile.mjs";

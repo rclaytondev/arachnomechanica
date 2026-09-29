@@ -1,6 +1,6 @@
 import { assert } from "chai";
-import { Vector } from "../../utils-ts/modules/geometry/Vector.mjs";
-import { GeomUtils } from "../game-utilities/GeomUtils.mjs";
+import { Vector } from "../../../utils-ts/modules/geometry/Vector.mjs";
+import { GeomUtils } from "../../game-utilities/GeomUtils.mjs";
 
 describe("GeomUtils.gridSquaresOnRay", () => {
 	it("returns the list of grid squares that intersect a given ray, up to a distance that is a given multiple of the ray direction vector's length", () => {
