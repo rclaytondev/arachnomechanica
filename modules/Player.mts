@@ -181,7 +181,6 @@ class SmashAttackState {
 			);
 			const sign = (direction === "right" ? 1 : -1);
 			self.velocity = new Vector(sign * PlayerData.ROLL_SPEED, 0);
-			self.crouch();
 			self.state = new RollState();
 		}
 		else {
