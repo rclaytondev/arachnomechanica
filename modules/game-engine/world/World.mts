@@ -15,11 +15,11 @@ import { WorldScreen } from "../../user-interface/WorldScreen.mjs";
 import { Camera } from "./Camera.mjs";
 import { WorldGenerator } from "../../world-generator/WorldGenerator.mjs";
 import { Renderable, Renderer } from "./Renderer.mjs";
-import { Particles } from "../../game-utilities/Particles.mjs";
+import { Particles } from "../../entities/particles/Particles.mjs";
 import { Debug } from "../../game-utilities/Debug.mjs";
 import { SlopeTile } from "../../tiles/SlopeTile.mjs";
 import { StaticEntities } from "./StaticEntity.mjs";
-import { DeathParticle } from "../../game-utilities/DeathParticle.mjs";
+import { DeathParticle } from "../../entities/particles/DeathParticle.mjs";
 
 export type TileWithPosition = { position: Vector, tile: Tile };
 

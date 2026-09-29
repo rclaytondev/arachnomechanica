@@ -13,7 +13,7 @@ import { Entity } from "./game-engine/world/Entity.mjs";
 import { GeomUtils } from "./game-utilities/GeomUtils.mjs";
 import { GraphicsUtils } from "./game-utilities/GraphicsUtils.mjs";
 import { InputUtils } from "./game-utilities/InputUtils.mjs";
-import { Particle } from "./game-utilities/Particle.mjs";
+import { Particle } from "./entities/particles/Particle.mjs";
 import { Collideable } from "./game-engine/collisions/Collideable.mjs";
 import { CollisionEvent } from "./game-engine/collisions/CollisionEvent.mjs";
 import { RectangularCollideable } from "./game-engine/collisions/RectangularCollideable.mjs";

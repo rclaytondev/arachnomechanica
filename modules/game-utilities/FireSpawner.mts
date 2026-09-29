@@ -7,7 +7,7 @@ import { Platform } from "../tiles/Platform.mjs";
 import { Tile } from "../tiles/Tile.mjs";
 import { World } from "../game-engine/world/World.mjs";
 import { RandomUtils } from "./RandomUtils.mjs";
-import { Particle, ParticleSettings } from "./Particle.mjs";
+import { Particle, ParticleSettings } from "../entities/particles/Particle.mjs";
 import { Fireball } from "../entities/enemies/Fireball.mjs";
 import { FirespawnerData } from "../constants/GameData.mjs";
 

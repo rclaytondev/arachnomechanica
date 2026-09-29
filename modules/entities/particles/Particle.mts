@@ -1,9 +1,9 @@
-import { CanvasIO } from "../../utils-ts/modules/CanvasIO.mjs";
-import { Vector } from "../../utils-ts/modules/geometry/Vector.mjs";
-import { RenderingID } from "../constants/RenderingOrder.mjs";
-import { Renderable } from "../game-engine/world/Renderer.mjs";
-import { GraphicsUtils } from "./GraphicsUtils.mjs";
-import { RandomUtils } from "./RandomUtils.mjs";
+import { CanvasIO } from "../../../utils-ts/modules/CanvasIO.mjs";
+import { Vector } from "../../../utils-ts/modules/geometry/Vector.mjs";
+import { RenderingID } from "../../constants/RenderingOrder.mjs";
+import { Renderable } from "../../game-engine/world/Renderer.mjs";
+import { GraphicsUtils } from "../../game-utilities/GraphicsUtils.mjs";
+import { RandomUtils } from "../../game-utilities/RandomUtils.mjs";
 
 type Range = { min: number, max: number };
 export type ParticleSettings = {

@@ -21,7 +21,7 @@ import { LoadingManager } from "../../app-entry-points/LoadingManager.mjs";
 import { Renderable } from "../../game-engine/world/Renderer.mjs";
 import { Spawnable } from "../../level-generator/Spawnable.mjs";
 import { SlopeTile } from "../../tiles/SlopeTile.mjs";
-import { DeathParticle } from "../../game-utilities/DeathParticle.mjs";
+import { DeathParticle } from "../particles/DeathParticle.mjs";
 import { Enemy, EnemyUtils } from "./Enemy.mjs";
 
 type Joint = { position: Vector, direction: Direction };

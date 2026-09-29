@@ -8,7 +8,7 @@ import { GraphicsUtils } from "../../game-utilities/GraphicsUtils.mjs";
 import { RandomUtils } from "../../game-utilities/RandomUtils.mjs";
 import { World } from "../../game-engine/world/World.mjs";
 import { Diagonal } from "../../../utils-ts/modules/geometry/Direction.mjs";
-import { Particle } from "../../game-utilities/Particle.mjs";
+import { Particle } from "../particles/Particle.mjs";
 import { EmptyTile } from "../../tiles/EmptyTile.mjs";
 import { RectangularCollideable } from "../../game-engine/collisions/RectangularCollideable.mjs";
 import { Rectangle } from "../../../utils-ts/modules/geometry/Rectangle.mjs";

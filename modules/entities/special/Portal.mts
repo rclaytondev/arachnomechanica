@@ -4,7 +4,7 @@ import { Vector } from "../../../utils-ts/modules/geometry/Vector.mjs";
 import { PortalData, WorldData } from "../../constants/GameData.mjs";
 import { Entity } from "../../game-engine/world/Entity.mjs";
 import { RandomUtils } from "../../game-utilities/RandomUtils.mjs";
-import { Particle } from "../../game-utilities/Particle.mjs";
+import { Particle } from "../particles/Particle.mjs";
 import { Renderable } from "../../game-engine/world/Renderer.mjs";
 import { World } from "../../game-engine/world/World.mjs";
 import { SpawnPoint } from "./SpawnPoint.mjs";

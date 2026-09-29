@@ -1,5 +1,5 @@
 import { Vector } from "../../utils-ts/modules/geometry/Vector.mjs";
-import { ParticleSettings } from "../game-utilities/Particle.mjs";
+import { ParticleSettings } from "../entities/particles/Particle.mjs";
 import { Traversability } from "../level-generator/Room.mjs";
 import { GateState } from "../level-generator/GateState.mjs";
 import { FireSpawnerSettings } from "../game-utilities/FireSpawner.mjs";

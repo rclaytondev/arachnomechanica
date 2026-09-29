@@ -4,7 +4,7 @@ import { Vector } from "../../../utils-ts/modules/geometry/Vector.mjs";
 import { FireballData, SpiderData } from "../../constants/GameData.mjs";
 import { Explosion } from "../../game-utilities/Explosion.mjs";
 import { GraphicsUtils } from "../../game-utilities/GraphicsUtils.mjs";
-import { Particle } from "../../game-utilities/Particle.mjs";
+import { Particle } from "../particles/Particle.mjs";
 import { Collideable } from "../../game-engine/collisions/Collideable.mjs";
 import { RectangularCollideable } from "../../game-engine/collisions/RectangularCollideable.mjs";
 import { RandomUtils } from "../../game-utilities/RandomUtils.mjs";
