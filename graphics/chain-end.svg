@@ -1,0 +1,56 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!-- Created with Inkscape (http://www.inkscape.org/) -->
+
+<svg
+   width="35mm"
+   height="23mm"
+   viewBox="0 0 35 23"
+   version="1.1"
+   id="svg5"
+   inkscape:version="1.2.2 (732a01da63, 2022-12-09)"
+   sodipodi:docname="chain-end.svg"
+   inkscape:export-filename="chain-end.png"
+   inkscape:export-xdpi="34.132832"
+   inkscape:export-ydpi="34.132832"
+   xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
+   xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
+   xmlns="http://www.w3.org/2000/svg"
+   xmlns:svg="http://www.w3.org/2000/svg">
+  <sodipodi:namedview
+     id="namedview7"
+     pagecolor="#ffffff"
+     bordercolor="#000000"
+     borderopacity="0.25"
+     inkscape:showpageshadow="2"
+     inkscape:pageopacity="0.0"
+     inkscape:pagecheckerboard="0"
+     inkscape:deskcolor="#d1d1d1"
+     inkscape:document-units="mm"
+     showgrid="false"
+     inkscape:zoom="4.1020923"
+     inkscape:cx="47.536717"
+     inkscape:cy="74.961746"
+     inkscape:window-width="1920"
+     inkscape:window-height="1001"
+     inkscape:window-x="-9"
+     inkscape:window-y="-9"
+     inkscape:window-maximized="1"
+     inkscape:current-layer="layer1" />
+  <defs
+     id="defs2" />
+  <g
+     inkscape:label="Layer 1"
+     inkscape:groupmode="layer"
+     id="layer1">
+    <path
+       style="fill:#000000;fill-opacity:1;stroke-width:4.99999;stroke-linecap:round;paint-order:stroke fill markers"
+       d="M 0,0 17.5,23.000001 35.000001,0 H 0"
+       id="path283"
+       sodipodi:nodetypes="cccc" />
+    <path
+       style="fill:#1e82ff;fill-opacity:1;stroke-width:4.99999;stroke-linecap:round;paint-order:stroke fill markers"
+       d="M 9.6249999,4.6894684 17.5,15.039467 25.375001,4.6894684 H 9.6249999"
+       id="path283-5"
+       sodipodi:nodetypes="cccc" />
+  </g>
+</svg>

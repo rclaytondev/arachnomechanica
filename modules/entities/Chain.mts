@@ -7,6 +7,8 @@ import { EmptyTile } from "../tiles/EmptyTile.mjs";
 import { Renderable } from "../game-engine/world/Renderer.mjs";
 import { Tiles } from "../game-engine/world/Tiles.mjs";
 import { World } from "../game-engine/world/World.mjs";
+import { GraphicsUtils } from "../game-utilities/GraphicsUtils.mjs";
+import { BasicTile } from "../tiles/BasicTile.mjs";
 
 export class Chain extends Entity {
 	tilePosition: Vector;
@@ -22,6 +24,8 @@ export class Chain extends Entity {
 	render() {
 		return [
 			new Renderable(c => this.display(c), "background-entity"),
+			new Renderable(c => this.displayGlow(c), "glow"),
+			new Renderable(c => this.displayEnds(c), "tile-entity"),
 		];
 	}
 	display(canvasIO: CanvasIO) {
@@ -30,6 +34,41 @@ export class Chain extends Entity {
 		for(let i = 0; i < this.height * ChainData.NUM_SEGMENTS; i ++) {
 			const position = new Vector(center.x, tile.y + i * (WorldData.TILE_SIZE / ChainData.NUM_SEGMENTS));
 			Chain.displaySegment(position, canvasIO);
+		}
+	}
+	solidBelow() {
+		return this.world.tiles.get(this.tilePosition.add(0, this.height)) instanceof BasicTile;
+	}
+	displayEnds(canvasIO: CanvasIO) {
+		const top = this.tilePosition.add(1/2, 0).multiply(WorldData.TILE_SIZE);
+		canvasIO.ctx.save();
+		canvasIO.ctx.translate(top.x, top.y);
+		canvasIO.ctx.scale(1, -1);
+		canvasIO.ctx.drawImage(ChainData.END_IMAGE, -ChainData.END_WIDTH / 2, 0);
+		canvasIO.ctx.restore();
+
+
+		if(this.solidBelow()) {
+			const bottom = this.tilePosition.add(0, this.height).add(1/2, 0).multiply(WorldData.TILE_SIZE);
+			canvasIO.ctx.drawImage(ChainData.END_IMAGE, bottom.x - ChainData.END_WIDTH / 2, bottom.y);
+		}
+	}
+	displayGlow(canvasIO: CanvasIO) {
+		const position = this.tilePosition.add(1/2, 0).multiply(WorldData.TILE_SIZE);
+		GraphicsUtils.glowCircle(
+			position.x, position.y,
+			ChainData.END_GLOW_RADIUS, ChainData.END_GLOW_INTENSITY,
+			canvasIO, ChainData.END_GLOW_COLOR,
+		);
+
+
+		if(this.solidBelow()) {
+			const positionBelow = this.tilePosition.add(0, this.height).add(1/2, 0).multiply(WorldData.TILE_SIZE);
+			GraphicsUtils.glowCircle(
+				positionBelow.x, positionBelow.y,
+				ChainData.END_GLOW_RADIUS, ChainData.END_GLOW_INTENSITY,
+				canvasIO, ChainData.END_GLOW_COLOR,
+			);
 		}
 	}
 	static displaySegment(position: Vector, canvasIO: CanvasIO) {

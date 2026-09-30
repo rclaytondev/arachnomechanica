@@ -732,6 +732,14 @@ export class ChainData {
 	static THIN_SEGMENT_LENGTH = (WorldData.TILE_SIZE / ChainData.NUM_SEGMENTS) * 0.7;
 	static THICK_SEGMENT_LENGTH = (WorldData.TILE_SIZE / ChainData.NUM_SEGMENTS) - ChainData.THIN_SEGMENT_LENGTH;
 
+	static END_GLOW_RADIUS = 75;
+	static END_GLOW_INTENSITY = 0.6;
+	static END_GLOW_COLOR = new RGB(30, 130, 255);
+
+	static END_WIDTH = 35;
+	static END_HEIGHT = 23;
+	static END_IMAGE = GraphicsUtils.loadImage("graphics/chain-end.png", ChainData.END_WIDTH, ChainData.END_HEIGHT);
+
 
 	static CLIMB_SPEED = 7;
 	static CLIMB_WIDTH = 30;
