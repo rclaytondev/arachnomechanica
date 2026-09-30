@@ -40,7 +40,7 @@ export class Chain extends Entity {
 		return this.world.tiles.get(this.tilePosition.add(0, this.height)) instanceof BasicTile;
 	}
 	displayEnds(canvasIO: CanvasIO) {
-		const top = this.tilePosition.add(1/2, 0).multiply(WorldData.TILE_SIZE);
+		const top = this.tilePosition.add(1/2, 0).multiply(WorldData.TILE_SIZE).add(0, ChainData.END_OFFSET_Y);
 		canvasIO.ctx.save();
 		canvasIO.ctx.translate(top.x, top.y);
 		canvasIO.ctx.scale(1, -1);
@@ -49,12 +49,12 @@ export class Chain extends Entity {
 
 
 		if(this.solidBelow()) {
-			const bottom = this.tilePosition.add(0, this.height).add(1/2, 0).multiply(WorldData.TILE_SIZE);
+			const bottom = this.tilePosition.add(0, this.height).add(1/2, 0).multiply(WorldData.TILE_SIZE).add(0, -ChainData.END_OFFSET_Y);
 			canvasIO.ctx.drawImage(ChainData.END_IMAGE, bottom.x - ChainData.END_WIDTH / 2, bottom.y);
 		}
 	}
 	displayGlow(canvasIO: CanvasIO) {
-		const position = this.tilePosition.add(1/2, 0).multiply(WorldData.TILE_SIZE);
+		const position = this.tilePosition.add(1/2, 0).multiply(WorldData.TILE_SIZE).add(0, ChainData.END_OFFSET_Y);
 		GraphicsUtils.glowCircle(
 			position.x, position.y,
 			ChainData.END_GLOW_RADIUS, ChainData.END_GLOW_INTENSITY,
@@ -63,7 +63,7 @@ export class Chain extends Entity {
 
 
 		if(this.solidBelow()) {
-			const positionBelow = this.tilePosition.add(0, this.height).add(1/2, 0).multiply(WorldData.TILE_SIZE);
+			const positionBelow = this.tilePosition.add(0, this.height).add(1/2, 0).multiply(WorldData.TILE_SIZE).add(0, -ChainData.END_OFFSET_Y);
 			GraphicsUtils.glowCircle(
 				positionBelow.x, positionBelow.y,
 				ChainData.END_GLOW_RADIUS, ChainData.END_GLOW_INTENSITY,

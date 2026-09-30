@@ -738,6 +738,7 @@ export class ChainData {
 
 	static END_WIDTH = 35;
 	static END_HEIGHT = 23;
+	static END_OFFSET_Y = 10;
 	static END_IMAGE = GraphicsUtils.loadImage("graphics/chain-end.png", ChainData.END_WIDTH, ChainData.END_HEIGHT);
 
 
