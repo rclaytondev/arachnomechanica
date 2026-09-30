@@ -55,9 +55,8 @@ export class Chain extends Entity {
 	}
 	displayGlow(canvasIO: CanvasIO) {
 		const position = this.tilePosition.add(1/2, 0).multiply(WorldData.TILE_SIZE);
-		GraphicsUtils.glowLine(
-			position.x + ChainData.END_WIDTH / 2, position.y,
-			position.x - ChainData.END_WIDTH / 2, position.y,
+		GraphicsUtils.glowCircle(
+			position.x, position.y,
 			ChainData.END_GLOW_RADIUS, ChainData.END_GLOW_INTENSITY,
 			canvasIO, ChainData.END_GLOW_COLOR,
 		);
@@ -65,9 +64,8 @@ export class Chain extends Entity {
 
 		if(this.solidBelow()) {
 			const positionBelow = this.tilePosition.add(0, this.height).add(1/2, 0).multiply(WorldData.TILE_SIZE);
-			GraphicsUtils.glowLine(
-				positionBelow.x - ChainData.END_WIDTH / 2, positionBelow.y,
-				positionBelow.x + ChainData.END_WIDTH / 2, positionBelow.y,
+			GraphicsUtils.glowCircle(
+				positionBelow.x, positionBelow.y,
 				ChainData.END_GLOW_RADIUS, ChainData.END_GLOW_INTENSITY,
 				canvasIO, ChainData.END_GLOW_COLOR,
 			);
